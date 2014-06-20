@@ -1,0 +1,36 @@
+---
+title: "Different Types of Bootstraps"
+author: "Spenser Steele"
+date: "June 19, 2014"
+output: pdf_document
+---
+
+Below are three bootstraps discussed in the paper Resampling Multilevel Models by Rien van der Leeden et al..
+
+These are two equations used in the following outlines:
+
+(1) $\hat{\theta}_B = \hat{\theta} - \hat{Bias}_B = 2\hat{\theta} - \theta_{(.)}^*$
+(2) $\hat{se}_B = sqrt(\hat{Var}(\theta^*))$
+
+Parametric Bootstrap
+==============================
+1. Draw J vectors of level-2 residuals from a multivariate normal distribution with mean zero and covariance matrix $\hat{D}$.
+2. Draw J vectors $\epsilon_j^*$ of sizes $n_j$ containing level-1 residuals from a normal distribution with means zero and covariance matrices $\hat{\sigma}^2I_{n_j}$.
+3. Generate the bootstrap sample $y_j^*$ from $y_j^*=X_j \hat{\beta}+Z_j \delta_j^* + \epsilon_j^*$.
+4. Compute estimates for all parameters of the two-level model.
+5. Repeat steps 1-4 B times and compute bias-corrected estimates and bootstrap standard errors using formulas 1 and 2.
+
+Residual Bootstrap
+==============================
+1. Draw a sample $\delta_j^*$ of size J with replacement from the set of estimated level-2 residuals.
+2. Draw J samples $\epsilon_{ij}^*$ of size $n_j$ with replacement from the elements $\hat{\epsilon}_{ij}$.
+3. Generate the bootstrap samples $y_j^*$ from $y_j^*=X_j \hat{\beta}+Z_j \delta_j^* + \epsilon_j^*$.
+4. Compute estimates for all parameters of the two-level model.
+5. Repeat steps 1-4 B times and compute bias-corrected estimates and bootstrap standard errors using formulas 1 and 2.
+
+Cases Bootstrap
+==============================
+1. Draw a sample of size J with replacement from the level-2 units(unit numbers)
+2. For each k, draw a sample of entire cases, with replacement, from the original level-2 unit. This sample has the same size as the original unit from which the cases are drawn. Then, for each k, we have a set of data
+3. Compute estimates for all parameters of the two-level model
+4. Repeat steps 1-3 B times and compute bias-corrected estimates and bootstrap standard errors using formulas 1 and 2.
