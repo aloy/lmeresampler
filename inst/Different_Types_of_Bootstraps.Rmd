@@ -41,3 +41,11 @@ Cases Bootstrap
 2. For each k, draw a sample of entire cases, with replacement, from the original level-2 unit. This sample has the same size as the original unit from which the cases are drawn. Then, for each k, we have a set of data
 3. Compute estimates for all parameters of the two-level model
 4. Repeat steps 1-3 B times and compute bias-corrected estimates and bootstrap standard errors using formulas 1 and 2.
+
+Random Effect Block Bootstrap
+==============================
+1. Using the marginal residuals: $r_{ij}=y_{ij}-x_{ij}^T \hat{\beta},\quad j=1,\ldots, D$, calculate the level-2 average residuals for each of the D groups: $\bar{r}_h=\frac{1}{n_h}\sum_{j=1}^{n_h}r_{hj},\quad h=1,\ldots, D$, and the level-1 residuals within each group $h$ as $r_{hj}^{(1)}=r_{hj}-\bar{r}_h,j=1,\ldots,n_h$.
+2. Sample independently and with replacement from these two sets of residuals to define bootstrap errors for levels 1 and 2. In particular, level-2 boostrap errors are given by $r^{*(2)}=srswr(\bar{r}^{(2)}, D)$, while level-1 errors in cluster $i$ are given by $r^{*(1)}=srswr(r_{h(i)}^{(1)},n_i)$, where $h(i)=srswr(\{1,\ldots,D\},1)$.
+3. Simulate bootstrap sample data $(y_{ij}^*, x_{ij})$ using the model $y_{ij}^*=x_{ij}^T \hat{\beta}+r_i^{*(2)}+r_{ij}^{*(1)}$.
+4. Fit the two-level random effects model (1) to the bootstrap sample data generated in Step 3 to obtain bootstrap parameter estimates $\hat{\theta}^*=(\hat{\beta}^*, \hat{\sigma}_u^{2*}, \hat{\sigma}_e^{2*})$.
+5. Repeat steps 2-4 B times to obtain $B$ sets of bootstrap parameter estimates.
