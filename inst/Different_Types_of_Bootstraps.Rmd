@@ -7,10 +7,17 @@ output: pdf_document
 
 Below are three bootstraps discussed in the paper Resampling Multilevel Models by Rien van der Leeden et al..
 
+Overall model
+==============================
+$$y_i = X_i \beta + Z_i b + \epsilon_i$$
+$$\epsilon_i \sim(iid) N(0, \sigma_{\epsilon_i}^2)$$
+$$b_i \sim(iid) N(0, D)$$
+$$Cov(\epsilon_i, b)=0$$
+
 These are two equations used in the following outlines:
 
 (1) $\hat{\theta}_B = \hat{\theta} - \hat{Bias}_B = 2\hat{\theta} - \theta_{(.)}^*$
-(2) $\hat{se}_B = sqrt(\hat{Var}(\theta^*))$
+(2) $\hat{se}_B = \sqrt{\hat{Var}(\theta^*)}$
 
 Parametric Bootstrap
 ==============================
