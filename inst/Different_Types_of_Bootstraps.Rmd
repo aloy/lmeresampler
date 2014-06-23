@@ -50,7 +50,7 @@ Two-Level Semiparametric (CGR) Bootstrap
 4. Fit the two-level random effects model (1) to the bootstrap sample data generated in Step (3) to obtain bootstrap parameter estimates $\hat{\theta}^*=(\hat{\beta}^*, \hat{\sigma}_u^{2*}, \hat{\sigma}_e^{2*})$.
 5. Repeat Steps 2-4 $B$ times to obtain $B$ sets of bootstrap parameter estimates.
 
-Random Effect Block Bootstrap
+Random Effect Block(REB/0) Bootstrap
 ==============================
 1. Using the marginal residuals: $r_{ij}=y_{ij}-x_{ij}^T \hat{\beta},\quad j=1,\ldots, D$, calculate the level-2 average residuals for each of the D groups: $\bar{r}_h=\frac{1}{n_h}\sum_{j=1}^{n_h}r_{hj},\quad h=1,\ldots, D$, and the level-1 residuals within each group $h$ as $r_{hj}^{(1)}=r_{hj}-\bar{r}_h,j=1,\ldots,n_h$.
 2. Sample independently and with replacement from these two sets of residuals to define bootstrap errors for levels 1 and 2. In particular, level-2 boostrap errors are given by $r^{*(2)}=srswr(\bar{r}^{(2)}, D)$, while level-1 errors in cluster $i$ are given by $r^{*(1)}=srswr(r_{h(i)}^{(1)},n_i)$, where $h(i)=srswr(\{1,\ldots,D\},1)$.
