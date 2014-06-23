@@ -71,11 +71,13 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <div id="parametric-bootstrap" class="section level1">
 <h1>Parametric Bootstrap</h1>
 <ol style="list-style-type: decimal">
-<li>Generate independent level 2 errors for the <span class="math">\(D\)</span> groups as <span class="math">\(u_i^*\sim N(0,\hat{\sigma}_u^2)\)</span>, <span class="math">\(i=1,\ldots, D\)</span>.</li>
-<li>Generate independent level 1 errors for all <span class="math">\(n\)</span> samples units as <span class="math">\(e_{ij}^*\sim N(0,\hat{\sigma}_e^2)\)</span>, <span class="math">\(j=1,\ldots, n_i\)</span>.</li>
+<li><p>Generate independent level 2 errors for the <span class="math">\(D\)</span> groups as <span class="math">\(u_i^*\sim N(0,\hat{\sigma}_u^2)\)</span>, <span class="math">\(i=1,\ldots, D\)</span>.</p>
+<pre><code>u.star &lt;- rnorm(D, 0, sigma.u^2)</code></pre></li>
+<li><p>Generate independent level 1 errors for all <span class="math">\(n\)</span> samples units as <span class="math">\(e_{ij}^*\sim N(0,\hat{\sigma}_e^2)\)</span>, <span class="math">\(j=1,\ldots, n_i\)</span>.</p>
+<pre><code>e.star &lt;- rnorm(n_i, 0, sigma.e^2)</code></pre></li>
 <li>Simulate bootstrap sample data <span class="math">\((y_{ij}^*,\mathbf{x}_{ij})\)</span> using the model <span class="math">\(y_{ij}^*=\mathbf{x}_{ij}^T\boldsymbol{\hat{\beta}}+u_i^*+e_{ij}^*\)</span>.</li>
 <li>Fit the two-level random effects model (1) to the bootstrap sample data generated in Step (2) to obtain bootstrap parameter estimates <span class="math">\(\hat{\theta}^*=(\boldsymbol{\hat{\beta}}^*, \hat{\sigma}_u^{2*}, \hat{\sigma}_e^{2*})\)</span>.</li>
-<li>Repeat Steps 1-3 <span class="math">\(B\)</span> times to obtain <span class="math">\(B\)</span> sets of bootstrap parameter estimates.</li>
+<li><p>Repeat Steps 1-3 <span class="math">\(B\)</span> times to obtain <span class="math">\(B\)</span> sets of bootstrap parameter estimates.</p></li>
 </ol>
 </div>
 
