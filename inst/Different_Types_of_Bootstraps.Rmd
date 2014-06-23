@@ -42,6 +42,14 @@ Cases Bootstrap
 3. Compute estimates for all parameters of the two-level model
 4. Repeat steps 1-3 B times and compute bias-corrected estimates and bootstrap standard errors using formulas 1 and 2.
 
+Two-Level Semiparametric (CGR) Bootstrap
+==============================
+1. The $D$ EBLUPs $\hat{u}_i$ of the random effects $u_i$ and the corresponding $n$ level-1 residuals $\hat{e}_{ij} = y_{ij} - x_{ij}^T \hat{\beta} - \hat{u}_i$ are first scaled to ensure that they have empirical variances equal to $\hat{\sigma}_u^2$ and $\hat{\sigma}_e^2$, respectively. The scaled level-2 residuals are $\hat{u}_i^c=\hat{\sigma}_u \hat{u}_i\{D^{-1}\sum_{k=1}^{D} \hat{u}_k^2\}^{-1/2}$ and the scaled level-1 residuals are $\hat{e}_{ij}^c=\hat{\sigma}_e \hat{e}_{ij} \{n^{-1}\sum_{k=1}^D \sum_{l=1}^{n_k} \hat{e}_{kl}^2\}^{-1/2}$. Both sets of scaled residuals are then centered at zero.
+2. Sample independently with replacement from $\hat{u}^c$ and $\hat{e}^c$ to get bootstrap samples $u^*$ and $e^*$ of $D$ level-2 residuals and $n$ level-11 residuals, respectively. That is, $u^*=srswr\{\hat{u}^c, D\}$ and $e^*=srswr\{\hat{e}^c, n\}$.
+3. Simulate bootstrap sample data $(y_{ij}^*, x_{ij})$ using the model $y_{ij}^*=x_{ij}^T \hat{\beta} + u_i^* + e_{ij}^*$.
+4. Fit the two-level random effects model (1) to the bootstrap sample data generated in Step (3) to obtain bootstrap parameter estimates $\hat{\theta}^*=(\hat{\beta}^*, \hat{\sigma}_u^{2*}, \hat{\sigma}_e^{2*})$.
+5. Repeat Steps 2-4 $B$ times to obtain $B$ sets of bootstrap parameter estimates.
+
 Random Effect Block Bootstrap
 ==============================
 1. Using the marginal residuals: $r_{ij}=y_{ij}-x_{ij}^T \hat{\beta},\quad j=1,\ldots, D$, calculate the level-2 average residuals for each of the D groups: $\bar{r}_h=\frac{1}{n_h}\sum_{j=1}^{n_h}r_{hj},\quad h=1,\ldots, D$, and the level-1 residuals within each group $h$ as $r_{hj}^{(1)}=r_{hj}-\bar{r}_h,j=1,\ldots,n_h$.
