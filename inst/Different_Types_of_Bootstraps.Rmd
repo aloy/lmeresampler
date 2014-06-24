@@ -67,3 +67,11 @@ Variation 1 of the REB Bootstrap where we use centered and scaled residuals befo
 Random Effect Block(REB/2) Bootstrap
 ==============================
 Variation 2 of the REB Bootstrap where we apply scaling and bias adjustments after bootstrapping.
+
+1. We first modify the REB bootstrap distributions of the logarithms of the variance components estimates so that they are empirically uncorrelated. The steps in this process are as follows:
+  + Let ($\log \hat{\sigma}_u^{2*}$) and ($\log \hat{\sigma}_e^{2*}$) denote the vectors of $B$ bootstrap values $\hat{\sigma}_u^{2}$ and $\hat{\sigma}_e^2$, respectivley. Define the $B\times 2$ matrices
+  $$\mathbf{S}^*=[(\log \hat{\sigma}_u^{2*}), (\log \hat{\sigma}_e^{2*})]$$
+  $$\mathbf{M}^*=[av(\log \hat{\sigma}_u^{*2})\times 1_B, av(\log \hat{\sigma}_e^{*2})\times 1_B]$$
+  $$\mathbf{D}^*=[sd(\log \hat{\sigma}_u^{*2})\times 1_B, sd(\log \hat{\sigma}_e^{*2})\times 1_B]$$
+  Here, av$S$ and sd$S$ denote the average and the standard deviation of the values in the vector $S$, $1_B$ denotes a vector of ones of size $B$, and $\times$ denotes componentwise multiplication.
+  + Calculate the $2\times 2$ covariance matrix $\mathbf{C}^*=cov(\mathbf{S}^*)$

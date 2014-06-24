@@ -138,6 +138,13 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <div id="random-effect-blockreb2-bootstrap" class="section level1">
 <h1>Random Effect Block(REB/2) Bootstrap</h1>
 <p>Variation 2 of the REB Bootstrap where we apply scaling and bias adjustments after bootstrapping.</p>
+<ol style="list-style-type: decimal">
+<li>We first modify the REB bootstrap distributions of the logarithms of the variance components estimates so that they are empirically uncorrelated. The steps in this process are as follows:</li>
+</ol>
+<ul>
+<li>Let (<span class="math">\(\log \hat{\sigma}_u^{2*}\)</span>) and (<span class="math">\(\log \hat{\sigma}_e^{2*}\)</span>) denote the vectors of <span class="math">\(B\)</span> bootstrap values <span class="math">\(\hat{\sigma}_u^{2}\)</span> and <span class="math">\(\hat{\sigma}_e^2\)</span>, respectivley. Define the <span class="math">\(B\times 2\)</span> matrices <span class="math">\[\mathbf{S}^*=[(\log \hat{\sigma}_u^{2*}), (\log \hat{\sigma}_e^{2*})]\]</span> <span class="math">\[\mathbf{M}^*=[av(\log \hat{\sigma}_u^{*2})\times 1_B, av(\log \hat{\sigma}_e^{*2})\times 1_B]\]</span> <span class="math">\[\mathbf{D}^*=[sd(\log \hat{\sigma}_u^{*2})\times 1_B, sd(\log \hat{\sigma}_e^{*2})\times 1_B]\]</span> Here, av<span class="math">\(S\)</span> and sd<span class="math">\(S\)</span> denote the average and the standard deviation of the values in the vector <span class="math">\(S\)</span>, <span class="math">\(1_B\)</span> denotes a vector of ones of size <span class="math">\(B\)</span>, and <span class="math">\(\times\)</span> denotes componentwise multiplication.</li>
+<li>Calculate the <span class="math">\(2\times 2\)</span> covariance matrix <span class="math">\(\mathbf{C}^*=cov(\mathbf{S}^*)\)</span></li>
+</ul>
 </div>
 
 
