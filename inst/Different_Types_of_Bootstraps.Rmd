@@ -74,4 +74,5 @@ Variation 2 of the REB Bootstrap where we apply scaling and bias adjustments aft
   $$\mathbf{M}^*=[av(\log \hat{\sigma}_u^{*2})\times 1_B, av(\log \hat{\sigma}_e^{*2})\times 1_B]$$
   $$\mathbf{D}^*=[sd(\log \hat{\sigma}_u^{*2})\times 1_B, sd(\log \hat{\sigma}_e^{*2})\times 1_B]$$
   Here, av$S$ and sd$S$ denote the average and the standard deviation of the values in the vector $S$, $1_B$ denotes a vector of ones of size $B$, and $\times$ denotes componentwise multiplication.
-  + Calculate the $2\times 2$ covariance matrix $\mathbf{C}^*=cov(\mathbf{S}^*)$
+  + Calculate the $2\times 2$ covariance matrix $\mathbf{C}^*=cov(\mathbf{S}^*)$ and put $$\mathbf{L}^*=\mathbf{M}^*+\{(\mathbf{S}^*-\mathbf{M}^*)\mathbf{C}^{*-1/2}\}\times\mathbf{D}^*.$$
+  + The modified bootstrap values of $\hat{\sigma}_u^2$ and $\hat{\sigma}_e^2$ are then obtained by exponentiating the elements of $\mathbf{L}^*$.
