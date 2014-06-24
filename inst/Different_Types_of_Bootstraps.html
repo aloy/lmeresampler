@@ -143,7 +143,8 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 </ol>
 <ul>
 <li>Let (<span class="math">\(\log \hat{\sigma}_u^{2*}\)</span>) and (<span class="math">\(\log \hat{\sigma}_e^{2*}\)</span>) denote the vectors of <span class="math">\(B\)</span> bootstrap values <span class="math">\(\hat{\sigma}_u^{2}\)</span> and <span class="math">\(\hat{\sigma}_e^2\)</span>, respectivley. Define the <span class="math">\(B\times 2\)</span> matrices <span class="math">\[\mathbf{S}^*=[(\log \hat{\sigma}_u^{2*}), (\log \hat{\sigma}_e^{2*})]\]</span> <span class="math">\[\mathbf{M}^*=[av(\log \hat{\sigma}_u^{*2})\times 1_B, av(\log \hat{\sigma}_e^{*2})\times 1_B]\]</span> <span class="math">\[\mathbf{D}^*=[sd(\log \hat{\sigma}_u^{*2})\times 1_B, sd(\log \hat{\sigma}_e^{*2})\times 1_B]\]</span> Here, av<span class="math">\(S\)</span> and sd<span class="math">\(S\)</span> denote the average and the standard deviation of the values in the vector <span class="math">\(S\)</span>, <span class="math">\(1_B\)</span> denotes a vector of ones of size <span class="math">\(B\)</span>, and <span class="math">\(\times\)</span> denotes componentwise multiplication.</li>
-<li>Calculate the <span class="math">\(2\times 2\)</span> covariance matrix <span class="math">\(\mathbf{C}^*=cov(\mathbf{S}^*)\)</span></li>
+<li>Calculate the <span class="math">\(2\times 2\)</span> covariance matrix <span class="math">\(\mathbf{C}^*=cov(\mathbf{S}^*)\)</span> and put <span class="math">\[\mathbf{L}^*=\mathbf{M}^*+\{(\mathbf{S}^*-\mathbf{M}^*)\mathbf{C}^{*-1/2}\}\times\mathbf{D}^*.\]</span></li>
+<li>The modified bootstrap values of <span class="math">\(\hat{\sigma}_u^2\)</span> and <span class="math">\(\hat{\sigma}_e^2\)</span> are then obtained by exponentiating the elements of <span class="math">\(\mathbf{L}^*\)</span>.</li>
 </ul>
 </div>
 
