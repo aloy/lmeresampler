@@ -146,6 +146,9 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <li>Calculate the <span class="math">\(2\times 2\)</span> covariance matrix <span class="math">\(\mathbf{C}^*=cov(\mathbf{S}^*)\)</span> and put <span class="math">\[\mathbf{L}^*=\mathbf{M}^*+\{(\mathbf{S}^*-\mathbf{M}^*)\mathbf{C}^{*-1/2}\}\times\mathbf{D}^*.\]</span></li>
 <li>The modified bootstrap values of <span class="math">\(\hat{\sigma}_u^2\)</span> and <span class="math">\(\hat{\sigma}_e^2\)</span> are then obtained by exponentiating the elements of <span class="math">\(\mathbf{L}^*\)</span>.</li>
 </ul>
+<ol start="2" style="list-style-type: decimal">
+<li>All bootstrap distributions of model parameter estimates (including the modified bootstrap distributions of the estimated variance components) are then centered at the original estimate values, using a mean correction for regression coefficients, that is, <span class="math">\[(\hat{\beta}_k^{**})=[\hat{\beta}_k 1_B + (\hat{\beta}_k^*)-av(\hat{\beta}_k^*)],\]</span> and a ratio correction for variance components.</li>
+</ol>
 </div>
 
 
