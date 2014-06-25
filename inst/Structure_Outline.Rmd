@@ -18,6 +18,11 @@ This option will consist of its own function computing steps 1-2. Step 3 will be
 
 CASE
 ===
+As with before we follow the same breakdown:
+* Step 1 and 2 are in the main function
+* Call a universal function for Step 3
+* Call a universal function for Step 4
+* Call a universal function for Step 5
 
 CGR
 ===
