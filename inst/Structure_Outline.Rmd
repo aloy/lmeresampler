@@ -1,0 +1,32 @@
+---
+title: "Structure Outline"
+author: "Spenser Steele"
+date: "June 25, 2014"
+output: html_document
+---
+Overview
+========
+There will be a `boot` function which will take ADD PARAMETERS as parameters. For the `type` parameter there will be 7 options consisting of `PAR, RES, CASE, CGR, REB, REB1, REB2`.  Selecting one of these will use the specified bootstrap type otherwise the default will be `PAR`.
+
+PAR
+===
+This option will consist of its own function computing steps 1-2. Step 3 will be handled by a function that will generate bootstrap samples from our equation $y_j^*=X_j \hat{\beta}+Z_j \delta_j^* + \epsilon_j^*$. Step 4 should be handled by a separate function that will be called in the aformentioned function. This separate function will compute and return the estimates for all the parameters of the two-level model. We run this in a `for` loop $B$ times. Then we pass this off to a function that will compute bias-corrected estimates and bootstrap standard errors using formulas 1 and 2.
+
+RES
+===
+This option will consist of its own function computing steps 1-2. Step 3 will be handled by a separate function that is also used above. Step 4 should also be handled by a separate function that will be called in the aformentioned function. This separate function will compute and return the estimates for all the parameters of the two-level model. We run this in a `for` loop $B$ times. Then we pass this off to a function that will compute bias-corrected estimates and bootstrap standard errors using formulas 1 and 2.
+
+CASE
+===
+
+CGR
+===
+
+REB
+===
+
+REB1
+===
+
+REB2
+===
