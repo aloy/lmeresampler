@@ -6,12 +6,12 @@ output: html_document
 ---
 Below are the functions that need to be implemented:
 
-* `boot`
+* `boot(model, type)`
 * `boot.parametric(y,X,Z,beta)` is for the general parametric.
 * `boot.residual` is for the residual.
 * `boot.case` is for the cases.
 * `boot.cgr` is for the semiparametric.
-* `boot.reb(residuals, type=(0,1,2))` will be the generalized REB function where it is passed a vector of residuals and the type of Bootstrap we want. `type=0` is REB, `type=1` is REB/1, and `type=2` is REB/2.
+* `boot.reb(residuals, reb_type=(0,1,2))` will be the generalized REB function where it is passed a vector of residuals and the type of Bootstrap we want. `reb_type=0` is REB, `reb_type=1` is REB/1, and `reb_type=2` is REB/2.
 * `boot.reb1(residuals)` will take care of REB/1 before bootstrapping. It should be passed a vector of residuals.
 * `boot.reb2(bootstrap)` will take care of REB/2 after bootstrapping. It should be passed the results from `boot.reb`.
 * `simulate(model, parameters)` will take care of generating bootstrap samples from the model which is passed in and a vector of parameters.
