@@ -2,7 +2,7 @@
 title: "Parametric Bootstrap Pseudocode"
 author: "Spenser Steele"
 date: "June 23, 2014"
-output: html_document
+output: pdf_document
 ---
 
 Model (1)

@@ -2,7 +2,7 @@
 title: "Functions"
 author: "Spenser Steele"
 date: "June 26, 2014"
-output: html_document
+output: pdf_document
 ---
 Below are the functions that need to be implemented:
 
