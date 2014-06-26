@@ -13,6 +13,6 @@ Below are the functions that need to be implemented:
 * `boot.cgr`
 * `boot.reb(residuals, type=(0,1,2))` will be the generalized REB function where it is passed a vector of residuals and the type of Bootstrap we want. `type=0` is REB, `type=1` is REB/1, and `type=2` is REB/2.
 * `boot.reb1(residuals)` will take care of REB/1 before bootstrapping. It should be passed a vector of residuals.
-* `boot.reb2(bootstrap)` will take care of REB/2 after bootstrapping.
+* `boot.reb2(bootstrap)` will take care of REB/2 after bootstrapping. It should be passed the results from `boot.reb`.
 * `simulate(model, parameters)` will take care of generating bootstrap samples from the model which is passed in and a vector of parameters.
 * `estimate` will compute estimates for all parameters of two-level models
