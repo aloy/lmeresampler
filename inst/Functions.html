@@ -62,7 +62,7 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 
 <p>Below are the functions that need to be implemented:</p>
 <ul>
-<li><code>boot(model, type)</code></li>
+<li><code>boot(model, fn, type)</code></li>
 <li><code>boot.parametric(y,X,Z,beta)</code> is for the general parametric.</li>
 <li><code>boot.residual</code> is for the residual.</li>
 <li><code>boot.case</code> is for the cases.</li>
@@ -72,6 +72,7 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <li><code>boot.reb2(bootstrap)</code> will take care of REB/2 after bootstrapping. It should be passed the results from <code>boot.reb</code>.</li>
 <li><code>simulate(model, parameters)</code> will take care of generating bootstrap samples from the model which is passed in and a vector of parameters.</li>
 <li><code>estimate</code> will compute estimates for all parameters of two-level models</li>
+<li><code>print</code></li>
 </ul>
 
 

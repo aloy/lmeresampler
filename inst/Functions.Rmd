@@ -6,7 +6,7 @@ output: html_document
 ---
 Below are the functions that need to be implemented:
 
-* `boot(model, type)`
+* `boot(model, fn, type)`
 * `boot.parametric(y,X,Z,beta)` is for the general parametric.
 * `boot.residual` is for the residual.
 * `boot.case` is for the cases.
@@ -16,3 +16,4 @@ Below are the functions that need to be implemented:
 * `boot.reb2(bootstrap)` will take care of REB/2 after bootstrapping. It should be passed the results from `boot.reb`.
 * `simulate(model, parameters)` will take care of generating bootstrap samples from the model which is passed in and a vector of parameters.
 * `estimate` will compute estimates for all parameters of two-level models
+* `print`
