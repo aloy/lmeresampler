@@ -7,7 +7,7 @@ output: html_document
 Below are the functions that need to be implemented:
 
 * `boot`
-* `boot.parametric` is for the general parametric.
+* `boot.parametric(y,X,Z,beta)` is for the general parametric.
 * `boot.residual` is for the residual.
 * `boot.case` is for the cases.
 * `boot.cgr` is for the semiparametric.
