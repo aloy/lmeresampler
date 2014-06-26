@@ -14,5 +14,5 @@ Below are the functions that need to be implemented:
 * `boot.reb` will be the generalized REB function.
 * `boot.reb1` will take care of REB/1 before bootstrapping.
 * `boot.reb2` will take care of REB/2 after bootstrapping.
-* `simulate` will take care of generating bootstrap samples from the model.
+* `simulate(model, parameters)` will take care of generating bootstrap samples from the model which is passed in and a vector of parameters.
 * `estimate` will compute estimates for all parameters of two-level models
