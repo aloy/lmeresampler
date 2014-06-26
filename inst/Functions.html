@@ -63,10 +63,10 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <p>Below are the functions that need to be implemented:</p>
 <ul>
 <li><code>boot</code></li>
-<li><code>boot.parametric</code></li>
-<li><code>boot.residual</code></li>
-<li><code>boot.case</code></li>
-<li><code>boot.cgr</code></li>
+<li><code>boot.parametric</code> is for the general parametric.</li>
+<li><code>boot.residual</code> is for the residual.</li>
+<li><code>boot.case</code> is for the cases.</li>
+<li><code>boot.cgr</code> is for the semiparametric.</li>
 <li><code>boot.reb(residuals, type=(0,1,2))</code> will be the generalized REB function where it is passed a vector of residuals and the type of Bootstrap we want. <code>type=0</code> is REB, <code>type=1</code> is REB/1, and <code>type=2</code> is REB/2.</li>
 <li><code>boot.reb1(residuals)</code> will take care of REB/1 before bootstrapping. It should be passed a vector of residuals.</li>
 <li><code>boot.reb2(bootstrap)</code> will take care of REB/2 after bootstrapping. It should be passed the results from <code>boot.reb</code>.</li>
