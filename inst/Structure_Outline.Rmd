@@ -2,7 +2,7 @@
 title: "Structure Outline"
 author: "Spenser Steele"
 date: "June 25, 2014"
-output: html_document
+output: pdf_document
 ---
 Overview
 ========
