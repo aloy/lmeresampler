@@ -35,7 +35,12 @@ boot <- function (model, fn, type){
 #' @inheritParams model
 #' @inheritParams fn
 parametric <- function (model, fn){
-  
+  fixef(model) # Extracts fixed effects
+  simulations <- simulate(model, nsim = 1000) # Replicates the models
+  # Apply function to each list element and save as a list
+  for(i in 1:1000){
+    temp_refit <- refit(model, fn)
+  }
 }
 
 residual <- function (model, fn){
