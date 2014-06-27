@@ -1,6 +1,26 @@
+#' Helps with linear mixed effects resampling.
+#' 
+#' \tabular{ll}{
+#' Package: \tab lmeresampler\cr
+#' Type: \tab Package\cr
+#' Version: \tab 0.0.0\cr
+#' Date: \tab 6/27/2014\cr
+#' License: \tab GPLv3\cr
+#' }
+#' 
+#' Description here.
+#' 
+#' @name lmeresampler
+#' @docType package
+#' @author Adam Loy and Spenser Steele \email{steeles@lawrence.edu}
+
 library(lme4)
 library(nlme)
+library(roxygen)
 
+#' @param model The model to use
+#' @param fn The function
+#' @param type The type of bootstrap requested
 boot <- function (model, fn, type){
   switch(type,
          par = parametric(model, fn),
@@ -12,6 +32,8 @@ boot <- function (model, fn, type){
          reb2 = reb(model, fn, reb_type = 2))
 }
 
+#' @inheritParams model
+#' @inheritParams fn
 parametric <- function (model, fn){
   
 }
