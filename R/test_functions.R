@@ -35,11 +35,22 @@ boot <- function (model, fn, type){
 #' @inheritParams model
 #' @inheritParams fn
 parametric <- function (model, fn){
-  fixef(model) # Extracts fixed effects
-  simulations <- simulate(model, nsim = 1000) # Replicates the models
-  # Apply function to each list element and save as a list
-  for(i in 1:1000){
-    temp_refit <- refit(model, fn)
+  B <- 100 # Should be large
+  D <- # Number of groups at level-2
+  N <- # Number of samples in D groups
+  for(b in 1:B){
+    # Generate indpt. level-2 errors for D groups from a normal
+    sigma.u <- # Find the estimated sigma_u^2
+    u.star <- rnorm(D,0,sigma.u)
+    
+    # Generate indpt. level-1 errors for n samples from D groups
+    sigma.e <- # Find the estimated sigma_e^2
+    e.star <- rnorm(N,0,sigma.e)
+    
+    # Iterate through the entire list and simulate y.b using the model
+    y.b <- rep(0,N)
+    
+    # Fit the model
   }
 }
 
