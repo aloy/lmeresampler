@@ -66,7 +66,7 @@ residual <- function (model, fn){
     
     # Generate bootstrap samples
     
-    #Compute estimates for all parameters of the two-level model
+    # Compute estimates for all parameters of the two-level model
   }
 }
 
