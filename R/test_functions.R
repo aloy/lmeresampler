@@ -54,6 +54,17 @@ parametric <- function (model, fn){
   }
 }
 
+parametric2 <- function(model, fn, B){
+  model.fixef <- fixef(model) # Extract fixed effects
+  # model.fixef.sim <- simulate(model)
+  fn.star <- rep(0, B)
+  model.star <- c(1:B)
+  for(b in 1:B){
+    y.star <- simulate(model)
+    model.star[b] <- refit(model, y.star)
+  }
+}
+
 residual <- function (model, fn){
   B <- 100 # Should be large
   J <- # Number of groups at level-2
@@ -71,7 +82,12 @@ residual <- function (model, fn){
 }
 
 case <- function (model, fn){
-  
+  B <- 100 # Should be large
+  J <- # Number of groups at level-2
+  N <- # Number of samples in J groups
+  for(b in 1:B){
+    # Draw sample of size J from level-2 units
+  }
 }
 
 cgr <- function (model, fn){
