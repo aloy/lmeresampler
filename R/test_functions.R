@@ -36,14 +36,14 @@ boot <- function (model, fn, type){
 #' @inheritParams fn
 parametric <- function (model, fn){
   B <- 100 # Should be large
-  D <- # Number of groups at level-2
-  N <- # Number of samples in D groups
+  J <- # Number of groups at level-2
+  N <- # Number of samples in J groups
   for(b in 1:B){
-    # Generate indpt. level-2 errors for D groups from a normal
+    # Generate indpt. level-2 errors for J groups from a normal
     sigma.u <- # Find the estimated sigma_u^2
-    u.star <- rnorm(D,0,sigma.u)
+    u.star <- rnorm(J,0,sigma.u)
     
-    # Generate indpt. level-1 errors for n samples from D groups
+    # Generate indpt. level-1 errors for n samples from J groups
     sigma.e <- # Find the estimated sigma_e^2
     e.star <- rnorm(N,0,sigma.e)
     
@@ -55,7 +55,19 @@ parametric <- function (model, fn){
 }
 
 residual <- function (model, fn){
-  
+  B <- 100 # Should be large
+  J <- # Number of groups at level-2
+  N <- # Number of samples in J groups
+  for(b in 1:B){
+    # Draw sample from random effects of size J from estimated random effects
+    # of level-2 residuals
+    
+    # Draw J sample residuals of size N with replacement from the level-1 residuals
+    
+    # Generate bootstrap samples
+    
+    #Compute estimates for all parameters of the two-level model
+  }
 }
 
 case <- function (model, fn){
