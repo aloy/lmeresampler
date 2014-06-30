@@ -63,6 +63,7 @@ parametric2 <- function(model, fn, B){
     y.star <- simulate(model)
     model.star[b] <- refit(model, y.star)
   }
+  # TODO: How to piece everything back together and what to return?
 }
 
 residual <- function (model, fn){
