@@ -58,7 +58,6 @@ parametric <- function (model, fn){
 #' @inheritParams fn
 parametric2 <- function(model, fn, B){
   model.fixef <- fixef(model) # Extract fixed effects
-  # model.fixef.sim <- simulate(model)
   fn.star <- rep(0, B)
   model.star <- c(1:B)
   for(b in 1:B){
