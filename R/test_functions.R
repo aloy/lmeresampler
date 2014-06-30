@@ -60,6 +60,8 @@ parametric2 <- function(model, fn, B){
   model.fixef <- fixef(model) # Extract fixed effects
   fn.star <- rep(0, B)
   model.star <- c(1:B)
+  # Can I just simulate multiple times and run refit once on the entire array
+  # to just get a returned array
   for(b in 1:B){
     y.star <- simulate(model)
     model.star[b] <- refit(model, y.star)
