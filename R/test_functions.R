@@ -22,7 +22,7 @@ library(roxygen)
 #' @param fn The function
 #' @param type The type of bootstrap requested
 #' @param FUN what function is the user interested in
-boot <- function (model, fn, FUN, type){
+bootstrap <- function (model, fn, FUN, type){
   # TODO: add B to parameters
   # TODO: use fn, not FUN (I think I didn't see that at first)
   switch(type,
@@ -34,6 +34,7 @@ boot <- function (model, fn, FUN, type){
          reb1 = reb(model, fn, FUN, reb_type = 1),
          reb2 = reb(model, fn, FUN, reb_type = 2))
   # TODO: determine which is better a switch, or type <- match.arg(type)
+  # TODO: need to be able to save results
 }
 
 #' @inheritParams model
@@ -78,8 +79,10 @@ parametric2 <- function(model, fn, FUN, B){
   # Below is one idea that will be compatible with the boot package (for CIs)
   t0 <- FUN(model)
   
+  # Consider: lapply(___, FUN = function(x){fn(refit( ))})
+  # llapply may be faster than lapply for nonparallelized code
   t.star <- lapply(model.star, FUN)
-  t.star <- do.call("cbind", t.star)
+  t.star <- do.call("cbind", t.star) # Can these be nested?
   rownames(t.star) <- names(t0)
   
   # QUESTION: Is it faster to use only one lapply statement? It should be... try it.
