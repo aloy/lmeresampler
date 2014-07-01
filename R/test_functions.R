@@ -82,6 +82,8 @@ parametric2 <- function(model, fn, FUN, B){
   t.star <- do.call("cbind", t.star)
   rownames(t.star) <- names(t0)
   
+  # QUESTION: Is it faster to use only one lapply statement? It should be... try it.
+  
   RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, 
                         seed = .Random.seed, statistic = FUN, 
                         sim = "parametric", call = match.call()), 
