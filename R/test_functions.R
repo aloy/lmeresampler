@@ -22,7 +22,7 @@ library(roxygen)
 #' @param fn The function
 #' @param type The type of bootstrap requested
 #' @param FUN what function is the user interested in
-boot <- function (model, fn, type){
+boot <- function (model, fn, FUN, type){
   switch(type,
          par = parametric(model, fn, FUN),
          res = residual(model, fn, FUN),
@@ -57,7 +57,7 @@ parametric <- function (model, fn){
 
 #' @inheritParams model
 #' @inheritParams fn
-parametric2 <- function(model, fn, B){
+parametric2 <- function(model, fn, FUN, B){
   model.fixef <- fixef(model) # Extract fixed effects
   fn.star <- rep(0, B)
   model.star <- c(1:B)
