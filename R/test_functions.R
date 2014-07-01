@@ -21,15 +21,16 @@ library(roxygen)
 #' @param model The model to use
 #' @param fn The function
 #' @param type The type of bootstrap requested
+#' @param FUN what function is the user interested in
 boot <- function (model, fn, type){
   switch(type,
-         par = parametric(model, fn),
-         res = residual(model, fn),
-         case = case(model, fn),
-         cgr = cgr(model, fn),
-         reb = reb(model, fn, reb_type = 0),
-         reb1 = reb(model, fn, reb_type = 1),
-         reb2 = reb(model, fn, reb_type = 2))
+         par = parametric(model, fn, FUN),
+         res = residual(model, fn, FUN),
+         case = case(model, fn, FUN),
+         cgr = cgr(model, fn, FUN),
+         reb = reb(model, fn, FUN, reb_type = 0),
+         reb1 = reb(model, fn, FUN, reb_type = 1),
+         reb2 = reb(model, fn, FUN, reb_type = 2))
 }
 
 #' @inheritParams model
