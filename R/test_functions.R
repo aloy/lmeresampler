@@ -96,7 +96,7 @@ parametric <- function(model, fn, B){
   t.star <- lapply(lapply(y.star, refit, object = model), fn)
   # Or this
   t.star <- lapply(y.star, function(x) {
-    fn(lapply(y.star, refit, object = model))
+    fn(lapply(x, refit, object = model))
   })
   
   t.star <- do.call("cbind", t.star) # Can these be nested?
