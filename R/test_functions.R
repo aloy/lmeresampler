@@ -60,11 +60,12 @@ parametric <- function (model, fn){
 #' @inheritParams fn
 #' @inheritParams FUN
 parametric2 <- function(model, fn, FUN, B){
+  # QUESTION: are fn and FUN both for functions? If so, let's pick one.
   FUN <- match.fun(FUN)
 	
   model.fixef <- fixef(model) # Extract fixed effects
   fn.star <- rep(0, B)
-  model.star <- c(1:B)
+  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements
   # Can I just simulate multiple times and run refit once on the entire array
   # to just get a returned array
   y.star <- simulate(model, nsim = B)
@@ -72,8 +73,21 @@ parametric2 <- function(model, fn, FUN, B){
   # TODO: How to piece everything back together and what to return?
   # TODO: evaluate FUN for each refitted model to extract desired component.
   
-  return(model.star) # maybe a good thing to return?
+  # Below is one idea that will be compatible with the boot package (for CIs)
+  t0 <- FUN(model)
+  
+  t.star <- lapply(model.star, FUN)
+  t.star <- do.call("cbind", t.star)
+  rownames(t.star) <- names(t0)
+  
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, 
+                        seed = .Random.seed, statistic = FUN, 
+                        sim = "parametric", call = match.call()), 
+                        class = "boot")
+  
+  return(RES) # maybe a good thing to return?
 }
+
 
 residual <- function (model, fn){
   B <- 100 # Should be large
