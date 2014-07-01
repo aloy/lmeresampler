@@ -31,6 +31,7 @@ boot <- function (model, fn, FUN, type){
          reb = reb(model, fn, FUN, reb_type = 0),
          reb1 = reb(model, fn, FUN, reb_type = 1),
          reb2 = reb(model, fn, FUN, reb_type = 2))
+  # TODO: determine which is better a switch, or type <- match.arg(type)
 }
 
 #' @inheritParams model
@@ -59,6 +60,8 @@ parametric <- function (model, fn){
 #' @inheritParams fn
 #' @inheritParams FUN
 parametric2 <- function(model, fn, FUN, B){
+  FUN <- match.fun(FUN)
+	
   model.fixef <- fixef(model) # Extract fixed effects
   fn.star <- rep(0, B)
   model.star <- c(1:B)
