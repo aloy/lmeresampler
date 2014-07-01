@@ -65,10 +65,9 @@ parametric2 <- function(model, fn, FUN, B){
   # Can I just simulate multiple times and run refit once on the entire array
   # to just get a returned array
   y.star <- simulate(model, nsim = B)
-  # TODO: change refit according to notes in email
-  # model.star[b] <- refit(model, y.star)
   model.star <- lapply(y.star, refit, object = model)
   # TODO: How to piece everything back together and what to return?
+  # TODO: evaluate FUN for each refitted model to extract desired component.
   
   return(model.star) # maybe a good thing to return?
 }
