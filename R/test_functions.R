@@ -91,7 +91,8 @@ parametric2 <- function(model, fn, FUN, B){
   
   # TODO: once we have things working, think about parallelization.
   #       using an llply statement would make this easy with the .parallel 
-  #       parameter. llply also can create a progress bar
+  #       parameter, but it might be slower than using mclapply, which is 
+  #       found in the parallel package.
 }
 
 
