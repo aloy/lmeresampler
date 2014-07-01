@@ -44,25 +44,29 @@ bootstrap <- function (model, fn, FUN, type){
 
 #' @inheritParams model
 #' @inheritParams fn
-parametric <- function (model, fn){
-  B <- 100 # Should be large
-  J <- # Number of groups at level-2
-  N <- # Number of samples in J groups
-  for(b in 1:B){
-    # Generate indpt. level-2 errors for J groups from a normal
-    sigma.u <- # Find the estimated sigma_u^2
-    u.star <- rnorm(J,0,sigma.u)
-    
-    # Generate indpt. level-1 errors for n samples from J groups
-    sigma.e <- # Find the estimated sigma_e^2
-    e.star <- rnorm(N,0,sigma.e)
-    
-    # Iterate through the entire list and simulate y.b using the model
-    y.b <- rep(0,N)
-    
-    # Fit the model
-  }
-}
+
+##############
+# DEPRECATED #
+##############
+# parametric <- function (model, fn){
+#   B <- 100 # Should be large
+#   J <- # Number of groups at level-2
+#   N <- # Number of samples in J groups
+#   for(b in 1:B){
+#     # Generate indpt. level-2 errors for J groups from a normal
+#     sigma.u <- # Find the estimated sigma_u^2
+#     u.star <- rnorm(J,0,sigma.u)
+#     
+#     # Generate indpt. level-1 errors for n samples from J groups
+#     sigma.e <- # Find the estimated sigma_e^2
+#     e.star <- rnorm(N,0,sigma.e)
+#     
+#     # Iterate through the entire list and simulate y.b using the model
+#     y.b <- rep(0,N)
+#     
+#     # Fit the model
+#   }
+# }
 
 #' @inheritParams model
 #' @inheritParams fn
