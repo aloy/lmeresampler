@@ -71,9 +71,9 @@ bootstrap <- function (model, fn, FUN, type){
 #' @inheritParams model
 #' @inheritParams fn
 #' @inheritParams FUN
-parametric2 <- function(model, fn, FUN, B){
+parametric2 <- function(model, fn, B){
   # QUESTION: are fn and FUN both for functions? If so, let's pick one.
-  FUN <- match.fun(FUN)
+  fn <- match.fun(fn)
 	
   model.fixef <- fixef(model) # Extract fixed effects
   fn.star <- rep(0, B)
@@ -86,18 +86,18 @@ parametric2 <- function(model, fn, FUN, B){
   # TODO: evaluate FUN for each refitted model to extract desired component.
   
   # Below is one idea that will be compatible with the boot package (for CIs)
-  t0 <- FUN(model)
+  t0 <- fn(model)
   
   # Consider: lapply(___, FUN = function(x){fn(refit( ))})
   # llapply may be faster than lapply for nonparallelized code
-  t.star <- lapply(model.star, FUN)
+  t.star <- lapply(model.star, fn)
   t.star <- do.call("cbind", t.star) # Can these be nested?
   rownames(t.star) <- names(t0)
   
   # QUESTION: Is it faster to use only one lapply statement? It should be... try it.
   
   RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, 
-                        seed = .Random.seed, statistic = FUN, 
+                        seed = .Random.seed, statistic = fn, 
                         sim = "parametric", call = match.call()), 
                         class = "boot")
   
