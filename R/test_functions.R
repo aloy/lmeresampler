@@ -64,10 +64,8 @@ parametric2 <- function(model, fn, FUN, B){
   model.star <- c(1:B)
   # Can I just simulate multiple times and run refit once on the entire array
   # to just get a returned array
-  for(b in 1:B){
-    y.star <- simulate(model)
-    model.star[b] <- refit(model, y.star)
-  }
+  y.star <- simulate(model, nsim = B)
+  model.star[b] <- refit(model, y.star)
   # TODO: How to piece everything back together and what to return?
   
   return(model.star) # maybe a good thing to return?
