@@ -71,7 +71,7 @@ bootstrap <- function (model, fn, FUN, type){
 #' @inheritParams model
 #' @inheritParams fn
 #' @inheritParams FUN
-parametric2 <- function(model, fn, B){
+parametric <- function(model, fn, B){
   # QUESTION: are fn and FUN both for functions? If so, let's pick one.
   fn <- match.fun(fn)
 	
