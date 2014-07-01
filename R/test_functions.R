@@ -23,6 +23,8 @@ library(roxygen)
 #' @param type The type of bootstrap requested
 #' @param FUN what function is the user interested in
 boot <- function (model, fn, FUN, type){
+  # TODO: add B to parameters
+  # TODO: use fn, not FUN (I think I didn't see that at first)
   switch(type,
          par = parametric(model, fn, FUN),
          res = residual(model, fn, FUN),
