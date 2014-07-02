@@ -82,7 +82,6 @@ parametric <- function(model, fn, B){
   # to just get a returned array
   y.star <- simulate(model, nsim = B)
   model.star <- lapply(y.star, refit, object = model)
-  # TODO: How to piece everything back together and what to return?
   # TODO: evaluate FUN for each refitted model to extract desired component.
   
   # Below is one idea that will be compatible with the boot package (for CIs)
