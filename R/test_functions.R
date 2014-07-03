@@ -36,7 +36,6 @@ bootstrap <- function (model, fn, type, B){
          reb = reb(model, fn, B, reb_type = 0),
          reb1 = reb(model, fn, B, reb_type = 1),
          reb2 = reb(model, fn, B, reb_type = 2))
-  # TODO: determine which is better a switch, or type <- match.arg(type)
   # TODO: need to be able to save results
 }
 
