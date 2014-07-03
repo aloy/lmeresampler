@@ -29,7 +29,7 @@ library(roxygen)
 #' @param FUN what function is the user interested in
 bootstrap <- function (model, fn, type, B){
   switch(type,
-         par = parametric(model, fn, B),
+         par = parametric.lmerMod(model, fn, B),
          res = residual(model, fn, B),
          case = case(model, fn, B),
          cgr = cgr(model, fn, B),
