@@ -71,19 +71,7 @@ parametric.lmerMod <- function(model, fn, B){
 
 
 residual <- function (model, fn){
-  B <- 100 # Should be large
-  J <- # Number of groups at level-2
-  N <- # Number of samples in J groups
-  for(b in 1:B){
-    # Draw sample from random effects of size J from estimated random effects
-    # of level-2 residuals
-    
-    # Draw J sample residuals of size N with replacement from the level-1 residuals
-    
-    # Generate bootstrap samples
-    
-    # Compute estimates for all parameters of the two-level model
-  }
+
 }
 
 case <- function (model, fn){
