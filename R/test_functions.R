@@ -75,12 +75,7 @@ residual <- function (model, fn){
 }
 
 case <- function (model, fn){
-  B <- 100 # Should be large
-  J <- # Number of groups at level-2
-  N <- # Number of samples in J groups
-  for(b in 1:B){
-    # Draw sample of size J from level-2 units
-  }
+
 }
 
 cgr <- function (model, fn){
