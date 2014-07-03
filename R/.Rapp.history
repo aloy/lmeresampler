@@ -1,0 +1,797 @@
+residual
+parametric
+library(lme4)
+?bootMer
+fm01ML <- lmer(Yield ~ 1|Batch, Dyestuff, REML = FALSE)
+?bootMer
+?match.fun
+bootMer <- function(x, FUN, nsim = 1, seed = NULL, use.u = FALSE,#
+                    type=c("parametric","semiparametric"),#
+		    verbose = FALSE,#
+                    .progress="none", PBargs=list(),#
+                    parallel = c("no", "multicore", "snow"),#
+                    ncpus = getOption("boot.ncpus", 1L), cl = NULL)#
+{#
+    stopifnot((nsim <- as.integer(nsim[1])) > 0)#
+    if (.progress!="none") { ## progress bar#
+        pbfun <- get(paste0(.progress,"ProgressBar"))#
+        setpbfun <- get(paste0("set",.simpleCap(.progress),"ProgressBar"))#
+        pb <- do.call(pbfun,PBargs)#
+    }#
+    if (missing(parallel)) parallel <- getOption("boot.parallel", "no")#
+    parallel <- match.arg(parallel)#
+    have_mc <- have_snow <- FALSE#
+    if (parallel != "no" && ncpus > 1L) {#
+        if (parallel == "multicore") have_mc <- .Platform$OS.type != "windows"#
+        else if (parallel == "snow") have_snow <- TRUE#
+        if (!have_mc && !have_snow) ncpus <- 1L#
+    }#
+    do_parallel <- (ncpus > 1L && (have_mc || have_snow))#
+    if (do_parallel & .progress!="none")#
+        message("progress bar disabled for parallel operations")#
+#
+    FUN <- match.fun(FUN)#
+    type <- match.arg(type)#
+    if(!is.null(seed)) set.seed(seed)#
+    else if(!exists(".Random.seed", envir = .GlobalEnv))#
+	runif(1) # initialize the RNG if necessary#
+#
+    mc <- match.call()#
+    t0 <- FUN(x)#
+    if (!is.numeric(t0))#
+	stop("bootMer currently only handles functions that return numeric vectors")#
+#
+    mle <- list(beta = getME(x,"beta"), theta = getME(x,"theta"))#
+    if (isLMM(x)) mle <- c(mle,list(sigma = sigma(x)))#
+    ## FIXME: what about GLMMs with scale parameters??#
+    ## FIXME: remove prefix when incorporated in package#
+#
+    if (type=="parametric") {#
+        ss <- simulate(x, nsim=nsim, use.u=use.u, na.action=na.exclude)#
+    } else {#
+        if (use.u) {#
+            if (isGLMM(x)) warning("semiparametric bootstrapping is questionable for GLMMs")#
+            ss <- replicate(nsim,fitted(x)+sample(residuals(x,"response")),#
+                            simplify=FALSE)#
+        } else {#
+            stop("semiparametric bootstrapping with use.u=FALSE not yet implemented")#
+        }#
+    }#
+    # define ffun as a closure containing the referenced variables #
+    # in its scope to avoid explicit clusterExport statement#
+    # in the PSOCKcluster case #
+    ffun <- local({#
+      FUN #
+      refit #
+      x #
+      ss #
+      verbose #
+      do_parallel#
+      length.t0 <- length(t0)#
+      function(i) {#
+        foo <- try(FUN(refit(x,ss[[i]])),silent=TRUE)#
+        if(verbose) { cat(sprintf("%5d :",i)); str(foo) }#
+        if (!do_parallel && .progress!="none") { setpbfun(pb,i/nsim) }#
+        if (inherits(foo, "try-error")) rep(NA, length.t0) else foo#
+    }})#
+#
+    simvec <- seq_len(nsim)#
+     res <- if (do_parallel) {#
+        if (have_mc) {#
+            parallel::mclapply(simvec, ffun, mc.cores = ncpus)#
+        } else if (have_snow) {#
+            if (is.null(cl)) {#
+                cl <- parallel::makePSOCKcluster(rep("localhost", ncpus))#
+                ## explicit export of the lme4 namespace since most FUNs will probably#
+                ## use some of them#
+                parallel::clusterExport(cl, varlist=getNamespaceExports("lme4"))#
+                if(RNGkind()[1L] == "L'Ecuyer-CMRG")#
+                    parallel::clusterSetRNGStream(cl)#
+                res <- parallel::parLapply(cl, simvec, ffun)#
+                parallel::stopCluster(cl)#
+                res#
+            } else parallel::parLapply(cl, simvec, ffun)#
+        }#
+    } else lapply(simvec, ffun)#
+#
+    t.star <- do.call(cbind,res)#
+    rownames(t.star) <- names(t0)#
+    if ((numFail <- sum(apply(is.na(t.star),2,all)))>0) {#
+        warning("some bootstrap runs failed (",numFail,"/",nsim,")")#
+    }#
+    ## boot() ends with the equivalent of#
+    ## structure(list(t0 = t0, t = t.star, R = R, data = data, seed = seed,#
+    ##		      statistic = statistic, sim = sim, call = call,#
+    ##		      ran.gen = ran.gen, mle = mle),#
+    ##		 class = "boot")#
+    s <- structure(list(t0 = t0, t = t(t.star), R = nsim, data = x@frame,#
+		   seed = .Random.seed,#
+		   statistic = FUN, sim = "parametric", call = mc,#
+		   ## these two are dummies#
+		   ran.gen = "simulate(<lmerMod>, 1, *)", mle = mle),#
+	      class = "boot")#
+    attr(s,"bootFail") <- numFail#
+    s#
+} ## {bootMer}
+debug(bootMer)
+?bootMer
+mySumm <- function(.) { s <- sigma(.)#
+    c(beta =getME(., "beta"), sigma = s, sig01 = unname(s * getME(., "theta"))) }
+(t0 <- mySumm(fm01ML)) # just three parameters
+fm01ML
+mySumm2 <- function(.) {#
+   c(beta=fixef(.),sigma=sigma(.), sig01=sqrt(unlist(VarCorr(.))))#
+}
+mySumm2(fm01ML)
+boo01 <- bootMer(fm01ML, mySumm, nsim = 100)
+FUN
+type
+?match.arg
+mc
+t0
+to
+t0
+mle
+FUN
+ffun
+simvec
+t.star
+res
+t.star
+bootMer
+mySumm
+?coef
+?lmer
+terms(fm01ML)
+terms(fm01ML, "fixed")
+terms(fm01ML, fixed.only =TRUE)
+j <- coef(fm01ML)
+head(j)
+fm01ML
+head(fitted(fm01ML))
+?coef.merMod
+?predict.merMod
+predict(fm01ML)
+predict(fm01ML, ~0)
+predict(fm01ML, re.form=~0)
+predict(fm01ML, re.form=~(1|herd))
+predict(fm01ML, re.form=~(1|Batch))
+fm01ML
+y.star <- simulate(fm01ML, nsim = 10)
+model.star <- lapply(y.star, refit, object = model)
+model.star <- lapply(y.star, refit, object = fm01ML)
+model.star
+y.star
+class(y.star)
+model.star <- lapply(y.star, refit, object = fm01ML)
+model.star
+length(model.star)
+fixef
+methods("fixef")
+bootMer
+mod.vec <- seq_along(model.star)
+mod.vec
+lapply(model.star, fixef)
+bootMer
+ls()
+model.star
+t.star <- lapply(model.star, fixef)
+do.call("rbind", t.star)
+do.call("rbind", t(t.star))
+bootMer
+parametric2 <- function(model, fn, FUN, B){#
+  FUN <- match.fun(FUN)#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  fn.star <- rep(0, B)#
+  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
+  # Can I just simulate multiple times and run refit once on the entire array#
+  # to just get a returned array#
+  y.star <- simulate(model, nsim = B)#
+  model.star <- lapply(y.star, refit, object = model)#
+  # TODO: How to piece everything back together and what to return?#
+  # TODO: evaluate FUN for each refitted model to extract desired component.#
+  t0 <- FUN(model)#
+  t.star <- lapply(model.star, FUN)#
+  t.star <- do.call("rbind", t.star)#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, statistic = FUN, #
+                        sim = "parametric", call = match.call()), class = "boot")#
+  return(RES) # maybe a good thing to return?#
+}
+parametric2(fm01ML, FUN = fixef, B = 100)
+library(boot)
+j <- parametric2(fm01ML, FUN = fixef, B = 100)
+j
+ls()
+boo01
+str(boo01)
+?boot
+bootMer
+parametric2 <- function(model, fn, FUN, B){#
+  FUN <- match.fun(FUN)#
+  mle <- list(beta = getME(x,"beta"), theta = getME(x,"theta"))#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  fn.star <- rep(0, B)#
+  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
+  # Can I just simulate multiple times and run refit once on the entire array#
+  # to just get a returned array#
+  y.star <- simulate(model, nsim = B)#
+  model.star <- lapply(y.star, refit, object = model)#
+  # TODO: How to piece everything back together and what to return?#
+  # TODO: evaluate FUN for each refitted model to extract desired component.#
+  t0 <- FUN(model)#
+  t.star <- lapply(model.star, FUN)#
+  t.star <- do.call("rbind", t.star)#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = FUN, #
+                        sim = "parametric", call = match.call(),#
+                        ran.gen = "simulate(<lmerMod>, 1, *)", mle = mle), #
+                        class = "boot")#
+  return(RES) # maybe a good thing to return?#
+}
+j <- parametric2(fm01ML, FUN = fixef, B = 100)
+parametric2 <- function(model, fn, FUN, B){#
+  FUN <- match.fun(FUN)#
+  mle <- list(beta = getME(model, "beta"), theta = getME(model, "theta"))#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  fn.star <- rep(0, B)#
+  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
+  # Can I just simulate multiple times and run refit once on the entire array#
+  # to just get a returned array#
+  y.star <- simulate(model, nsim = B)#
+  model.star <- lapply(y.star, refit, object = model)#
+  # TODO: How to piece everything back together and what to return?#
+  # TODO: evaluate FUN for each refitted model to extract desired component.#
+  t0 <- FUN(model)#
+  t.star <- lapply(model.star, FUN)#
+  t.star <- do.call("rbind", t.star)#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = FUN, #
+                        sim = "parametric", call = match.call(),#
+                        ran.gen = "simulate(<lmerMod>, 1, *)", mle = mle), #
+                        class = "boot")#
+  return(RES) # maybe a good thing to return?#
+}
+j <- parametric2(fm01ML, FUN = fixef, B = 100)
+j
+j <- parametric2(fm01ML, FUN = fixef, B = 10)
+print(j)
+fm01ML
+fixef(fm01ML)
+debug(parametric2)
+print(j)
+j <- parametric2(fm01ML, FUN = fixef, B = 10)
+FUN
+mle
+t0
+t.star
+RES
+str(RES)
+str(RES$t)
+Q
+parametric2 <- function(model, fn, FUN, B){#
+  FUN <- match.fun(FUN)#
+  mle <- list(beta = getME(model, "beta"), theta = getME(model, "theta"))#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  fn.star <- rep(0, B)#
+  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
+  # Can I just simulate multiple times and run refit once on the entire array#
+  # to just get a returned array#
+  y.star <- simulate(model, nsim = B)#
+  model.star <- lapply(y.star, refit, object = model)#
+  # TODO: How to piece everything back together and what to return?#
+  # TODO: evaluate FUN for each refitted model to extract desired component.#
+  t0 <- FUN(model)#
+  t.star <- lapply(model.star, FUN)#
+  t.star <- do.call("rbind", t.star)#
+  rownames(t.star) <- names(t0)#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = FUN, #
+                        sim = "parametric", call = match.call(),#
+                        ran.gen = "simulate(<lmerMod>, 1, *)", mle = mle), #
+                        class = "boot")#
+  return(RES) # maybe a good thing to return?#
+}
+j <- parametric2(fm01ML, FUN = fixef, B = 10)
+parametric2 <- function(model, fn, FUN, B){#
+  FUN <- match.fun(FUN)#
+  mle <- list(beta = getME(model, "beta"), theta = getME(model, "theta"))#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  fn.star <- rep(0, B)#
+  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
+  # Can I just simulate multiple times and run refit once on the entire array#
+  # to just get a returned array#
+  y.star <- simulate(model, nsim = B)#
+  model.star <- lapply(y.star, refit, object = model)#
+  # TODO: How to piece everything back together and what to return?#
+  # TODO: evaluate FUN for each refitted model to extract desired component.#
+  t0 <- FUN(model)#
+  t.star <- lapply(model.star, FUN)#
+  t.star <- do.call("rbind", t.star)#
+  colnames(t.star) <- names(t0)#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = FUN, #
+                        sim = "parametric", call = match.call(),#
+                        ran.gen = "simulate(<lmerMod>, 1, *)", mle = mle), #
+                        class = "boot")#
+  return(RES) # maybe a good thing to return?#
+}
+j <- parametric2(fm01ML, FUN = fixef, B = 10)
+j
+debug(parametric2)
+j <- parametric2(fm01ML, FUN = fixef, B = 10)
+t.star
+j
+parametric2 <- function(model, fn, FUN, B){#
+  FUN <- match.fun(FUN)#
+  mle <- list(beta = getME(model, "beta"), theta = getME(model, "theta"))#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  fn.star <- rep(0, B)#
+  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
+  # Can I just simulate multiple times and run refit once on the entire array#
+  # to just get a returned array#
+  y.star <- simulate(model, nsim = B)#
+  model.star <- lapply(y.star, refit, object = model)#
+  # TODO: How to piece everything back together and what to return?#
+  # TODO: evaluate FUN for each refitted model to extract desired component.#
+  t0 <- FUN(model)#
+  t.star <- lapply(model.star, FUN)#
+  t.star <- do.call("cbind", t.star)#
+  colnames(t.star) <- names(t0)#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = FUN, #
+                        sim = "parametric", call = match.call(),#
+                        ran.gen = "simulate(<lmerMod>, 1, *)", mle = mle), #
+                        class = "boot")#
+  return(RES) # maybe a good thing to return?#
+}
+j <- parametric2(fm01ML, FUN = fixef, B = 10)
+parametric2 <- function(model, fn, FUN, B){#
+  FUN <- match.fun(FUN)#
+  mle <- list(beta = getME(model, "beta"), theta = getME(model, "theta"))#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  fn.star <- rep(0, B)#
+  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
+  # Can I just simulate multiple times and run refit once on the entire array#
+  # to just get a returned array#
+  y.star <- simulate(model, nsim = B)#
+  model.star <- lapply(y.star, refit, object = model)#
+  # TODO: How to piece everything back together and what to return?#
+  # TODO: evaluate FUN for each refitted model to extract desired component.#
+  t0 <- FUN(model)#
+  t.star <- lapply(model.star, FUN)#
+  t.star <- do.call("cbind", t.star)#
+  rownames(t.star) <- names(t0)#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = FUN, #
+                        sim = "parametric", call = match.call(),#
+                        ran.gen = "simulate(<lmerMod>, 1, *)", mle = mle), #
+                        class = "boot")#
+  return(RES) # maybe a good thing to return?#
+}
+j <- parametric2(fm01ML, FUN = fixef, B = 10)
+j
+boo01
+j <- parametric2(fm01ML, FUN = fixef, B = 1000)
+j
+boot.ci(j)
+?bootMer
+boot.ci(j, index=1, type=c("norm", "basic", "perc")))
+boot.ci(j, index=1, type=c("norm", "basic", "perc"))
+boot.ci(j, index=2, type=c("norm", "basic", "perc"))
+parametric2 <- function(model, fn, FUN, B){#
+  FUN <- match.fun(FUN)#
+  mle <- list(beta = getME(model, "beta"), theta = getME(model, "theta"))#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  fn.star <- rep(0, B)#
+  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
+  # Can I just simulate multiple times and run refit once on the entire array#
+  # to just get a returned array#
+  y.star <- simulate(model, nsim = B)#
+  model.star <- lapply(y.star, refit, object = model)#
+  # TODO: How to piece everything back together and what to return?#
+  # TODO: evaluate FUN for each refitted model to extract desired component.#
+  t0 <- FUN(model)#
+  t.star <- lapply(model.star, FUN)#
+  t.star <- do.call("cbind", t.star)#
+  rownames(t.star) <- names(t0)#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = FUN, #
+                        sim = "parametric", call = match.call()), #
+                        class = "boot")#
+  return(RES) # maybe a good thing to return?#
+}
+j <- parametric2(fm01ML, FUN = fixef, B = 100)
+j
+str(j)
+?bot
+?boot
+bootMer
+?plyr
+library(plyr)
+?llply
+parametric2 <- function(model, fn, FUN, B){#
+  # QUESTION: are fn and FUN both for functions? If so, let's pick one.#
+  FUN <- match.fun(FUN)#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  fn.star <- rep(0, B)#
+  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
+  # Can I just simulate multiple times and run refit once on the entire array#
+  # to just get a returned array#
+  y.star <- simulate(model, nsim = B)#
+  model.star <- lapply(y.star, refit, object = model)#
+  # TODO: How to piece everything back together and what to return?#
+  # TODO: evaluate FUN for each refitted model to extract desired component.#
+  # Below is one idea that will be compatible with the boot package (for CIs)#
+  t0 <- FUN(model)#
+  t.star <- lapply(model.star, FUN)#
+  t.star <- do.call("cbind", t.star)#
+  rownames(t.star) <- names(t0)#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = FUN, #
+                        sim = "parametric", call = match.call()), #
+                        class = "boot")#
+  return(RES) # maybe a good thing to return?#
+  # TODO: once we have things working, think about parallelization.#
+  #       using an llply statement would make this easy with the .parallel #
+  #       parameter. llply also can create a progress bar#
+}
+system.time(j <- parametric2(fm01ML, FUN = fixef, B = 100))
+?ldply
+parametric2 <- function(model, fn, FUN, B){#
+  # QUESTION: are fn and FUN both for functions? If so, let's pick one.#
+  FUN <- match.fun(FUN)#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  fn.star <- rep(0, B)#
+  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
+  # Can I just simulate multiple times and run refit once on the entire array#
+  # to just get a returned array#
+  y.star <- simulate(model, nsim = B)#
+  model.star <- llply(y.star, refit, object = model)#
+  # TODO: How to piece everything back together and what to return?#
+  # TODO: evaluate FUN for each refitted model to extract desired component.#
+  # Below is one idea that will be compatible with the boot package (for CIs)#
+  t0 <- FUN(model)#
+  t.star <- llply(model.star, FUN)#
+  t.star <- do.call("cbind", t.star)#
+  rownames(t.star) <- names(t0)#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = FUN, #
+                        sim = "parametric", call = match.call()), #
+                        class = "boot")#
+  return(RES) # maybe a good thing to return?#
+  # TODO: once we have things working, think about parallelization.#
+  #       using an llply statement would make this easy with the .parallel #
+  #       parameter. llply also can create a progress bar#
+}
+system.time(j <- parametric2(fm01ML, FUN = fixef, B = 100))
+bootMer
+simulate
+methods("simulate")
+lme4:::simulate.merMod
+lme4::.simulateFun
+install.packages("foreach")
+parametric2 <- function(model, fn, FUN, B, .parallel = TRUE){#
+  # QUESTION: are fn and FUN both for functions? If so, let's pick one.#
+  FUN <- match.fun(FUN)#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  fn.star <- rep(0, B)#
+  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
+  # Can I just simulate multiple times and run refit once on the entire array#
+  # to just get a returned array#
+  y.star <- simulate(model, nsim = B)#
+  model.star <- llply(y.star, refit, object = model, .parallel = .parallel)#
+  # TODO: How to piece everything back together and what to return?#
+  # TODO: evaluate FUN for each refitted model to extract desired component.#
+  # Below is one idea that will be compatible with the boot package (for CIs)#
+  t0 <- FUN(model)#
+  t.star <- llply(model.star, FUN, .parallel = .parallel)#
+  t.star <- do.call("cbind", t.star)#
+  rownames(t.star) <- names(t0)#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = FUN, #
+                        sim = "parametric", call = match.call()), #
+                        class = "boot")#
+  return(RES) # maybe a good thing to return?#
+  # TODO: once we have things working, think about parallelization.#
+  #       using an llply statement would make this easy with the .parallel #
+  #       parameter. llply also can create a progress bar#
+}
+system.time(j <- parametric2(fm01ML, FUN = fixef, B = 100))
+?setup_parallel
+library(foreach)
+system.time(j <- parametric2(fm01ML, FUN = fixef, B = 100))
+?setp_parallel
+?setup_parallel
+setup_parallel()
+j
+install.packages("doMC")
+library(doMC)
+system.time(j <- parametric2(fm01ML, FUN = fixef, B = 100))
+library(doParallel)
+install.packages("doParallel")
+library(doParallel)
+nodes <- detectCores()#
+cl <- makeCluster(nodes)#
+registerDoParallel(cl)
+system.time(j <- parametric2(fm01ML, FUN = fixef, B = 100))
+?makeCluster
+stopCluster()
+stopCluster(cl)
+library(mclapply)
+library(multicore)
+install.packages("multicore")
+library(multicore)
+help(package="parallel")
+parametric2 <- function(model, fn, FUN, B, .parallel = TRUE){#
+  # QUESTION: are fn and FUN both for functions? If so, let's pick one.#
+  FUN <- match.fun(FUN)#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  fn.star <- rep(0, B)#
+  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
+  # Can I just simulate multiple times and run refit once on the entire array#
+  # to just get a returned array#
+  y.star <- simulate(model, nsim = B)#
+  model.star <- mclapply(y.star, refit, object = model)#
+  # TODO: How to piece everything back together and what to return?#
+  # TODO: evaluate FUN for each refitted model to extract desired component.#
+  # Below is one idea that will be compatible with the boot package (for CIs)#
+  t0 <- FUN(model)#
+  t.star <- mclapply(model.star, FUN)#
+  t.star <- do.call("cbind", t.star)#
+  rownames(t.star) <- names(t0)#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = FUN, #
+                        sim = "parametric", call = match.call()), #
+                        class = "boot")#
+  return(RES) # maybe a good thing to return?#
+  # TODO: once we have things working, think about parallelization.#
+  #       using an llply statement would make this easy with the .parallel #
+  #       parameter. llply also can create a progress bar#
+}
+system.time(j <- parametric2(fm01ML, FUN = fixef, B = 100))
+help(package="parallel")
+system.time(j <- parametric2(fm01ML, FUN = fixef, B = 1000))
+parametric <- function(model, fn, FUN, B){#
+  # QUESTION: are fn and FUN both for functions? If so, let's pick one.#
+  FUN <- match.fun(FUN)#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  fn.star <- rep(0, B)#
+  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
+  # Can I just simulate multiple times and run refit once on the entire array#
+  # to just get a returned array#
+  y.star <- simulate(model, nsim = B)#
+  model.star <- lapply(y.star, refit, object = model)#
+  # TODO: How to piece everything back together and what to return?#
+  # TODO: evaluate FUN for each refitted model to extract desired component.#
+  # Below is one idea that will be compatible with the boot package (for CIs)#
+  t0 <- FUN(model)#
+  t.star <- lapply(model.star, FUN)#
+  t.star <- do.call("cbind", t.star)#
+  rownames(t.star) <- names(t0)#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = FUN, #
+                        sim = "parametric", call = match.call()), #
+                        class = "boot")#
+  return(RES) # maybe a good thing to return?#
+  # TODO: once we have things working, think about parallelization.#
+  #       using an llply statement would make this easy with the .parallel #
+  #       parameter, but it might be slower than using mclapply, which is #
+  #       found in the parallel package.#
+}
+system.time(j <- parametric(fm01ML, FUN = fixef, B = 1000))
+parametric2 <- function(model, fn, FUN, B){#
+  # QUESTION: are fn and FUN both for functions? If so, let's pick one.#
+  FUN <- match.fun(FUN)#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  fn.star <- rep(0, B)#
+  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
+  # Can I just simulate multiple times and run refit once on the entire array#
+  # to just get a returned array#
+  y.star <- simulate(model, nsim = B)#
+  model.star <- lapply(y.star, refit, object = model)#
+  # TODO: How to piece everything back together and what to return?#
+  # TODO: evaluate FUN for each refitted model to extract desired component.#
+  # Below is one idea that will be compatible with the boot package (for CIs)#
+  t0 <- FUN(model)#
+  t.star <- lapply(model.star, FUN)#
+  t.star <- do.call("cbind", t.star)#
+  rownames(t.star) <- names(t0)#
+  # QUESTION: Is it faster to use only one lapply statement? It should be... try it.#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = FUN, #
+                        sim = "parametric", call = match.call()), #
+                        class = "boot")#
+  return(RES) # maybe a good thing to return?#
+  # TODO: once we have things working, think about parallelization.#
+  #       using an llply statement would make this easy with the .parallel #
+  #       parameter, but it might be slower than using mclapply, which is #
+  #       found in the parallel package.#
+}
+fm01ML
+system.time(j <- parametric(fm01ML, FUN = fixef, B = 100))
+parametric
+system.time(j <- parametric(fm01ML, FUN = fixef, B = 100))
+j
+boot.ci(j, index=1, type=c("norm", "basic", "perc"))
+parametric2
+parametric3
+parametric2 <- function(model, fn, FUN, B, .parallel = TRUE){#
+  # QUESTION: are fn and FUN both for functions? If so, let's pick one.#
+  FUN <- match.fun(FUN)#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  fn.star <- rep(0, B)#
+  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
+  # Can I just simulate multiple times and run refit once on the entire array#
+  # to just get a returned array#
+  y.star <- simulate(model, nsim = B)#
+  model.star <- mclapply(y.star, refit, object = model)#
+  # TODO: How to piece everything back together and what to return?#
+  # TODO: evaluate FUN for each refitted model to extract desired component.#
+  # Below is one idea that will be compatible with the boot package (for CIs)#
+  t0 <- FUN(model)#
+  t.star <- mclapply(model.star, FUN)#
+  t.star <- do.call("cbind", t.star)#
+  rownames(t.star) <- names(t0)#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = FUN, #
+                        sim = "parametric", call = match.call()), #
+                        class = "boot")#
+  return(RES) # maybe a good thing to return?#
+  # TODO: once we have things working, think about parallelization.#
+  #       using an llply statement would make this easy with the .parallel #
+  #       parameter. llply also can create a progress bar#
+}
+system.time(j <- parametric(fm01ML, FUN = fixef, B = 100))
+system.time(j <- parametric2(fm01ML, FUN = fixef, B = 100))
+system.time(j <- parametric2(fm01ML, FUN = fixef, B = 1000))
+lapply
+boot
+?boot
+bootstrap
+methods("boot")
+bootstrap
+?boot
+?ddply
+?plyr
+parametric <- function(model, fn, B){#
+  fn <- match.fun(fn)#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  # fn.star <- rep(0, B)#
+  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
+  # Can I just simulate multiple times and run refit once on the entire array#
+  # to just get a returned array#
+  y.star <- simulate(model, nsim = B)#
+  model.star <- lapply(y.star, refit, object = model)#
+  # TODO: evaluate FUN for each refitted model to extract desired component.#
+  # Below is one idea that will be compatible with the boot package (for CIs)#
+  t0 <- fn(model)#
+  # Consider: lapply(___, FUN = function(x){fn(refit( ))})#
+  # llapply may be faster than lapply for nonparallelized code#
+  t.star <- lapply(model.star, fn)#
+  # New lapply statement#
+   t.star <- lapply(y.star, function(x) {#
+    fn(refit(object = model, newresp = x))#
+  })#
+  t.star <- do.call("cbind", t.star) # Can these be nested?#
+  rownames(t.star) <- names(t0)#
+  # QUESTION: Is it faster to use only one lapply statement? It should be... try it.#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = fn, #
+                        sim = "parametric", call = match.call()), #
+                        class = "boot")#
+  return(RES) # maybe a good thing to return?#
+  # TODO: once we have things working, think about parallelization.#
+  #       using an llply statement would make this easy with the .parallel #
+  #       parameter, but it might be slower than using mclapply, which is #
+  #       found in the parallel package.#
+}
+library(lme4)
+library(boot)
+?merBoot
+?bootMer
+fm01ML <- lmer(Yield ~ 1|Batch, Dyestuff, REML = FALSE)
+parametric(fm01ML, fn = fixef, B = 100)
+bootMer(fm01ML, FUN = fixef, nsim = 100)
+system.time(bootMer(fm01ML, FUN = fixef, nsim = 100))
+system.time(parametric(fm01ML, fn = fixef, B = 100))
+bootMer
+parametric <- function(model, fn, B){#
+  fn <- match.fun(fn)#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  # fn.star <- rep(0, B)#
+  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
+  # Can I just simulate multiple times and run refit once on the entire array#
+  # to just get a returned array#
+  y.star <- simulate(model, nsim = B)#
+#  model.star <- lapply(y.star, refit, object = model)#
+  # TODO: evaluate FUN for each refitted model to extract desired component.#
+  # Below is one idea that will be compatible with the boot package (for CIs)#
+  t0 <- fn(model)#
+  # Consider: lapply(___, FUN = function(x){fn(refit( ))})#
+  # llapply may be faster than lapply for nonparallelized code#
+#  t.star <- lapply(model.star, fn)#
+  # New lapply statement#
+   t.star <- lapply(y.star, function(x) {#
+    fn(refit(object = model, newresp = x))#
+  })#
+  t.star <- do.call("cbind", t.star) # Can these be nested?#
+  rownames(t.star) <- names(t0)#
+  # QUESTION: Is it faster to use only one lapply statement? It should be... try it.#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = fn, #
+                        sim = "parametric", call = match.call()), #
+                        class = "boot")#
+  return(RES) # maybe a good thing to return?#
+  # TODO: once we have things working, think about parallelization.#
+  #       using an llply statement would make this easy with the .parallel #
+  #       parameter, but it might be slower than using mclapply, which is #
+  #       found in the parallel package.#
+}
+system.time(bootMer(fm01ML, FUN = fixef, nsim = 100))
+system.time(parametric(fm01ML, fn = fixef, B = 100))
+system.time(parametric(fm01ML, fn = fixef, B = 100))
+system.time(parametric(fm01ML, fn = fixef, B = 100))
+install.packages("rbenchmark")
+library(rbenchmark)
+library(plyr)
+parametric2 <- function(model, fn, B){#
+  fn <- match.fun(fn)#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  # fn.star <- rep(0, B)#
+  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
+  # Can I just simulate multiple times and run refit once on the entire array#
+  # to just get a returned array#
+  y.star <- simulate(model, nsim = B)#
+#  model.star <- lapply(y.star, refit, object = model)#
+  # TODO: evaluate FUN for each refitted model to extract desired component.#
+  # Below is one idea that will be compatible with the boot package (for CIs)#
+  t0 <- fn(model)#
+  # Consider: lapply(___, FUN = function(x){fn(refit( ))})#
+  # llapply may be faster than lapply for nonparallelized code#
+#  t.star <- lapply(model.star, fn)#
+  # New lapply statement#
+   t.star <- llply(y.star, function(x) {#
+    fn(refit(object = model, newresp = x))#
+  })#
+  t.star <- do.call("cbind", t.star) # Can these be nested?#
+  rownames(t.star) <- names(t0)#
+  # QUESTION: Is it faster to use only one lapply statement? It should be... try it.#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = fn, #
+                        sim = "parametric", call = match.call()), #
+                        class = "boot")#
+  return(RES) # maybe a good thing to return?#
+  # TODO: once we have things working, think about parallelization.#
+  #       using an llply statement would make this easy with the .parallel #
+  #       parameter, but it might be slower than using mclapply, which is #
+  #       found in the parallel package.#
+}
+system.time(parametric2(fm01ML, fn = fixef, B = 100))
+system.time((parametric2(fm01ML, fn = fixef, B = 100)))
+system.time((parametric2(fm01ML, fn = fixef, B = 100)))
+system.time((parametric2(fm01ML, fn = fixef, B = 100)))
+system.time(parametric2(fm01ML, fn = fixef, B = 100))
+?rbenchmark
+system.time(parametric(fm01ML, fn = fixef, B = 100))
+system.time(bootMer(fm01ML, FUN = fixef, nsim = 100))
+rbenchmark(ours = parametric(fm01ML, fn = fixef, B = 100), bootMer = bootMer(fm01ML, FUN = fixef, nsim = 100))
+benchmark(ours = parametric(fm01ML, fn = fixef, B = 100), bootMer = bootMer(fm01ML, FUN = fixef, nsim = 100))
+library(HLMdiag)
+?HLMdiag
+data(Exam, package = 'mlmRev')#
+fm <- lmer(normexam ~ standLRT * schavg + (standLRT | school), Exam)
+fm
+bootMer(fm, fixef, 10)
+bootMer(fm, fixef, 100)
+system.time(bootMer(fm, fixef, 100))
+system.time(parametric(fm, fn=fixef, B=100))
+set.seed(123)
+system.time(parametric(fm, fn=fixef, B=100))
+set.seed(123)
+parametric(fm, fn=fixef, B=100)
+bootMer(fm, fixef, 100, seed = 123)
+j <- parametric(fm, fn=fixef, B=100)
+plot(j)
+?plot.boot
+plot(j, index = 2)
+plot(j, jack = TRUE)

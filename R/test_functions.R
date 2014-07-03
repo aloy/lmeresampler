@@ -68,13 +68,11 @@ bootstrap <- function (model, fn, type, B){
 
 #' @inheritParams model
 #' @inheritParams fn
-#' @inheritParams FUN
 parametric <- function(model, fn, B){
-  # QUESTION: are fn and FUN both for functions? If so, let's pick one.
   fn <- match.fun(fn)
 	
   model.fixef <- fixef(model) # Extract fixed effects
-  fn.star <- rep(0, B)
+  # fn.star <- rep(0, B)
   # model.star <- c(1:B) # we don't need to initialize this is we use apply statements
   # Can I just simulate multiple times and run refit once on the entire array
   # to just get a returned array
