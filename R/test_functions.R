@@ -67,7 +67,7 @@ bootstrap <- function (model, fn, type, B){
 
 #' @inheritParams model
 #' @inheritParams fn
-parametric <- function(model, fn, B){
+parametric.lmerMod <- function(model, fn, B){
   fn <- match.fun(fn)
 	
   model.fixef <- fixef(model) # Extract fixed effects
