@@ -55,9 +55,7 @@ parametric.lmerMod <- function(model, fn, B){
   
   t.star <- do.call("cbind", t.star) # Can these be nested?
   rownames(t.star) <- names(t0)
-  
-  # QUESTION: Is it faster to use only one lapply statement? It should be... try it.
-  
+ 
   RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, 
                         seed = .Random.seed, statistic = fn, 
                         sim = "parametric", call = match.call()), 
