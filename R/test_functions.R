@@ -82,7 +82,7 @@ cgr <- function (model, fn){
   
 }
 
-reb <- function (model, fn, reb_type){
+reb <- function (model, fn, reb_type = 0){
   if(reb_type = 1){
     # Call reb1 here
   }
