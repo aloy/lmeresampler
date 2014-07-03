@@ -27,17 +27,15 @@ library(roxygen)
 #' @param fn The function
 #' @param type The type of bootstrap requested
 #' @param FUN what function is the user interested in
-bootstrap <- function (model, fn, FUN, type){
-  # TODO: add B to parameters
-  # TODO: use fn, not FUN (I think I didn't see that at first)
+bootstrap <- function (model, fn, type, B){
   switch(type,
-         par = parametric(model, fn, FUN),
-         res = residual(model, fn, FUN),
-         case = case(model, fn, FUN),
-         cgr = cgr(model, fn, FUN),
-         reb = reb(model, fn, FUN, reb_type = 0),
-         reb1 = reb(model, fn, FUN, reb_type = 1),
-         reb2 = reb(model, fn, FUN, reb_type = 2))
+         par = parametric(model, fn, B),
+         res = residual(model, fn, B),
+         case = case(model, fn, B),
+         cgr = cgr(model, fn, B),
+         reb = reb(model, fn, B, reb_type = 0),
+         reb1 = reb(model, fn, B, reb_type = 1),
+         reb2 = reb(model, fn, B, reb_type = 2))
   # TODO: determine which is better a switch, or type <- match.arg(type)
   # TODO: need to be able to save results
 }
