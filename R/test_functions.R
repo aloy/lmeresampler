@@ -81,13 +81,20 @@ parametric <- function(model, fn, B){
   y.star <- simulate(model, nsim = B)
   model.star <- lapply(y.star, refit, object = model)
   # TODO: evaluate FUN for each refitted model to extract desired component.
-  
+  function(x) {
+    fn(refit(x, model))
+  }
   # Below is one idea that will be compatible with the boot package (for CIs)
   t0 <- fn(model)
   
   # Consider: lapply(___, FUN = function(x){fn(refit( ))})
   # llapply may be faster than lapply for nonparallelized code
   t.star <- lapply(model.star, fn)
+  
+  # Best option
+  t.star <- lapply(y.star, function(x) {
+    fn(refit(x, model))
+  })
   
   # New lapply statement
   t.star <- lapply(lapply(y.star, refit, object = model), fn)
