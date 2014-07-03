@@ -88,20 +88,8 @@ parametric <- function(model, fn, B){
   # llapply may be faster than lapply for nonparallelized code
   t.star <- lapply(model.star, fn)
   
-  # Best option
   t.star <- lapply(y.star, function(x) {
     fn(refit(x, model))
-  })
-  
-  # New lapply statement
-  t.star <- lapply(lapply(y.star, refit, object = model), fn)
-  # Or this
-  t.star <- lapply(y.star, function(x) {
-    fn(lapply(x, refit, object = model))
-  })
-  # Maybe this
-  t.star <- lapply(y.star, function(x) {
-    lapply(lapply(x, refit, object = model), fn)
   })
   
   t.star <- do.call("cbind", t.star) # Can these be nested?
