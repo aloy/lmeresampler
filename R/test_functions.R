@@ -61,6 +61,7 @@ parametric.lmerMod <- function(model, fn, B){
   # Below is one idea that will be compatible with the boot package (for CIs)
   t0 <- fn(model)
   
+  # Refit the model and apply 'fn' to it using lapply
   t.star <- lapply(y.star, function(x) {
     fn(refit(x, model))
   })
