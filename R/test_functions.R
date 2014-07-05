@@ -8,7 +8,7 @@
 #' License: \tab GPLv3\cr
 #' }
 #' 
-#' Description here.
+#' This is a package to help with bootstrapping Linear Mixed Effects Models.
 #' 
 #' @name lmeresampler
 #' @docType package
@@ -20,7 +20,8 @@ library(roxygen)
 
 #' Bootstrap for LMEs
 #' 
-#' This is a short description of what the function does.
+#' \code{bootstrap} helps streamline the bootstrap process for the parametric,
+#' residual, cases, CGR, and REB bootstraps.
 #' 
 #' @export
 #' @param model The model to use
