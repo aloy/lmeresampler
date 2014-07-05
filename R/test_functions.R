@@ -18,16 +18,18 @@ library(lme4)
 library(nlme)
 library(roxygen)
 
-#' Bootstrap for LMEs
+#' @title Bootstrap for LMEs
 #' 
+#' @description
 #' \code{bootstrap} helps streamline the bootstrap process for the parametric,
 #' residual, cases, CGR, and REB bootstraps.
 #' 
+#' @details
+#' 
 #' @export
 #' @param model The model to use
-#' @param fn The function
-#' @param type The type of bootstrap requested
-#' @param FUN what function is the user interested in
+#' @param fn The function the user is interested in
+#' @param type The \code{type} of bootstrap requested.
 bootstrap <- function (model, fn, type, B){
   switch(type,
          par = parametric.lmerMod(model, fn, B),
@@ -40,8 +42,17 @@ bootstrap <- function (model, fn, type, B){
   # TODO: need to be able to save results
 }
 
+#' @title Parametric Bootstrap
+#' 
+#' @description
+#' The Parametric Bootstrap is uses the parametrically estimated
+#' distribution function of the data to generate bootstrap samples.
+#' 
+#' @details
+#' 
 #' @inheritParams model
 #' @inheritParams fn
+#' @inheritParams B
 parametric.lmerMod <- function(model, fn, B){
   fn <- match.fun(fn)
 	
