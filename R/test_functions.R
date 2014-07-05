@@ -1,10 +1,10 @@
-#' Helps with linear mixed effects resampling.
+#' Bootstrapping Linear Mixed Effects Models
 #' 
 #' \tabular{ll}{
 #' Package: \tab lmeresampler\cr
 #' Type: \tab Package\cr
 #' Version: \tab 0.0.0\cr
-#' Date: \tab 6/27/2014\cr
+#' Date: \tab 7/5/2014\cr
 #' License: \tab GPLv3\cr
 #' }
 #' 
