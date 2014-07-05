@@ -73,7 +73,7 @@ parametric.lmerMod <- function(model, fn, B){
                         sim = "parametric", call = match.call()), 
                         class = "boot")
   
-  return(RES) # maybe a good thing to return?
+  return(RES)
   
   # TODO: once we have things working, think about parallelization.
   #       using an llply statement would make this easy with the .parallel 
