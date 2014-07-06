@@ -24,7 +24,7 @@ library(roxygen)
 #' \code{bootstrap} helps streamline the bootstrap process for the parametric,
 #' residual, cases, CGR, and REB bootstraps.
 #' 
-#' @details
+#' @details 
 #' 
 #' @export
 #' @param model The model to use
@@ -40,4 +40,46 @@ bootstrap <- function (model, fn, type, B){
          reb1 = reb(model, fn, B, reb_type = 1),
          reb2 = reb(model, fn, B, reb_type = 2))
   # TODO: need to be able to save results
+}
+
+#' @title Parametric Bootstrap
+#' 
+#' @description
+#' The Parametric Bootstrap is uses the parametrically estimated
+#' distribution function of the data to generate bootstrap samples.
+#' 
+#' @details
+#' 
+#' @inheritParams model
+#' @inheritParams fn
+#' @inheritParams B
+#' 
+#' @return list
+parametric.lmerMod <- function(model, fn, B){
+  fn <- match.fun(fn)
+  
+  model.fixef <- fixef(model) # Extract fixed effects
+  y.star <- simulate(model, nsim = B)
+  # Below is one idea that will be compatible with the boot package (for CIs)
+  t0 <- fn(model)
+  
+  # Refit the model and apply 'fn' to it using lapply
+  t.star <- lapply(y.star, function(x) {
+    fn(refit(x, model))
+  })
+  
+  t.star <- do.call("cbind", t.star) # Can these be nested?
+  rownames(t.star) <- names(t0)
+  
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, 
+                        seed = .Random.seed, statistic = fn, 
+                        sim = "parametric", call = match.call()), 
+                   class = "boot")
+  
+  return(RES)
+  
+  # TODO: once we have things working, think about parallelization.
+  #       using an llply statement would make this easy with the .parallel 
+  #       parameter, but it might be slower than using mclapply, which is 
+  #       found in the parallel package.
 }
