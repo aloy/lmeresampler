@@ -31,7 +31,7 @@ library(roxygen)
 #' @param fn The function the user is interested in
 #' @param type The \code{type} of bootstrap requested.
 bootstrap <- function (model, fn, type, B){
-  switch(type,
+  result <- switch(type,
          par = parametric.lmerMod(model, fn, B),
          res = residual(model, fn, B),
          case = case(model, fn, B),
