@@ -52,6 +52,8 @@ bootstrap <- function (model, fn, type, B){
 #' distribution function of the data to generate bootstrap samples.
 #' 
 #' @details
+#' This function extracts the fixed effects, simulates from the model, refits the model
+#' and then returns the results in a list.
 #' 
 #' @inheritParams model
 #' @inheritParams fn
