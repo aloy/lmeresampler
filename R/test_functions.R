@@ -53,6 +53,8 @@ bootstrap <- function (model, fn, type, B){
 #' @inheritParams model
 #' @inheritParams fn
 #' @inheritParams B
+#' 
+#' @return list
 parametric.lmerMod <- function(model, fn, B){
   fn <- match.fun(fn)
 	
