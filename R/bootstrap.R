@@ -30,9 +30,9 @@ library(roxygen)
 #' which defaults to 1 but can be chosen using \code{reb, reb1, reb2}.
 #' 
 #' @export
-#' @param model The model to use
-#' @param fn The function the user is interested in
-#' @param type The \code{type} of bootstrap requested.
+#' @param model The original model to use
+#' @param fn The function the user is interested in testing
+#' @param type The \code{type} of bootstrap requested, see details for types
 bootstrap <- function (model, fn, type, B){
   switch(type,
          par = parametric.lmerMod(model, fn, B),
