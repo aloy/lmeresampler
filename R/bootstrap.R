@@ -24,7 +24,10 @@ library(roxygen)
 #' \code{bootstrap} helps streamline the bootstrap process for the parametric,
 #' residual, cases, CGR, and REB bootstraps.
 #' 
-#' @details 
+#' @details To choose a bootstrap use the \code{type} parameter.
+#' For parametric use \code{par}, residual use \code{res}, cases use \code{case},
+#' CGR use \code{cgr}, and REB use \code{reb}. The REB bootstrap has two types
+#' which defaults to 1 but can be chosen using \code{reb, reb1, reb2}.
 #' 
 #' @export
 #' @param model The model to use
