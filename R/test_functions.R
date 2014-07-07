@@ -86,7 +86,13 @@ parametric.lmerMod <- function(model, fn, B){
 
 
 residual <- function (model, fn){
-
+  fn <- match.fun(fn)
+  
+  #
+  model.resid <- residuals(model)
+  resid.sims <- simulate(model.resid, B)
+  
+  epsil <- rnorm(n, mean = 0, sd = )
 }
 
 case <- function (model, fn){
