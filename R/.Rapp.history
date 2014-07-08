@@ -1,184 +1,3 @@
-?coef
-?lmer
-terms(fm01ML)
-terms(fm01ML, "fixed")
-terms(fm01ML, fixed.only =TRUE)
-j <- coef(fm01ML)
-head(j)
-fm01ML
-head(fitted(fm01ML))
-?coef.merMod
-?predict.merMod
-predict(fm01ML)
-predict(fm01ML, ~0)
-predict(fm01ML, re.form=~0)
-predict(fm01ML, re.form=~(1|herd))
-predict(fm01ML, re.form=~(1|Batch))
-fm01ML
-y.star <- simulate(fm01ML, nsim = 10)
-model.star <- lapply(y.star, refit, object = model)
-model.star <- lapply(y.star, refit, object = fm01ML)
-model.star
-y.star
-class(y.star)
-model.star <- lapply(y.star, refit, object = fm01ML)
-model.star
-length(model.star)
-fixef
-methods("fixef")
-bootMer
-mod.vec <- seq_along(model.star)
-mod.vec
-lapply(model.star, fixef)
-bootMer
-ls()
-model.star
-t.star <- lapply(model.star, fixef)
-do.call("rbind", t.star)
-do.call("rbind", t(t.star))
-bootMer
-parametric2 <- function(model, fn, FUN, B){#
-  FUN <- match.fun(FUN)#
-  model.fixef <- fixef(model) # Extract fixed effects#
-  fn.star <- rep(0, B)#
-  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
-  # Can I just simulate multiple times and run refit once on the entire array#
-  # to just get a returned array#
-  y.star <- simulate(model, nsim = B)#
-  model.star <- lapply(y.star, refit, object = model)#
-  # TODO: How to piece everything back together and what to return?#
-  # TODO: evaluate FUN for each refitted model to extract desired component.#
-  t0 <- FUN(model)#
-  t.star <- lapply(model.star, FUN)#
-  t.star <- do.call("rbind", t.star)#
-  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, statistic = FUN, #
-                        sim = "parametric", call = match.call()), class = "boot")#
-  return(RES) # maybe a good thing to return?#
-}
-parametric2(fm01ML, FUN = fixef, B = 100)
-library(boot)
-j <- parametric2(fm01ML, FUN = fixef, B = 100)
-j
-ls()
-boo01
-str(boo01)
-?boot
-bootMer
-parametric2 <- function(model, fn, FUN, B){#
-  FUN <- match.fun(FUN)#
-  mle <- list(beta = getME(x,"beta"), theta = getME(x,"theta"))#
-  model.fixef <- fixef(model) # Extract fixed effects#
-  fn.star <- rep(0, B)#
-  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
-  # Can I just simulate multiple times and run refit once on the entire array#
-  # to just get a returned array#
-  y.star <- simulate(model, nsim = B)#
-  model.star <- lapply(y.star, refit, object = model)#
-  # TODO: How to piece everything back together and what to return?#
-  # TODO: evaluate FUN for each refitted model to extract desired component.#
-  t0 <- FUN(model)#
-  t.star <- lapply(model.star, FUN)#
-  t.star <- do.call("rbind", t.star)#
-  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
-                        seed = .Random.seed, statistic = FUN, #
-                        sim = "parametric", call = match.call(),#
-                        ran.gen = "simulate(<lmerMod>, 1, *)", mle = mle), #
-                        class = "boot")#
-  return(RES) # maybe a good thing to return?#
-}
-j <- parametric2(fm01ML, FUN = fixef, B = 100)
-parametric2 <- function(model, fn, FUN, B){#
-  FUN <- match.fun(FUN)#
-  mle <- list(beta = getME(model, "beta"), theta = getME(model, "theta"))#
-  model.fixef <- fixef(model) # Extract fixed effects#
-  fn.star <- rep(0, B)#
-  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
-  # Can I just simulate multiple times and run refit once on the entire array#
-  # to just get a returned array#
-  y.star <- simulate(model, nsim = B)#
-  model.star <- lapply(y.star, refit, object = model)#
-  # TODO: How to piece everything back together and what to return?#
-  # TODO: evaluate FUN for each refitted model to extract desired component.#
-  t0 <- FUN(model)#
-  t.star <- lapply(model.star, FUN)#
-  t.star <- do.call("rbind", t.star)#
-  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
-                        seed = .Random.seed, statistic = FUN, #
-                        sim = "parametric", call = match.call(),#
-                        ran.gen = "simulate(<lmerMod>, 1, *)", mle = mle), #
-                        class = "boot")#
-  return(RES) # maybe a good thing to return?#
-}
-j <- parametric2(fm01ML, FUN = fixef, B = 100)
-j
-j <- parametric2(fm01ML, FUN = fixef, B = 10)
-print(j)
-fm01ML
-fixef(fm01ML)
-debug(parametric2)
-print(j)
-j <- parametric2(fm01ML, FUN = fixef, B = 10)
-FUN
-mle
-t0
-t.star
-RES
-str(RES)
-str(RES$t)
-Q
-parametric2 <- function(model, fn, FUN, B){#
-  FUN <- match.fun(FUN)#
-  mle <- list(beta = getME(model, "beta"), theta = getME(model, "theta"))#
-  model.fixef <- fixef(model) # Extract fixed effects#
-  fn.star <- rep(0, B)#
-  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
-  # Can I just simulate multiple times and run refit once on the entire array#
-  # to just get a returned array#
-  y.star <- simulate(model, nsim = B)#
-  model.star <- lapply(y.star, refit, object = model)#
-  # TODO: How to piece everything back together and what to return?#
-  # TODO: evaluate FUN for each refitted model to extract desired component.#
-  t0 <- FUN(model)#
-  t.star <- lapply(model.star, FUN)#
-  t.star <- do.call("rbind", t.star)#
-  rownames(t.star) <- names(t0)#
-  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
-                        seed = .Random.seed, statistic = FUN, #
-                        sim = "parametric", call = match.call(),#
-                        ran.gen = "simulate(<lmerMod>, 1, *)", mle = mle), #
-                        class = "boot")#
-  return(RES) # maybe a good thing to return?#
-}
-j <- parametric2(fm01ML, FUN = fixef, B = 10)
-parametric2 <- function(model, fn, FUN, B){#
-  FUN <- match.fun(FUN)#
-  mle <- list(beta = getME(model, "beta"), theta = getME(model, "theta"))#
-  model.fixef <- fixef(model) # Extract fixed effects#
-  fn.star <- rep(0, B)#
-  # model.star <- c(1:B) # we don't need to initialize this is we use apply statements#
-  # Can I just simulate multiple times and run refit once on the entire array#
-  # to just get a returned array#
-  y.star <- simulate(model, nsim = B)#
-  model.star <- lapply(y.star, refit, object = model)#
-  # TODO: How to piece everything back together and what to return?#
-  # TODO: evaluate FUN for each refitted model to extract desired component.#
-  t0 <- FUN(model)#
-  t.star <- lapply(model.star, FUN)#
-  t.star <- do.call("rbind", t.star)#
-  colnames(t.star) <- names(t0)#
-  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
-                        seed = .Random.seed, statistic = FUN, #
-                        sim = "parametric", call = match.call(),#
-                        ran.gen = "simulate(<lmerMod>, 1, *)", mle = mle), #
-                        class = "boot")#
-  return(RES) # maybe a good thing to return?#
-}
-j <- parametric2(fm01ML, FUN = fixef, B = 10)
-j
-debug(parametric2)
-j <- parametric2(fm01ML, FUN = fixef, B = 10)
-t.star
-j
 parametric2 <- function(model, fn, FUN, B){#
   FUN <- match.fun(FUN)#
   mle <- list(beta = getME(model, "beta"), theta = getME(model, "theta"))#
@@ -587,8 +406,6 @@ parametric <- function(model, fn, B){#
 }
 system.time(bootMer(fm01ML, FUN = fixef, nsim = 100))
 system.time(parametric(fm01ML, fn = fixef, B = 100))
-system.time(parametric(fm01ML, fn = fixef, B = 100))
-system.time(parametric(fm01ML, fn = fixef, B = 100))
 install.packages("rbenchmark")
 library(rbenchmark)
 library(plyr)
@@ -625,8 +442,6 @@ parametric2 <- function(model, fn, B){#
   #       found in the parallel package.#
 }
 system.time(parametric2(fm01ML, fn = fixef, B = 100))
-system.time((parametric2(fm01ML, fn = fixef, B = 100)))
-system.time((parametric2(fm01ML, fn = fixef, B = 100)))
 system.time((parametric2(fm01ML, fn = fixef, B = 100)))
 system.time(parametric2(fm01ML, fn = fixef, B = 100))
 ?rbenchmark
@@ -681,7 +496,6 @@ orthSim <-#
                      random = ~ 1 | Subject), nsim = 10,#
                 m2 = list(random = ~ age | Subject))
 orthSim
-orthSim
 simulate.lme
 class(fm)
 ?bootMer
@@ -696,3 +510,215 @@ install.packages("WWGbook")
 library(WWGbook)
 ?WWGbook
 help(package="WWGbook")
+library(lme4)
+?merBoot
+?bootMer
+#' Bootstrapping Linear Mixed Effects Models#
+#' #
+#' \tabular{ll}{#
+#' Package: \tab lmeresampler\cr#
+#' Type: \tab Package\cr#
+#' Version: \tab 0.0.0\cr#
+#' Date: \tab 7/5/2014\cr#
+#' License: \tab GPLv3\cr#
+#' }#
+#' #
+#' This is a package to help with bootstrapping Linear Mixed Effects Models.#
+#' #
+#' @name lmeresampler#
+#' @docType package#
+#' @author Adam Loy and Spenser Steele \email{steeles@lawrence.edu}#
+#
+library(lme4)#
+library(nlme)#
+library(roxygen)#
+#
+#' @title Bootstrap for LMEs#
+#' #
+#' @description#
+#' \code{bootstrap} helps streamline the bootstrap process for the parametric,#
+#' residual, cases, CGR, and REB bootstraps.#
+#' #
+#' @details To choose a bootstrap use the \code{type} parameter.#
+#' For parametric use \code{"par"}, residual use \code{"res"}, cases use \code{"case"},#
+#' CGR use \code{"cgr"}, and REB use \code{"reb"}. The REB bootstrap has two types#
+#' which defaults to 1 but can be chosen using \code{"reb", "reb1", "reb2"}.#
+#' #
+#' @export#
+#' @param model The original model to use#
+#' @param fn The function the user is interested in testing#
+#' @param type The \code{type} of bootstrap requested, see details for types#
+bootstrap <- function (model, fn, type, B){#
+  switch(type,#
+         par = parametric.lmerMod(model, fn, B),#
+         res = residual(model, fn, B),#
+         case = case(model, fn, B),#
+         cgr = cgr(model, fn, B),#
+         reb = reb(model, fn, B, reb_type = 0),#
+         reb1 = reb(model, fn, B, reb_type = 1),#
+         reb2 = reb(model, fn, B, reb_type = 2))#
+  # TODO: need to be able to save results#
+}#
+#
+#' @title Parametric Bootstrap#
+#' #
+#' @description#
+#' The Parametric Bootstrap is uses the parametrically estimated#
+#' distribution function of the data to generate bootstrap samples.#
+#' #
+#' @details#
+#' This function extracts the fixed effects, simulates from the model, refits the model#
+#' and then returns the results in a list.#
+#' #
+#' @inheritParams model#
+#' @inheritParams fn#
+#' @inheritParams B#
+#' #
+#' @return list#
+parametric.lmerMod <- function(model, fn, B){#
+  fn <- match.fun(fn)#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  y.star <- simulate(model, nsim = B)#
+  # Below is one idea that will be compatible with the boot package (for CIs)#
+  t0 <- fn(model)#
+  # Refit the model and apply 'fn' to it using lapply#
+  t.star <- lapply(y.star, function(x) {#
+    fn(refit(x, model))#
+  })#
+  t.star <- do.call("cbind", t.star) # Can these be nested?#
+  rownames(t.star) <- names(t0)#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = fn, #
+                        sim = "parametric", call = match.call()), #
+                   class = "boot")#
+  return(RES)#
+  # TODO: once we have things working, think about parallelization.#
+  #       using an llply statement would make this easy with the .parallel #
+  #       parameter, but it might be slower than using mclapply, which is #
+  #       found in the parallel package.#
+}
+?bootmer
+?bootMer
+fm01ML <- lmer(Yield ~ 1|Batch, Dyestuff, REML = FALSE)
+set.seed(101)
+system.time( boo01 <- bootMer(fm01ML, fixef, nsim = 100) )
+system.time( boo02 <-parametric.lmerMod(fm01ML, fixef, B = 100) )
+system.time( boo02 <-parametric.lmerMod(fm01ML, fn = fixef, B = 100) )
+system.time( boo02 <-parametric.lmerMod(model = fm01ML, fn = fixef, B = 100) )
+debug(parametric.lmerMod)
+system.time( boo02 <-parametric.lmerMod(model = fm01ML, fn = fixef, B = 100) )
+?refit
+parametric.lmerMod <- function(model, fn, B){#
+  fn <- match.fun(fn)#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  y.star <- simulate(model, nsim = B)#
+  # Below is one idea that will be compatible with the boot package (for CIs)#
+  t0 <- fn(model)#
+  # Refit the model and apply 'fn' to it using lapply#
+  t.star <- lapply(y.star, function(x) {#
+    fn(refit(model, y.star))#
+  })#
+  t.star <- do.call("cbind", t.star) # Can these be nested?#
+  rownames(t.star) <- names(t0)#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = fn, #
+                        sim = "parametric", call = match.call()), #
+                   class = "boot")#
+  return(RES)#
+  # TODO: once we have things working, think about parallelization.#
+  #       using an llply statement would make this easy with the .parallel #
+  #       parameter, but it might be slower than using mclapply, which is #
+  #       found in the parallel package.#
+}
+system.time( boo02 <-parametric.lmerMod(model = fm01ML, fn = fixef, B = 100) )
+parametric.lmerMod <- function(model, fn, B){#
+  fn <- match.fun(fn)#
+  model.fixef <- fixef(model) # Extract fixed effects#
+  y.star <- simulate(model, nsim = B)#
+  # Below is one idea that will be compatible with the boot package (for CIs)#
+  t0 <- fn(model)#
+  # Refit the model and apply 'fn' to it using lapply#
+  t.star <- lapply(y.star, function(x) {#
+    fn(refit(object = model, newresp = x))#
+  })#
+  t.star <- do.call("cbind", t.star) # Can these be nested?#
+  rownames(t.star) <- names(t0)#
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, #
+                        seed = .Random.seed, statistic = fn, #
+                        sim = "parametric", call = match.call()), #
+                   class = "boot")#
+  return(RES)#
+  # TODO: once we have things working, think about parallelization.#
+  #       using an llply statement would make this easy with the .parallel #
+  #       parameter, but it might be slower than using mclapply, which is #
+  #       found in the parallel package.#
+}
+system.time( boo02 <-parametric.lmerMod(model = fm01ML, fn = fixef, B = 100) )
+set.seed(101)
+system.time( boo02 <-parametric.lmerMod(model = fm01ML, fn = fixef, B = 100) )
+library(boot)
+boo01
+boo02
+fm01ML
+ranef(fm01ML)
+library(WWGbook)
+?WWGbook
+data(classroom)
+head(classroom)
+fm3 <- lmer(mathgain ~ housepov + mathprep + mathknow + mathkind + sex + minority + ses + (1 | classid) + (1 | schoolid), data = classroom)
+fm3
+parametric.lmerMod(fm3, fixef, 100)
+debug(parametric.lmerMod)
+parametric.lmerMod(fm3, fixef, 100)
+parametric.lmerMod(fm3, fixef, 100)
+str(y.star)
+str(y.star[,1])
+model@frame
+dim(model@frame)
+refit(object = model, newresp = y.star[,1])
+j <- y.star[,1]
+y.star
+model
+refit(object = model, newresp = y.star)
+lapply(y.star[,1:5], refit, object = model)
+Q
+bootMer(model, fixef, nsim = 100)
+bootMer(fm3, fixef, nsim = 100)
+j <- bootMer(fm3, fixef, nsim = 100)
+str(j)
+model <- fm3
+fn <- fixef
+fn <- match.fun(fn)
+model.fixef <- fixef(model) # Extract fixed effects
+y.star <- simulate(model, nsim = B)
+t0 <- fn(model)
+B = 10
+y.star <- simulate(model, nsim = B)
+t0 <- fn(model)
+t.star <- lapply(y.star, function(x) {#
+    fn(refit(x, model))#
+  })
+t.star <- lapply(y.star, function(x) {#
+    fn(refit(object = model, newresp = x))#
+  })
+refit(model, y.star[[1]])
+refit(model, y.star[[2]])
+refit(model, y.star[,1])
+refit(model, newresp = y.star[,1])
+model
+refit(object = model, newresp = y.star[,1])
+j <- model@frame
+dim(model@frame)
+head(model@frame)
+j <- y.star[,1]
+head(j)
+tail(j)
+length(j)
+summary(j)
+refit(object = model, newresp = j)
+lapply(y.star, refit, object = fm3)
+y.star
+?refit
+str(y.star)
+lapply(y.star[,-1], refit, object = fm3)
+lapply(as.data.frame(y.star), refit, object = fm3)
