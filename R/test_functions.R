@@ -88,11 +88,12 @@ parametric.lmerMod <- function(model, fn, B){
 residual.lmerMod <- function (model, fn, B){
   fn <- match.fun(fn)
   
-  # Extract and simulate fixed effects
-  model.fixef <- fixef(model)
-  fixef.sim <- simulate(model.fixef, B)
+  # Extract fixed part of the model
+  Xbeta <- predict(model, re.form = NA) # This is X %*% fixef(model)
+  
   # Extract random effects
   model.ranef <- ranef(model)
+  
   # Extract residuals
   model.resid <- residual(model)
   
