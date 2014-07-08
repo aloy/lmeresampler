@@ -95,12 +95,29 @@ residual.lmerMod <- function (model, fn, B){
   model.ranef <- ranef(model)
   
   # Extract residuals
-  model.resid <- residual(model)
+  model.resid <- resid(model)
   
-  # Create and simulate epsilon
-  epsil <- rnorm(x, mean = 0, sd = getME(model, name = "sigma"))
-  resid.sim <- simulate(epsilon, B)
+  # This needs to be run for every level
+  level.num <- getME(object = model, name = "n_rfacs")
   
+  calc_bstar <- function(level.num){
+    # Use lapply to do resampling
+    # sample.int
+    J <- nrow(ranef(model)[[level.num]])
+    
+    # Sample of b*
+    bstar.index <- sample(x = seq_len(J), size = J, replace = TRUE)
+    bstar <- ranef(model)[[level.num]][c(bstar.index)]
+    return(bstar)
+  }
+  for(i in 1:level.num){
+    temp.bstar <- calc_bstar(i)
+    bstar.vector <- c(bstar.vector, as.vector(t(temp.bstar)))
+  }
+  
+  # Sample residuals
+  sample(x = model.resid, size = nrow(model.resid), replace = TRUE)
+  # Combine function?
 }
 
 case <- function (model, fn){
