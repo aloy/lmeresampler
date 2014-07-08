@@ -64,7 +64,7 @@ parametric.lmerMod <- function(model, fn, B){
   fn <- match.fun(fn)
   
   model.fixef <- fixef(model) # Extract fixed effects
-  y.star <- simulate(model, nsim = B)
+  y.star <- simulate(model, nsim = B, na.action = na.exclude)
   # Below is one idea that will be compatible with the boot package (for CIs)
   t0 <- fn(model)
   
