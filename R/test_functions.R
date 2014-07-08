@@ -85,7 +85,7 @@ parametric.lmerMod <- function(model, fn, B){
 }
 
 
-residual.lmerMod <- function (model, fn){
+residual.lmerMod <- function (model, fn, B){
   fn <- match.fun(fn)
   
   # Extract and simulate fixed effects
