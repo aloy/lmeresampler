@@ -88,13 +88,17 @@ parametric.lmerMod <- function(model, fn, B){
 residual <- function (model, fn){
   fn <- match.fun(fn)
   
-  # Extract fixed effects
+  # Extract and simulate fixed effects
   model.fixef <- fixef(model)
+  fixef.sim <- simulate(model.fixef, B)
   # Extract random effects
   model.ranef <- ranef(model)
-
-  fixef.sim <- simulate(model.fixef, B)
-  ranef.sim <- simulate(model.ranef, B)
+  # Extract residuals
+  model.resid <- residual(model)
+  
+  # Create and simulate epsilon
+  epsil <- rnorm(x, mean = 0, sd = getME(model, name = "sigma"))
+  resid.sim <- simulate(epsilon, B)
   
 }
 
