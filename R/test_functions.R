@@ -33,7 +33,7 @@ library(roxygen)
 bootstrap <- function (model, fn, type, B){
   result <- switch(type,
          par = parametric.lmerMod(model, fn, B),
-         res = residual(model, fn, B),
+         res = residual.lmerMod(model, fn, B),
          case = case(model, fn, B),
          cgr = cgr(model, fn, B),
          reb = reb(model, fn, B, reb_type = 0),
@@ -85,7 +85,7 @@ parametric.lmerMod <- function(model, fn, B){
 }
 
 
-residual <- function (model, fn){
+residual.lmerMod <- function (model, fn){
   fn <- match.fun(fn)
   
   # Extract and simulate fixed effects
