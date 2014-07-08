@@ -70,7 +70,7 @@ parametric.lmerMod <- function(model, fn, B){
   
   # Refit the model and apply 'fn' to it using lapply
   t.star <- lapply(y.star, function(x) {
-    fn(refit(x, model))
+    fn(refit(object = model, newresp = x))
   })
   
   t.star <- do.call("cbind", t.star) # Can these be nested?
