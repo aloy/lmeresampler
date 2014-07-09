@@ -110,9 +110,13 @@ residual.lmerMod <- function (model, fn, B){
     bstar <- ranef(model)[[level.num]][c(bstar.index)]
     return(bstar)
   }
+#   for(i in 1:level.num){
+#     temp.bstar <- calc_bstar(i)
+#     bstar.vector <- c(bstar.vector, as.vector(t(temp.bstar)))
+#   }
+  
   for(i in 1:level.num){
-    temp.bstar <- calc_bstar(i)
-    bstar.vector <- c(bstar.vector, as.vector(t(temp.bstar)))
+    
   }
   
   # Sample residuals
