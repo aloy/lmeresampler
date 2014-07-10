@@ -111,7 +111,10 @@ bstar <- lapply(model.ranef,
     return(bstar)
   })
 
-bstar <- sapply(bstar, FUN = function(x) as.list(x))
+if(level.num == 1){
+	bstar <- sapply(bstar, FUN = function(x) as.list(x))	
+} 
+
   
 #   for(i in 1:level.num){
 #     temp.bstar <- calc_bstar(i)
@@ -119,7 +122,7 @@ bstar <- sapply(bstar, FUN = function(x) as.list(x))
 #   }
   
   Z <- getME(object = model, name = "Ztlist")
-  Zbstar <- combine.elements(bstar = calc_bstar(i), zstar = Z)
+  Zbstar <- combine.elements(bstar = bstar, zstar = Z)
 
   
   # Sample residuals
