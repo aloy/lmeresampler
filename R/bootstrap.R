@@ -100,5 +100,5 @@ parametric.lmerMod <- function(model, fn, B){
   })
 }
 .output <- function(model, ystar, B){
-  
+
 }
