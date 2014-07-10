@@ -100,17 +100,18 @@ residual.lmerMod <- function (model, fn, B){
   # This needs to be run for every level
   level.num <- getME(object = model, name = "n_rfacs")
   
-  calc_bstar <- function(level.num){
-    # Use lapply to do resampling
-    # sample.int
-    b <- ranef(model)[[level.num]]
-    J <- nrow(b)
+bstar <- lapply(model.ranef,
+  FUN = function(x) {
+    J <- nrow(x)
     
     # Sample of b*
     bstar.index <- sample(x = seq_len(J), size = J, replace = TRUE)
-    bstar <- b[bstar.index,]
+    bstar <- x[bstar.index,]
     return(bstar)
-  }
+  })
+
+bstar <- sapply(bstar, FUN = function(x) as.list(x))
+  
 #   for(i in 1:level.num){
 #     temp.bstar <- calc_bstar(i)
 #     bstar.vector <- c(bstar.vector, as.vector(t(temp.bstar)))
