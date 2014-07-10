@@ -5,3 +5,5 @@
 *.Rproj
 
 *.history
+
+.DS_Store
