@@ -67,7 +67,7 @@ parametric.lmerMod <- function(model, fn, B){
   fn <- match.fun(fn)
 
   model.fixef <- fixef(model) # Extract fixed effects
-  y.star <- simulate(model, nsim = B, na.action = na.exclude)
+  ystar <- simulate(model, nsim = B, na.action = na.exclude)
 
   return(.bootstrap.completion(model, ystar, B, fn))
 
@@ -118,14 +118,14 @@ parametric.lmerMod <- function(model, fn, B){
   t0 <- fn(model)
 
   # Refit the model and apply 'fn' to it using lapply
-  t.star <- lapply(y.star, function(x) {
+  tstar <- lapply(ystar, function(x) {
     fn(refit(object = model, newresp = x))
   })
 
-  t.star <- do.call("cbind", t.star) # Can these be nested?
-  rownames(t.star) <- names(t0)
+  tstar <- do.call("cbind", tstar) # Can these be nested?
+  rownames(tstar) <- names(t0)
 
-  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame,
+  RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
                         seed = .Random.seed, statistic = fn,
                         sim = "parametric", call = match.call()),
                    class = "boot")
