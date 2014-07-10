@@ -97,39 +97,47 @@ residual.lmerMod <- function (model, fn, B){
   # Extract residuals
   model.resid <- resid(model)
   
-  # This needs to be run for every level
-  level.num <- getME(object = model, name = "n_rfacs")
-
-  
-bstar <- lapply(model.ranef,
-  FUN = function(x) {
-    J <- nrow(x)
-    
-    # Sample of b*
-    bstar.index <- sample(x = seq_len(J), size = J, replace = TRUE)
-    bstar <- x[bstar.index,]
-    return(bstar)
-  })
-
-bstar <- sapply(bstar, FUN = function(x) as.list(x))
-  
-#   for(i in 1:level.num){
-#     temp.bstar <- calc_bstar(i)
-#     bstar.vector <- c(bstar.vector, as.vector(t(temp.bstar)))
-#   }
-  
+  # Extract Z design matrix
   Z <- getME(object = model, name = "Ztlist")
+  
+  # Resample ranefs
+  # TODO: We need to resample the ranefs B times, along with the residuals.
+  #       We should funtionalize the whole resampling process for this part,
+  #       perhaps call the function resample.resids or something...
+  bstar <- lapply(model.ranef,
+                  FUN = function(x) {
+                    J <- nrow(x)
+                    
+                    # Sample of b*
+                    bstar.index <- sample(x = seq_len(J), size = J, replace = TRUE)
+                    bstar <- x[bstar.index,]
+                    return(bstar)
+                  })
+  
+  level.num <- getME(object = model, name = "n_rfacs")
+  
+  if(level.num == 1){
+    bstar <- lapply(bstar, FUN = function(x) as.list(x))[[1]]
+    names(bstar) <- names(Z)
+  } else {
+    bstar <- sapply(bstar, FUN = function(x) as.list(x))	
+  }
+
+  # Get Zb*
   Zbstar <- .Zbstar.combine(bstar = bstar, zstar = Z)
   Zbstar.sum <- Reduce("+", Zbstar)
+
   
-  # Sample residuals
+  # Resample residuals
   estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
+  
   # Combine function?
+  y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
 }
 
 .Zbstar.combine <- function(bstar, zstar){
-  lapply(1:length(), function(i){
-    t(zstar[i]) %*% bstar[i]
+  lapply(1:length(bstar), function(i){
+    t(zstar[[i]]) %*% bstar[[i]]
   })
 }
 
