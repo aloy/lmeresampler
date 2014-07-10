@@ -116,12 +116,17 @@ residual.lmerMod <- function (model, fn, B){
 #   }
   
   for(i in 1:level.num){
-    
+    # rename variable below
+    idkwhattocallthisvariable[i] <- combine.elements(B = calc_bstar(i), Z = Z)
   }
   
   # Sample residuals
   sample(x = model.resid, size = nrow(model.resid), replace = TRUE)
   # Combine function?
+}
+
+combine.elements <- function(b, z){
+  # Do multiplication stuff here
 }
 
 case <- function (model, fn){
