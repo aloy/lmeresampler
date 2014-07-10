@@ -145,8 +145,6 @@ residual.lmerMod <- function (model, fn, B){
   })
 }
 
-.output <- function(model, ystar, B)
-
 case <- function (model, fn){
 
 }
