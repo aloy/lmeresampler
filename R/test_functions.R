@@ -114,20 +114,19 @@ residual.lmerMod <- function (model, fn, B){
 #     bstar.vector <- c(bstar.vector, as.vector(t(temp.bstar)))
 #   }
 
-  
-  
-  for(i in 1:level.num){
-    # rename variable below
-    idkwhattocallthisvariable[i] <- combine.elements(bstar = calc_bstar(i), Z = Z)
-  }
+  Z <- getME(object = model, name = "Ztlist")
+  recombnd <- combine.elements(bstar = calc_bstar(i), zstar = Z)
+
   
   # Sample residuals
   sample(x = model.resid, size = nrow(model.resid), replace = TRUE)
   # Combine function?
 }
 
-combine.elements <- function(bstar, z){
-  # Do multiplication stuff here
+combine.elements <- function(bstar, zstar){
+  lapply(1:length(), function(i){
+    bstar[i]*zstar[i]
+  })
 }
 
 case <- function (model, fn){
