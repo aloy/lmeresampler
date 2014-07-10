@@ -94,6 +94,20 @@ parametric.lmerMod <- function(model, fn, B){
 #####################
 # Utility Functions #
 #####################
+
+#' @title Zbstar combine
+#'
+#' @description
+#' Combine \code{bstar} and \code{zstar} to create {Zbstar}.
+#'
+#' @details
+#' This function combines \code{bstar} and \code{zstar} to create {Zbstar} using an lapply statement.
+#'
+#' @param bstar A list of matrices bstar
+#' @param zstar A list of matrices zstar
+#'
+#' @return matrix
+
 .Zbstar.combine <- function(bstar, zstar){
   lapply(1:length(), function(i){
     t(zstar[i]) %*% bstar[i]
