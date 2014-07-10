@@ -103,11 +103,12 @@ residual.lmerMod <- function (model, fn, B){
   calc_bstar <- function(level.num){
     # Use lapply to do resampling
     # sample.int
-    J <- nrow(ranef(model)[[level.num]])
+    b <- ranef(model)[[level.num]]
+    J <- nrow(b)
     
     # Sample of b*
     bstar.index <- sample(x = seq_len(J), size = J, replace = TRUE)
-    bstar <- ranef(model)[[level.num]][c(bstar.index)]
+    bstar <- b[bstar.index,]
     return(bstar)
   }
 #   for(i in 1:level.num){
