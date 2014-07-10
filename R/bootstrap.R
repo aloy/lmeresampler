@@ -66,23 +66,8 @@ parametric.lmerMod <- function(model, fn, B){
 
   model.fixef <- fixef(model) # Extract fixed effects
   y.star <- simulate(model, nsim = B, na.action = na.exclude)
-  # Below is one idea that will be compatible with the boot package (for CIs)
-  t0 <- fn(model)
 
-  # Refit the model and apply 'fn' to it using lapply
-  t.star <- lapply(y.star, function(x) {
-    fn(refit(object = model, newresp = x))
-  })
-
-  t.star <- do.call("cbind", t.star) # Can these be nested?
-  rownames(t.star) <- names(t0)
-
-  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame,
-                        seed = .Random.seed, statistic = fn,
-                        sim = "parametric", call = match.call()),
-                   class = "boot")
-
-  return(RES)
+  return(.bootstrap.completion(model, ystar, B, fn))
 
   # TODO: once we have things working, think about parallelization.
   #       using an llply statement would make this easy with the .parallel
