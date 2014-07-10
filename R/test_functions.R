@@ -126,7 +126,7 @@ residual.lmerMod <- function (model, fn, B){
   # Combine function?
 }
 
-combine.elements <- function(b, z){
+combine.elements <- function(bstar, z){
   # Do multiplication stuff here
 }
 
