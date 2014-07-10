@@ -122,7 +122,9 @@ if(level.num == 1){
 #   }
   
   Z <- getME(object = model, name = "Ztlist")
-  Zbstar <- combine.elements(bstar = bstar, zstar = Z)
+
+  Zbstar <- .Zbstar.combine(bstar = bstar, zstar = Z)
+  Zbstar.sum <- Reduce("+", Zbstar)
 
   
   # Sample residuals
@@ -130,11 +132,13 @@ if(level.num == 1){
   # Combine function?
 }
 
-combine.elements <- function(bstar, zstar){
+.Zbstar.combine <- function(bstar, zstar){
   lapply(1:length(), function(i){
     t(zstar[i]) %*% bstar[i]
   })
 }
+
+.output <- function(model, ystar, B)
 
 case <- function (model, fn){
 
