@@ -1,5 +1,5 @@
 #' Bootstrapping Linear Mixed Effects Models
-#' 
+#'
 #' \tabular{ll}{
 #' Package: \tab lmeresampler\cr
 #' Type: \tab Package\cr
@@ -7,9 +7,9 @@
 #' Date: \tab 7/5/2014\cr
 #' License: \tab GPLv3\cr
 #' }
-#' 
+#'
 #' This is a package to help with bootstrapping Linear Mixed Effects Models.
-#' 
+#'
 #' @name lmeresampler
 #' @docType package
 #' @author Adam Loy and Spenser Steele \email{steeles@lawrence.edu}
@@ -19,13 +19,13 @@ library(nlme)
 library(roxygen)
 
 #' @title Bootstrap for LMEs
-#' 
+#'
 #' @description
 #' \code{bootstrap} helps streamline the bootstrap process for the parametric,
 #' residual, cases, CGR, and REB bootstraps.
-#' 
+#'
 #' @details
-#' 
+#'
 #' @export
 #' @param model The model to use
 #' @param fn The function the user is interested in
@@ -43,96 +43,102 @@ bootstrap <- function (model, fn, type, B){
 }
 
 #' @title Parametric Bootstrap
-#' 
+#'
 #' @description
 #' The Parametric Bootstrap is uses the parametrically estimated
 #' distribution function of the data to generate bootstrap samples.
-#' 
+#'
 #' @details
-#' 
+#'
 #' @inheritParams model
 #' @inheritParams fn
 #' @inheritParams B
-#' 
+#'
 #' @return list
 parametric.lmerMod <- function(model, fn, B){
   fn <- match.fun(fn)
-	
+
   model.fixef <- fixef(model) # Extract fixed effects
   y.star <- simulate(model, nsim = B)
   # Below is one idea that will be compatible with the boot package (for CIs)
   t0 <- fn(model)
-  
+
   # Refit the model and apply 'fn' to it using lapply
   t.star <- lapply(y.star, function(x) {
     fn(refit(x, model))
   })
-  
+
   t.star <- do.call("cbind", t.star) # Can these be nested?
   rownames(t.star) <- names(t0)
- 
-  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame, 
-                        seed = .Random.seed, statistic = fn, 
-                        sim = "parametric", call = match.call()), 
+
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame,
+                        seed = .Random.seed, statistic = fn,
+                        sim = "parametric", call = match.call()),
                         class = "boot")
-  
+
   return(RES)
-  
+
   # TODO: once we have things working, think about parallelization.
-  #       using an llply statement would make this easy with the .parallel 
-  #       parameter, but it might be slower than using mclapply, which is 
+  #       using an llply statement would make this easy with the .parallel
+  #       parameter, but it might be slower than using mclapply, which is
   #       found in the parallel package.
 }
 
 
 residual.lmerMod <- function (model, fn, B){
   fn <- match.fun(fn)
-  
+
   # Extract fixed part of the model
   Xbeta <- predict(model, re.form = NA) # This is X %*% fixef(model)
-  
+
   # Extract random effects
   model.ranef <- ranef(model)
-  
+
   # Extract residuals
   model.resid <- resid(model)
-  
+
   # Extract Z design matrix
   Z <- getME(object = model, name = "Ztlist")
-  
+
   # Resample ranefs
   # TODO: We need to resample the ranefs B times, along with the residuals.
   #       We should funtionalize the whole resampling process for this part,
   #       perhaps call the function resample.resids or something...
+  .resample.resids <- function(model, B){
+    simulate(object = resid(model), nsim = B, replace = true)
+  }
+
   bstar <- lapply(model.ranef,
                   FUN = function(x) {
                     J <- nrow(x)
-                    
+
                     # Sample of b*
                     bstar.index <- sample(x = seq_len(J), size = J, replace = TRUE)
                     bstar <- x[bstar.index,]
                     return(bstar)
                   })
-  
+
   level.num <- getME(object = model, name = "n_rfacs")
-  
+
   if(level.num == 1){
     bstar <- lapply(bstar, FUN = function(x) as.list(x))[[1]]
     names(bstar) <- names(Z)
   } else {
-    bstar <- sapply(bstar, FUN = function(x) as.list(x))	
+    bstar <- sapply(bstar, FUN = function(x) as.list(x))
   }
 
   # Get Zb*
   Zbstar <- .Zbstar.combine(bstar = bstar, zstar = Z)
   Zbstar.sum <- Reduce("+", Zbstar)
 
-  
+
   # Resample residuals
   estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
-  
-  # Combine function?
+
+  # Combine function
   y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
+
+  return(.bootstrap.completion(model, y.star, B, fn))
 }
 
 .Zbstar.combine <- function(bstar, zstar){
@@ -141,14 +147,12 @@ residual.lmerMod <- function (model, fn, B){
   })
 }
 
-.output <- function(model, ystar, B)
-
 case <- function (model, fn){
 
 }
 
 cgr <- function (model, fn){
-  
+
 }
 
 reb <- function (model, fn, reb_type = 1){
@@ -162,9 +166,42 @@ reb <- function (model, fn, reb_type = 1){
 }
 
 reb1 <- function (model, fn){
-  
+
 }
 
 reb2 <- function (model, fn){
-  
+
+}
+
+
+#' @title Bootstrap Completion
+#'
+#' @description
+#' Finishes the bootstrap process and makes the output readable.
+#'
+#' @details
+#'
+#' @param model The model being passed through from the bootstrap process
+#' @param ystar The ystar being passed through
+#' @param B The B being passed through
+#' @param fn The function being passed through
+#'
+#' @return list
+.bootstrap.completion <- function(model, ystar, B, fn){
+  t0 <- fn(model)
+
+  # Refit the model and apply 'fn' to it using lapply
+  t.star <- lapply(y.star, function(x) {
+    fn(refit(object = model, newresp = x))
+  })
+
+  t.star <- do.call("cbind", t.star) # Can these be nested?
+  rownames(t.star) <- names(t0)
+
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame,
+                        seed = .Random.seed, statistic = fn,
+                        sim = "parametric", call = match.call()),
+                   class = "boot")
+
+  return(RES)
 }

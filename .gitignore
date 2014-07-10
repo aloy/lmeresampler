@@ -6,4 +6,8 @@
 
 *.history
 
+<<<<<<< HEAD
 R/.Rapp.history
+=======
+.DS_Store
+>>>>>>> b37cbc494197e8b3205dd15e68fc4f56356a5ef1
