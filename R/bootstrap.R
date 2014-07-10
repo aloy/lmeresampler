@@ -45,15 +45,6 @@ bootstrap <- function (model, fn, type, B){
   # TODO: need to be able to save results
 }
 
-#####################
-# Utility Functions #
-#####################
-.Zbstar.combine <- function(bstar, zstar){
-  lapply(1:length(), function(i){
-    t(zstar[i]) %*% bstar[i]
-  })
-}
-.output <- function(model, ystar, B)
 
 #' @title Parametric Bootstrap
 #' 
@@ -98,3 +89,14 @@ parametric.lmerMod <- function(model, fn, B){
   #       parameter, but it might be slower than using mclapply, which is 
   #       found in the parallel package.
 }
+
+
+#####################
+# Utility Functions #
+#####################
+.Zbstar.combine <- function(bstar, zstar){
+  lapply(1:length(), function(i){
+    t(zstar[i]) %*% bstar[i]
+  })
+}
+.output <- function(model, ystar, B)
