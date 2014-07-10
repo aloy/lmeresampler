@@ -120,7 +120,7 @@ bstar <- sapply(bstar, FUN = function(x) as.list(x))
   
   Z <- getME(object = model, name = "Ztlist")
   Zbstar <- combine.elements(bstar = calc_bstar(i), zstar = Z)
-
+  Zbstar.sum <- Reduce("+", Zbstar)
   
   # Sample residuals
   estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
