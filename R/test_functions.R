@@ -118,7 +118,7 @@ residual.lmerMod <- function (model, fn, B){
   
   for(i in 1:level.num){
     # rename variable below
-    idkwhattocallthisvariable[i] <- combine.elements(B = calc_bstar(i), Z = Z)
+    idkwhattocallthisvariable[i] <- combine.elements(bstar = calc_bstar(i), Z = Z)
   }
   
   # Sample residuals
