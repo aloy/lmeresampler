@@ -135,8 +135,10 @@ residual.lmerMod <- function (model, fn, B){
   # Resample residuals
   estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
 
-  # Combine function?
+  # Combine function
   y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
+
+  return(.bootstrap.completion(model, y.star, B, fn))
 }
 
 .Zbstar.combine <- function(bstar, zstar){
@@ -169,4 +171,37 @@ reb1 <- function (model, fn){
 
 reb2 <- function (model, fn){
 
+}
+
+
+#' @title Bootstrap Completion
+#'
+#' @description
+#' Finishes the bootstrap process and makes the output readable.
+#'
+#' @details
+#'
+#' @param model The model being passed through from the bootstrap process
+#' @param ystar The ystar being passed through
+#' @param B The B being passed through
+#' @param fn The function being passed through
+#'
+#' @return list
+.bootstrap.completion <- function(model, ystar, B, fn){
+  t0 <- fn(model)
+
+  # Refit the model and apply 'fn' to it using lapply
+  t.star <- lapply(y.star, function(x) {
+    fn(refit(object = model, newresp = x))
+  })
+
+  t.star <- do.call("cbind", t.star) # Can these be nested?
+  rownames(t.star) <- names(t0)
+
+  RES <- structure(list(t0 = t0, t = t(t.star), R = B, data = model@frame,
+                        seed = .Random.seed, statistic = fn,
+                        sim = "parametric", call = match.call()),
+                   class = "boot")
+
+  return(RES)
 }
