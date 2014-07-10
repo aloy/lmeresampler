@@ -99,6 +99,7 @@ residual.lmerMod <- function (model, fn, B){
   
   # This needs to be run for every level
   level.num <- getME(object = model, name = "n_rfacs")
+
   
 bstar <- lapply(model.ranef,
   FUN = function(x) {
@@ -117,18 +118,19 @@ bstar <- sapply(bstar, FUN = function(x) as.list(x))
 #     bstar.vector <- c(bstar.vector, as.vector(t(temp.bstar)))
 #   }
   
-  for(i in 1:level.num){
-    # rename variable below
-    Zbstar[i] <- combine.elements(B = calc_bstar(i), Z = Z)
-  }
+  Z <- getME(object = model, name = "Ztlist")
+  Zbstar <- combine.elements(bstar = calc_bstar(i), zstar = Z)
+
   
   # Sample residuals
   estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
   # Combine function?
 }
 
-combine.elements <- function(bstar, z){
-  # Do multiplication stuff here
+combine.elements <- function(bstar, zstar){
+  lapply(1:length(), function(i){
+    t(zstar[i]) %*% bstar[i]
+  })
 }
 
 case <- function (model, fn){
