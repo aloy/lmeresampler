@@ -119,7 +119,7 @@ bstar <- sapply(bstar, FUN = function(x) as.list(x))
 #   }
   
   Z <- getME(object = model, name = "Ztlist")
-  Zbstar <- combine.elements(bstar = calc_bstar(i), zstar = Z)
+  Zbstar <- .Zbstar.combine(bstar = bstar, zstar = Z)
   Zbstar.sum <- Reduce("+", Zbstar)
   
   # Sample residuals
@@ -127,11 +127,13 @@ bstar <- sapply(bstar, FUN = function(x) as.list(x))
   # Combine function?
 }
 
-combine.elements <- function(bstar, zstar){
+.Zbstar.combine <- function(bstar, zstar){
   lapply(1:length(), function(i){
     t(zstar[i]) %*% bstar[i]
   })
 }
+
+.output <- function(model, ystar, B)
 
 case <- function (model, fn){
 
