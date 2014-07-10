@@ -12,7 +12,7 @@
 #'
 #' @name lmeresampler
 #' @docType package
-#' @author Adam Loy and Spenser Steele \email{steeles@lawrence.edu}
+#' @author Adam Loy \email{loya@lawrence.edu} and Spenser Steele \email{steeles@lawrence.edu}
 
 library(lme4)
 library(nlme)
