@@ -34,6 +34,7 @@ library(roxygen)
 #' @param model The original model to use
 #' @param fn The function the user is interested in testing
 #' @param type The \code{type} of bootstrap requested, see details for types
+#' @param B The number of bootstrap simulations
 bootstrap <- function (model, fn, type, B){
   switch(type,
          par = parametric.lmerMod(model, fn, B),
