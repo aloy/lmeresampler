@@ -106,10 +106,12 @@ parametric.lmerMod <- function(model, fn, B){
 #'
 #' @details
 #'
-#' @param model
-#' @param ystar
-#' @param B
-#' @param fn
+#' @param model The model being passed through from the bootstrap process
+#' @param ystar The ystar being passed through
+#' @param B The B being passed through
+#' @param fn The function being passed through
+#'
+#' @return list
 .bootstrap.completion <- function(model, ystar, B, fn){
   t0 <- fn(model)
 
