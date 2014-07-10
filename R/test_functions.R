@@ -110,11 +110,13 @@ residual.lmerMod <- function (model, fn, B){
   })
 
   Z <- getME(object = model, name = "Ztlist")
-  recombnd <- combine.elements(bstar = calc_bstar(i), zstar = Z)
+  Zbstar <- combine.elements(bstar = calc_bstar(i), zstar = Z)
+
+
 
   
   # Sample residuals
-  sample(x = model.resid, size = nrow(model.resid), replace = TRUE)
+  estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
   # Combine function?
 }
 
