@@ -108,11 +108,6 @@ residual.lmerMod <- function (model, fn, B){
     bstar <- x[bstar.index,]
     return(bstar)
   })
-  
-#   for(i in 1:level.num){
-#     temp.bstar <- calc_bstar(i)
-#     bstar.vector <- c(bstar.vector, as.vector(t(temp.bstar)))
-#   }
 
   Z <- getME(object = model, name = "Ztlist")
   recombnd <- combine.elements(bstar = calc_bstar(i), zstar = Z)
@@ -125,7 +120,7 @@ residual.lmerMod <- function (model, fn, B){
 
 combine.elements <- function(bstar, zstar){
   lapply(1:length(), function(i){
-    bstar[i]*zstar[i]
+    t(zstar[i]) %*% bstar[i]
   })
 }
 
