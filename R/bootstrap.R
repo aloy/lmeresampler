@@ -107,6 +107,8 @@ parametric.lmerMod <- function(model, fn, B){
 #' Finishes the bootstrap process and makes the output readable.
 #'
 #' @details
+#' This function is given \code{model, ystar, B, fn} and uses them to complete
+#' the bootstrap process. They are then structured into a list for output and returned.
 #'
 #' @param ystar The ystar being passed in
 #' @inheritParams model
