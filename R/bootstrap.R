@@ -63,6 +63,11 @@ bootstrap <- function (model, fn, type, B){
 #' @inheritParams B
 #'
 #' @return list
+#'
+#' @references
+#'   Raymond Chambers & Hukum Chandra (2013): A Random Effect Block Bootstrap
+#'   for Clustered Data, Journal of Computational and Graphical Statistics,
+#'   22:2, 452-470
 parametric.lmerMod <- function(model, fn, B){
   fn <- match.fun(fn)
 
