@@ -65,9 +65,8 @@ bootstrap <- function (model, fn, type, B){
 #' @return list
 #'
 #' @references
-#'   Raymond Chambers & Hukum Chandra (2013): A Random Effect Block Bootstrap
-#'   for Clustered Data, Journal of Computational and Graphical Statistics,
-#'   22:2, 452-470
+#'   @cite Chambers:2013ba
+#'   @cite vanderLeeden:208kv
 parametric.lmerMod <- function(model, fn, B){
   fn <- match.fun(fn)
 
@@ -100,6 +99,7 @@ parametric.lmerMod <- function(model, fn, B){
 #' @return list
 #'
 #' @references
+#'   @cite vanderLeeden:208kv
 residual.lmerMod <- function (model, fn, B){
   fn <- match.fun(fn)
 
@@ -173,7 +173,10 @@ residual.lmerMod <- function (model, fn, B){
 #' @param zstar A list of matrices zstar
 #'
 #' @return matrix
-
+#'
+#' @references
+#'   @cite Chambers:2013ba
+#'   @cite vanderLeeden:208kv
 .Zbstar.combine <- function(bstar, zstar){
   lapply(1:length(), function(i){
     t(zstar[i]) %*% bstar[i]
