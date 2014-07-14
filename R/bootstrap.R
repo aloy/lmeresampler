@@ -83,6 +83,80 @@ parametric.lmerMod <- function(model, fn, B){
 }
 
 
+#' @title Residual Bootstrap
+#'
+#' @description
+#' The Residual Bootstrap uses residuals to generate bootstrap samples.
+#'
+#' @details
+#' This function extracts the Xbetas, random effects, residuals, and Z
+#' design matrix in order to resample the residuals and complete the
+#' bootstrap process.
+#'
+#' @inheritParams model
+#' @inheritParams fn
+#' @inheritParams B
+#'
+#' @return list
+#'
+#' @references
+residual.lmerMod <- function (model, fn, B){
+  fn <- match.fun(fn)
+
+  # Extract fixed part of the model
+  Xbeta <- predict(model, re.form = NA) # This is X %*% fixef(model)
+
+  # Extract random effects
+  model.ranef <- ranef(model)
+
+  # Extract residuals
+  model.resid <- resid(model)
+
+  # Extract Z design matrix
+  Z <- getME(object = model, name = "Ztlist")
+
+  # Resample ranefs
+  # TODO: We need to resample the ranefs B times, along with the residuals.
+  #       We should funtionalize the whole resampling process for this part,
+  #       perhaps call the function resample.resids or something...
+  .resample.resids <- function(model, B){
+    simulate(object = resid(model), nsim = B, replace = true)
+  }
+
+  bstar <- lapply(model.ranef,
+                  FUN = function(x) {
+                    J <- nrow(x)
+
+                    # Sample of b*
+                    bstar.index <- sample(x = seq_len(J), size = J, replace = TRUE)
+                    bstar <- x[bstar.index,]
+                    return(bstar)
+                  })
+
+  level.num <- getME(object = model, name = "n_rfacs")
+
+  if(level.num == 1){
+    bstar <- lapply(bstar, FUN = function(x) as.list(x))[[1]]
+    names(bstar) <- names(Z)
+  } else {
+    bstar <- sapply(bstar, FUN = function(x) as.list(x))
+  }
+
+  # Get Zb*
+  Zbstar <- .Zbstar.combine(bstar = bstar, zstar = Z)
+  Zbstar.sum <- Reduce("+", Zbstar)
+
+
+  # Resample residuals
+  estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
+
+  # Combine function
+  y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
+
+  return(.bootstrap.completion(model, y.star, B, fn))
+}
+
+
 #####################
 # Utility Functions #
 #####################
