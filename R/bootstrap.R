@@ -173,10 +173,6 @@ residual.lmerMod <- function (model, fn, B){
 #' @param zstar A list of matrices zstar
 #'
 #' @return matrix
-#'
-#' @references
-#'   @cite Chambers:2013ba
-#'   @cite vanderLeeden:208kv
 .Zbstar.combine <- function(bstar, zstar){
   lapply(1:length(bstar), function(i){
     t(zstar[i]) %*% bstar[i]
