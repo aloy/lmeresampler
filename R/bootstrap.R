@@ -38,7 +38,7 @@ library(roxygen)
 bootstrap <- function (model, fn, type, B){
   switch(type,
          par = parametric.lmerMod(model, fn, B),
-         res = residual(model, fn, B),
+         res = residual.lmerMod(model, fn, B),
          case = case(model, fn, B),
          cgr = cgr(model, fn, B),
          reb = reb(model, fn, B, reb_type = 0),
