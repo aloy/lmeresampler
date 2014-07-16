@@ -39,7 +39,7 @@ bootstrap <- function (model, fn, type, B){
   switch(type,
          par = parametric.lmerMod(model, fn, B),
          res = residual.lmerMod(model, fn, B),
-         case = case(model, fn, B),
+         case = case(model, fn, B, extra_step = FALSE),
          cgr = cgr(model, fn, B),
          reb = reb(model, fn, B, reb_type = 0),
          reb1 = reb(model, fn, B, reb_type = 1),
@@ -108,8 +108,40 @@ residual.lmerMod <- function (model, fn, B){
   return(.bootstrap.completion(model, ystar, B, fn))
 }
 
-case <- function (model, fn, B){
+#' @title Cases Bootstrap
+#'
+#' @description
+#' The Cases Bootstrap samples entire cases to generate the bootstrap.
+#'
+#' @details
+#'
+#' @param extra_step add the extra step
+#' @inheritParams model
+#' @inheritParams fn
+#' @inheritParams B
+#'
+#' @return list
+#'
+#' @references
+#'   @cite vanderLeeden:208kv
+case.lmerMod <- function (model, fn, B, extra_step = FALSE){
+  # TODO: put everything below into lapply to replicate
+  # ISS: Is this the best option? Would it return a huge list?
+  # Draw sample of size J from level-2 units
+  model.split <- split(x=model@frame, f=model@flist)
+  model.split.samp <- sample(x=model.split, size = length(model.split), replace = TRUE)
+  # For each sample, draw a sample of the cases from the level-2 unit
+  for(i in 1:length(model.split.samp)){
+    # Sample level two here
+  }
   
+  model.comb <- do.call('rbind', model.split.samp)
+  if(extra_step = TRUE){
+    
+  }
+  
+  # Plugin to .bootstrap.completion
+  return(.bootstrap.completion(model, ystar, B, fn))
 }
 
 
