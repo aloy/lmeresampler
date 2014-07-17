@@ -150,7 +150,7 @@ case.lmerMod <- function (model, fn, B, extra_step = FALSE){
   
   
   # Plugin to .bootstrap.completion
-  return(.bootstrap.completion(model, ystar, B, fn))
+  return(.bootstrap.completion(model, model.comb, B, fn))
 }
 
 
