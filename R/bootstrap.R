@@ -132,7 +132,7 @@ case.lmerMod <- function (model, fn, B, extra_step = FALSE){
   model.split.samp <- sample(x=model.split, size = length(model.split), replace = TRUE)
   # For each sample, draw a sample of the cases from the level-2 unit
 
-  if(extra_step = TRUE){
+  if(extra_step == TRUE){
     model.resamp <- lapply(model.split.samp,
                            FUN = function(x) {
                              J <- nrow(x)
