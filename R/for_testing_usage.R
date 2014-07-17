@@ -28,3 +28,5 @@ fm1.res.res2 <- residual.lmerMod(model = fm1, fn = mySumm, B = 100)
 # Cases test
 fm1.case.res1 <- case.lmerMod(model = fm1, fn = fixef, B = 100)
 fm1.case.res2 <- case.lmerMod(model = fm1, fn = mySumm, B = 100)
+fm1.case.e.res1 <- case.lmerMod(model = fm1, fn = fixef, B = 100, extra_step = TRUE)
+fm1.case.e.res2 <- case.lmerMod(model = fm1, fn = mySumm, B = 100, extra_step = TRUE)
