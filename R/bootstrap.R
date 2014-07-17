@@ -131,20 +131,23 @@ case.lmerMod <- function (model, fn, B, extra_step = FALSE){
   model.split <- split(x=model@frame, f=model@flist)
   model.split.samp <- sample(x=model.split, size = length(model.split), replace = TRUE)
   # For each sample, draw a sample of the cases from the level-2 unit
-  model.resamp <- lapply(model.split.samp,
-                         FUN = function(x) {
-                           J <- nrow(x)
-                           
-                           # Sample of level-2 rows
-                           model.sub.index <- sample(x = seq_len(J), size = J, replace = TRUE)
-                           resampled <- x[model.sub.index,]
-                           return(resampled)
-                         })
-  
-  model.comb <- do.call('rbind', model.resamp)
+
   if(extra_step = TRUE){
-    
+    model.resamp <- lapply(model.split.samp,
+                           FUN = function(x) {
+                             J <- nrow(x)
+                             
+                             # Sample of level-2 rows
+                             model.sub.index <- sample(x = seq_len(J), size = J, replace = TRUE)
+                             resampled <- x[model.sub.index,]
+                             return(resampled)
+                           })
+    model.comb <- do.call('rbind', model.resamp)
   }
+  else{
+    model.comb <- do.call('rbind', model.split.samp)
+  }
+  
   
   # Plugin to .bootstrap.completion
   return(.bootstrap.completion(model, ystar, B, fn))
