@@ -17,7 +17,7 @@
 
 library(lme4)
 library(nlme)
-library(roxygen)
+#library(roxygen)
 
 #' @title Bootstrap for LMEs
 #'
