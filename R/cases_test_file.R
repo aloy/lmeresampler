@@ -45,3 +45,9 @@ else{
 }
 
 fm1.RES <- bootstrap.completion(fm1, fm1.comb, B = 100, fn = fixef)
+
+#####
+#' Noticable issues:
+#' this outputs a list in the proper format but
+#' it does not give the proper results. I have tried to follow steps and figure
+#' out what the issue is but have not found anything at this point.
