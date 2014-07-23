@@ -46,9 +46,10 @@ cases.resamp <- function (model, extra_step){
   }
 }
 
+ystar <- as.data.frame( replicate(n = B, cases.resamp(model = fm1, extra_step = extra_step)) )
 
 
-fm1.RES <- bootstrap.completion(fm1, fm1.comb, B = 100, fn = fixef)
+fm1.RES <- bootstrap.completion(fm1, ystar, B = 100, fn = fixef)
 
 #####
 #' Noticable issues:
