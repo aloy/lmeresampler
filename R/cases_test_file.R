@@ -49,7 +49,12 @@ cases.resamp <- function (model, extra_step){
 B <- 100
 ystar <- as.data.frame( replicate(n = B, cases.resamp(model = fm1, extra_step = extra_step)) )
 
-
+#' ISS: I think I am passing in ystar as a list of simulations but then
+#' it throws an error:
+#' Error in refit.merMod(object = model, newresp = x) : 
+#' refit not implemented for lists with length>1: consider ‘lapply(object,refit)’
+#' which does not make sense because that is what we do with all the other
+#' bootstraps above
 fm1.RES <- bootstrap.completion(fm1, ystar, B = B, fn = fixef)
 
 #####
