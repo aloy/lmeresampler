@@ -1,4 +1,4 @@
-extra_step <- FALSE
+extra_step <- TRUE
 
 bootstrap.completion <- function(model, ystar, B, fn){
   t0 <- fn(model)
@@ -24,25 +24,29 @@ data(sleepstudy)
 # fm1 model
 (fm1 <- lmer(Reaction ~ Days + (Days | Subject), data = sleepstudy))
 
-fm1.split <- split(x=fm1@frame, f=fm1@flist)
-fm1.split.samp <- sample(x=fm1.split, size = length(fm1.split), replace = TRUE)
-# For each sample, draw a sample of the cases from the level-2 unit
-
-if(extra_step == TRUE){
-  fm1.resamp <- lapply(fm1.split.samp,
+cases.resamp <- function (model, extra_step){
+  model.split <- split(x=model@frame, f=model@flist)
+  model.split.samp <- sample(x=model.split, size = length(model.split), replace = TRUE)
+  # For each sample, draw a sample of the cases from the level-2 unit
+  
+  if(extra_step == TRUE){
+    model.resamp <- lapply(model.split.samp,
                          FUN = function(x) {
                            J <- nrow(x)
                            
                            # Sample of level-2 rows
-                           fm1.sub.index <- sample(x = seq_len(J), size = J, replace = TRUE)
-                           resampled <- x[fm1.sub.index,]
+                           model.sub.index <- sample(x = seq_len(J), size = J, replace = TRUE)
+                           resampled <- x[model.sub.index,]
                            return(resampled)
                          })
-  fm1.comb <- do.call('rbind', fm1.resamp)
+    model.comb <- do.call('rbind', model.resamp)
+  }
+  else{
+    model.comb <- do.call('rbind', model.split.samp)
+  }
 }
-else{
-  fm1.comb <- do.call('rbind', fm1.split.samp)
-}
+
+
 
 fm1.RES <- bootstrap.completion(fm1, fm1.comb, B = 100, fn = fixef)
 
@@ -50,4 +54,5 @@ fm1.RES <- bootstrap.completion(fm1, fm1.comb, B = 100, fn = fixef)
 #' Noticable issues:
 #' this outputs a list in the proper format but
 #' it does not give the proper results. I have tried to follow steps and figure
-#' out what the issue is but have not found anything at this point.
+#' out what the issue is but have not found anything at this point. I believe it
+#' is only happening for one simulation
