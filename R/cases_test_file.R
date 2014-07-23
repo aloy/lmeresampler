@@ -1,4 +1,4 @@
-extra_step <- TRUE
+extra_step <- FALSE
 
 bootstrap.completion <- function(model, ystar, B, fn){
   t0 <- fn(model)
