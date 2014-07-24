@@ -126,7 +126,6 @@ residual.lmerMod <- function (model, fn, B){
 #'   @cite vanderLeeden:208kv
 case.lmerMod <- function (model, fn, B, extra_step = FALSE){
   # TODO: put everything below into lapply to replicate
-  # ISS: Is this the best option? Would it return a huge list?
   .cases.resamp <- function (model, extra_step){
   # Draw sample of size J from level-2 units
   model.split <- split(x=model@frame, f=model@flist)
