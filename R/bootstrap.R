@@ -155,7 +155,7 @@ case.lmerMod <- function (model, fn, B, extra_step = FALSE){
     
     # Refit the model and apply 'fn' to it using lapply
     tstar <- lapply(data, function(x) {
-      fn(lmer(lmer(model@call$formula, data, isREML(model))))
+      fn(lmer(formula = model@call$formula, data = data, REML = isREML(model)))
     })
     
     tstar <- do.call("cbind", tstar) # Can these be nested?
