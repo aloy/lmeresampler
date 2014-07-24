@@ -19,6 +19,25 @@ bootstrap.completion <- function(model, ystar, B, fn){
   return(RES)
 }
 
+cases.completion <- function(model, data, B, fn){
+  t0 <- fn(model)
+  
+  # Refit the model and apply 'fn' to it using lapply
+  tstar <- lapply(data, function(x) {
+    fn(lmer(lmer(model@call$formula, data, isREML(model))))
+  })
+  
+  tstar <- do.call("cbind", tstar) # Can these be nested?
+  rownames(tstar) <- names(t0)
+  
+  RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
+                        seed = .Random.seed, statistic = fn,
+                        sim = "parametric", call = match.call()),
+                   class = "boot")
+  
+  return(RES)
+}
+
 data(sleepstudy)
 
 # fm1 model
