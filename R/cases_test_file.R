@@ -40,8 +40,7 @@ cases.resamp <- function (model, extra_step){
                            return(resampled)
                          })
     model.comb <- do.call('rbind', model.resamp)
-  }
-  else{
+  } else{ # else statement needs to be located here
     model.comb <- do.call('rbind', model.split.samp)
   }
 }
