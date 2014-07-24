@@ -169,7 +169,7 @@ case.lmerMod <- function (model, fn, B, extra_step = FALSE){
     return(RES)
   }
   
-  # Plugin to .bootstrap.completion
+  # Plugin to .cases.completion due to small changes
   return(.cases.completion(model, rep.data, B, fn))
 }
 
