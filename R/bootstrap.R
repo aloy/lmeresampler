@@ -127,6 +127,7 @@ residual.lmerMod <- function (model, fn, B){
 case.lmerMod <- function (model, fn, B, extra_step = FALSE){
   # TODO: put everything below into lapply to replicate
   # ISS: Is this the best option? Would it return a huge list?
+  .cases.resamp <- function (model, extra_step){
   # Draw sample of size J from level-2 units
   model.split <- split(x=model@frame, f=model@flist)
   model.split.samp <- sample(x=model.split, size = length(model.split), replace = TRUE)
@@ -146,6 +147,9 @@ case.lmerMod <- function (model, fn, B, extra_step = FALSE){
   } else{ # else statement needs to be located here
     model.comb <- do.call('rbind', model.split.samp)
   }
+  }
+  
+  rep.data <- as.data.frame( replicate(n = B, .cases.resamp(model = model, extra_step = extra_step)) )
   
   .cases.completion <- function(model, data, B, fn){
     t0 <- fn(model)
@@ -167,7 +171,7 @@ case.lmerMod <- function (model, fn, B, extra_step = FALSE){
   }
   
   # Plugin to .bootstrap.completion
-  return(.cases.completion(model, model.comb, B, fn))
+  return(.cases.completion(model, rep.data, B, fn))
 }
 
 
