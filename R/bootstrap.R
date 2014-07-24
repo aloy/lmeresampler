@@ -131,7 +131,7 @@ case.lmerMod <- function (model, fn, B, extra_step = FALSE){
   model.split <- split(x=model@frame, f=model@flist)
   model.split.samp <- sample(x=model.split, size = length(model.split), replace = TRUE)
   # For each sample, draw a sample of the cases from the level-2 unit
-
+  
   if(extra_step == TRUE){
     model.resamp <- lapply(model.split.samp,
                            FUN = function(x) {
@@ -143,8 +143,7 @@ case.lmerMod <- function (model, fn, B, extra_step = FALSE){
                              return(resampled)
                            })
     model.comb <- do.call('rbind', model.resamp)
-  }
-  else{
+  } else{ # else statement needs to be located here
     model.comb <- do.call('rbind', model.split.samp)
   }
   
