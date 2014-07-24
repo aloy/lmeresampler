@@ -23,6 +23,9 @@ cases.completion <- function(model, data, B, fn){
   t0 <- fn(model)
   
   # Refit the model and apply 'fn' to it using lapply
+  #' ISS: Currently getting an 'first argument must be a named list' error here
+  #' I believe that it is having trouble iterating through the data variables (V1, V2...)
+  #' if that is the problem it should be easy to fix
   tstar <- lapply(data, function(x) {
     fn(lmer(model@call$formula, data, isREML(model))))
   })
