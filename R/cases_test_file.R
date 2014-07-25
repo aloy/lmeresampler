@@ -26,8 +26,10 @@ cases.completion <- function(model, data, B, fn){
   #' ISS: Currently getting an 'first argument must be a named list' error here
   #' I believe that it is having trouble iterating through the data variables (V1, V2...)
   #' if that is the problem it should be easy to fix
+  form <- model@call$formula
+  reml <- isREML(model)
   tstar <- lapply(data, function(x) {
-    fn(lmer(model@call$formula, data, isREML(model))))
+    fn(lmer(formula = form, data = x, REML = reml)) # you had data here instead of x
   })
   
   tstar <- do.call("cbind", tstar) # Can these be nested?
@@ -40,6 +42,7 @@ cases.completion <- function(model, data, B, fn){
   
   return(RES)
 }
+
 
 data(sleepstudy)
 
@@ -65,10 +68,11 @@ cases.resamp <- function (model, extra_step){
   } else{ # else statement needs to be located here
     model.comb <- do.call('rbind', model.split.samp)
   }
+  return(model.comb)
 }
 
 B <- 100
-ystar <- as.data.frame( replicate(n = B, cases.resamp(model = fm1, extra_step = extra_step)) )
+cases.data <- lapply(integer(B), eval.parent(substitute(function(...) cases.resamp(model = fm1, extra_step = extra_step))))
 
 #' ISS: I think I am passing in ystar as a list of simulations but then
 #' it throws an error:
@@ -76,7 +80,7 @@ ystar <- as.data.frame( replicate(n = B, cases.resamp(model = fm1, extra_step = 
 #' refit not implemented for lists with length>1: consider ‘lapply(object,refit)’
 #' which does not make sense because that is what we do with all the other
 #' bootstraps above
-fm1.RES <- bootstrap.completion(fm1, ystar, B = B, fn = fixef)
+fm1.RES <- cases.completion(fm1, ystar, B = B, fn = fixef)
 
 #####
 #' Noticable issues:
