@@ -148,14 +148,16 @@ case.lmerMod <- function (model, fn, B, extra_step = FALSE){
   }
   }
   
-  rep.data <- as.data.frame( replicate(n = B, .cases.resamp(model = model, extra_step = extra_step)) )
-  
+  # DEPRECATED rep.data <- as.data.frame( replicate(n = B, .cases.resamp(model = model, extra_step = extra_step)) )
+  rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(model = fm1, extra_step = extra_step))))
   .cases.completion <- function(model, data, B, fn){
     t0 <- fn(model)
     
     # Refit the model and apply 'fn' to it using lapply
+    form <- model@call$formula
+    reml <- isREML(model)
     tstar <- lapply(data, function(x) {
-      fn(lmer(formula = model@call$formula, data = data, REML = isREML(model)))
+      fn(lmer(formula = form, data = x, REML = reml)) 
     })
     
     tstar <- do.call("cbind", tstar) # Can these be nested?
