@@ -201,8 +201,10 @@ cgr.lmerMod <- function (model, fn, B){
   model.resid <- resid(model)
   
   # scale the level-1 residuals and random effects
+  # use two lapplys to do this over model.resid
   
   # center the scaled residuals at zero
+  # also use an lapply here to do this, unless there is a faster way
   
   
   # Sample Random Effects
