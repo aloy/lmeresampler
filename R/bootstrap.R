@@ -191,7 +191,7 @@ case.lmerMod <- function (model, fn, B, extra_step = FALSE){
 #' @return list
 #'
 #' @references
-#'   @cite 
+#'   @cite Chambers:2013ba
 cgr.lmerMod <- function (model, fn, B){
   
 }
