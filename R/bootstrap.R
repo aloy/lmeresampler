@@ -208,7 +208,7 @@ cgr.lmerMod <- function (model, fn, B){
   
   
   # Sample Random Effects
-  
+  ustar <- sample(x = model.ranef, size = length(model.ranef), replace = TRUE)
   # Resample residuals
   estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
   
