@@ -193,10 +193,21 @@ case.lmerMod <- function (model, fn, B, extra_step = FALSE){
 #' @references
 #'   @cite Chambers:2013ba
 cgr.lmerMod <- function (model, fn, B){
+  fn <- match.fun(fn)
   # scale the level-1 residuals and random effects
   # center the scaled residuals at zero
-  # sample from random effects
-  # sample from residuals
+  
+  # Extract random effects
+  model.ranef <- ranef(model)
+  
+  # Extract residuals
+  model.resid <- resid(model)
+  
+  # Sample Random Effects
+  
+  # Resample residuals
+  estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
+  
   # use model
   # fit
   # repeat B times
