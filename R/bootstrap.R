@@ -177,7 +177,24 @@ case.lmerMod <- function (model, fn, B, extra_step = FALSE){
   return(.cases.completion(model, rep.data, B, fn))
 }
 
-
+#' @title CGR Bootstrap
+#'
+#' @description
+#' 
+#'
+#' @details
+#'
+#' @inheritParams model
+#' @inheritParams fn
+#' @inheritParams B
+#'
+#' @return list
+#'
+#' @references
+#'   @cite 
+cgr.lmerMod <- function (model, fn, B){
+  
+}
 #####################
 # Utility Functions #
 #####################
