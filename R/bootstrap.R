@@ -202,9 +202,11 @@ cgr.lmerMod <- function (model, fn, B){
   
   # resave as u
   u <- model.ranef[[1]]
+  as.matrix(u)
   
-  # scale the level-1 residuals and random effects
-  # use two lapplys to do this over model.resid
+  # Calculations
+  S <- (t(u)%*%u)/length(u)
+  R <- VarCorr(model)
   
   # center the scaled residuals at zero
   # also use an lapply here to do this, unless there is a faster way
