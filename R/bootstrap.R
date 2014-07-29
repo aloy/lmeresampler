@@ -200,6 +200,10 @@ cgr.lmerMod <- function (model, fn, B){
   # Extract residuals
   model.resid <- resid(model)
   
+  # Calculate variance
+  var.ranef <- var(model.ranef)
+  var.resid <- var(model.resid)
+  
   # scale the level-1 residuals and random effects
   # use two lapplys to do this over model.resid
   
