@@ -207,6 +207,7 @@ cgr.lmerMod <- function (model, fn, B){
   # Calculations
   S <- (t(u)%*%u)/length(u)
   R <- VarCorr(model)
+  Ls <- chol(S, pivot = TRUE)
   
   # center the scaled residuals at zero
   # also use an lapply here to do this, unless there is a faster way
