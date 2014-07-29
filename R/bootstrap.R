@@ -200,7 +200,7 @@ cgr.lmerMod <- function (model, fn, B){
   # Extract residuals
   model.resid <- resid(model)
   
-  # resave as u
+  # Level 2
   u <- model.ranef[[1]]
   as.matrix(u)
   
@@ -214,6 +214,9 @@ cgr.lmerMod <- function (model, fn, B){
   
   Uhat <- u%*%A
   
+  # Level 1
+  e <- model.resid
+  sigma <- sigma(model)
   # center the scaled residuals at zero
   # also use an lapply here to do this, unless there is a faster way
   
