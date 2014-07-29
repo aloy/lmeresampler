@@ -218,14 +218,15 @@ cgr.lmerMod <- function (model, fn, B){
   e <- model.resid
   sigma <- sigma(model)
   estar <- sigma*e*((t(e)%*%e)/length(e))^(-1/2)
+  
   # center the scaled residuals at zero
   # also use an lapply here to do this, unless there is a faster way
   
   
   # Sample Random Effects
-  ustar <- sample(x = model.ranef, size = length(model.ranef), replace = TRUE)
+  ustar <- sample(x = Uhat, size = length(model.ranef), replace = TRUE)
   # Resample residuals
-  estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
+  estar <- sample(x = estar, size = length(model.resid), replace = TRUE)
   
   # use model
   # fit
