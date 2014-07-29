@@ -217,7 +217,6 @@ cgr.lmerMod <- function (model, fn, B){
   # Level 1
   e <- model.resid
   sigma <- sigma(model)
-  e* <- sig*e*(e^T e/n)^(-1/2)
   estar <- sigma*e*((t(e)%*%e)/n)^(-1/2)
   # center the scaled residuals at zero
   # also use an lapply here to do this, unless there is a faster way
