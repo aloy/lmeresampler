@@ -212,6 +212,8 @@ cgr.lmerMod <- function (model, fn, B){
   Lr <- chol(R, pivot = TRUE)
   A <- t(Lr%*%(Ls^(-1)))
   
+  Uhat <- u%*%A
+  
   # center the scaled residuals at zero
   # also use an lapply here to do this, unless there is a faster way
   
