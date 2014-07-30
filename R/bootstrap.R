@@ -209,7 +209,7 @@ cgr.lmerMod <- function (model, fn, B){
   Ls <- chol(S, pivot = TRUE)
   # ISS: R needs to be a matrix for this to work
   Lr <- chol(R, pivot = TRUE)
-  A <- t(Lr%*%(Ls^(-1)))
+  A <- t(Lr%*%solve(Ls))
   
   Uhat <- u%*%A
   
