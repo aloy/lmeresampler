@@ -201,12 +201,11 @@ cgr.lmerMod <- function (model, fn, B){
   model.resid <- resid(model)
   
   # Level 2
-  u <- model.ranef[[1]]
-  as.matrix(u)
+  u <- as.matrix(model.ranef[[1]])
   
   # Calculations
   S <- (t(u)%*%u)/length(u)
-  R <- VarCorr(model)
+  R <- bdiag(VarCorr(model))
   Ls <- chol(S, pivot = TRUE)
   # ISS: R needs to be a matrix for this to work
   Lr <- chol(R, pivot = TRUE)
