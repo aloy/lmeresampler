@@ -195,41 +195,7 @@ case.lmerMod <- function (model, fn, B, extra_step = FALSE){
 cgr.lmerMod <- function (model, fn, B){
   fn <- match.fun(fn)
   # Extract random effects
-  model.ranef <- ranef(model)
   
-  # Extract residuals
-  model.resid <- resid(model)
-  
-  # Level 2
-  u <- as.matrix(model.ranef[[1]])
-  
-  # Calculations
-  S <- (t(u)%*%u)/length(u)
-  R <- bdiag(VarCorr(model))
-  Ls <- chol(S, pivot = TRUE)
-  # ISS: R needs to be a matrix for this to work
-  Lr <- chol(R, pivot = TRUE)
-  A <- t(Lr%*%solve(Ls))
-  
-  Uhat <- u%*%A
-  
-  # Level 1
-  e <- model.resid
-  sigma <- sigma(model)
-  estar <- sigma*e*((t(e)%*%e)/length(e))^(-1/2)
-  
-  # center the scaled residuals at zero
-  # also use an lapply here to do this, unless there is a faster way
-  
-  
-  # Sample Random Effects
-  ustar <- sample(x = Uhat, size = length(model.ranef), replace = TRUE)
-  # Resample residuals
-  estar <- sample(x = estar, size = length(model.resid), replace = TRUE)
-  
-  # use model
-  # fit
-  # repeat B times
 }
 #####################
 # Utility Functions #
@@ -287,6 +253,51 @@ cgr.lmerMod <- function (model, fn, B){
   return(RES)
 }
 
+#' CGR Resampling
+#' 
+
+.resample.cgr <- function(model){
+  model.ranef <- ranef(model)
+  
+  # Extract residuals
+  model.resid <- resid(model)
+  
+  # Level 2
+  u <- as.matrix(model.ranef[[1]])
+  
+  # Calculations
+  S <- (t(u)%*%u)/length(u)
+  R <- bdiag(VarCorr(model))
+  Ls <- chol(S, pivot = TRUE)
+  # ISS: R needs to be a matrix for this to work
+  Lr <- chol(R, pivot = TRUE)
+  A <- t(Lr%*%solve(Ls))
+  
+  Uhat <- u%*%A
+  
+  # Level 1
+  e <- model.resid
+  sigma <- sigma(model)
+  estar <- sigma*e*((t(e)%*%e)/length(e))^(-1/2)
+  
+  # center the scaled residuals at zero
+  # also use an lapply here to do this, unless there is a faster way
+  
+  
+  # Sample Random Effects
+  ustar <- sample(x = Uhat, size = length(model.ranef), replace = TRUE)
+  # Resample residuals
+  estar <- sample(x = estar, size = length(model.resid), replace = TRUE)
+  
+  # Extract Z design matrix
+  Z <- getME(object = model, name = "Ztlist")
+  
+  # Apply fn over list?
+  
+  # repiece
+  Zbstar <- .Zbstar.combine(bstar = ustar, zstar = Z)
+  Zbstar.sum <- Reduce("+", Zbstar)
+}
 
 #' Resampling residuals from mixed models
 
