@@ -40,7 +40,7 @@ bootstrap <- function (model, fn, type, B){
          par = parametric.lmerMod(model, fn, B),
          res = residual.lmerMod(model, fn, B),
          case = case.lmerMod(model, fn, B, extra_step = FALSE),
-         cgr = cgr(model, fn, B),
+         cgr = cgr.lmerMod(model, fn, B),
          reb = reb(model, fn, B, reb_type = 0),
          reb1 = reb(model, fn, B, reb_type = 1),
          reb2 = reb(model, fn, B, reb_type = 2))
@@ -284,23 +284,8 @@ cgr.lmerMod <- function (model, fn, B){
   sigma <- sigma(model)
   estar <- sigma*e*((t(e)%*%e)/length(e))^(-1/2)
   
-  # center the scaled residuals at zero
-  # also use an lapply here to do this, unless there is a faster way
-  
-  
-  # Sample Random Effects
-  ustar <- sample(x = Uhat, size = length(model.ranef), replace = TRUE)
-  # Resample residuals
-  estar <- sample(x = estar, size = length(model.resid), replace = TRUE)
-  
   # Extract Z design matrix
   Z <- getME(object = model, name = "Ztlist")
-  
-  # Apply fn over list?
-  
-  # repiece
-  Zbstar <- .Zbstar.combine(bstar = ustar, zstar = Z)
-  Zbstar.sum <- Reduce("+", Zbstar)
   
   Xbeta <- predict(model, re.form = NA)
   
