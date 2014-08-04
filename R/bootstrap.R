@@ -297,6 +297,12 @@ cgr.lmerMod <- function (model, fn, B){
   # repiece
   Zbstar <- .Zbstar.combine(bstar = ustar, zstar = Z)
   Zbstar.sum <- Reduce("+", Zbstar)
+  
+  Xbeta <- predict(model, re.form = NA)
+  
+  y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
+  
+  return(y.star)
 }
 
 #' Resampling residuals from mixed models
