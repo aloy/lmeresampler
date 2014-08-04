@@ -196,6 +196,10 @@ cgr.lmerMod <- function (model, fn, B){
   fn <- match.fun(fn)
   # Extract random effects
   
+  ystar <- as.data.frame( replicate(n = B, .resample.cgr(model = model)) )
+  
+  return(.bootstrap.completion(model, ystar, B, fn))
+  
 }
 #####################
 # Utility Functions #
