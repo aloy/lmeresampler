@@ -30,3 +30,6 @@ fm1.case.res1 <- case.lmerMod(model = fm1, fn = fixef, B = 100)
 fm1.case.res2 <- case.lmerMod(model = fm1, fn = mySumm, B = 100)
 fm1.case.e.res1 <- case.lmerMod(model = fm1, fn = fixef, B = 100, extra_step = TRUE)
 fm1.case.e.res2 <- case.lmerMod(model = fm1, fn = mySumm, B = 100, extra_step = TRUE)
+
+# CGR
+fm1.cgr.res1 <- cgr.lmerMod(model = fm1, fn = fixef, B = 100)
