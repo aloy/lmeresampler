@@ -201,6 +201,18 @@ cgr.lmerMod <- function (model, fn, B){
   return(.bootstrap.completion(model, ystar, B, fn))
   
 }
+
+reb.lmerMod <- function (model, fn, B, reb_type = 0){
+  if(reb_type == 1){
+    #PRE
+  }
+  
+  
+  
+  if(reb_type == 2){
+    #POST
+  }
+}
 #####################
 # Utility Functions #
 #####################
