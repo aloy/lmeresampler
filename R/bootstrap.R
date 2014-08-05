@@ -41,9 +41,9 @@ bootstrap <- function (model, fn, type, B){
          res = residual.lmerMod(model, fn, B),
          case = case.lmerMod(model, fn, B, extra_step = FALSE),
          cgr = cgr.lmerMod(model, fn, B),
-         reb = reb(model, fn, B, reb_type = 0),
-         reb1 = reb(model, fn, B, reb_type = 1),
-         reb2 = reb(model, fn, B, reb_type = 2))
+         reb = reb.lmerMod(model, fn, B, reb_type = 0),
+         reb1 = reb.lmerMod(model, fn, B, reb_type = 1),
+         reb2 = reb.lmerMod(model, fn, B, reb_type = 2))
   # TODO: need to be able to save results
 }
 
