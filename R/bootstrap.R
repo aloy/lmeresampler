@@ -208,6 +208,12 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   }
   
   # use HLMresid to extract marginal residuals
+  # average the level 2 marginal resids
+  # extract level 1 resids
+  # sample from the sets
+  # simulate
+  # fit
+  # B times
   
   
   if(reb_type == 2){
