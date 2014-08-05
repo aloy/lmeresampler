@@ -207,6 +207,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     #PRE
   }
   
+  # use HLMresid to extract marginal residuals
   
   
   if(reb_type == 2){
