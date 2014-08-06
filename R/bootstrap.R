@@ -17,6 +17,7 @@
 
 library(lme4)
 library(nlme)
+library(HLMdiag)
 #library(roxygen)
 
 #' @title Bootstrap for LMEs
