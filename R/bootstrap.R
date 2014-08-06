@@ -203,6 +203,23 @@ cgr.lmerMod <- function (model, fn, B){
   
 }
 
+
+#' @title REB Bootstrap
+#'
+#' @description
+#' 
+#'
+#' @details
+#'
+#' @inheritParams model
+#' @inheritParams fn
+#' @inheritParams B
+#' @param reb_type Chooses the type of REB bootstrap
+#'
+#' @return list
+#'
+#' @references
+#'   @cite 
 reb.lmerMod <- function (model, fn, B, reb_type = 0){
   if(reb_type == 1){
     #PRE
