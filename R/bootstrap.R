@@ -277,7 +277,8 @@ cgr.lmerMod <- function (model, fn, B){
   Lr <- chol(R, pivot = TRUE)
   A <- t(Lr%*%solve(Ls))
   
-  Uhat <- u%*%A
+  Uhat <- as.matrix(u%*%A)
+  Uhat <- as.data.frame(Uhat)
   
   # Level 1
   e <- model.resid
@@ -288,6 +289,9 @@ cgr.lmerMod <- function (model, fn, B){
   Z <- getME(object = model, name = "Ztlist")
   
   Xbeta <- predict(model, re.form = NA)
+  
+  Zbstar <- .Zbstar.combine(bstar = Uhat, zstar = Z)
+  Zbstar.sum <- Reduce("+", Zbstar)
   
   y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
   
