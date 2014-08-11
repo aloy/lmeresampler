@@ -372,7 +372,9 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     bstar <- lapply(bstar, FUN = function(x) as.list(x))[[1]]
     names(bstar) <- names(Z)
   } else {
-    bstar <- sapply(bstar, FUN = function(x) as.list(x))
+    bstar <- lapply(bstar, FUN = function(x) as.data.frame(x))
+    bstar <- do.call(c, bstar)
+    names(bstar) <- names(Z)
   }
   
   # Get Zb*

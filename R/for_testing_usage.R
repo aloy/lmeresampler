@@ -43,6 +43,10 @@ data(classroom)
 fm2 <- lmer(mathgain ~ mathkind + sex + minority + ses + housepov + (1|schoolid) + (1|classid), 
             data = classroom, na.action = "na.omit")
 
+fm3 <- lmer(mathgain ~ mathkind + sex + minority + ses + housepov + (ses|schoolid) + (1|classid), 
+            data = classroom, na.action = "na.omit")
+
+
 # Parametric test
 fm2.par.res1 <- parametric.lmerMod(model = fm2, fn = fixef, B = 100)
 fm2.par.res2 <- parametric.lmerMod(model = fm2, fn = mySumm, B = 100)
@@ -50,6 +54,9 @@ fm2.par.res2 <- parametric.lmerMod(model = fm2, fn = mySumm, B = 100)
 # Residual test
 fm2.res.res1 <- residual.lmerMod(model = fm2, fn = fixef, B = 100)
 fm2.res.res2 <- residual.lmerMod(model = fm2, fn = mySumm, B = 100)
+
+fm3.res.res1 <- residual.lmerMod(model = fm3, fn = fixef, B = 100)
+fm3.res.res2 <- residual.lmerMod(model = fm3, fn = mySumm, B = 100)
 
 # Cases test
 fm2.case.res1 <- case.lmerMod(model = fm2, fn = fixef, B = 100)
