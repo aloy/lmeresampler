@@ -10,9 +10,18 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   if(reb_type == 1){
     #PRE
     
-    # center and scale level 2
-    # I thought we didnt need to do this? (with the CGR at least)
-    # center and scale level 1
+    
+    # Calculations
+    
+    ## HERE
+    S <- (t(u)%*%u)/length(u)
+    R <- bdiag(VarCorr(model))
+    Ls <- chol(S, pivot = TRUE)
+    Lr <- chol(R, pivot = TRUE)
+    A <- t(Lr%*%solve(Ls))
+    
+    Uhat <- u%*%A
+    ## To here might not be necessary b/c only working with level 2?
     sigma <- sigma(model)
     estar <- sigma*e*((t(e)%*%e)/length(e))^(-1/2)
   }
