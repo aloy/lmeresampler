@@ -59,6 +59,6 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
 # Data set
 data(sleepstudy)
 
-# fm1 model
-(model <- lmer(Reaction ~ Days + (Days | Subject), data = sleepstudy))
+# model
+(model <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy))
 B <- 10
