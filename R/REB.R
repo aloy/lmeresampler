@@ -17,12 +17,17 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     estar <- sigma*e*((t(e)%*%e)/length(e))^(-1/2)
   }
   
+  # Extract Z design matrix
+  Z <- getME(object = model, name = "Ztlist")
+  
+  # level 2 resid
+  rhbar <- tcrossprod(Z)^(-1) * t(Z) * model.mresid
+  # level 1 resid
+  
   # average the level 2 marginal resids
   model.mresid.avg <- sum(model.mresid) / length(model.mresid)
-  # sample from the sets
-  # simulate
-  # fit
-  # B times
+  
+  
   
   
   # This step needs to be done outside the bootstrap
