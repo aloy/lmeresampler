@@ -319,6 +319,8 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   Uhat <- u%*%A
   
+  # ISS: We never use any of the calcs we have done above.
+  
   # Level 1
   e <- model.resid
   sigma <- sigma(model)
@@ -329,7 +331,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   Xbeta <- predict(model, re.form = NA)
   
-  # Zbstar.sum is never calculated
+  # Zbstar.sum is never calculated?
   y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
   
   return(y.star)
