@@ -313,7 +313,6 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   S <- (t(u)%*%u)/length(u)
   R <- bdiag(VarCorr(model))
   Ls <- chol(S, pivot = TRUE)
-  # ISS: R needs to be a matrix for this to work
   Lr <- chol(R, pivot = TRUE)
   A <- t(Lr%*%solve(Ls))
   
