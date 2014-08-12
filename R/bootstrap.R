@@ -330,6 +330,9 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   Xbeta <- predict(model, re.form = NA)
   
+  # ISS: Need to resample!
+  
+  
   # Zbstar.sum is never calculated?
   y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
   
