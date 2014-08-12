@@ -63,6 +63,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   Z <- getME(object = model, name = "Ztlist")
   
   # level 2 resid
+  # ISS: Running into issue here
   rhbar <- (t(Z) %*% Z)^(-1) * t(Z) * model.mresid
   # level 1 resid
   
