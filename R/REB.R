@@ -51,8 +51,12 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     
     Uhat <- u%*%A
     ## To here might not be necessary b/c only working with level 2?
+    
     sigma <- sigma(model)
     estar <- sigma*e*((t(e)%*%e)/length(e))^(-1/2)
+  }else{
+    Uhat <- 
+    estar <- 
   }
   
   # Extract Z design matrix
