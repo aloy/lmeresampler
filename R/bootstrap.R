@@ -226,7 +226,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   }
   
   # use HLMresid to extract marginal residuals
-  model.mresid <- HLMresid(object = fm1, type = "EB", level = "marginal")
+  model.mresid <- HLMresid(object = model, type = "EB", level = "marginal")
   # average the level 2 marginal resids
   model.mresid.avg <- sum(model.mresid) / length(model.mresid)
   # extract level 1 resids
