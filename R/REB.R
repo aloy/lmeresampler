@@ -1,5 +1,9 @@
 reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
+  fn <- match.fun(fn)
+  
+  ystar <- as.data.frame( replicate(n = B, .resample.reb(model = model, reb_type = reb_type)) )
+  
   
   # This step needs to be done outside the bootstrap
   if(reb_type == 2){
@@ -25,9 +29,11 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     
     # Step c on pg 457
   }
+  
+  return(.bootstrap.completion(model, ystar, B, fn))
 }
 
-.reb.resamp <- function(model, fn, B, reb_type){
+.resample.reb <- function(model, reb_type){
   # use HLMresid to extract marginal residuals
   model.mresid <- HLMresid(object = model, type = "EB", level = "marginal")
   # extract random effects
