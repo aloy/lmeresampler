@@ -318,22 +318,32 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   Uhat <- u%*%A
   
-  # ISS: We never use any of the calcs we have done above.
   
   # Level 1
   e <- model.resid
   sigma <- sigma(model)
-  estar <- sigma*e*((t(e)%*%e)/length(e))^(-1/2)
+  ehat <- sigma*e*((t(e)%*%e)/length(e))^(-1/2)
   
   # Extract Z design matrix
   Z <- getME(object = model, name = "Ztlist")
   
   Xbeta <- predict(model, re.form = NA)
   
-  # ISS: Need to resample!
+  
+  #' I have easily managed to change Uhat into a list from a matrix but
+  #' am running into an issue of plugging them into .Zbstar.combine
+  #' They are not actually combining and I am running to multiple errors.
+  #' dim(Z$subject) is 18 180 and length(Uhat.list) is 18. Do I need to change Z
+  #' to a list too?
   
   
-  # Zbstar.sum is never calculated?
+  # Get Zb*
+  Zbstar <- .Zbstar.combine(bstar = Uhat.list, zstar = Z)
+  Zbstar.sum <- Reduce("+", Zbstar)
+  
+  # sample
+  estar <- sample(x = ehat, size = length(ehat), replace = TRUE)
+  
   y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
   
   return(y.star)
