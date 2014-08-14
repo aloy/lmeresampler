@@ -263,6 +263,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   })
 }
 
+
 #' @title Bootstrap Completion
 #'
 #' @description
@@ -336,6 +337,16 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   #' dim(Z$subject) is 18 180 and length(Uhat.list) is 18. Do I need to change Z
   #' to a list too?
   
+  Uhat.list <- list(Uhat)
+  
+  level.num <- getME(object = model, name = "n_rfacs")
+  
+  if(level.num == 1){
+    Uhat.list <- lapply(Uhat.list, FUN = function(x) list(x))[[1]]
+    names(Uhat.list) <- names(Z)
+  } else {
+    Uhat.list <- sapply(Uhat.list, FUN = function(x) list(x))
+  }
   
   # Get Zb*
   Zbstar <- .Zbstar.combine(bstar = Uhat.list, zstar = Z)
