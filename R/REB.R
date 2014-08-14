@@ -3,10 +3,9 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   fn <- match.fun(fn)
   
   ystar <- as.data.frame( replicate(n = B, .resample.reb(model = model, reb_type = reb_type)) )
+  # fit model
   
-  
-  # This step needs to be done outside the bootstrap
-  if(reb_type == 2){
+  .reb.two <- function(x) {
     #POST
     
     OneB <- matrix(c(1), nrow = B, ncol = 1)
@@ -29,6 +28,10 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     
     # Step c on pg 457
   }
+  # This step needs to be done outside the bootstrap
+  if(reb_type == 2){
+    # .reb.two using lapply
+  }
   
   return(.bootstrap.completion(model, ystar, B, fn))
 }
@@ -36,12 +39,14 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
 .resample.reb <- function(model, reb_type){
   # use HLMresid to extract marginal residuals
   model.mresid <- HLMresid(object = model, type = "EB", level = "marginal")
-  # extract random effects
-  model.ranef <- ranef(model)
-  u <- as.matrix(model.ranef[[1]])
-  # extract level 1 resids
-  model.resid <- resid(model)
-  e <- model.resid
+  
+  # Extract Z design matrix
+  Z <- getME(object = model, name = "Z")
+  
+  # level 2 resid
+  u <- solve(t(Z) %*% Z) %*% t(Z) %*% model.mresid
+  # level 1 resid
+  e <- model.mresid - Z %*% u
   if(reb_type == 1){
     #PRE
     
@@ -59,27 +64,44 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     ## To here might not be necessary b/c only working with level 2?
     
     sigma <- sigma(model)
-    estar <- sigma*e*((t(e)%*%e)/length(e))^(-1/2)
+    estar <- sigma * e %*% ((t(e) %*% e) / length(e))^(-1/2)
+    
+    # center
+    
+    for(i in 1:length(estar)){
+      estar[i,1] <- estar[i,1]-(mean(estar[,1])/length(estar[,1]))
+    }
+    for(i in 1:length(Uhat)){
+      Uhat[i,1] <- Uhat[i,1]--(mean(Uhat[,1])/length(Uhat[,1]))
+    }
+    
   }else{
-    Uhat <- 
-    estar <- 
+    Uhat <- u
+    estar <- e
+  }
+  
+  Xbeta <- predict(model, re.form = NA)
+  
+  # resample uhats
+  
+  Uhat <- as.data.frame(as.matrix(Uhat))
+  Uhat.list <- list(Uhat)
+  
+  level.num <- getME(object = model, name = "n_rfacs")
+  
+  if(level.num == 1){
+    Uhat.list <- lapply(Uhat.list, FUN = function(x) as.list(x))[[1]]
+    names(Uhat.list) <- names(Z)
+  } else {
+    Uhat.list <- sapply(Uhat.list, FUN = function(x) as.list(x))
   }
   
   # Extract Z design matrix
   Z <- getME(object = model, name = "Ztlist")
   
-  # level 2 resid
-  # ISS: Running into issue here
-  rhbar <- (t(Z) %*% Z)^(-1) * t(Z) * model.mresid
-  # level 1 resid
-  
-  # average the level 2 marginal resids
-  model.mresid.avg <- sum(model.mresid) / length(model.mresid)
-  
-  Xbeta <- predict(model, re.form = NA)
   
   # Get Zb*
-  Zbstar <- .Zbstar.combine(bstar = Uhat, zstar = Z)
+  Zbstar <- .Zbstar.combine(bstar = Uhat.list, zstar = Z)
   Zbstar.sum <- Reduce("+", Zbstar)
   
   # Resample residuals
@@ -99,5 +121,5 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
 data(sleepstudy)
 
 # model
-(model <- lmer(Reaction ~ Days + (Days | Subject), data = sleepstudy))
+(model <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy))
 B <- 10

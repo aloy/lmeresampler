@@ -330,12 +330,8 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   Xbeta <- predict(model, re.form = NA)
   
-  
-  #' I have easily managed to change Uhat into a list from a matrix but
-  #' am running into an issue of plugging them into .Zbstar.combine
-  #' They are not actually combining and I am running to multiple errors.
-  #' dim(Z$subject) is 18 180 and length(Uhat.list) is 18. Do I need to change Z
-  #' to a list too?
+  # Resample rows, change b/c matrix
+  Uhat <- sample(x = Uhat, size = length(Uhat), replace = TRUE)
   
   Uhat <- as.data.frame(as.matrix(Uhat))
   Uhat.list <- list(Uhat)
