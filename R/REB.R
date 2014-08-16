@@ -4,14 +4,11 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   
   
-  .reb.two <- function(x) {
+  .reb.two <- function(u.lvar, e.lvar) {
     #POST
     
     OneB <- matrix(c(1), nrow = B, ncol = 1)
     
-    # calculate the log(var) of each
-    u.lvar <- log(var(u))
-    e.lvar <- log(var(e))
     # combine into a Bx2 matrix
     Sstar <- matrix(c(u.lvar, e.lvar), nrow = B, ncol = 2)
     # average of Sstar
@@ -26,6 +23,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     Lstar <- Mstar + ((Sstar - Mstar) * Cstar^(-1/2)) * Dstar
     
     # Step c on pg 457
+    return(Lstar)
   }
   
   
@@ -37,12 +35,14 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   # This step needs to be done outside the bootstrap
   if(reb_type == 2){
      # Refit the model and apply 'fn' to it using lapply
-    tstar <- lapply(ystar, function(x) {
+    tstar <- lapply(ystar[1,], function(x) {
       fn(refit(object = model, newresp = x))
     })
     
     tstar <- do.call("cbind", tstar) # Can these be nested?
     rownames(tstar) <- names(fn(model))
+    #NOT WORKING
+    rt.res <- .reb.two(t(as.matrix(ystar[2,])),t(as.matrix(ystar[3,])))
     
   } else{
     RES <- .bootstrap.completion(model, ystar, B, fn)
@@ -115,10 +115,10 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   # Resample Uhat
   J <- length(Uhat.list[[1]])
-  Uhat.samp <- sample(x = Uhat.list[[1]], size = J, replace = TRUE)
+  ustar <- sample(x = Uhat.list[[1]], size = J, replace = TRUE)
   
   # Get Zb*
-  Zbstar <- .Zbstar.combine(bstar = as.data.frame(Uhat.samp), zstar = Z)
+  Zbstar <- .Zbstar.combine(bstar = as.data.frame(ustar), zstar = Z)
   Zbstar.sum <- Reduce("+", Zbstar)
   
   # Resample residuals
@@ -127,8 +127,13 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   # Combine function
   y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
   
+  # this is going to be a crude workaround
+  u.lvar <- log(var(ustar))
+  e.lvar <- log(var(estar))
   
-  return(y.star)
+  test.return <- structure(list(ystar = y.star, u = u.lvar, e = e.lvar))
+  
+  return(test.return)
 }
 
 
