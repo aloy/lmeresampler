@@ -2,8 +2,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   fn <- match.fun(fn)
   
-  ystar <- as.data.frame( replicate(n = B, .resample.reb(model = model, reb_type = reb_type)) )
-  # fit model
+  
   
   .reb.two <- function(x) {
     #POST
@@ -28,12 +27,28 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     
     # Step c on pg 457
   }
+  
+  
+  ystar <- as.data.frame( replicate(n = B, .resample.reb(model = model, reb_type = reb_type)) )
+  
+  # how do i extract the two sigma_u and sigma_e values from these results once
+  # fitted below?
+  
   # This step needs to be done outside the bootstrap
   if(reb_type == 2){
-    # .reb.two using lapply
+     # Refit the model and apply 'fn' to it using lapply
+    tstar <- lapply(ystar, function(x) {
+      fn(refit(object = model, newresp = x))
+    })
+    
+    tstar <- do.call("cbind", tstar) # Can these be nested?
+    rownames(tstar) <- names(fn(model))
+    
+  } else{
+    RES <- .bootstrap.completion(model, ystar, B, fn)
   }
   
-  return(.bootstrap.completion(model, ystar, B, fn))
+  return(RES)
 }
 
 .resample.reb <- function(model, reb_type){
