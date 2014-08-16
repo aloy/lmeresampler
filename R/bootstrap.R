@@ -221,25 +221,7 @@ cgr.lmerMod <- function (model, fn, B){
 #' @references
 #'   @cite 
 reb.lmerMod <- function (model, fn, B, reb_type = 0){
-  if(reb_type == 1){
-    #PRE
-  }
   
-  # use HLMresid to extract marginal residuals
-  model.mresid <- HLMresid(object = model, type = "EB", level = "marginal")
-  # average the level 2 marginal resids
-  model.mresid.avg <- sum(model.mresid) / length(model.mresid)
-  # extract level 1 resids
-  model.resid <- resid(model)
-  # sample from the sets
-  # simulate
-  # fit
-  # B times
-  
-  
-  if(reb_type == 2){
-    #POST
-  }
 }
 #####################
 # Utility Functions #
