@@ -53,7 +53,6 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     
     # Calculations
     
-    ## HERE
     S <- (t(u)%*%u)/length(u)
     R <- bdiag(VarCorr(model))
     Ls <- chol(S, pivot = TRUE)
@@ -61,7 +60,6 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     A <- t(Lr%*%solve(Ls))
     
     Uhat <- u%*%A
-    ## To here might not be necessary b/c only working with level 2?
     
     sigma <- sigma(model)
     estar <- sigma * e %*% ((t(e) %*% e) / length(e))^(-1/2)
@@ -85,6 +83,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   # resample uhats
   
   Uhat <- as.data.frame(as.matrix(Uhat))
+  
   Uhat.list <- list(Uhat)
   
   level.num <- getME(object = model, name = "n_rfacs")
@@ -99,6 +98,10 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   # Extract Z design matrix
   Z <- getME(object = model, name = "Ztlist")
   
+  # Resample Uhat
+  J <- length(Uhat.list[[1]])
+  Uhat.index <- sample(x = seq_len(J), size = J, replace = TRUE)
+  Uhat.samp <- Uhat.list[[1]][Uhat.index]
   
   # Get Zb*
   Zbstar <- .Zbstar.combine(bstar = Uhat.list, zstar = Z)
@@ -116,6 +119,9 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
 
 
 
+library(lme4)
+library(HLMdiag)
+
 
 # Data set
 data(sleepstudy)
@@ -123,3 +129,4 @@ data(sleepstudy)
 # model
 (model <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy))
 B <- 10
+fn <- fixef
