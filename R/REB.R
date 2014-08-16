@@ -115,11 +115,10 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   # Resample Uhat
   J <- length(Uhat.list[[1]])
-  Uhat.index <- sample(x = seq_len(J), size = J, replace = TRUE)
-  Uhat.samp <- Uhat.list[[1]][Uhat.index]
+  Uhat.samp <- sample(x = Uhat.list[[1]], size = J, replace = TRUE)
   
   # Get Zb*
-  Zbstar <- .Zbstar.combine(bstar = Uhat.list, zstar = Z)
+  Zbstar <- .Zbstar.combine(bstar = as.data.frame(Uhat.samp), zstar = Z)
   Zbstar.sum <- Reduce("+", Zbstar)
   
   # Resample residuals
