@@ -4,15 +4,15 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   
   
-  .reb.two <- function(u.lvar, e.lvar) {
+  .reb.two <- function(ue.mat) {
     #POST
     
     OneB <- matrix(c(1), nrow = B, ncol = 1)
     
     # combine into a Bx2 matrix
-    Sstar <- matrix(c(u.lvar, e.lvar), nrow = B, ncol = 2)
+    Sstar <- as.matrix(ue.mat) # NOT A REAL MATRIX
     # average of Sstar
-    Mstar <- matrix(c(mean(u.lvar) * OneB, mean(e.lvar) * OneB), nrow = B, ncol = 2)
+    Mstar <- Sstar %*% OneB
     # sd of Sstar
     Dstar <- matrix(c(sd(u.lvar) * OneB, sd(e.lvar) * OneB), nrow = B, ncol = 2)
     
@@ -42,7 +42,10 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     tstar <- do.call("cbind", tstar) # Can these be nested?
     rownames(tstar) <- names(fn(model))
     #NOT WORKING
-    rt.res <- .reb.two(t(as.matrix(ystar[2,])),t(as.matrix(ystar[3,])))
+    u.vec <- as.numeric(t(ystar[2,]))
+    e.vec <- as.numeric(t(ystar[3,]))
+    ue.mat <- matrix(c(u.vec, e.vec), ncol = 2)
+    rt.res <- .reb.two(ue.mat)
     
   } else{
     RES <- .bootstrap.completion(model, ystar, B, fn)
