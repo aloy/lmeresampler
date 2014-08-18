@@ -10,20 +10,25 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     OneB <- matrix(c(1), nrow = B, ncol = 1)
     
     # combine into a Bx2 matrix
-    Sstar <- as.matrix(ue.mat) # NOT A REAL MATRIX
+    Sstar <- as.matrix(ue.mat)
     # average of Sstar
-    Mstar <- Sstar %*% OneB
+    Mstar <- matrix(colMeans(Sstar), nrow = B, ncol = 2, byrow = TRUE)
     # sd of Sstar
-    Dstar <- matrix(c(sd(u.lvar) * OneB, sd(e.lvar) * OneB), nrow = B, ncol = 2)
+    Dstar <- matrix(apply(Sstar, 2, FUN = sd), ncol = 2) #use apply
     
     # Calculate 2x2 cov matrix of Sstar
     Cstar <- cov(Sstar)
     
+    PieceOne <- ((Sstar - Mstar) %*% Cstar)
+    # combine element to element to make a 10x2 matrix
+    PieceTwo <- %*% Dstar
+    
     # Lstar
-    ## ISSUE: you cannot simply take the inverse square root!
-    Lstar <- Mstar + ((Sstar - Mstar) * Cstar^(-1/2)) * Dstar
+    Lstar <- Mstar +  PieceTwo # Fix Cstar math
     
     # Step c on pg 457
+    exp(Lstar)
+    
     return(Lstar)
   }
   
@@ -42,7 +47,6 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     
     tstar <- do.call("cbind", tstar) # Can these be nested?
     rownames(tstar) <- names(fn(model))
-    #NOT WORKING
     u.vec <- as.numeric(t(ystar[2,]))
     e.vec <- as.numeric(t(ystar[3,]))
     ue.mat <- matrix(c(u.vec, e.vec), ncol = 2)
