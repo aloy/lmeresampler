@@ -116,8 +116,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   }
     
   # Resample Uhat
-  J <- length(Uhat.list[[1]])
-  ustar <- sample(x = Uhat.list[[1]], size = J, replace = TRUE)
+  ustar <- sample(x = Uhat.list[[1]], size = length(Uhat.list[[1]]), replace = TRUE)
   
   # Get Zb*
   Zbstar <- .Zbstar.combine(bstar = as.data.frame(ustar), zstar = Ztlist)

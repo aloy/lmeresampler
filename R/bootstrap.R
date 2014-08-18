@@ -312,8 +312,6 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   Xbeta <- predict(model, re.form = NA)
   
-  # Resample rows, change b/c matrix
-  Uhat <- sample(x = Uhat, size = length(Uhat), replace = TRUE)
   
   Uhat <- as.data.frame(as.matrix(Uhat))
   Uhat.list <- list(Uhat)
@@ -327,10 +325,11 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     Uhat.list <- sapply(Uhat.list, FUN = function(x) as.list(x))
   }
   
-  # Resample Uhat.list
+  # Resample Uhat
+  ustar <- sample(x = Uhat.list[[1]], size = length(Uhat.list[[1]]), replace = TRUE)
   
   # Get Zb*
-  Zbstar <- .Zbstar.combine(bstar = Uhat.list, zstar = Z)
+  Zbstar <- .Zbstar.combine(bstar = as.data.frame(ustar), zstar = Z)
   Zbstar.sum <- Reduce("+", Zbstar)
   
   # sample
