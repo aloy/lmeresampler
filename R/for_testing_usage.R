@@ -33,3 +33,26 @@ fm1.case.e.res2 <- case.lmerMod(model = fm1, fn = mySumm, B = 100, extra_step = 
 
 # CGR
 fm1.cgr.res1 <- cgr.lmerMod(model = fm1, fn = fixef, B = 100)
+
+
+
+# Looking at a three level model
+library(WWGbook)
+data(classroom)
+
+fm2 <- lmer(mathgain ~ mathkind + sex + minority + ses + housepov + (1|schoolid) + (1|classid), 
+            data = classroom, na.action = "na.omit")
+
+# Parametric test
+fm2.par.res1 <- parametric.lmerMod(model = fm2, fn = fixef, B = 100)
+fm2.par.res2 <- parametric.lmerMod(model = fm2, fn = mySumm, B = 100)
+
+# Residual test
+fm2.res.res1 <- residual.lmerMod(model = fm2, fn = fixef, B = 100)
+fm2.res.res2 <- residual.lmerMod(model = fm2, fn = mySumm, B = 100)
+
+# Cases test
+fm2.case.res1 <- case.lmerMod(model = fm2, fn = fixef, B = 100)
+fm2.case.res2 <- case.lmerMod(model = fm2, fn = mySumm, B = 100)
+fm2.case.e.res1 <- case.lmerMod(model = fm2, fn = fixef, B = 100, extra_step = TRUE)
+fm2.case.e.res2 <- case.lmerMod(model = fm2, fn = mySumm, B = 100, extra_step = TRUE)

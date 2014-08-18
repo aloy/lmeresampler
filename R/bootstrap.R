@@ -299,7 +299,8 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   Lr <- chol(R, pivot = TRUE)
   A <- t(Lr%*%solve(Ls))
   
-  Uhat <- u%*%A
+  Uhat <- as.matrix(u%*%A)
+  Uhat <- as.data.frame(Uhat)
   
   
   # Level 1
@@ -311,7 +312,6 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   Z <- getME(object = model, name = "Ztlist")
   
   Xbeta <- predict(model, re.form = NA)
-  
   
   Uhat <- as.data.frame(as.matrix(Uhat))
   Uhat.list <- list(Uhat)
