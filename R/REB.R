@@ -83,15 +83,10 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     estar <- sigma * e %*% ((t(e) %*% e) / length(e))^(-1/2)
     
     # center
+    estar <- scale(estar, scale = FALSE) # faster than the for loop
+    Uhat <- scale(Uhat, scale = FALSE) 
     
-    for(i in 1:length(estar)){
-      estar[i,1] <- estar[i,1]-(mean(estar[,1])/length(estar[,1]))
-    }
-    for(i in 1:length(Uhat)){
-      Uhat[i,1] <- Uhat[i,1]--(mean(Uhat[,1])/length(Uhat[,1]))
-    }
-    
-  }else{
+  } else{
     Uhat <- u
     estar <- e
   }
