@@ -95,28 +95,27 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   # resample uhats
   
-  Uhat <- as.data.frame(as.matrix(Uhat))
-  
+  Uhat <- as.data.frame(Uhat)
   Uhat.list <- list(Uhat)
   
   level.num <- getME(object = model, name = "n_rfacs")
   
+  # Extract Z design matrix
+  Ztlist <- getME(object = model, name = "Ztlist")
+  
   if(level.num == 1){
     Uhat.list <- lapply(Uhat.list, FUN = function(x) as.list(x))[[1]]
-    names(Uhat.list) <- names(Z)
+    names(Uhat.list) <- names(Ztlist)
   } else {
     Uhat.list <- sapply(Uhat.list, FUN = function(x) as.list(x))
   }
-  
-  # Extract Z design matrix
-  Z <- getME(object = model, name = "Ztlist")
-  
+    
   # Resample Uhat
   J <- length(Uhat.list[[1]])
   ustar <- sample(x = Uhat.list[[1]], size = J, replace = TRUE)
   
   # Get Zb*
-  Zbstar <- .Zbstar.combine(bstar = as.data.frame(ustar), zstar = Z)
+  Zbstar <- .Zbstar.combine(bstar = as.data.frame(ustar), zstar = Ztlist)
   Zbstar.sum <- Reduce("+", Zbstar)
   
   # Resample residuals
