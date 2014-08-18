@@ -20,6 +20,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     Cstar <- cov(Sstar)
     
     # Lstar
+    ## ISSUE: you cannot simply take the inverse square root!
     Lstar <- Mstar + ((Sstar - Mstar) * Cstar^(-1/2)) * Dstar
     
     # Step c on pg 457
@@ -95,7 +96,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   # resample uhats
   
-  Uhat <- as.data.frame(Uhat)
+  Uhat <- as.data.frame(as.matrix(Uhat))
   Uhat.list <- list(Uhat)
   
   level.num <- getME(object = model, name = "n_rfacs")
