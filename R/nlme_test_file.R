@@ -25,7 +25,7 @@ t0 <- fn(model)
 # And when I change it to Reaction it runs but I do not think it works
 # Refit the model and apply 'fn' to it using lapply
 tstar <- lapply(ystar, function(x) {
-  model.update <- update(object = model, x ~ .)
+  model.update <- update(object = model, fixed = x ~ .)
   t.res <- fn(model.update)
   return(t.res)
 })
