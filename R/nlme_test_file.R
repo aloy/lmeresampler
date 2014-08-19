@@ -3,7 +3,7 @@ library(nlme)
 data(sleepstudy, package = "lme4")
 
 model <- lme(Reaction ~ Days, data = sleepstudy, random = ~Days|Subject)
-fn <- fixef
+fn <- fixed.effects
 B <- 10
 
 ### BEGIN PAR CODE ###
