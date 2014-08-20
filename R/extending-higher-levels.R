@@ -4,22 +4,29 @@
   # Extract residuals
   model.resid <- resid(model)
   
-  # Level 2
-  u <- model.ranef
-  
-  # Calculations
-  S <- (t(u)%*%u)/length(u)
-  R <- bdiag(VarCorr(model))
-  Ls <- chol(S, pivot = TRUE)
-  Lr <- chol(R, pivot = TRUE)
-  A <- t(Lr%*%solve(Ls))
-  
-  Uhat <- as.matrix(u%*%A)
-  Uhat <- as.data.frame(Uhat)
-  
+
+  # Higher levels
+  Uhat.list <- lapply(seq_along(model.ranef),
+                 FUN = function(i) {
+                   u <- scale(model.ranef[[i]], scale = FALSE)
+                   S <- (t(u) %*% u) / length(u)
+                   
+                   re.name <- names(model.ranef)[i]
+                   R <- bdiag(VarCorr(model)[[names(model.ranef)[i]]])
+                  
+                   Ls <- chol(S, pivot = TRUE)
+                   Lr <- chol(R, pivot = TRUE)
+                   A <- t(Lr %*% solve(Ls))
+                   
+                   Uhat <- as.matrix(u %*% A)
+                   Uhat <- as.data.frame(Uhat)
+                   
+                   return(Uhat)
+                 })  
+  names(Uhat.list) <- names(model.ranef)
   
   # Level 1
-  e <- model.resid
+  e <- as.numeric(scale(model.resid, scale = FALSE))
   sigma <- sigma(model)
   ehat <- sigma*e*((t(e)%*%e)/length(e))^(-1/2)
   
@@ -28,8 +35,8 @@
   
   Xbeta <- predict(model, re.form = NA)
   
-  Uhat <- as.data.frame(as.matrix(Uhat))
-  Uhat.list <- list(Uhat)
+#   Uhat <- as.data.frame(as.matrix(Uhat))
+#   Uhat.list <- list(Uhat)
   
   level.num <- getME(object = model, name = "n_rfacs")
   
@@ -41,10 +48,13 @@
   }
   
   # Resample Uhat
-  ustar <- sample(x = Uhat.list[[1]], size = length(Uhat.list[[1]]), replace = TRUE)
+  ustar <- lapply(Uhat.list,
+                  FUN = function(df) {
+                    sample(x = df, size = length(df), replace = TRUE)
+                    })
   
   # Get Zb*
-  Zbstar <- .Zbstar.combine(bstar = as.data.frame(ustar), zstar = Z)
+  Zbstar <- .Zbstar.combine(bstar = ustar, zstar = Z)
   Zbstar.sum <- Reduce("+", Zbstar)
   
   # sample
