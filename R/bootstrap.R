@@ -291,6 +291,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   # Level 2
   u <- as.matrix(model.ranef[[1]])
+  u <- scale(u, scale = FALSE)
   
   # Calculations
   S <- (t(u)%*%u)/length(u)
@@ -304,7 +305,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   
   # Level 1
-  e <- model.resid
+  e <- as.numeric(scale(model.resid, scale = FALSE))
   sigma <- sigma(model)
   ehat <- sigma*e*((t(e)%*%e)/length(e))^(-1/2)
   
