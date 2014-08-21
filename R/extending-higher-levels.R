@@ -33,33 +33,38 @@
   # Extract Z design matrix
   Z <- getME(object = model, name = "Ztlist")
   
+  
   Xbeta <- predict(model, re.form = NA)
   
-#   Uhat <- as.data.frame(as.matrix(Uhat))
-#   Uhat.list <- list(Uhat)
-  
   level.num <- getME(object = model, name = "n_rfacs")
-  
-  if(level.num == 1){
-    Uhat.list <- lapply(Uhat.list, FUN = function(x) as.list(x))[[1]]
-    names(Uhat.list) <- names(Z)
-  } else {
-    Uhat.list <- sapply(Uhat.list, FUN = function(x) as.list(x))
-  }
   
   # Resample Uhat
   ustar <- lapply(Uhat.list,
                   FUN = function(df) {
-                    sample(x = df, size = length(df), replace = TRUE)
+                      index <- sample(x = seq_len(nrow(df)), size = nrow(df), replace = TRUE)
+                      return(df[index,])
                     })
   
+  # Structure u*
+  if(level.num == 1){
+    if(is.data.frame(ustar[[1]])){
+      ustar <- lapply(ustar, FUN = function(x) as.list(x))[[1]] 
+    }
+    names(ustar) <- names(Z)
+  } else {
+    ustar <- lapply(ustar, FUN = function(x) as.data.frame(x))
+    ustar <- do.call(c, ustar)
+    names(ustar) <- names(Z)
+  }
+
   # Get Zb*
   Zbstar <- .Zbstar.combine(bstar = ustar, zstar = Z)
   Zbstar.sum <- Reduce("+", Zbstar)
   
-  # sample
+  # Get e*
   estar <- sample(x = ehat, size = length(ehat), replace = TRUE)
   
+  # Combine
   y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
   
   return(y.star)
