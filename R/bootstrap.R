@@ -289,20 +289,26 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   # Extract residuals
   model.resid <- resid(model)
   
-  # Level 2
-  u <- as.matrix(model.ranef[[1]])
-  u <- scale(u, scale = FALSE)
   
-  # Calculations
-  S <- (t(u)%*%u)/length(u)
-  R <- bdiag(VarCorr(model))
-  Ls <- chol(S, pivot = TRUE)
-  Lr <- chol(R, pivot = TRUE)
-  A <- t(Lr%*%solve(Ls))
-  
-  Uhat <- as.matrix(u%*%A)
-  Uhat <- as.data.frame(Uhat)
-  
+  # Higher levels
+  Uhat.list <- lapply(seq_along(model.ranef),
+                      FUN = function(i) {
+                        u <- scale(model.ranef[[i]], scale = FALSE)
+                        S <- (t(u) %*% u) / length(u)
+                        
+                        re.name <- names(model.ranef)[i]
+                        R <- bdiag(VarCorr(model)[[names(model.ranef)[i]]])
+                        
+                        Ls <- chol(S, pivot = TRUE)
+                        Lr <- chol(R, pivot = TRUE)
+                        A <- t(Lr %*% solve(Ls))
+                        
+                        Uhat <- as.matrix(u %*% A)
+                        Uhat <- as.data.frame(Uhat)
+                        
+                        return(Uhat)
+                      })  
+  names(Uhat.list) <- names(model.ranef)
   
   # Level 1
   e <- as.numeric(scale(model.resid, scale = FALSE))
@@ -312,30 +318,38 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   # Extract Z design matrix
   Z <- getME(object = model, name = "Ztlist")
   
-  Xbeta <- predict(model, re.form = NA)
   
-  Uhat <- as.data.frame(as.matrix(Uhat))
-  Uhat.list <- list(Uhat)
+  Xbeta <- predict(model, re.form = NA)
   
   level.num <- getME(object = model, name = "n_rfacs")
   
+  # Resample Uhat
+  ustar <- lapply(Uhat.list,
+                  FUN = function(df) {
+                    index <- sample(x = seq_len(nrow(df)), size = nrow(df), replace = TRUE)
+                    return(df[index,])
+                  })
+  
+  # Structure u*
   if(level.num == 1){
-    Uhat.list <- lapply(Uhat.list, FUN = function(x) as.list(x))[[1]]
-    names(Uhat.list) <- names(Z)
+    if(is.data.frame(ustar[[1]])){
+      ustar <- lapply(ustar, FUN = function(x) as.list(x))[[1]] 
+    }
+    names(ustar) <- names(Z)
   } else {
-    Uhat.list <- sapply(Uhat.list, FUN = function(x) as.list(x))
+    ustar <- lapply(ustar, FUN = function(x) as.data.frame(x))
+    ustar <- do.call(c, ustar)
+    names(ustar) <- names(Z)
   }
   
-  # Resample Uhat
-  ustar <- sample(x = Uhat.list[[1]], size = length(Uhat.list[[1]]), replace = TRUE)
-  
   # Get Zb*
-  Zbstar <- .Zbstar.combine(bstar = as.data.frame(ustar), zstar = Z)
+  Zbstar <- .Zbstar.combine(bstar = ustar, zstar = Z)
   Zbstar.sum <- Reduce("+", Zbstar)
   
-  # sample
+  # Get e*
   estar <- sample(x = ehat, size = length(ehat), replace = TRUE)
   
+  # Combine
   y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
   
   return(y.star)
