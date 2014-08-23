@@ -35,6 +35,13 @@ lme.refit <- function(model, fixed.update){
   return(res)
 }
 
+refit.test <- function(model, resp.onse){
+  rand.ef <- random.effects(model)
+  fixd.ef <- fixed.effects(model)
+  newmod <- lme(resp.onse ~ fixed.effects, random = ~ (rand.ef-1))
+  return(newmod)
+}
+
 tstar <- do.call("cbind", tstar) # Can these be nested?
 rownames(tstar) <- names(t0)
 
