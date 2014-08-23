@@ -22,6 +22,11 @@ row.names(ystar) <- 1:model$dims$N
 ## Where .bootstrap.completion starts
 t0 <- fn(model)
 
+######
+# WORKS UP TO HERE
+######
+
+
 
 t.res <- matrix(0, ncol = ncol(ystar), nrow = nrow(ystar))
 for(i in 1:B){ystar[,i]
