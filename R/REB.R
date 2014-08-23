@@ -7,21 +7,20 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   .reb.two <- function(ue.mat) {
     #POST
     
-    OneB <- matrix(c(1), nrow = B, ncol = 1)
+    # Used JCGS code because it works
+    Sb <- as.matrix(ue.mat)
+    Mb <- apply(Sb,2,mean)
+    CovSb <- cov(Sb)
+    SdSb <- sqrt(diag(CovSb))
+    EW <- eigen(solve(CovSb),symmetric=T)
+    Whalf <- EW$vectors%*%diag(sqrt(EW$values))
+    Sm <- cbind(rep(Mb[1],B),rep(Mb[2],B))
+    Sbmod <- (Sb-Sm)%*%Whalf
+    Sbmod[,1] <- Sbmod[,1]*SdSb[1]
+    Sbmod[,2] <- Sbmod[,2]*SdSb[2]
+    ue.fin <- exp(Sm+Sbmod)
     
-    # combine into a Bx2 matrix
-    Sstar <- as.matrix(ue.mat)
-    # average of Sstar
-    Mstar <- matrix(colMeans(Sstar), nrow = B, ncol = 2, byrow = TRUE)
-    # sd of Sstar
-    Dstar <- matrix(apply(Sstar, 2, FUN = sd), ncol = 2) #use apply
-    
-    # Calculate 2x2 cov matrix of Sstar
-    Cstar <- cov(Sstar)
-    
-    PieceOne <- ((Sstar - Mstar) %*% Cstar)
-    # combine element to element to make a 10x2 matrix
-    PieceTwo <- %*% Dstar
+    ##
     
     # Lstar
     Lstar <- Mstar +  PieceTwo # Fix Cstar math
@@ -51,6 +50,11 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     e.vec <- as.numeric(t(ystar[3,]))
     ue.mat <- matrix(c(u.vec, e.vec), ncol = 2)
     rt.res <- .reb.two(ue.mat)
+    
+    RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
+                          seed = .Random.seed, statistic = fn,
+                          sim = "parametric", call = match.call()),
+                     class = "boot")
     
   } else{
     RES <- .bootstrap.completion(model, ystar, B, fn)
@@ -150,3 +154,4 @@ data(sleepstudy)
 (model <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy))
 B <- 10
 fn <- fixef
+reb_type <- 1
