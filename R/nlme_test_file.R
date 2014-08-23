@@ -22,11 +22,6 @@ row.names(ystar) <- 1:model$dims$N
 ## Where .bootstrap.completion starts
 t0 <- fn(model)
 
-# tstar <- lapply(ystar, function(x) {
-#   model.update <- update(object = model, fixed = x ~ .)
-#   t.res <- fn(model.update)
-#   return(t.res)
-# })
 
 t.res <- matrix(0, ncol = ncol(ystar), nrow = nrow(ystar))
 for(i in 1:B){ystar[,i]
