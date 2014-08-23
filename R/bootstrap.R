@@ -260,6 +260,8 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   return(RES)
 }
+
+
 #####################
 # Utility Functions #
 #####################
