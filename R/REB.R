@@ -128,6 +128,7 @@ data(sleepstudy)
 
 # model
 (model <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy))
+#(model <- lmer(Reaction ~ Days + (Days | Subject), data = sleepstudy))
 B <- 10
 fn <- fixef
 reb_type <- 1

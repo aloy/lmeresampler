@@ -6,34 +6,39 @@ model <- lme(Reaction ~ Days, data = sleepstudy, random = ~Days|Subject)
 fn <- fixed.effects
 B <- 10
 
+## Begin Code
+
+# Match function
+fn <- match.fun(fn)
+# Extract fixed effects
+model.fixef <- fixed.effects(model)
 
 # This works but do we want to import another package just to simulate?
 library(nlmeU)
-sims <- simulateY(model, nsim = B)
-
-### BEGIN PAR CODE ###
-fn <- match.fun(fn)
-
-model.fixef <- fixed.effects(model) # Extract fixed effects
+ystar <- simulateY(model, nsim = B)
+row.names(ystar) <- 1:model$dims$N
 
 
+## Where .bootstrap.completion starts
 t0 <- fn(model)
 
-
-# Originally I had this: 
 # tstar <- lapply(ystar, function(x) {
-#   update(object = model, x ~ .)
-#   fn(model)
+#   model.update <- update(object = model, fixed = x ~ .)
+#   t.res <- fn(model.update)
+#   return(t.res)
 # })
-# But ran into this error:
-# Error in eval(expr, envir, enclos) : object 'x' not found
-# And when I change it to Reaction it runs but I do not think it works
-# Refit the model and apply 'fn' to it using lapply
-tstar <- lapply(ystar, function(x) {
-  model.update <- update(object = model, fixed = x ~ .)
-  t.res <- fn(model.update)
-  return(t.res)
-})
+
+t.res <- matrix(0, ncol = ncol(ystar), nrow = nrow(ystar))
+for(i in 1:B){ystar[,i]
+  myin <- ystar[,i]
+  model.update <- lme.refit(model, myin)
+  t.res[,i] <- fn(model.update)
+}
+
+lme.refit <- function(model, fixed.update){
+  res <- update(object = model, fixed = fixed.update ~ .)
+  return(res)
+}
 
 tstar <- do.call("cbind", tstar) # Can these be nested?
 rownames(tstar) <- names(t0)
