@@ -18,17 +18,9 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     Sbmod <- (Sb-Sm)%*%Whalf
     Sbmod[,1] <- Sbmod[,1]*SdSb[1]
     Sbmod[,2] <- Sbmod[,2]*SdSb[2]
-    ue.fin <- exp(Sm+Sbmod)
+    Lb <- exp(Sm+Sbmod)
     
-    ##
-    
-    # Lstar
-    Lstar <- Mstar +  PieceTwo # Fix Cstar math
-    
-    # Step c on pg 457
-    exp(Lstar)
-    
-    return(Lstar)
+    return(Lb)
   }
   
   
@@ -39,6 +31,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   # This step needs to be done outside the bootstrap
   if(reb_type == 2){
+    t0 <- fn(model)
      # Refit the model and apply 'fn' to it using lapply
     tstar <- lapply(ystar[1,], function(x) {
       fn(refit(object = model, newresp = x))
@@ -53,7 +46,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     
     RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
                           seed = .Random.seed, statistic = fn,
-                          sim = "parametric", call = match.call()),
+                          sim = "parametric", call = match.call(), reb2 = rt.res),
                      class = "boot")
     
   } else{
@@ -155,3 +148,5 @@ data(sleepstudy)
 B <- 10
 fn <- fixef
 reb_type <- 1
+
+FIN.RES <- reb.lmerMod(model = model, fn = fixef, B = 10, reb_type = 2)
