@@ -2,35 +2,8 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   fn <- match.fun(fn)
   
-  
-  
-  .reb.two <- function(ue.mat) {
-    #POST
-    
-    # Used JCGS code because it works
-    Sb <- as.matrix(ue.mat)
-    Mb <- apply(Sb,2,mean)
-    CovSb <- cov(Sb)
-    SdSb <- sqrt(diag(CovSb))
-    EW <- eigen(solve(CovSb),symmetric=T)
-    Whalf <- EW$vectors%*%diag(sqrt(EW$values))
-    Sm <- cbind(rep(Mb[1],B),rep(Mb[2],B))
-    Sbmod <- (Sb-Sm)%*%Whalf
-    Sbmod[,1] <- Sbmod[,1]*SdSb[1]
-    Sbmod[,2] <- Sbmod[,2]*SdSb[2]
-    Lb <- exp(Sm+Sbmod)
-    
-    return(Lb)
-  }
-  
-  
   ystar <- as.data.frame( replicate(n = B, .resample.reb(model = model, reb_type = reb_type)) )
   
-  # how do i extract the two sigma_u and sigma_e values from these results once
-  # fitted below?
-  
-  # This step needs to be done outside the bootstrap
-  if(reb_type == 2){
     t0 <- fn(model)
      # Refit the model and apply 'fn' to it using lapply
     tstar <- lapply(ystar[1,], function(x) {
@@ -42,16 +15,26 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
     u.vec <- as.numeric(t(ystar[2,]))
     e.vec <- as.numeric(t(ystar[3,]))
     ue.mat <- matrix(c(u.vec, e.vec), ncol = 2)
-    rt.res <- .reb.two(ue.mat)
+  #POST
+  
+  # Used JCGS code because it works
+  Sb <- as.matrix(ue.mat)
+  Mb <- apply(Sb,2,mean)
+  CovSb <- cov(Sb)
+  SdSb <- sqrt(diag(CovSb))
+  EW <- eigen(solve(CovSb),symmetric=T)
+  Whalf <- EW$vectors%*%diag(sqrt(EW$values))
+  Sm <- cbind(rep(Mb[1],B),rep(Mb[2],B))
+  Sbmod <- (Sb-Sm)%*%Whalf
+  Sbmod[,1] <- Sbmod[,1]*SdSb[1]
+  Sbmod[,2] <- Sbmod[,2]*SdSb[2]
+  Lb <- exp(Sm+Sbmod)
+  
     
     RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
                           seed = .Random.seed, statistic = fn,
-                          sim = "parametric", call = match.call(), reb2 = rt.res),
+                          sim = "parametric", call = match.call(), reb2 = Lb),
                      class = "boot")
-    
-  } else{
-    RES <- .bootstrap.completion(model, ystar, B, fn)
-  }
   
   return(RES)
 }
