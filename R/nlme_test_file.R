@@ -6,15 +6,16 @@ model <- lme(Reaction ~ Days, data = sleepstudy, random = ~Days|Subject)
 fn <- fixed.effects
 B <- 10
 
+
+# This works but do we want to import another package just to simulate?
+library(nlmeU)
+sims <- simulateY(model, nsim = B)
+
 ### BEGIN PAR CODE ###
 fn <- match.fun(fn)
 
 model.fixef <- fixed.effects(model) # Extract fixed effects
-for(i in 1:B){
-  sim <- simulate.lme.data(model, nsim = 1, na.action = na.exclude)
-  ystar[i] <- sim
-}
-ystar <- simulate.lme.data(model, nsim = 2, na.action = na.exclude)
+
 
 t0 <- fn(model)
 
