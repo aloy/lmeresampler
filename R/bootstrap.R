@@ -319,7 +319,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   return(RES)
 }
 
-#' CGR Resampling
+#' CGR resampling procedures
 #' 
 
 .resample.cgr <- function(model){
@@ -446,6 +446,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
 }
 
+#' REB resampling procedures
 .resample.reb <- function(model, reb_type){
   # use HLMresid to extract marginal residuals
   model.mresid <- HLMresid(object = model, type = "EB", level = "marginal")
