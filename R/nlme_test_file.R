@@ -30,52 +30,21 @@ for(i in 1:B){
   model.update <- update(object = model, fixed = myin ~ .)
   t.res[i,] <- fn(model.update)
 }
-t.res -> tstar
+t.res <- t(t.res)
+tstar <- split(t.res, rep(1:ncol(t.res), each = nrow(t.res)))
+
+
+tstar <- do.call("cbind", tstar) # Can these be nested?
+rownames(tstar) <- names(t0)
 
 
 ######
 # WORKS UP TO HERE
 ######
 
-tstar <- do.call("cbind", tstar) # Can these be nested?
-rownames(tstar) <- names(t0)
 
 RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
                       seed = .Random.seed, statistic = fn,
                       sim = "parametric", call = match.call()),
                  class = "boot")
-
-#### BAD OPT TEST #####
-formula.mod <- formula(model)
-formula.up <- update(old = formula.mod, new = ystar[,i] ~ .)
-model.res <- lme(formula.up, data = sleepstudy, random = ~ re1|re2)
-
-
-####### Singular test ######
-model <- lme(ystar[,1] ~ Days, data = sleepstudy, random = ~Days|Subject)
-fn <- fixed.effects
-B <- 1
-
-### BEGIN PAR CODE ###
-fn <- match.fun(fn)
-
-model.fixef <- fixed.effects(model) # Extract fixed effects
-ystar <- simulate.lme.data(model, nsim = B, na.action = na.exclude)
-
-t0 <- fn(model)
-
-# Refit the model and apply 'fn' to it using lapply
-model.update <- update(object = model, ystar ~ .)
-anova(model.update, model) # This should not run if the update worked
-tstar <- fn(model.update)
-
-tstar <- do.call("cbind", tstar) # Can these be nested?
-rownames(tstar) <- names(t0)
-
-RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
-                      seed = .Random.seed, statistic = fn,
-                      sim = "parametric", call = match.call()),
-                 class = "boot")
-
-
 
