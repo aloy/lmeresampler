@@ -8,3 +8,8 @@ fn <- fixed.effects
 B <- 10
 
 
+library(lme4)
+(model <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy))
+#(model <- lmer(Reaction ~ Days + (Days | Subject), data = sleepstudy))
+B <- 10
+fn <- fixef
