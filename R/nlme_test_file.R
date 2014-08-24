@@ -22,30 +22,20 @@ row.names(ystar) <- 1:model$dims$N
 ## Where .bootstrap.completion starts
 t0 <- fn(model)
 
+
+
+t.res <- matrix(0, ncol = 2, nrow = B)
+for(i in 1:B){
+  myin <- ystar[,i]
+  model.update <- update(object = model, fixed = myin ~ .)
+  t.res[i,] <- fn(model.update)
+}
+t.res -> tstar
+
+
 ######
 # WORKS UP TO HERE
 ######
-
-
-
-t.res <- matrix(0, ncol = ncol(ystar), nrow = nrow(ystar))
-for(i in 1:B){ystar[,i]
-  myin <- ystar[,i]
-  model.update <- lme.refit(model, myin)
-  t.res[,i] <- fn(model.update)
-}
-
-lme.refit <- function(model, fixed.update){
-  res <- update(object = model, fixed = fixed.update ~ .)
-  return(res)
-}
-
-refit.test <- function(model, resp.onse){
-  rand.ef <- random.effects(model)
-  fixd.ef <- fixed.effects(model)
-  newmod <- lme(resp.onse ~ fixed.effects, random = ~ (rand.ef-1))
-  return(newmod)
-}
 
 tstar <- do.call("cbind", tstar) # Can these be nested?
 rownames(tstar) <- names(t0)
@@ -55,11 +45,14 @@ RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
                       sim = "parametric", call = match.call()),
                  class = "boot")
 
-
+#### BAD OPT TEST #####
+formula.mod <- formula(model)
+formula.up <- update(old = formula.mod, new = ystar[,i] ~ .)
+model.res <- lme(formula.up, data = sleepstudy, random = ~ re1|re2)
 
 
 ####### Singular test ######
-model <- lme(Reaction ~ Days, data = sleepstudy, random = ~Days|Subject)
+model <- lme(ystar[,1] ~ Days, data = sleepstudy, random = ~Days|Subject)
 fn <- fixed.effects
 B <- 1
 
