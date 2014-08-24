@@ -60,3 +60,23 @@ ystar <- as.data.frame( replicate(n = B, .resample.resids(model = model)) )
   return(y.star)
   
 }
+
+t0 <- fn(model)
+
+t.res <- matrix(0, ncol = 2, nrow = B)
+for(i in 1:B){
+  myin <- ystar[,i]
+  model.update <- update(object = model, fixed = myin ~ .)
+  t.res[i,] <- fn(model.update)
+}
+t.res <- t(t.res)
+tstar <- split(t.res, rep(1:ncol(t.res), each = nrow(t.res)))
+
+
+tstar <- do.call("cbind", tstar) # Can these be nested?
+rownames(tstar) <- names(t0)
+
+RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
+                      seed = .Random.seed, statistic = fn,
+                      sim = "parametric", call = match.call()),
+                 class = "boot")
