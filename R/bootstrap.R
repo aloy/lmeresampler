@@ -42,9 +42,7 @@ bootstrap <- function (model, fn, type, B){
          res = residual.lmerMod(model, fn, B),
          case = case.lmerMod(model, fn, B, extra_step = FALSE),
          cgr = cgr.lmerMod(model, fn, B),
-         reb = reb.lmerMod(model, fn, B, reb_type = 0),
-         reb1 = reb.lmerMod(model, fn, B, reb_type = 1),
-         reb2 = reb.lmerMod(model, fn, B, reb_type = 2))
+         reb = reb.lmerMod(model, fn, B, reb_type = 0)
   # TODO: need to be able to save results
 }
 
@@ -321,7 +319,8 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
 
 #' CGR resampling procedures
 #' 
-
+#'
+#' @inheritParams model
 .resample.cgr <- function(model){
   model.ranef <- ranef(model)
   
@@ -395,7 +394,9 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
 }
 
 #' Resampling residuals from mixed models
-
+#'
+#' @inheritParams model
+#' 
 .resample.resids <- function(model){
   
   # Extract fixed part of the model
@@ -447,6 +448,9 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
 }
 
 #' REB resampling procedures
+#' #'
+#' @param reb_type Specifys the inclusion of REB/1
+#' @inheritParams model
 .resample.reb <- function(model, reb_type){
   # use HLMresid to extract marginal residuals
   model.mresid <- HLMresid(object = model, type = "EB", level = "marginal")
