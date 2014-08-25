@@ -76,7 +76,7 @@ tstar <- split(t.res, rep(1:ncol(t.res), each = nrow(t.res)))
 tstar <- do.call("cbind", tstar) # Can these be nested?
 rownames(tstar) <- names(t0)
 
-RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
+RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model$data,
                       seed = .Random.seed, statistic = fn,
                       sim = "parametric", call = match.call()),
                  class = "boot")
