@@ -35,6 +35,7 @@ parametric.lme <- function(model, fn, B){
 
 
 # Currently getting an error again...
+# Maybe use the 'reformulate' fn
 updated.model<- function(model, up.reaction){
   # Extract formulas and data
   mod.fixd <- as.formula(model$call$fixed)
