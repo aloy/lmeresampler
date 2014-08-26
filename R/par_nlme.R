@@ -33,6 +33,8 @@ parametric.lme <- function(model, fn, B){
                    class = "boot")
 }
 
+
+# Currently getting an error again...
 updated.model<- function(model, up.reaction){
   # Extract formulas and data
   mod.fixd <- as.formula(model$call$fixed)
