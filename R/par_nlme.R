@@ -9,11 +9,21 @@ parametric.lme <- function(model, fn, B){
   
   t0 <- fn(model)
   
-  t.res <- matrix(0, ncol = 2, nrow = B)
+   t.res <- matrix(0, ncol = 2, nrow = B)
+#   for(i in 1:B){
+#     myin <- ystar[,i]
+#     model.update <- update(object = model, fixed = myin ~ .)
+#     t.res[i,] <- fn(model.update)
+#   }
+
   for(i in 1:B){
+<<<<<<< HEAD
     myin <- ystar[,i]
     model.update <- nlme:::update.lme(object = model, fixed = myin ~ .)
     t.res[i,] <- fn(model.update)
+=======
+    t.res[i,] <- updated.model(model = model, up.reaction = ystar[,i])
+>>>>>>> FETCH_HEAD
   }
   tstar <- data.frame(t(t.res))
 
@@ -27,4 +37,19 @@ parametric.lme <- function(model, fn, B){
                         seed = .Random.seed, statistic = fn,
                         sim = "parametric", call = match.call()),
                    class = "boot")
+}
+
+
+# Currently getting an error again...
+# Maybe use the 'reformulate' fn
+updated.model<- function(model, up.reaction){
+  # Extract formulas and data
+  mod.fixd <- as.formula(model$call$fixed)
+  mod.rand <- as.formula(model$call$random)
+  mod.data <- model$data
+  # Place ystars in data
+  mod.data$Reaction <- up.reaction
+  # create new lme
+  out.lme <- lme(fixed = mod.fixd, data = mod.data, random = mod.rand)
+  return(out.lme)
 }
