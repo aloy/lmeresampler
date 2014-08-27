@@ -17,13 +17,13 @@ parametric.lme <- function(model, fn, B){
 #   }
 
   for(i in 1:B){
-<<<<<<< HEAD
-    myin <- ystar[,i]
-    model.update <- nlme:::update.lme(object = model, fixed = myin ~ .)
-    t.res[i,] <- fn(model.update)
-=======
+# <<<<<<< HEAD
+#     myin <- ystar[,i]
+#     model.update <- nlme:::update.lme(object = model, fixed = myin ~ .)
+#     t.res[i,] <- fn(model.update)
+# =======
     t.res[i,] <- updated.model(model = model, up.reaction = ystar[,i])
->>>>>>> FETCH_HEAD
+# >>>>>>> FETCH_HEAD
   }
   tstar <- data.frame(t(t.res))
 
