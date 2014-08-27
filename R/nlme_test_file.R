@@ -6,7 +6,7 @@ data(sleepstudy, package = "lme4")
 
 model <- lme(Reaction ~ Days, data = sleepstudy, random = ~Days|Subject)
 set.seed(9221632)
-trial <- parametric.lme(model = model, fn = fixef, B = 10)
+trial <- parametric.lme(model = model, fn = fixef, B = 100)
 trial
 
 detach(package:nlme)

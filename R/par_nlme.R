@@ -9,7 +9,9 @@ parametric.lme <- function(model, fn, B){
   
   t0 <- fn(model)
   
-   t.res <- matrix(0, ncol = 2, nrow = B)
+  t.res <- list()
+  length(t.res) <- B
+#    t.res <- matrix(0, ncol = 2, nrow = B)
 #   for(i in 1:B){
 #     myin <- ystar[,i]
 #     model.update <- update(object = model, fixed = myin ~ .)
@@ -17,14 +19,15 @@ parametric.lme <- function(model, fn, B){
 #   }
 
   for(i in 1:B){
-# <<<<<<< HEAD
 #     myin <- ystar[,i]
 #     model.update <- nlme:::update.lme(object = model, fixed = myin ~ .)
 #     t.res[i,] <- fn(model.update)
-# =======
-    t.res[i,] <- updated.model(model = model, up.reaction = ystar[,i])
-# >>>>>>> FETCH_HEAD
+    try.fit <- try( updated.model(model = model, new.y = ystar[,i]) )
+    ### NOTE: Need to check if there was an error in try, and then use fn()
+    t.res[[i]] <- updated.model(model = model, new.y = ystar[,i])
+    
   }
+  t.res <- do.call('rbind', t.res)
   tstar <- data.frame(t(t.res))
 
 #   tstar <- split(t.res, rep(1:ncol(t.res), each = nrow(t.res)))
@@ -42,13 +45,13 @@ parametric.lme <- function(model, fn, B){
 
 # Currently getting an error again...
 # Maybe use the 'reformulate' fn
-updated.model<- function(model, up.reaction){
+updated.model<- function(model, new.y){
   # Extract formulas and data
   mod.fixd <- as.formula(model$call$fixed)
   mod.rand <- as.formula(model$call$random)
   mod.data <- model$data
   # Place ystars in data
-  mod.data$Reaction <- up.reaction
+  mod.data[,as.character(mod.fixd[[2]])] <- unname(new.y)
   # create new lme
   out.lme <- lme(fixed = mod.fixd, data = mod.data, random = mod.rand)
   return(out.lme)
