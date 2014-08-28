@@ -40,19 +40,5 @@ parametric.lme <- function(model, fn, B){
                         seed = .Random.seed, statistic = fn,
                         sim = "parametric", call = match.call()),
                    class = "boot")
-}
-
-
-# Currently getting an error again...
-# Maybe use the 'reformulate' fn
-updated.model<- function(model, new.y){
-  # Extract formulas and data
-  mod.fixd <- as.formula(model$call$fixed)
-  mod.rand <- as.formula(model$call$random)
-  mod.data <- model$data
-  # Place ystars in data
-  mod.data[,as.character(mod.fixd[[2]])] <- unname(new.y)
-  # create new lme
-  out.lme <- lme(fixed = mod.fixd, data = mod.data, random = mod.rand)
-  return(out.lme)
+  return(RES)
 }

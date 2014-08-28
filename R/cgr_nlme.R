@@ -16,12 +16,6 @@ B <- 10
                         
                         re.name <- names(model.ranef)[i]
                         vc.temp <- getVarCov(model)
-                        R <- matrix(0, ncol = ncol(vc.temp), nrow = nrow(vc.temp))
-#                         for(i in 1:ncol(vc.temp)){
-#                           for(j in 1:nrow(vc.temp)){
-#                             R[j,i] <- vc.temp[j,i]
-#                           }
-#                         }
                         R <- getVarCov(model)[1]
                         
                         Ls <- chol(S, pivot = TRUE)
@@ -41,25 +35,11 @@ B <- 10
   ehat <- sigma*e*((t(e)%*%e)/length(e))^(-1/2)
   
   # Extract and construct Z design matrix
-  Z.nlme <- extract.lmeDesign(model)$Z
-  one.Z <- matrix(1, ncol = ncol(Z.nlme)/2, nrow = nrow(Z.nlme))
-  two.Z <- matrix(2, ncol = ncol(Z.nlme)/2, nrow = nrow(Z.nlme))
-  my.counter <- 1
-  for(i in 1:ncol(Z.nlme)){
-    if(i%%2==0){
-      two.Z[,my.counter] <- Z.nlme[,i]
-      my.counter <- my.counter+1
-    }else{
-      one.Z[,my.counter] <- Z.nlme[,i]}
-    
-  }
-  one.Z <- t(one.Z)
-  two.Z <- t(two.Z)
-  Z.str <- structure(list(one = one.Z, two = two.Z))
+
+  Z.str <- .extractZ.lme(model)
   
   Xbeta <- predict(model, re.form = NA)
   
-  #level.num <- getME(object = model, name = "n_rfacs")
   level.num <- 1
   
   # Resample Uhat
@@ -89,9 +69,8 @@ B <- 10
   estar <- sample(x = ehat, size = length(ehat), replace = TRUE)
   
   # Combine
-  y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
-  
-  return(y.star)
+  ystar <- as.numeric(Xbeta + Zbstar.sum + estar)
+  return(ystar)
 }
 
 ystar <- as.data.frame( replicate(n = B, .resample.cgr(model = model)) )
