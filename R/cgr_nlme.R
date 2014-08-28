@@ -1,4 +1,5 @@
 fn <- match.fun(fn)
+B <- 10
 # Extract random effects
 .resample.cgr <- function(model){
   model.ranef <- random.effects(model)
@@ -39,13 +40,27 @@ fn <- match.fun(fn)
   sigma <- sigma(model)
   ehat <- sigma*e*((t(e)%*%e)/length(e))^(-1/2)
   
-  # Extract Z design matrix
-  Z <- extract.lmeDesign(model)
-  
+  # Extract and construct Z design matrix
+  Z.nlme <- extract.lmeDesign(model)$Z
+  one.Z <- matrix(1, ncol = ncol(Z.nlme)/2, nrow = nrow(Z.nlme))
+  two.Z <- matrix(2, ncol = ncol(Z.nlme)/2, nrow = nrow(Z.nlme))
+  my.counter <- 1
+  for(i in 1:ncol(Z.nlme)){
+    if(i%%2==0){
+      two.Z[,my.counter] <- Z.nlme[,i]
+      my.counter <- my.counter+1
+    }else{
+      one.Z[,my.counter] <- Z.nlme[,i]}
+    
+  }
+  one.Z <- t(one.Z)
+  two.Z <- t(two.Z)
+  Z.str <- structure(list(one = one.Z, two = two.Z))
   
   Xbeta <- predict(model, re.form = NA)
   
-  level.num <- getME(object = model, name = "n_rfacs")
+  #level.num <- getME(object = model, name = "n_rfacs")
+  level.num <- 1
   
   # Resample Uhat
   ustar <- lapply(Uhat.list,
@@ -59,7 +74,7 @@ fn <- match.fun(fn)
     if(is.data.frame(ustar[[1]])){
       ustar <- lapply(ustar, FUN = function(x) as.list(x))[[1]] 
     }
-    names(ustar) <- names(Z)
+    names(ustar) <- names(Z.str)
   } else {
     ustar <- lapply(ustar, FUN = function(x) as.data.frame(x))
     ustar <- do.call(c, ustar)
@@ -67,7 +82,7 @@ fn <- match.fun(fn)
   }
   
   # Get Zb*
-  Zbstar <- .Zbstar.combine(bstar = ustar, zstar = Z)
+  Zbstar <- .Zbstar.combine(bstar = ustar, zstar = Z.str)
   Zbstar.sum <- Reduce("+", Zbstar)
   
   # Get e*
@@ -80,5 +95,3 @@ fn <- match.fun(fn)
 }
 
 ystar <- as.data.frame( replicate(n = B, .resample.cgr(model = model)) )
-
-return(.bootstrap.completion(model, ystar, B, fn))

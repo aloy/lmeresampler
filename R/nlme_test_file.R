@@ -1,6 +1,7 @@
 detach(package:lme4)
 library(nlme)
 library(nlmeU)
+library(RLRsim)
 
 data(sleepstudy, package = "lme4")
 
@@ -13,6 +14,7 @@ detach(package:nlme)
 library(lme4)
 
 # (model <- lmer(Reaction ~ Days + (1 | Subject), data = sleepstudy))
+fn <- fixef
 (model <- lmer(Reaction ~ Days + (Days | Subject), data = sleepstudy))
 set.seed(9221632)
 trial2 <- parametric.lmerMod(model = model, fn = fixef, B = 10)
