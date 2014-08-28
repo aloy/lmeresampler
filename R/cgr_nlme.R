@@ -14,7 +14,14 @@ fn <- match.fun(fn)
                         S <- (t(u) %*% u) / length(u)
                         
                         re.name <- names(model.ranef)[i]
-                        R <- bdiag(VarCorr(model)[[names(model.ranef)[i]]])
+                        vc.temp <- getVarCov(model)
+                        R <- matrix(0, ncol = ncol(vc.temp), nrow = nrow(vc.temp))
+#                         for(i in 1:ncol(vc.temp)){
+#                           for(j in 1:nrow(vc.temp)){
+#                             R[j,i] <- vc.temp[j,i]
+#                           }
+#                         }
+                        R <- getVarCov(model)[1]
                         
                         Ls <- chol(S, pivot = TRUE)
                         Lr <- chol(R, pivot = TRUE)
@@ -33,7 +40,7 @@ fn <- match.fun(fn)
   ehat <- sigma*e*((t(e)%*%e)/length(e))^(-1/2)
   
   # Extract Z design matrix
-  Z <- getME(object = model, name = "Ztlist")
+  Z <- extract.lmeDesign(model)
   
   
   Xbeta <- predict(model, re.form = NA)
