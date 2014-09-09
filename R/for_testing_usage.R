@@ -63,3 +63,13 @@ fm2.case.res1 <- case.lmerMod(model = fm2, fn = fixef, B = 100)
 fm2.case.res2 <- case.lmerMod(model = fm2, fn = mySumm, B = 100)
 fm2.case.e.res1 <- case.lmerMod(model = fm2, fn = fixef, B = 100, extra_step = TRUE)
 fm2.case.e.res2 <- case.lmerMod(model = fm2, fn = mySumm, B = 100, extra_step = TRUE)
+
+
+# Looking at model from Goldstein
+library(mlmRev)
+Socatt$religion <- relevel(Socatt$religion, ref = "none")
+Socatt$rv <- as.numeric(as.character(Socatt$numpos))
+Socatt$rv <- scale(Socatt$rv) # a plot shows this is clearly non-normal
+
+mod <- lmer(rv ~ religion + year + (1 | respond) + (1 | district), data = Socatt)
+bse <- parametric.lmerMod(model = mod, fn = fixef, B = 1000)

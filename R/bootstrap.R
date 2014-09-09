@@ -42,7 +42,7 @@ bootstrap <- function (model, fn, type, B){
          res = residual.lmerMod(model, fn, B),
          case = case.lmerMod(model, fn, B, extra_step = FALSE),
          cgr = cgr.lmerMod(model, fn, B),
-         reb = reb.lmerMod(model, fn, B, reb_type = 0)
+         reb = reb.lmerMod(model, fn, B, reb_type = 0))
   # TODO: need to be able to save results
 }
 
@@ -308,6 +308,10 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
 
   tstar <- do.call("cbind", tstar) # Can these be nested?
   rownames(tstar) <- names(t0)
+  
+  if ((nfail <- sum(apply(is.na(tstar), 2, all))) > 0) {
+    warning("some bootstrap runs failed (", numFail, "/", nsim, ")")
+  }
 
   RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
                         seed = .Random.seed, statistic = fn,
