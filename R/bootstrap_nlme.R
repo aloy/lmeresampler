@@ -45,6 +45,25 @@ bootstrap.nlme <- function (model, fn, type, B){
          reb = reb.nlme(model, fn, B, reb_type = 0))
 }
 
+#' @title Parametric Bootstrap
+#'
+#' @description
+#' The Parametric Bootstrap is uses the parametrically estimated
+#' distribution function of the data to generate bootstrap samples.
+#'
+#' @details
+#' This function extracts the fixed effects, simulates from the model, refits the model
+#' and then returns the results in a list.
+#'
+#' @inheritParams model
+#' @inheritParams fn
+#' @inheritParams B
+#'
+#' @return list
+#'
+#' @references
+#'   @cite Chambers:2013ba
+#'   @cite vanderLeeden:208kv
 parametric.nlme <- function(model, fn, B){
   # Match function
   fn <- match.fun(fn)
@@ -90,6 +109,24 @@ parametric.nlme <- function(model, fn, B){
   return(RES)
 }
 
+#' @title Residual Bootstrap
+#'
+#' @description
+#' The Residual Bootstrap uses residuals to generate bootstrap samples.
+#'
+#' @details
+#' This function extracts the Xbetas, random effects, residuals, and Z
+#' design matrix in order to resample the residuals and complete the
+#' bootstrap process.
+#'
+#' @inheritParams model
+#' @inheritParams fn
+#' @inheritParams B
+#'
+#' @return list
+#'
+#' @references
+#'   @cite vanderLeeden:208kv
 residual.nlme <- function(model, fn, B){
   fn <- match.fun(fn)
   
@@ -97,6 +134,21 @@ residual.nlme <- function(model, fn, B){
   return(ystar)
 }
 
+#' @title CGR Bootstrap
+#'
+#' @description
+#' 
+#'
+#' @details
+#'
+#' @inheritParams model
+#' @inheritParams fn
+#' @inheritParams B
+#'
+#' @return list
+#'
+#' @references
+#'   @cite Chambers:2013ba
 cgr.nlme <- function(model, fn, B){
   fn <- match.fun(fn)
   B <- 10
@@ -106,7 +158,9 @@ cgr.nlme <- function(model, fn, B){
   return(ystar)
 }
 
-##UTILITY FUNCTIONS##
+#####################
+# Utility Functions #
+#####################
 
 # Extract the residual covariance matrix from an lme object
 .extractR.lme <- function(lme.fit) {
@@ -170,6 +224,10 @@ updated.model<- function(model, new.y){
   return(out.lme)
 }
 
+#' Resampling residuals from mixed models
+#'
+#' @inheritParams model
+#' 
 .resample.resids <- function(model){
   
   # Extract fixed part of the model
@@ -218,6 +276,10 @@ updated.model<- function(model, new.y){
   return(y.star)
 }
 
+#' CGR resampling procedures
+#' 
+#'
+#' @inheritParams model
 .resample.cgr <- function(model){
   model.ranef <- random.effects(model)
   
