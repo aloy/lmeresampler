@@ -311,7 +311,7 @@ updated.model<- function(model, new.y){
   
   # Level 1
   e <- as.numeric(scale(model.resid, scale = FALSE))
-  sigma <- sigma(model)
+  sigma <- model$sigma
   ehat <- sigma*e*((t(e)%*%e)/length(e))^(-1/2)
   
   # Extract and construct Z design matrix
