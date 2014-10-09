@@ -18,6 +18,7 @@
 #library(lme4)
 library(nlme)
 library(HLMdiag)
+library(RLRsim)
 #library(roxygen)
 
 #' @title Bootstrap for LMEs
