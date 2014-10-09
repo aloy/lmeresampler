@@ -163,6 +163,30 @@ cgr.nlme <- function(model, fn, B){
 # Utility Functions #
 #####################
 
+# Bootstrap completion
+.bootstrap.completion.lme <- function(model, ystar, B, fn){
+  t0 <- fn(model)
+  
+  t.res <- matrix(0, ncol = 2, nrow = B)
+  for(i in 1:B){
+    myin <- ystar[,i]
+    model.update <- update(object = model, fixed = myin ~ .)
+    t.res[i,] <- fn(model.update)
+  }
+  t.res <- t(t.res)
+  tstar <- split(t.res, rep(1:ncol(t.res), each = nrow(t.res)))
+  
+  
+  tstar <- do.call("cbind", tstar) # Can these be nested?
+  rownames(tstar) <- names(t0)
+  
+  RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model$data,
+                        seed = .Random.seed, statistic = fn,
+                        sim = "parametric", call = match.call()),
+                   class = "boot")
+  return(RES)
+}
+
 # Extract the residual covariance matrix from an lme object
 .extractR.lme <- function(lme.fit) {
   n <- length( getResponse(lme.fit) )
