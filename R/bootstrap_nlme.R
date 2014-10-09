@@ -17,7 +17,7 @@
 
 #library(lme4)
 library(nlme)
-library(HLMdiag)
+#library(HLMdiag)
 library(RLRsim)
 #library(roxygen)
 
