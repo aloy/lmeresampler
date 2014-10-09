@@ -147,7 +147,7 @@ case.lmerMod <- function (model, fn, B, extra_step = FALSE){
   }
   
   # DEPRECATED rep.data <- as.data.frame( replicate(n = B, .cases.resamp(model = model, extra_step = extra_step)) )
-  rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(model = fm1, extra_step = extra_step))))
+  rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(model = model, extra_step = extra_step))))
   
   
   .cases.completion <- function(model, data, B, fn){
