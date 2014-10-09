@@ -6,6 +6,7 @@ library(RLRsim)
 data(sleepstudy, package = "lme4")
 
 model <- lme(Reaction ~ Days, data = sleepstudy, random = ~Days|Subject)
+cgr.res <- cgr.nlme(model = model, fn = fixef, B = 10)
 set.seed(9221632)
 trial <- parametric.lme(model = model, fn = fixef, B = 100)
 trial
