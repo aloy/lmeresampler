@@ -159,8 +159,22 @@ cgr.nlme <- function(model, fn, B){
 }
 
 
-# Cases
-
+#' @title Cases Bootstrap
+#'
+#' @description
+#' The Cases Bootstrap samples entire cases to generate the bootstrap.
+#'
+#' @details
+#'
+#' @param extra_step add the extra step
+#' @inheritParams model
+#' @inheritParams fn
+#' @inheritParams B
+#'
+#' @return list
+#'
+#' @references
+#'   @cite vanderLeeden:208kv
 case.nlme <- function (model, fn, B, extra_step = FALSE){
   # TODO: put everything below into lapply to replicate
   .cases.resamp <- function (model, extra_step){
