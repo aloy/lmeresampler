@@ -414,7 +414,7 @@ updated.model<- function(model, new.y){
   
   # Extract and construct Z design matrix
   
-  Z.str <- .extractZ.lme(model)
+  Z <- .extractZ.lme(model)
   
   Xbeta <- predict(model, re.form = NA)
   
@@ -432,7 +432,7 @@ updated.model<- function(model, new.y){
     if(is.data.frame(ustar[[1]])){
       ustar <- lapply(ustar, FUN = function(x) as.list(x))[[1]] 
     }
-    names(ustar) <- names(Z.str)
+    names(ustar) <- names(Z)
   } else {
     ustar <- lapply(ustar, FUN = function(x) as.data.frame(x))
     ustar <- do.call(c, ustar)
@@ -440,7 +440,7 @@ updated.model<- function(model, new.y){
   }
   
   # Get Zb*
-  Zbstar <- .Zbstar.combine(bstar = ustar, zstar = Z.str)
+  Zbstar <- .Zbstar.combine(bstar = ustar, zstar = Z)
   Zbstar.sum <- Reduce("+", Zbstar)
   
   # Get e*
