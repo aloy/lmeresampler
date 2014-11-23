@@ -15,7 +15,6 @@
 #' @author Adam Loy \email{loya@lawrence.edu}
 #' @author Spenser Steele \email{steeles@lawrence.edu}
 
-#library(lme4)
 library(nlme)
 #library(HLMdiag)
 library(RLRsim)
