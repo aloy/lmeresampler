@@ -452,7 +452,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
 
 #' REB resampling procedures
 #' #'
-#' @param reb_type Specifys the inclusion of REB/1
+#' @param reb_type Specifies the inclusion of REB/1
 #' @inheritParams model
 .resample.reb <- function(model, reb_type){
   # use HLMresid to extract marginal residuals
@@ -500,7 +500,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   level.num <- getME(object = model, name = "n_rfacs")
   
-  # Extract Z design matrix
+  # Extract Z design matrix separated by variance
   Ztlist <- getME(object = model, name = "Ztlist")
   
   if(level.num == 1){
