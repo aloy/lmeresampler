@@ -1,24 +1,3 @@
-#' Bootstrapping Linear Mixed Effects Models
-#'
-#' \tabular{ll}{
-#' Package: \tab lmeresampler\cr
-#' Type: \tab Package\cr
-#' Version: \tab 0.0.0\cr
-#' Date: \tab 7/5/2014\cr
-#' License: \tab GPLv3\cr
-#' }
-#'
-#' This is a package to help with bootstrapping Linear Mixed Effects Models.
-#'
-#' @name lmeresampler
-#' @docType package
-#' @author Adam Loy \email{loya@lawrence.edu}
-#' @author Spenser Steele \email{steeles@lawrence.edu}
-
-library(lme4)
-library(HLMdiag)
-#library(roxygen)
-
 #' @title Bootstrap for LMEs
 #'
 #' @description
