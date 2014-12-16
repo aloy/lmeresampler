@@ -1,25 +1,3 @@
-#' Bootstrapping Linear Mixed Effects Models
-#'
-#' \tabular{ll}{
-#' Package: \tab lmeresampler\cr
-#' Type: \tab Package\cr
-#' Version: \tab 0.0.0\cr
-#' Date: \tab 7/5/2014\cr
-#' License: \tab GPLv3\cr
-#' }
-#'
-#' This is a package to help with bootstrapping Linear Mixed Effects Models.
-#'
-#' @name lmeresampler
-#' @docType package
-#' @author Adam Loy \email{loya@lawrence.edu}
-#' @author Spenser Steele \email{steeles@lawrence.edu}
-
-library(nlme)
-#library(HLMdiag)
-library(RLRsim)
-#library(roxygen)
-
 #' @title Bootstrap for LMEs
 #'
 #' @description
@@ -60,10 +38,6 @@ bootstrap.nlme <- function (model, fn, type, B){
 #' @inheritParams B
 #'
 #' @return list
-#'
-#' @references
-#'   @cite Chambers:2013ba
-#'   @cite vanderLeeden:208kv
 parametric.nlme <- function(model, fn, B){
   # Match function
   fn <- match.fun(fn)
@@ -124,9 +98,6 @@ parametric.nlme <- function(model, fn, B){
 #' @inheritParams B
 #'
 #' @return list
-#'
-#' @references
-#'   @cite vanderLeeden:208kv
 residual.nlme <- function(model, fn, B){
   fn <- match.fun(fn)
   
@@ -137,18 +108,16 @@ residual.nlme <- function(model, fn, B){
 #' @title CGR Bootstrap
 #'
 #' @description
-#' 
+#' CGR Bootstrap
 #'
 #' @details
+#' add details here
 #'
 #' @inheritParams model
 #' @inheritParams fn
 #' @inheritParams B
 #'
 #' @return list
-#'
-#' @references
-#'   @cite Chambers:2013ba
 cgr.nlme <- function(model, fn, B){
   fn <- match.fun(fn)
   B <- 10
@@ -165,6 +134,7 @@ cgr.nlme <- function(model, fn, B){
 #' The Cases Bootstrap samples entire cases to generate the bootstrap.
 #'
 #' @details
+#' add details here
 #'
 #' @param extra_step add the extra step
 #' @inheritParams model
@@ -172,9 +142,6 @@ cgr.nlme <- function(model, fn, B){
 #' @inheritParams B
 #'
 #' @return list
-#'
-#' @references
-#'   @cite vanderLeeden:208kv
 case.nlme <- function (model, fn, B, extra_step = FALSE){
   # TODO: put everything below into lapply to replicate
   .cases.resamp <- function (model, extra_step){
