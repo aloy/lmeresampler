@@ -1,8 +1,9 @@
 Package: lmeresampler
-Title: What the package does (one line)
+Title: Bootstrapping Linear Mixed Effects Models
 Version: 0.1
-Authors@R: "First Last <first.last@example.com> [aut, cre]"
+Authors@R: c(person("Adam", "Loy", email = "adam.m.loy@lawrence.edu",
+    role = c("aut", "cre")), person("Spenser", "steele", role = "aut")
 Description: What the package does (one paragraph)
 Depends: R (>= 3.1.2)
-License: What license is it under?
+License: GPL-3
 LazyData: true
