@@ -447,20 +447,23 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   Z <- getME(object = model, name = "Z")
   
   # level 2 resid
+  # TODO: fix dimension problems here...
   u <- solve(t(Z) %*% Z) %*% t(Z) %*% model.mresid
+  
   # level 1 resid
   e <- model.mresid - Z %*% u
+  
   if(reb_type == 1){
     #PRE
     
     
     # Calculations
     
-    S <- (t(u)%*%u)/length(u)
+    S <- (t(u) %*% u) / length(u)
     R <- bdiag(VarCorr(model))
     Ls <- chol(S, pivot = TRUE)
     Lr <- chol(R, pivot = TRUE)
-    A <- t(Lr%*%solve(Ls))
+    A <- t(Lr %*% solve(Ls))
     
     Uhat <- u%*%A
     

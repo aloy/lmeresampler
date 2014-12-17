@@ -1,5 +1,9 @@
 # Look at testdat package
 
+library(lme4)
+library(boot)
+library(HLMdiag)
+
 # Data set
 data(sleepstudy)
 
