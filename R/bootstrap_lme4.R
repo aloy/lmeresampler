@@ -315,7 +315,6 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   # Extract residuals
   model.resid <- resid(model)
   
-  
   # Higher levels
   Uhat.list <- lapply(seq_along(model.ranef),
                       FUN = function(i) {
@@ -447,19 +446,33 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   Z <- getME(object = model, name = "Z")
   
   # level 2 resid
-  # TODO: fix dimension problems here...
-  u <- solve(t(Z) %*% Z) %*% t(Z) %*% model.mresid
+  u <- solve(t(Z) %*% Z) %*% t(Z) %*% model.mresid # a single vector
   
   # level 1 resid
   e <- model.mresid - Z %*% u
+  
+  # The current way u is organized is inspired by the 
+  # ranef.merMod function in lme4.
+  # TODO: think about 3+ level models...
+  levs <- lapply(fl <- model@flist, levels)
+  asgn <- attr(fl, "assign")
+  cnms <- model@cnms
+  nc <- vapply(cnms, length, 1L)
+  nb <- nc * (nl <- vapply(levs, length, 1L)[asgn])
+  nbseq <- rep.int(seq_along(nb), nb)
+  u <- split(ans, nbseq)
+  for (i in seq_along(u))
+    u[[i]] <- matrix(u[[i]], ncol = nc[i], byrow = TRUE,
+                     dimnames = list(NULL, cnms[[i]]))
+  u <- u[[1]] # not needed once fully generalized...
+  
   
   if(reb_type == 1){
     #PRE
     
     
     # Calculations
-    
-    S <- (t(u) %*% u) / length(u)
+    S <- (t(u) %*% u) / nrow(u)
     R <- bdiag(VarCorr(model))
     Ls <- chol(S, pivot = TRUE)
     Lr <- chol(R, pivot = TRUE)
@@ -491,6 +504,8 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   # Extract Z design matrix separated by variance
   Ztlist <- getME(object = model, name = "Ztlist")
   
+  
+  ## TODO: fix this issue with the levels...
   if(level.num == 1){
     Uhat.list <- lapply(Uhat.list, FUN = function(x) as.list(x))[[1]]
     names(Uhat.list) <- names(Ztlist)
