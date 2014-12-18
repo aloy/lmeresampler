@@ -209,31 +209,36 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   ystar <- as.data.frame( replicate(n = B, .resample.reb(model = model, reb_type = reb_type)) )
   
   t0 <- fn(model)
+  
   # Refit the model and apply 'fn' to it using lapply
-  tstar <- lapply(ystar[1,], function(x) {
+#   tstar <- lapply(ystar[1,], function(x) {
+#     fn(refit(object = model, newresp = x))
+#   })
+
+  tstar <- lapply(ystar, function(x) {
     fn(refit(object = model, newresp = x))
   })
-  
+
   tstar <- do.call("cbind", tstar) # Can these be nested?
   rownames(tstar) <- names(fn(model))
-  u.vec <- as.numeric(t(ystar[2,]))
-  e.vec <- as.numeric(t(ystar[3,]))
-  ue.mat <- matrix(c(u.vec, e.vec), ncol = 2)
-  #POST
+#   u.vec <- as.numeric(t(ystar[2,]))
+#   e.vec <- as.numeric(t(ystar[3,]))
+#   ue.mat <- matrix(c(u.vec, e.vec), ncol = 2)
+
+# POST
   
-  # Used JCGS code because it works
-  Sb <- as.matrix(ue.mat)
-  Mb <- apply(Sb,2,mean)
-  CovSb <- cov(Sb)
-  SdSb <- sqrt(diag(CovSb))
-  EW <- eigen(solve(CovSb),symmetric=T)
-  Whalf <- EW$vectors%*%diag(sqrt(EW$values))
-  Sm <- cbind(rep(Mb[1],B),rep(Mb[2],B))
-  Sbmod <- (Sb-Sm)%*%Whalf
-  Sbmod[,1] <- Sbmod[,1]*SdSb[1]
-  Sbmod[,2] <- Sbmod[,2]*SdSb[2]
-  Lb <- exp(Sm+Sbmod)
-  
+#   # Used JCGS code because it works
+#   Sb <- as.matrix(ue.mat)
+#   Mb <- apply(Sb,2,mean)
+#   CovSb <- cov(Sb)
+#   SdSb <- sqrt(diag(CovSb))
+#   EW <- eigen(solve(CovSb),symmetric=T)
+#   Whalf <- EW$vectors%*%diag(sqrt(EW$values))
+#   Sm <- cbind(rep(Mb[1],B),rep(Mb[2],B))
+#   Sbmod <- (Sb-Sm)%*%Whalf
+#   Sbmod[,1] <- Sbmod[,1]*SdSb[1]
+#   Sbmod[,2] <- Sbmod[,2]*SdSb[2]
+#   Lb <- exp(Sm+Sbmod)
   
   RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
                         seed = .Random.seed, statistic = fn,
@@ -544,12 +549,6 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   
   # Combine function
   y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
-  
-#   # this is going to be a crude workaround
-#   u.lvar <- log(var(ustar.df))
-#   e.lvar <- log(var(estar))
-#   
-#   test.return <- structure(list(ystar = y.star, u = u.lvar, e = e.lvar))
   
   return(y.star)
 }
