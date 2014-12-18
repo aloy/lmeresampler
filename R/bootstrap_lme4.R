@@ -464,7 +464,7 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   for (i in seq_along(u))
     u[[i]] <- matrix(u[[i]], ncol = nc[i], byrow = TRUE,
                      dimnames = list(NULL, cnms[[i]]))
-  u <- u[[1]] # not needed once fully generalized...
+  names(u) <- names(cnms)
   
   
   if(reb_type == 1){
@@ -495,29 +495,48 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   Xbeta <- predict(model, re.form = NA)
   
   # resample uhats
+  ustar <- lapply(Uhat,
+                  FUN = function(x) {
+                    J <- nrow(x)
+                    
+                    # Sample of b*
+                    ustar.index <- sample(x = seq_len(J), size = J, replace = TRUE)
+                    ustar <- data.frame(x[ustar.index,])
+                    return(ustar)
+                  })
   
-  Uhat <- as.data.frame(as.matrix(Uhat))
-  Uhat.list <- list(Uhat)
+#   Uhat <- as.data.frame(as.matrix(Uhat))
+#   Uhat.list <- list(Uhat)
+  
+  ## TODO: fix this issue with the levels... Need to resample from here...
   
   level.num <- getME(object = model, name = "n_rfacs")
   
   # Extract Z design matrix separated by variance
   Ztlist <- getME(object = model, name = "Ztlist")
   
-  
-  ## TODO: fix this issue with the levels...
   if(level.num == 1){
-    Uhat.list <- lapply(Uhat.list, FUN = function(x) as.list(x))[[1]]
-    names(Uhat.list) <- names(Ztlist)
+    ustar <- lapply(ustar, FUN = function(x) as.list(x))[[1]]
   } else {
-    Uhat.list <- sapply(Uhat.list, FUN = function(x) as.list(x))
+    ustar <- lapply(ustar, FUN = function(x) as.data.frame(x))
+    ustar <- do.call(c, ustar)
   }
   
-  # Resample Uhat
-  ustar <- sample(x = Uhat.list[[1]], size = length(Uhat.list[[1]]), replace = TRUE)
+  names(ustar) <- names(Ztlist) 
+  ustar.df <- as.data.frame(ustar)
+  
+#   if(level.num == 1){
+#     Uhat.list <- lapply(Uhat.list, FUN = function(x) as.list(x))[[1]]
+#     names(Uhat.list) <- names(Ztlist)
+#   } else {
+#     Uhat.list <- sapply(Uhat.list, FUN = function(x) as.list(x))
+#   }
+  
+#   # Resample Uhat
+#   ustar <- sample(x = Uhat.list[[1]], size = length(Uhat.list[[1]]), replace = TRUE)
   
   # Get Zb*
-  Zbstar <- .Zbstar.combine(bstar = as.data.frame(ustar), zstar = Ztlist)
+  Zbstar <- .Zbstar.combine(bstar = ustar.df, zstar = Ztlist)
   Zbstar.sum <- Reduce("+", Zbstar)
   
   # Resample residuals
@@ -526,11 +545,11 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
   # Combine function
   y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
   
-  # this is going to be a crude workaround
-  u.lvar <- log(var(ustar))
-  e.lvar <- log(var(estar))
+#   # this is going to be a crude workaround
+#   u.lvar <- log(var(ustar.df))
+#   e.lvar <- log(var(estar))
+#   
+#   test.return <- structure(list(ystar = y.star, u = u.lvar, e = e.lvar))
   
-  test.return <- structure(list(ystar = y.star, u = u.lvar, e = e.lvar))
-  
-  return(test.return)
+  return(y.star)
 }
