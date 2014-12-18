@@ -215,31 +215,39 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
 #     fn(refit(object = model, newresp = x))
 #   })
 
-  tstar <- lapply(ystar, function(x) {
-    fn(refit(object = model, newresp = x))
-  })
+  if(reb_type == 2){
+    tstar <- lapply(ystar, function(x) {
+      m <- refit(object = model, newresp = x)
+      vc <- as.data.frame(VarCorr(m))
+      list(poi = fn(m), varcomp = vc$vcov[is.na(vc$var2)])
+    })
+    
+    vcs <- lapply(tstar, function(x) x$varcomp)
+    Sb <- log( do.call("rbind", vcs) )
+    tstar <- lapply(tstar, function(x) x$poi)
+    
+    Mb <- matrix(rep(apply(Sb, 2, mean), times = B), nrow = B, byrow = TRUE)
+    CovSb <- cov(Sb)
+    SdSb <- sqrt(diag(CovSb))
+    
+    Db <- matrix(rep(SdSb, times = B), nrow = B, byrow = TRUE)
+    
+    EW <- eigen(solve(CovSb), symmetric = T)
+    Whalf <- EW$vectors %*% diag(sqrt(EW$values))
+
+    Sbmod <- (Sb - Mb) %*% Whalf
+    Sbmod <- Sbmod * Db # elementwise not a type 
+    Lb <- exp(Mb + Sbmod)
+  } else{
+    tstar <- lapply(ystar, function(x) {
+      fn(refit(object = model, newresp = x))
+    })
+  }
 
   tstar <- do.call("cbind", tstar) # Can these be nested?
   rownames(tstar) <- names(fn(model))
-#   u.vec <- as.numeric(t(ystar[2,]))
-#   e.vec <- as.numeric(t(ystar[3,]))
-#   ue.mat <- matrix(c(u.vec, e.vec), ncol = 2)
 
-# POST
-  
-#   # Used JCGS code because it works
-#   Sb <- as.matrix(ue.mat)
-#   Mb <- apply(Sb,2,mean)
-#   CovSb <- cov(Sb)
-#   SdSb <- sqrt(diag(CovSb))
-#   EW <- eigen(solve(CovSb),symmetric=T)
-#   Whalf <- EW$vectors%*%diag(sqrt(EW$values))
-#   Sm <- cbind(rep(Mb[1],B),rep(Mb[2],B))
-#   Sbmod <- (Sb-Sm)%*%Whalf
-#   Sbmod[,1] <- Sbmod[,1]*SdSb[1]
-#   Sbmod[,2] <- Sbmod[,2]*SdSb[2]
-#   Lb <- exp(Sm+Sbmod)
-  
+    
   RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
                         seed = .Random.seed, statistic = fn,
                         sim = "parametric", call = match.call(), reb2 = Lb),
@@ -471,26 +479,29 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
                      dimnames = list(NULL, cnms[[i]]))
   names(u) <- names(cnms)
   
+  level.num <- getME(object = model, name = "n_rfacs")
   
   if(reb_type == 1){
-    #PRE
-    
-    
+    if(level.num > 1) stop("reb_type = 1 is not yet implemented for higher order models")
     # Calculations
-    S <- (t(u) %*% u) / nrow(u)
-    R <- bdiag(VarCorr(model))
-    Ls <- chol(S, pivot = TRUE)
-    Lr <- chol(R, pivot = TRUE)
-    A <- t(Lr %*% solve(Ls))
-    
-    Uhat <- u%*%A
+    Uhat <- lapply(u, function(x){
+      S <- (t(x) %*% x) / nrow(x)
+      R <- bdiag(VarCorr(model))
+      Ls <- chol(S, pivot = TRUE)
+      Lr <- chol(R, pivot = TRUE)
+      A <- t(Lr %*% solve(Ls))
+      
+      Uhat <- x%*%A
+      
+      # center
+      Uhat <- data.frame(scale(Uhat, scale = FALSE))
+      
+      return(Uhat)
+    })
     
     sigma <- sigma(model)
     estar <- sigma * e %*% ((t(e) %*% e) / length(e))^(-1/2)
-    
-    # center
-    estar <- scale(estar, scale = FALSE) # faster than the for loop
-    Uhat <- scale(Uhat, scale = FALSE) 
+    estar <- data.frame(scale(estar, scale = FALSE))
     
   } else{
     Uhat <- u
@@ -514,8 +525,6 @@ reb.lmerMod <- function (model, fn, B, reb_type = 0){
 #   Uhat.list <- list(Uhat)
   
   ## TODO: fix this issue with the levels... Need to resample from here...
-  
-  level.num <- getME(object = model, name = "n_rfacs")
   
   # Extract Z design matrix separated by variance
   Ztlist <- getME(object = model, name = "Ztlist")
