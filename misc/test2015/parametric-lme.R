@@ -1,5 +1,6 @@
 library(nlme)
 library(boot)
+library(nlmeU) # for simulateY
 
 ##-------------------------------------------------------##
 ## Two-level models for JSP Data                         ##
