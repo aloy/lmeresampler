@@ -1,13 +1,7 @@
-##-------------------------------------------------------##
-## Notes
-##  This function is currently VERY SLOW
-##-------------------------------------------------------##
-
-
-
 library(lme4)
 library(boot)
 library(mlmRev)
+library(HLMdiag)
 
 ##-------------------------------------------------------##
 ## Two-level models for JSP Data                         ##
@@ -39,13 +33,10 @@ mySumm <- function(.) {
 
 mySumm(vcmodA)
 
-boo1 <- case.lmerMod(model = vcmodA, fn = mySumm, B = 1000)
+boo1 <- reb.lmerMod(model = vcmodA, fn = mySumm, B = 100, reb_type = 1)
 
-boo2 <- case.lmerMod(model = vcmodC, fn = mySumm, B = 1000)
+boo2 <- reb.lmerMod(model = vcmodC, fn = mySumm, B = 100, reb_type = 0)
 
-boo3 <- case.lmerMod(model = vcmodA, fn = mySumm, B = 100, extra_step = TRUE)
-
-boo4 <- case.lmerMod(model = vcmodC, fn = mySumm, B = 100, extra_step = TRUE)
 
 ##-------------------------------------------------------##
 ## Three-level models for 
@@ -66,4 +57,4 @@ mySumm2 <- function(.) {
 }
 
 mySumm2(rmA)
-boo5 <- case.lmerMod(model = rmA, fn = mySumm2, B = 100)
+boo3 <- reb.lmerMod(model = rmA, fn = mySumm2, B = 100)

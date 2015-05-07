@@ -1,10 +1,3 @@
-##-------------------------------------------------------##
-## Notes
-##  This function is currently VERY SLOW
-##-------------------------------------------------------##
-
-
-
 library(lme4)
 library(boot)
 library(mlmRev)
@@ -39,13 +32,10 @@ mySumm <- function(.) {
 
 mySumm(vcmodA)
 
-boo1 <- case.lmerMod(model = vcmodA, fn = mySumm, B = 1000)
+boo1 <- cgr.lmerMod(model = vcmodA, fn = mySumm, B = 1000)
 
-boo2 <- case.lmerMod(model = vcmodC, fn = mySumm, B = 1000)
+boo2 <- cgr.lmerMod(model = vcmodC, fn = mySumm, B = 100)
 
-boo3 <- case.lmerMod(model = vcmodA, fn = mySumm, B = 100, extra_step = TRUE)
-
-boo4 <- case.lmerMod(model = vcmodC, fn = mySumm, B = 100, extra_step = TRUE)
 
 ##-------------------------------------------------------##
 ## Three-level models for 
@@ -66,4 +56,4 @@ mySumm2 <- function(.) {
 }
 
 mySumm2(rmA)
-boo5 <- case.lmerMod(model = rmA, fn = mySumm2, B = 100)
+boo3 <- cgr.lmerMod(model = rmA, fn = mySumm2, B = 1000)
