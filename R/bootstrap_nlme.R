@@ -14,13 +14,13 @@
 #' @param fn The function the user is interested in testing
 #' @param type The \code{type} of bootstrap requested, see details for types
 #' @param B The number of bootstrap simulations
-bootstrap.nlme <- function (model, fn, type, B){
+bootstrap.lme <- function (model, fn, type, B){
   switch(type,
-         par = parametric.nlme(model, fn, B),
-         res = residual.nlme(model, fn, B),
-         case = case.nlme(model, fn, B, extra_step = FALSE),
-         cgr = cgr.nlme(model, fn, B),
-         reb = reb.nlme(model, fn, B, reb_type = 0))
+         par = parametric.lme(model, fn, B),
+         res = residual.lme(model, fn, B),
+         case = case.lme(model, fn, B, extra_step = FALSE),
+         cgr = cgr.lme(model, fn, B),
+         reb = reb.lme(model, fn, B, reb_type = 0))
 }
 
 #' @title Parametric Bootstrap
@@ -38,7 +38,7 @@ bootstrap.nlme <- function (model, fn, type, B){
 #' @inheritParams B
 #'
 #' @return list
-parametric.nlme <- function(model, fn, B){
+parametric.lme <- function(model, fn, B){
   # Match function
   fn <- match.fun(fn)
   # Extract fixed effects
@@ -98,7 +98,7 @@ parametric.nlme <- function(model, fn, B){
 #' @inheritParams B
 #'
 #' @return list
-residual.nlme <- function(model, fn, B){
+residual.lme <- function(model, fn, B){
   fn <- match.fun(fn)
   
   ystar <- as.data.frame( replicate(n = B, .resample.resids(model = model)) )
@@ -118,7 +118,7 @@ residual.nlme <- function(model, fn, B){
 #' @inheritParams B
 #'
 #' @return list
-cgr.nlme <- function(model, fn, B){
+cgr.lme <- function(model, fn, B){
   fn <- match.fun(fn)
   B <- 10
   
@@ -142,7 +142,7 @@ cgr.nlme <- function(model, fn, B){
 #' @inheritParams B
 #'
 #' @return list
-case.nlme <- function (model, fn, B, extra_step = FALSE){
+case.lme <- function (model, fn, B, extra_step = FALSE){
   # TODO: put everything below into lapply to replicate
   .cases.resamp <- function (model, extra_step){
     # Draw sample of size J from level-2 units
@@ -259,16 +259,16 @@ case.nlme <- function (model, fn, B, extra_step = FALSE){
 
 # Extract the Z matrix from a model
 .extractZ.lme <- function(model){
-  Z.nlme <- extract.lmeDesign(model)$Z
-  one.Z <- matrix(1, ncol = ncol(Z.nlme)/2, nrow = nrow(Z.nlme))
-  two.Z <- matrix(2, ncol = ncol(Z.nlme)/2, nrow = nrow(Z.nlme))
+  Z.lme <- extract.lmeDesign(model)$Z
+  one.Z <- matrix(1, ncol = ncol(Z.lme)/2, nrow = nrow(Z.lme))
+  two.Z <- matrix(2, ncol = ncol(Z.lme)/2, nrow = nrow(Z.lme))
   my.counter <- 1
-  for(i in 1:ncol(Z.nlme)){
+  for(i in 1:ncol(Z.lme)){
     if(i%%2==0){
-      two.Z[,my.counter] <- Z.nlme[,i]
+      two.Z[,my.counter] <- Z.lme[,i]
       my.counter <- my.counter+1
     }else{
-      one.Z[,my.counter] <- Z.nlme[,i]}
+      one.Z[,my.counter] <- Z.lme[,i]}
     
   }
   one.Z <- t(one.Z)

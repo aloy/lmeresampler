@@ -29,16 +29,16 @@
 
 # Extract the Z matrix from a model
 .extractZ.lme <- function(model){
-  Z.nlme <- extract.lmeDesign(model)$Z
-  one.Z <- matrix(1, ncol = ncol(Z.nlme)/2, nrow = nrow(Z.nlme))
-  two.Z <- matrix(2, ncol = ncol(Z.nlme)/2, nrow = nrow(Z.nlme))
+  Z.lme <- extract.lmeDesign(model)$Z
+  one.Z <- matrix(1, ncol = ncol(Z.lme)/2, nrow = nrow(Z.lme))
+  two.Z <- matrix(2, ncol = ncol(Z.lme)/2, nrow = nrow(Z.lme))
   my.counter <- 1
-  for(i in 1:ncol(Z.nlme)){
+  for(i in 1:ncol(Z.lme)){
     if(i%%2==0){
-      two.Z[,my.counter] <- Z.nlme[,i]
+      two.Z[,my.counter] <- Z.lme[,i]
       my.counter <- my.counter+1
     }else{
-      one.Z[,my.counter] <- Z.nlme[,i]}
+      one.Z[,my.counter] <- Z.lme[,i]}
     
   }
   one.Z <- t(one.Z)
