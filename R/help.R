@@ -1,4 +1,4 @@
-#' Bootstrapping Linear Mixed Effects Models
+#' Bootstrapping Nested Linear Mixed Effects Models
 #'
 #' ADD A DESCRIPTION HERE.
 #' 
