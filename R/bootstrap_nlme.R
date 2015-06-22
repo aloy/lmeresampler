@@ -1,23 +1,8 @@
-#' @title Bootstrap for LMEs
-#'
-#' @description
-#' \code{bootstrap} helps streamline the bootstrap process for the parametric,
-#' residual, cases, CGR, and REB bootstraps.
-#'
-#' @details To choose a bootstrap use the \code{type} parameter.
-#' For parametric use \code{"par"}, residual use \code{"res"}, cases use \code{"case"},
-#' CGR use \code{"cgr"}, and REB use \code{"reb"}. The REB bootstrap has two types
-#' which defaults to 1 but can be chosen using \code{"reb", "reb1", "reb2"}.
-#'
-#' @export
-#' @param model The original model to use
-#' @param fn The function the user is interested in testing
-#' @param type The \code{type} of bootstrap requested, see details for types
-#' @param B The number of bootstrap simulations
+#' @rdname bootstrap
 bootstrap.lme <- function (model, fn, type, B){
   switch(type,
          par = parametric.lme(model, fn, B),
-         res = residual.lme(model, fn, B),
+         resid = residual.lme(model, fn, B),
          case = case.lme(model, fn, B, extra_step = FALSE),
          cgr = cgr.lme(model, fn, B),
          reb = reb.lme(model, fn, B, reb_type = 0))

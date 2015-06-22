@@ -3,9 +3,8 @@ Title: Bootstrapping Nested Linear Mixed Effects Models
 Version: 0.0.0.9000
 Authors@R: c(person("Adam", "Loy", email = "adam.m.loy@lawrence.edu",
     role = c("aut", "cre")), person("Spenser", "steele", role = "aut"))
-Maintainer: Adam Loy <loyad01@gmail.com>
-Description: Bootstrap linear mixed effects models for clustered data
-    that were fit using either the 'lme4' or 'nlme' packages... 
+Description: Bootstrap linear mixed effects models for clustered data that were
+    fit using either the 'lme4' or 'nlme' packages... 
 Depends: R (>= 3.1.2)
 Imports: 
   boot
