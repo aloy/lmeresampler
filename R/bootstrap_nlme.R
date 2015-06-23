@@ -13,9 +13,9 @@ parametric_bootstrap.lme <- function(model, fn, B){
   # Match function
   fn <- match.fun(fn)
   # Extract fixed effects
-  model.fixef <- fixed.effects(model)
+  model.fixef <- nlme::fixef(model)
   
-  ystar <- simulateY(model, nsim = B)
+  ystar <- nlmeU::simulateY(model, nsim = B)
   row.names(ystar) <- 1:model$dims$N
   
   t0 <- fn(model)

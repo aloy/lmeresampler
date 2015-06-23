@@ -14,8 +14,8 @@ bootstrap.lmerMod <- function (model, fn, type, B, extra_step, reb_type){
 parametric_bootstrap.lmerMod <- function(model, fn, B){
   fn <- match.fun(fn)
 
-  model.fixef <- fixef(model) # Extract fixed effects
-  ystar <- simulate(model, nsim = B, na.action = na.exclude)
+  model.fixef <- lme4::fixef(model) # Extract fixed effects
+  ystar <- lme4::simulate(model, nsim = B, na.action = na.exclude)
 
   return(.bootstrap.completion(model, ystar, B, fn))
 
@@ -69,9 +69,9 @@ case_bootstrap.lmerMod <- function (model, fn, B, extra_step = FALSE){
     
     # Refit the model and apply 'fn' to it using lapply
     form <- model@call$formula
-    reml <- isREML(model)
+    reml <- lme4::isREML(model)
     tstar <- lapply(data, function(x) {
-      fn(lmer(formula = form, data = x, REML = reml)) 
+      fn(lme4::lmer(formula = form, data = x, REML = reml)) 
     })
     
     tstar <- do.call("cbind", tstar) # Can these be nested?
@@ -116,8 +116,8 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 
   if(reb_type == 2){
     tstar <- lapply(ystar, function(x) {
-      m <- refit(object = model, newresp = x)
-      vc <- as.data.frame(VarCorr(m))
+      m <- lme4::refit(object = model, newresp = x)
+      vc <- as.data.frame(lme4::VarCorr(m))
       list(poi = fn(m), varcomp = vc$vcov[is.na(vc$var2)])
     })
     
@@ -139,7 +139,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
     Lb <- exp(Mb + Sbmod)
   } else{
     tstar <- lapply(ystar, function(x) {
-      fn(refit(object = model, newresp = x))
+      fn(lme4::refit(object = model, newresp = x))
     })
   }
 
@@ -199,7 +199,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 
   # Refit the model and apply 'fn' to it using lapply
   tstar <- lapply(ystar, function(x) {
-    fn(refit(object = model, newresp = x))
+    fn(lme4::refit(object = model, newresp = x))
   })
 
   tstar <- do.call("cbind", tstar) # Can these be nested?
@@ -222,7 +222,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #'
 #' @inheritParams model
 .resample.cgr <- function(model){
-  model.ranef <- ranef(model)
+  model.ranef <- lme4::ranef(model)
   
   # Extract residuals
   model.resid <- resid(model)
@@ -234,7 +234,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
                         S <- (t(u) %*% u) / length(u)
                         
                         re.name <- names(model.ranef)[i]
-                        R <- bdiag(VarCorr(model)[[names(model.ranef)[i]]])
+                        R <- bdiag(lme4::VarCorr(model)[[names(model.ranef)[i]]])
                         
                         Ls <- chol(S, pivot = TRUE)
                         Lr <- chol(R, pivot = TRUE)
@@ -249,16 +249,16 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   
   # Level 1
   e <- as.numeric(scale(model.resid, scale = FALSE))
-  sigma <- sigma(model)
+  sigma <- lme4::getME(model, "sigma")
   ehat <- sigma*e*((t(e)%*%e)/length(e))^(-1/2)
   
   # Extract Z design matrix
-  Z <- getME(object = model, name = "Ztlist")
+  Z <- lme4::getME(object = model, name = "Ztlist")
   
   
   Xbeta <- predict(model, re.form = NA)
   
-  level.num <- getME(object = model, name = "n_rfacs")
+  level.num <- lme4::getME(object = model, name = "n_rfacs")
   
   # Resample Uhat
   ustar <- lapply(Uhat.list,
@@ -302,13 +302,13 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   Xbeta <- predict(model, re.form = NA) # This is X %*% fixef(model)
   
   # Extract random effects
-  model.ranef <- ranef(model)
+  model.ranef <- lme4::ranef(model)
   
   # Extract residuals
   model.resid <- resid(model)
   
   # Extract Z design matrix
-  Z <- getME(object = model, name = "Ztlist")
+  Z <- lme4::getME(object = model, name = "Ztlist")
   
   bstar <- lapply(model.ranef,
                   FUN = function(x) {
@@ -320,7 +320,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
                     return(bstar)
                   })
   
-  level.num <- getME(object = model, name = "n_rfacs")
+  level.num <- lme4::getME(object = model, name = "n_rfacs")
   
   if(level.num == 1){
     bstar <- lapply(bstar, FUN = function(x) as.list(x))[[1]]
@@ -352,10 +352,10 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #' @inheritParams model
 .resample.reb <- function(model, reb_type){
   # use HLMresid to extract marginal residuals
-  model.mresid <- HLMresid(object = model, type = "EB", level = "marginal")
+  model.mresid <- HLMdiag::HLMresid(object = model, type = "EB", level = "marginal")
   
   # Extract Z design matrix
-  Z <- getME(object = model, name = "Z")
+  Z <- lme4::getME(object = model, name = "Z")
   
   # level 2 resid
   u <- solve(t(Z) %*% Z) %*% t(Z) %*% model.mresid # a single vector
@@ -378,14 +378,14 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
                      dimnames = list(NULL, cnms[[i]]))
   names(u) <- names(cnms)
   
-  level.num <- getME(object = model, name = "n_rfacs")
+  level.num <- lme4::getME(object = model, name = "n_rfacs")
   
   if(reb_type == 1){
     if(level.num > 1) stop("reb_type = 1 is not yet implemented for higher order models")
     # Calculations
     Uhat <- lapply(u, function(x){
       S <- (t(x) %*% x) / nrow(x)
-      R <- bdiag(VarCorr(model))
+      R <- bdiag(lme4::VarCorr(model))
       Ls <- chol(S, pivot = TRUE)
       Lr <- chol(R, pivot = TRUE)
       A <- t(Lr %*% solve(Ls))
@@ -398,7 +398,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
       return(Uhat)
     })
     
-    sigma <- sigma(model)
+    sigma <- getME(model, "sigma")
     estar <- sigma * e %*% ((t(e) %*% e) / length(e))^(-1/2)
     estar <- data.frame(scale(estar, scale = FALSE))
     
@@ -426,7 +426,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   ## TODO: fix this issue with the levels... Need to resample from here...
   
   # Extract Z design matrix separated by variance
-  Ztlist <- getME(object = model, name = "Ztlist")
+  Ztlist <- lme4::getME(object = model, name = "Ztlist")
   
   if(level.num == 1){
     ustar <- lapply(ustar, FUN = function(x) as.list(x))[[1]]
