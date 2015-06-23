@@ -17,7 +17,7 @@ parametric_bootstrap.lmerMod <- function(model, fn, B){
   fn <- match.fun(fn)
 
   model.fixef <- lme4::fixef(model) # Extract fixed effects
-  ystar <- lme4::simulate(model, nsim = B, na.action = na.exclude)
+  ystar <- simulate(model, nsim = B, na.action = na.exclude)
 
   return(.bootstrap.completion(model, ystar, B, fn))
 

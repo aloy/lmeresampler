@@ -26,15 +26,15 @@ rcmod <- lmer(mathAge11 ~ mathAge8 * schoolMathAge8 + gender + class +
 ## Parametric bootstrap for the VC models
 
 mySumm <- function(.) { 
-  s <- sigma(.)
+  s <- getME(., "sigma")
   c(beta = getME(., "beta"), sigma = s, sig01 = unname(s * getME(., "theta"))) 
 }
 
 mySumm(vcmodA)
 
-boo1 <- parametric.lmerMod(model = vcmodA, fn = mySumm, B = 1000)
+boo1 <- parametric_bootstrap.lmerMod(model = vcmodA, fn = mySumm, B = 10)
 
-boo2 <- parametric.lmerMod(model = vcmodC, fn = mySumm, B = 1000)
+boo2 <- parametric_bootstrap.lmerMod(model = vcmodC, fn = mySumm, B = 10)
 
 
 ##-------------------------------------------------------##
@@ -56,4 +56,4 @@ mySumm2 <- function(.) {
 }
 
 mySumm2(rmA)
-boo3 <- parametric.lmerMod(model = rmA, fn = mySumm2, B = 1000)
+boo3 <- parametric_bootstrap.lmerMod(model = rmA, fn = mySumm2, B = 10)

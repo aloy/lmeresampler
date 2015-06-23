@@ -7,7 +7,7 @@ Socatt$rv <- as.numeric(as.character(Socatt$numpos))
 Socatt$rv <- scale(Socatt$rv) # a plot shows this is clearly non-normal
 
 
-context("parametric bootstrap")
+context("parametric bootstrap (lmerMod)")
 
 
 vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + schoolMathAge8 + 
