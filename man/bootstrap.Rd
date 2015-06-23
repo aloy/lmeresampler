@@ -6,11 +6,11 @@
 \alias{bootstrap.lmerMod}
 \title{Bootstrap Nested LMEs}
 \usage{
-\method{bootstrap}{lmerMod}(model, fn, type, B)
+\method{bootstrap}{lmerMod}(model, fn, type, B, extra_step, reb_type)
 
-\method{bootstrap}{lme}(model, fn, type, B)
+\method{bootstrap}{lme}(model, fn, type, B, extra_step, reb_type)
 
-bootstrap(model, fn, type, B)
+bootstrap(model, fn, type, B, extra_step, reb_type)
 }
 \arguments{
 \item{model}{The model object you wish to bootstrap.}
@@ -23,6 +23,10 @@ requested. Possible values are \code{"par"} (parametric), \code{"resid"}
 of the random effect block bootstrap ("reb", "reb1", "reb2").}
 
 \item{B}{The number of bootstrap resamples.}
+
+\item{extra_step}{}
+
+\item{reb_type}{Chooses the type of REB bootstrap}
 }
 \description{
 \code{bootstrap} helps streamline the bootstrap process for the parametric,

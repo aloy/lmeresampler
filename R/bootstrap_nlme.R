@@ -1,29 +1,15 @@
 #' @rdname bootstrap
-bootstrap.lme <- function (model, fn, type, B){
+bootstrap.lme <- function (model, fn, type, B, extra_step, reb_type){
   switch(type,
-         par = parametric.lme(model, fn, B),
-         resid = residual.lme(model, fn, B),
-         case = case.lme(model, fn, B, extra_step = FALSE),
-         cgr = cgr.lme(model, fn, B),
-         reb = reb.lme(model, fn, B, reb_type = 0))
+         par = parametric_bootstrap.lme(model, fn, B),
+         resid = resid_bootstrap.lme(model, fn, B),
+         case = case_bootstrap.lme(model, fn, B, extra_step = FALSE),
+         cgr = cgr_bootstrap.lme(model, fn, B),
+         reb = reb_bootstrap.lme(model, fn, B, reb_type = 0))
 }
 
-#' @title Parametric Bootstrap
-#'
-#' @description
-#' The Parametric Bootstrap is uses the parametrically estimated
-#' distribution function of the data to generate bootstrap samples.
-#'
-#' @details
-#' This function extracts the fixed effects, simulates from the model, refits the model
-#' and then returns the results in a list.
-#'
-#' @inheritParams model
-#' @inheritParams fn
-#' @inheritParams B
-#'
-#' @return list
-parametric.lme <- function(model, fn, B){
+#' @rdname parametric_bootstrap
+parametric_bootstrap.lme <- function(model, fn, B){
   # Match function
   fn <- match.fun(fn)
   # Extract fixed effects
@@ -68,41 +54,15 @@ parametric.lme <- function(model, fn, B){
   return(RES)
 }
 
-#' @title Residual Bootstrap
-#'
-#' @description
-#' The Residual Bootstrap uses residuals to generate bootstrap samples.
-#'
-#' @details
-#' This function extracts the Xbetas, random effects, residuals, and Z
-#' design matrix in order to resample the residuals and complete the
-#' bootstrap process.
-#'
-#' @inheritParams model
-#' @inheritParams fn
-#' @inheritParams B
-#'
-#' @return list
-residual.lme <- function(model, fn, B){
+#' @rdname resid_bootstrap
+resid_bootstrap.lme <- function(model, fn, B){
   fn <- match.fun(fn)
   
   ystar <- as.data.frame( replicate(n = B, .resample.resids(model = model)) )
   return(ystar)
 }
 
-#' @title CGR Bootstrap
-#'
-#' @description
-#' CGR Bootstrap
-#'
-#' @details
-#' add details here
-#'
-#' @inheritParams model
-#' @inheritParams fn
-#' @inheritParams B
-#'
-#' @return list
+#' @rdname cgr_bootstrap
 cgr.lme <- function(model, fn, B){
   fn <- match.fun(fn)
   B <- 10
@@ -113,20 +73,7 @@ cgr.lme <- function(model, fn, B){
 }
 
 
-#' @title Cases Bootstrap
-#'
-#' @description
-#' The Cases Bootstrap samples entire cases to generate the bootstrap.
-#'
-#' @details
-#' add details here
-#'
-#' @param extra_step add the extra step
-#' @inheritParams model
-#' @inheritParams fn
-#' @inheritParams B
-#'
-#' @return list
+#' @rdname case_bootstrap
 case.lme <- function (model, fn, B, extra_step = FALSE){
   # TODO: put everything below into lapply to replicate
   .cases.resamp <- function (model, extra_step){

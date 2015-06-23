@@ -1,35 +1,17 @@
 #' @rdname bootstrap
-bootstrap.lmerMod <- function (model, fn, type, B){
+bootstrap.lmerMod <- function (model, fn, type, B, extra_step, reb_type){
   switch(type,
-         par = parametric.lmerMod(model, fn, B),
-         resid = residual.lmerMod(model, fn, B),
-         case = case.lmerMod(model, fn, B, extra_step = FALSE),
-         cgr = cgr.lmerMod(model, fn, B),
-         reb = reb.lmerMod(model, fn, B, reb_type = 0))
+         par = parametric_bootstrap.lmerMod(model, fn, B),
+         resid = resid_bootstrap.lmerMod(model, fn, B),
+         case = case_bootstrap.lmerMod(model, fn, B, extra_step = FALSE),
+         cgr = cgr_bootstrap.lmerMod(model, fn, B),
+         reb = reb_bootstrap.lmerMod(model, fn, B, reb_type = 0))
   # TODO: need to be able to save results
 }
 
 
-#' @title Parametric Bootstrap
-#'
-#' @description
-#' The Parametric Bootstrap is uses the parametrically estimated
-#' distribution function of the data to generate bootstrap samples.
-#'
-#' @details
-#' This function extracts the fixed effects, simulates from the model, refits the model
-#' and then returns the results in a list.
-#'
-#' @inheritParams model
-#' @inheritParams fn
-#' @inheritParams B
-#'
-#' @return list
-#'
-#' @references
-#' Chambers:2013ba
-#' vanderLeeden:208kv
-parametric.lmerMod <- function(model, fn, B){
+#' @rdname parametric_bootstrap
+parametric_bootstrap.lmerMod <- function(model, fn, B){
   fn <- match.fun(fn)
 
   model.fixef <- fixef(model) # Extract fixed effects
@@ -44,23 +26,8 @@ parametric.lmerMod <- function(model, fn, B){
 }
 
 
-#' @title Residual Bootstrap
-#'
-#' @description
-#' The Residual Bootstrap uses residuals to generate bootstrap samples.
-#'
-#' @details
-#' Resamples the residuals and complete the bootstrap process.
-#'
-#' @inheritParams model
-#' @inheritParams fn
-#' @inheritParams B
-#'
-#' @return list
-#'
-#' @references
-#' vanderLeeden:208kv
-residual.lmerMod <- function (model, fn, B){
+#' @rdname resid_bootstrap
+resid_bootstrap.lmerMod <- function (model, fn, B){
   fn <- match.fun(fn)
   
   ystar <- as.data.frame( replicate(n = B, .resample.resids(model = model)) )
@@ -68,24 +35,8 @@ residual.lmerMod <- function (model, fn, B){
   return(.bootstrap.completion(model, ystar, B, fn))
 }
 
-#' @title Cases Bootstrap
-#'
-#' @description
-#' The Cases Bootstrap samples entire cases to generate the bootstrap.
-#'
-#' @details
-#' add details
-#'
-#' @param extra_step add the extra step
-#' @inheritParams model
-#' @inheritParams fn
-#' @inheritParams B
-#'
-#' @return list
-#'
-#' @references
-#' vanderLeeden:208kv
-case.lmerMod <- function (model, fn, B, extra_step = FALSE){
+#' @rdname case_bootstrap
+case_bootstrap.lmerMod <- function (model, fn, B, extra_step = FALSE){
   # TODO: put everything below into lapply to replicate
   .cases.resamp <- function (model, extra_step){
   # Draw sample of size J from level-2 units
@@ -138,26 +89,8 @@ case.lmerMod <- function (model, fn, B, extra_step = FALSE){
   return(.cases.completion(model, rep.data, B, fn))
 }
 
-#' CGR Bootstrap
-#'
-#' @description
-#' CGR Bootstrap
-#'
-#' @details
-#' add details later
-#'
-#' @inheritParams model
-#' @inheritParams fn
-#' @inheritParams B
-#'
-#' @return list
-#'
-#' @references Carpenter, J. R., Goldstein, H., and Rasbash, J. (2003)
-#' A novel bootstrap procedure for assessing the relationship 
-#' between class size and achievement. \emph{Journal of the Royal 
-#' Statistical Society. Series C. Applied Statistics}, 52(4), 431--443. 
-#' doi:10.1111/1467-9876.00415
-cgr.lmerMod <- function (model, fn, B){
+#' @rdname cgr_bootstrap
+cgr_bootstrap.lmerMod <- function (model, fn, B){
   fn <- match.fun(fn)
   
   ystar <- as.data.frame( replicate(n = B, .resample.cgr(model = model)) )
@@ -167,27 +100,8 @@ cgr.lmerMod <- function (model, fn, B){
 }
 
 
-#' @title REB Bootstrap
-#'
-#' @description
-#' REB Bootstrap
-#'
-#' @details
-#' add details
-#'
-#' @inheritParams model
-#' @inheritParams fn
-#' @inheritParams B
-#' @param reb_type Chooses the type of REB bootstrap
-#'
-#' @return list
-#'
-#' @references
-#' Chambers, R. and Chandra, H. (2013) 
-#' A Random Effect Block Bootstrap for Clustered Data. 
-#' \emph{Journal of Computational and Graphical Statistics}, 
-#' 22(2), 452–470. doi:10.1080/10618600.2012.681216
-reb.lmerMod <- function (model, fn, B, reb_type = 0){
+#' @rdname reb_bootstrap
+reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   
   fn <- match.fun(fn)
   

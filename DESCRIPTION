@@ -7,10 +7,11 @@ Description: Bootstrap linear mixed effects models for clustered data that were
     fit using either the 'lme4' or 'nlme' packages... 
 Depends: R (>= 3.1.2)
 Imports: 
-  boot
+    boot
 Suggests: 
-  lme4 (>= 1.1-7),
-  nlme
+    lme4 (>= 1.1-7),
+    nlme,
+    testthat
 License: GPL-3
 LazyData: true
 URL: https://github.com/aloy/lmeresampler
