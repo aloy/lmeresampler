@@ -12,6 +12,13 @@
 
 resid_bootstrap(model, fn, B)
 }
+\arguments{
+\item{model}{The model object you wish to bootstrap.}
+
+\item{fn}{A function returning the statistic(s) of interest.}
+
+\item{B}{The number of bootstrap resamples.}
+}
 \value{
 list
 }

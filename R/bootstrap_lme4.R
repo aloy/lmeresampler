@@ -1,4 +1,5 @@
 #' @rdname bootstrap
+#' @export
 bootstrap.lmerMod <- function (model, fn, type, B, extra_step, reb_type){
   switch(type,
          par = parametric_bootstrap.lmerMod(model, fn, B),
@@ -11,6 +12,7 @@ bootstrap.lmerMod <- function (model, fn, type, B, extra_step, reb_type){
 
 
 #' @rdname parametric_bootstrap
+#' @export
 parametric_bootstrap.lmerMod <- function(model, fn, B){
   fn <- match.fun(fn)
 
@@ -27,6 +29,7 @@ parametric_bootstrap.lmerMod <- function(model, fn, B){
 
 
 #' @rdname resid_bootstrap
+#' @export
 resid_bootstrap.lmerMod <- function (model, fn, B){
   fn <- match.fun(fn)
   
@@ -36,6 +39,7 @@ resid_bootstrap.lmerMod <- function (model, fn, B){
 }
 
 #' @rdname case_bootstrap
+#' @export
 case_bootstrap.lmerMod <- function (model, fn, B, extra_step = FALSE){
   # TODO: put everything below into lapply to replicate
   .cases.resamp <- function (model, extra_step){
@@ -90,6 +94,7 @@ case_bootstrap.lmerMod <- function (model, fn, B, extra_step = FALSE){
 }
 
 #' @rdname cgr_bootstrap
+#' @export
 cgr_bootstrap.lmerMod <- function (model, fn, B){
   fn <- match.fun(fn)
   
@@ -101,6 +106,7 @@ cgr_bootstrap.lmerMod <- function (model, fn, B){
 
 
 #' @rdname reb_bootstrap
+#' @export
 reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   
   fn <- match.fun(fn)
@@ -189,9 +195,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #' the bootstrap process. They are then structured into a list for output and returned.
 #'
 #' @param ystar The ystar being passed in
-#' @inheritParams model
-#' @inheritParams B
-#' @inheritParams fn
+#' @inheritParams bootstrap
 #'
 #' @return list
 .bootstrap.completion <- function(model, ystar, B, fn){
@@ -220,7 +224,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #' CGR resampling procedures
 #' 
 #'
-#' @inheritParams model
+#' @inheritParams bootstrap
 .resample.cgr <- function(model){
   model.ranef <- lme4::ranef(model)
   
@@ -294,8 +298,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 
 #' Resampling residuals from mixed models
 #'
-#' @inheritParams model
-#' 
+#' @inheritParams bootstrap
 .resample.resids <- function(model){
   
   # Extract fixed part of the model
@@ -349,7 +352,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #' REB resampling procedures
 #' #'
 #' @param reb_type Specifies the inclusion of REB/1
-#' @inheritParams model
+#' @inheritParams bootstrap
 .resample.reb <- function(model, reb_type){
   # use HLMresid to extract marginal residuals
   model.mresid <- HLMdiag::HLMresid(object = model, type = "EB", level = "marginal")

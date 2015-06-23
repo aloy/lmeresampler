@@ -36,6 +36,7 @@ bootstrap <- function(model, fn, type, B, extra_step, reb_type) {
 #' This function extracts the fixed effects, simulates from the model, refits the model
 #' and then returns the results in a list.
 #'
+#' @export
 #' @inheritParams bootstrap
 #'
 #' @return list
@@ -55,9 +56,8 @@ parametric_bootstrap <- function(model, fn, B) {
 #' @details
 #' Resamples the residuals and complete the bootstrap process.
 #'
-#' @inheritParams model
-#' @inheritParams fn
-#' @inheritParams B
+#' @export
+#' @inheritParams bootstrap
 #'
 #' @return list
 #'
@@ -75,6 +75,7 @@ resid_bootstrap <- function(model, fn, B) {
 #' @details
 #' add details
 #' 
+#' @export
 #' @inheritParams bootstrap
 #'
 #' @return list
@@ -114,6 +115,7 @@ cgr_bootstrap <- function(model, fn, B) {
 #' @details
 #' add details
 #'
+#' @export
 #' @inheritParams bootstrap
 #'
 #' @return list

@@ -224,8 +224,7 @@ updated.model<- function(model, new.y){
 
 #' Resampling residuals from mixed models
 #'
-#' @inheritParams model
-#' 
+#' @inheritParams bootstrap
 .resample.resids <- function(model){
   
   # Extract fixed part of the model
@@ -277,7 +276,7 @@ updated.model<- function(model, new.y){
 #' CGR resampling procedures
 #' 
 #'
-#' @inheritParams model
+#' @inheritParams bootstrap
 .resample.cgr <- function(model){
   model.ranef <- random.effects(model)
   
