@@ -1,16 +1,35 @@
 library(lme4)
 library(boot)
 library(mlmRev)
+library(dplyr)
 
 Socatt$religion <- relevel(Socatt$religion, ref = "none")
 Socatt$rv <- as.numeric(as.character(Socatt$numpos))
 Socatt$rv <- scale(Socatt$rv) # a plot shows this is clearly non-normal
 
 # ==============================================================================
-context("parametric bootstrap (lmerMod)")
+context("case bootstrap (lmerMod)")
 # ==============================================================================
 
-jsp728$class <- relevel(jsp728$class, ref = "manual")
+jjsp728 <- cbind(jsp728, .id = seq_along(nrow(jsp728)))
+grouped <- group_by(jjsp728, school) %>%
+  summarise(count = n())
+
+cr1 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), replace = c(TRUE, TRUE))
+cr2 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), replace = c(FALSE, TRUE))
+cr3 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), replace = c(TRUE, FALSE))
+cr4 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), replace = c(FALSE, FALSE))
+
+test_that("two-level additive random intercept model",{
+  expect_equal(nrow(cr2), nrow(jjsp728))
+  expect_identical(cr4, jjsp728)
+  expect_true(nrow(cr1) >= 48 * min(grouped$count))
+  expect_true(nrow(cr1) <= 48 * max(grouped$count))
+  expect_true(nrow(cr3) >= 48 * min(grouped$count))
+  expect_true(nrow(cr3) <= 48 * max(grouped$count))
+})
+
+# ------------------------------------------------------------------------------
 
 ## See p. 31 of Goldstein's book
 vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + 
@@ -25,7 +44,7 @@ orig.stats <- mySumm(vcmodA)
 
 nsim <- 10
 
-boo <- parametric_bootstrap.lmerMod(model = vcmodA, fn = mySumm, B = nsim)
+boo <- case_bootstrap(model = vcmodA, fn = mySumm, B = nsim, replace = c(TRUE, TRUE))
 
 test_that("two-level additive random intercept model",{
   expect_equal(class(boo), "boot")
@@ -37,13 +56,16 @@ test_that("two-level additive random intercept model",{
   expect_equal(boo$statistic, mySumm)
 })
 
+
+
+
 # ------------------------------------------------------------------------------
 ## See p. 97 of Goldstein's book
 rimod <- lmer(normAge11 ~ mathAge8c + gender + class + 
                 (1 | school), data = jsp728)
 
 orig.stats <- mySumm(rimod)
-boo <- parametric_bootstrap.lmerMod(model = rimod, fn = mySumm, B = nsim)
+boo <- case_bootstrap(model = rimod, fn = mySumm, B = nsim, replace = c(TRUE, TRUE))
 
 
 test_that("two-level random intercept model without interaction",{
@@ -62,7 +84,7 @@ vcmodC <- lmer(mathAge11 ~ mathAge8 * schoolMathAge8 + gender + class +
                  (1 | school), data = jsp728)
 
 orig.stats <- mySumm(vcmodC)
-boo <- parametric_bootstrap.lmerMod(model = vcmodC, fn = mySumm, B = nsim)
+boo <- case_bootstrap(model = vcmodC, fn = mySumm, B = nsim, replace = c(TRUE, TRUE))
 
 test_that("two-level random intercept model with interaction",{
   expect_equal(class(boo), "boot")
@@ -81,7 +103,7 @@ rcmod <- lmer(mathAge11 ~ mathAge8c * schoolMathAge8 + gender + class +
                 (mathAge8c | school), data = jsp728)
 
 orig.stats <- mySumm(rcmod)
-boo <- parametric_bootstrap.lmerMod(model = rcmod, fn = mySumm, B = nsim)
+boo <- case_bootstrap(model = rcmod, fn = mySumm, B = nsim, replace = c(TRUE, TRUE))
 
 
 test_that("two-level random coefficient model with interaction",{
@@ -99,7 +121,7 @@ test_that("two-level random coefficient model with interaction",{
 rmA <- lmer(rv ~ religion + year  + (1 | respond) + (1 | district), data = Socatt)
 
 orig.stats <- mySumm(rmA)
-boo <- parametric_bootstrap.lmerMod(model = rmA, fn = mySumm, B = nsim)
+boo <- case_bootstrap(model = rmA, fn = mySumm, B = nsim, replace = c(TRUE, TRUE, TRUE))
 
 
 test_that("three-level random intercept model",{

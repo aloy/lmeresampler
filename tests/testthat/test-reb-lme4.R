@@ -7,10 +7,9 @@ Socatt$rv <- as.numeric(as.character(Socatt$numpos))
 Socatt$rv <- scale(Socatt$rv) # a plot shows this is clearly non-normal
 
 # ==============================================================================
-context("parametric bootstrap (lmerMod)")
+context("REB bootstrap (lmerMod)")
 # ==============================================================================
 
-jsp728$class <- relevel(jsp728$class, ref = "manual")
 
 ## See p. 31 of Goldstein's book
 vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + 
@@ -25,7 +24,7 @@ orig.stats <- mySumm(vcmodA)
 
 nsim <- 10
 
-boo <- parametric_bootstrap.lmerMod(model = vcmodA, fn = mySumm, B = nsim)
+boo <- reb_bootstrap(model = vcmodA, fn = mySumm, B = nsim)
 
 test_that("two-level additive random intercept model",{
   expect_equal(class(boo), "boot")
@@ -43,7 +42,7 @@ rimod <- lmer(normAge11 ~ mathAge8c + gender + class +
                 (1 | school), data = jsp728)
 
 orig.stats <- mySumm(rimod)
-boo <- parametric_bootstrap.lmerMod(model = rimod, fn = mySumm, B = nsim)
+boo <- reb_bootstrap(model = rimod, fn = mySumm, B = nsim)
 
 
 test_that("two-level random intercept model without interaction",{
@@ -62,7 +61,7 @@ vcmodC <- lmer(mathAge11 ~ mathAge8 * schoolMathAge8 + gender + class +
                  (1 | school), data = jsp728)
 
 orig.stats <- mySumm(vcmodC)
-boo <- parametric_bootstrap.lmerMod(model = vcmodC, fn = mySumm, B = nsim)
+boo <- reb_bootstrap(model = vcmodC, fn = mySumm, B = nsim)
 
 test_that("two-level random intercept model with interaction",{
   expect_equal(class(boo), "boot")
@@ -81,7 +80,7 @@ rcmod <- lmer(mathAge11 ~ mathAge8c * schoolMathAge8 + gender + class +
                 (mathAge8c | school), data = jsp728)
 
 orig.stats <- mySumm(rcmod)
-boo <- parametric_bootstrap.lmerMod(model = rcmod, fn = mySumm, B = nsim)
+boo <- reb_bootstrap(model = rcmod, fn = mySumm, B = nsim)
 
 
 test_that("two-level random coefficient model with interaction",{
@@ -99,7 +98,7 @@ test_that("two-level random coefficient model with interaction",{
 rmA <- lmer(rv ~ religion + year  + (1 | respond) + (1 | district), data = Socatt)
 
 orig.stats <- mySumm(rmA)
-boo <- parametric_bootstrap.lmerMod(model = rmA, fn = mySumm, B = nsim)
+boo <- reb_bootstrap(model = rmA, fn = mySumm, B = nsim)
 
 
 test_that("three-level random intercept model",{

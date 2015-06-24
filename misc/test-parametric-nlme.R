@@ -1,24 +1,26 @@
-library(lme4)
+library(nlme)
 library(boot)
-library(mlmRev)
+library(RLRsim)
+
+data(Socatt, package = "mlmRev")
 
 Socatt$religion <- relevel(Socatt$religion, ref = "none")
 Socatt$rv <- as.numeric(as.character(Socatt$numpos))
 Socatt$rv <- scale(Socatt$rv) # a plot shows this is clearly non-normal
 
 # ==============================================================================
-context("parametric bootstrap (lmerMod)")
+context("parametric bootstrap (lme)")
 # ==============================================================================
 
-jsp728$class <- relevel(jsp728$class, ref = "manual")
-
 ## See p. 31 of Goldstein's book
-vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + 
-                 (1 | school), data = jsp728)
+vcmodA <- lme(mathAge11 ~ mathAge8 + gender + class,
+              random = ~ 1 | school, data = jsp728)
+
 
 mySumm <- function(.) { 
-  s <- getME(., "sigma")
-  c(beta = getME(., "beta"), sigma = s, sig01 = unname(s * getME(., "theta"))) 
+  design <- extract.lmeDesign(.)
+  s2 <- design$sigmasq
+  c(beta = fixef(.), sigma = sqrt(s2), sig01 = sqrt(s2 * design$lambda))
 }
 
 orig.stats <- mySumm(vcmodA)
