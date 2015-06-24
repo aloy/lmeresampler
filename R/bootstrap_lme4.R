@@ -33,7 +33,7 @@ parametric_bootstrap.lmerMod <- function(model, fn, B){
 resid_bootstrap.lmerMod <- function (model, fn, B){
   fn <- match.fun(fn)
   
-  ystar <- as.data.frame( replicate(n = B, .resample.resids(model = model)) )
+  ystar <- lapply(1:B, function(x) .resample.resids(model))
 
   return(.bootstrap.completion(model, ystar, B, fn))
 }
@@ -209,7 +209,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #' @return matrix
 .Zbstar.combine <- function(bstar, zstar){
   lapply(1:length(bstar), function(i){
-    t(zstar[[i]]) %*% bstar[[i]]
+    Matrix::t(zstar[[i]]) %*% bstar[[i]]
   })
 }
 
@@ -355,7 +355,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   level.num <- lme4::getME(object = model, name = "n_rfacs")
   
   if(level.num == 1){
-    bstar <- lapply(bstar, FUN = function(x) as.list(x))[[1]]
+    if(!is.numeric(bstar[[1]])) bstar <- lapply(bstar, FUN = function(x) as.list(x))[[1]]
     names(bstar) <- names(Z)
   } else {
     bstar <- lapply(bstar, FUN = function(x) as.data.frame(x))
