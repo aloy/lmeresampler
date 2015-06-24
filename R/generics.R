@@ -21,7 +21,7 @@
 #'    Chambers:2013ba
 #'    Morris:2002tj
 #'    vanderLeeden:208kv
-bootstrap <- function(model, fn, type, B, extra_step, reb_type) {
+bootstrap <- function(model, fn, type, B, replace, reb_type) {
   UseMethod("boostrap", model)
 }
 
@@ -82,7 +82,7 @@ resid_bootstrap <- function(model, fn, B) {
 #'
 #' @references
 #' vanderLeeden:208kv
-case_bootstrap <- function(model, fn, B, extra_step) {
+case_bootstrap <- function(model, fn, B, replace) {
   UseMethod("case_bootstrap", model)
 }
 

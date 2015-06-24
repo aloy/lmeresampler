@@ -38,60 +38,89 @@ resid_bootstrap.lmerMod <- function (model, fn, B){
   return(.bootstrap.completion(model, ystar, B, fn))
 }
 
+
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lmerMod <- function (model, fn, B, extra_step = FALSE){
-  # TODO: put everything below into lapply to replicate
-  .cases.resamp <- function (model, extra_step){
-  # Draw sample of size J from level-2 units
-  model.split <- split(x=model@frame, f=model@flist)
-  model.split.samp <- sample(x=model.split, size = length(model.split), replace = TRUE)
-  # For each sample, draw a sample of the cases from the level-2 unit
+case_bootstrap.lmerMod <- function (model, fn, B, replace){
   
-  if(extra_step == TRUE){
-    model.resamp <- lapply(model.split.samp,
-                           FUN = function(x) {
-                             J <- nrow(x)
-                             
-                             # Sample of level-2 rows
-                             model.sub.index <- sample(x = seq_len(J), size = J, replace = TRUE)
-                             resampled <- x[model.sub.index,]
-                             return(resampled)
-                           })
-    model.comb <- do.call('rbind', model.resamp)
-  } else{ # else statement needs to be located here
-    model.comb <- do.call('rbind', model.split.samp)
-  }
-  }
+  data <- model@frame
+  data$.id <- seq_along(nrow(data))
+  clusters <- c(rev(names(lme4::getME(model, "flist"))), ".id")
+  
+  ## ADD ERROR CHECKS!!
   
   # DEPRECATED rep.data <- as.data.frame( replicate(n = B, .cases.resamp(model = model, extra_step = extra_step)) )
-  rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(model = model, extra_step = extra_step))))
-  
-  
-  .cases.completion <- function(model, data, B, fn){
-    t0 <- fn(model)
-    
-    # Refit the model and apply 'fn' to it using lapply
-    form <- model@call$formula
-    reml <- lme4::isREML(model)
-    tstar <- lapply(data, function(x) {
-      fn(lme4::lmer(formula = form, data = x, REML = reml)) 
-    })
-    
-    tstar <- do.call("cbind", tstar) # Can these be nested?
-    rownames(tstar) <- names(t0)
-    
-    RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
-                          seed = .Random.seed, statistic = fn,
-                          sim = "parametric", call = match.call()),
-                     class = "boot")
-    
-    return(RES)
-  }
-  
+  rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(dat = data, cluster = clusters, replace = replace))))
+#   rep.data <- lapply(integer(B), .cases.resamp(dat = data, cluster = clusters, replace = replace))
   # Plugin to .cases.completion due to small changes
   return(.cases.completion(model, rep.data, B, fn))
 }
+
+
+# Using recursion allows for a very general function...
+# How can I speed this up?
+.cases.resamp <- function(dat, cluster, replace) {
+  # exit early for trivial data
+  if(nrow(dat) == 1 || all(replace==FALSE))
+    return(dat)
+  
+  # sample the clustering factor
+  cls <- sample(unique(dat[[cluster[1]]]), replace=replace[1])
+  
+  # subset on the sampled clustering factors
+  sub <- lapply(cls, function(b) dat[dat[[cluster[1]]]==b,])
+  
+  # sample lower levels of hierarchy (if any)
+  if(length(cluster) > 1)
+    sub <- lapply(sub, .cases.resamp, cluster=cluster[-1], replace=replace[-1])
+  
+  # join and return samples
+  do.call(rbind, sub)
+}
+
+# .cases.resamp <- function (model, extra_step){
+#   # Draw sample of size J from level-2 units
+#   model.split <- split(x=model@frame, f=model@flist)
+#   model.split.samp <- sample(x=model.split, size = length(model.split), replace = TRUE)
+#   # For each sample, draw a sample of the cases from the level-2 unit
+#   
+#   if(extra_step == TRUE){
+#     model.resamp <- lapply(model.split.samp,
+#                            FUN = function(x) {
+#                              J <- nrow(x)
+#                              
+#                              # Sample of level-2 rows
+#                              model.sub.index <- sample(x = seq_len(J), size = J, replace = TRUE)
+#                              resampled <- x[model.sub.index,]
+#                              return(resampled)
+#                            })
+#     model.comb <- do.call('rbind', model.resamp)
+#   } else{ # else statement needs to be located here
+#     model.comb <- do.call('rbind', model.split.samp)
+#   }
+# }
+
+.cases.completion <- function(model, data, B, fn){
+  t0 <- fn(model)
+  
+  # Refit the model and apply 'fn' to it using lapply
+  form <- model@call$formula
+  reml <- lme4::isREML(model)
+  tstar <- lapply(data, function(x) {
+    fn(lme4::lmer(formula = form, data = x, REML = reml)) 
+  })
+  
+  tstar <- do.call("cbind", tstar) # Can these be nested?
+  rownames(tstar) <- names(t0)
+  
+  RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
+                        seed = .Random.seed, statistic = fn,
+                        sim = "parametric", call = match.call()),
+                   class = "boot")
+  
+  return(RES)
+}
+
 
 #' @rdname cgr_bootstrap
 #' @export
