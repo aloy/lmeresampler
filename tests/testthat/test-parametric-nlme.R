@@ -18,16 +18,14 @@ vcmodA <- lme(mathAge11 ~ mathAge8 + gender + class,
 
 
 mySumm <- function(.) { 
-  design <- extract.lmeDesign(.)
-  s2 <- design$sigmasq
-  c(beta = fixef(.), sigma = sqrt(s2), sig01 = sqrt(s2 * design$lambda))
+  c(beta = fixef(.), sigma = as.numeric(.$sigma), sig01 = as.numeric(VarCorr(.)[1,2]))
 }
 
 orig.stats <- mySumm(vcmodA)
 
 nsim <- 10
 
-boo <- parametric_bootstrap.lmerMod(model = vcmodA, fn = mySumm, B = nsim)
+boo <- parametric_bootstrap.lme(model = vcmodA, fn = mySumm, B = nsim)
 
 test_that("two-level additive random intercept model",{
   expect_equal(class(boo), "boot")

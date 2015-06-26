@@ -138,6 +138,10 @@ cgr_bootstrap.lmerMod <- function (model, fn, B){
 #' @export
 reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   
+  if(lme4::getME(object = model, name = "n_rfacs") > 1) {
+    stop("The REB bootstrap has not been adapted for 3+ level models.")
+  }
+  
   fn <- match.fun(fn)
   
   ystar <- as.data.frame( replicate(n = B, .resample.reb(model = model, reb_type = reb_type)) )
@@ -173,6 +177,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
     Sbmod <- Sbmod * Db # elementwise not a type 
     Lb <- exp(Mb + Sbmod)
   } else{
+    Lb <- NULL
     tstar <- lapply(ystar, function(x) {
       fn(lme4::refit(object = model, newresp = x))
     })
@@ -283,7 +288,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   # Level 1
   e <- as.numeric(scale(model.resid, scale = FALSE))
   sigma <- lme4::getME(model, "sigma")
-  ehat <- sigma*e*((t(e)%*%e)/length(e))^(-1/2)
+  ehat <- sigma * e * ((t(e)%*%e) / length(e))^(-1/2)
   
   # Extract Z design matrix
   Z <- lme4::getME(object = model, name = "Ztlist")
@@ -382,9 +387,10 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #' #'
 #' @param reb_type Specifies the inclusion of REB/1
 #' @inheritParams bootstrap
+#' @import Matrix
 .resample.reb <- function(model, reb_type){
   # use HLMresid to extract marginal residuals
-  model.mresid <- HLMdiag::HLMresid(object = model, type = "EB", level = "marginal")
+  model.mresid <- lme4::getME(model, "y") - predict(model, re.form = NA)
   
   # Extract Z design matrix
   Z <- lme4::getME(object = model, name = "Z")
@@ -398,13 +404,14 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   # The current way u is organized is inspired by the 
   # ranef.merMod function in lme4.
   # TODO: think about 3+ level models...
+  #   ans <- model@pp$b(1)
   levs <- lapply(fl <- model@flist, levels)
   asgn <- attr(fl, "assign")
   cnms <- model@cnms
   nc <- vapply(cnms, length, 1L)
   nb <- nc * (nl <- vapply(levs, length, 1L)[asgn])
   nbseq <- rep.int(seq_along(nb), nb)
-  u <- split(ans, nbseq)
+  u <- split(u, nbseq)
   for (i in seq_along(u))
     u[[i]] <- matrix(u[[i]], ncol = nc[i], byrow = TRUE,
                      dimnames = list(NULL, cnms[[i]]))

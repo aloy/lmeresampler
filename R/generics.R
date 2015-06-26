@@ -126,5 +126,5 @@ cgr_bootstrap <- function(model, fn, B) {
 #' \emph{Journal of Computational and Graphical Statistics}, 
 #' 22(2), 452–470. doi:10.1080/10618600.2012.681216
 reb_bootstrap <- function(model, fn, B, reb_type) {
-  UseMethod("cgr_bootstrap", model)
+  UseMethod("reb_bootstrap", model)
 }
