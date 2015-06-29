@@ -95,15 +95,15 @@ test_that("two-level random coefficient model with interaction",{
 
 # ------------------------------------------------------------------------------
 
-rmA <- lmer(rv ~ religion + year  + (1 | respond) + (1 | district), data = Socatt)
-
-orig.stats <- mySumm(rmA)
-boo <- try(reb_bootstrap(model = rmA, fn = mySumm, B = nsim))
-
-
-test_that("three-level random intercept model",{
-  expect_equal(class(boo), "try-error")
-})
+# rmA <- lmer(rv ~ religion + year  + (1 | respond) + (1 | district), data = Socatt)
+# 
+# orig.stats <- mySumm(rmA)
+# boo <- try(reb_bootstrap(model = rmA, fn = mySumm, B = nsim))
+# 
+# 
+# test_that("three-level random intercept model",{
+#   expect_equal(class(boo), "try-error")
+# })
 
 
 # ==============================================================================
@@ -194,18 +194,18 @@ test_that("two-level random coefficient model with interaction",{
 
 # ------------------------------------------------------------------------------
 
-rmA <- lmer(rv ~ religion + year  + (1 | respond) + (1 | district), data = Socatt)
-
-orig.stats <- mySumm(rmA)
-boo <- reb_bootstrap(model = rmA, fn = mySumm, B = nsim, reb_type = 1)
-
-
-test_that("three-level random intercept model",{
-  expect_equal(class(boo), "boot")
-  expect_equal(boo$t0, orig.stats)
-  expect_equal(nrow(boo$t), nsim)
-  expect_equal(ncol(boo$t), length(orig.stats))
-  expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "parametric")
-  expect_equal(boo$statistic, mySumm)
-})
+# rmA <- lmer(rv ~ religion + year  + (1 | respond) + (1 | district), data = Socatt)
+# 
+# orig.stats <- mySumm(rmA)
+# boo <- reb_bootstrap(model = rmA, fn = mySumm, B = nsim, reb_type = 1)
+# 
+# 
+# test_that("three-level random intercept model",{
+#   expect_equal(class(boo), "boot")
+#   expect_equal(boo$t0, orig.stats)
+#   expect_equal(nrow(boo$t), nsim)
+#   expect_equal(ncol(boo$t), length(orig.stats))
+#   expect_equal(boo$R, nsim)
+#   expect_equal(boo$sim, "parametric")
+#   expect_equal(boo$statistic, mySumm)
+# })
