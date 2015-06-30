@@ -100,10 +100,7 @@ case_bootstrap.lme <- function (model, fn, B, replace){
   
   t0 <- fn(model)
   
-  # DEPRECATED rep.data <- as.data.frame( replicate(n = B, .cases.resamp(model = model, extra_step = extra_step)) )
   rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(dat = data, cluster = clusters, replace = replace))))
-  #   rep.data <- lapply(integer(B), .cases.resamp(dat = data, cluster = clusters, replace = replace))
-  # Plugin to .cases.completion due to small changes
   
   res <- lapply(rep.data, function(df) {
     fit <- tryCatch(fn(updated.model(model = model, new.data = df)),  
