@@ -9,6 +9,7 @@ bootstrap.lme <- function (model, fn, type, B, extra_step, reb_type){
 }
 
 #' @rdname parametric_bootstrap
+#' @export
 parametric_bootstrap.lme <- function(model, fn, B){
   # getVarCov.lme is the limiting factor...
   if (length(model$group) > 1) 
