@@ -48,13 +48,19 @@
 }
 
 # Refit the model
-updated.model<- function(model, new.y){
+updated.model<- function(model, new.y = NULL, new.data = NULL){
   # Extract formulas and data
   mod.fixd <- as.formula(model$call$fixed)
   mod.rand <- as.formula(model$call$random)
-  mod.data <- model$data
-  # Place ystars in data
-  mod.data[,as.character(mod.fixd[[2]])] <- unname(new.y)
+  
+  if(is.null(new.data)){
+    # Place ystars in data
+    mod.data <- model$data
+    mod.data[,as.character(mod.fixd[[2]])] <- unname(new.y)
+  } else{
+    mod.data <- new.data
+  }
+  
   # create new lme
   out.lme <- lme(fixed = mod.fixd, data = mod.data, random = mod.rand)
   return(out.lme)

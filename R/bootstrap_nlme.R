@@ -85,3 +85,54 @@ parametric_bootstrap.lme <- function(model, fn, B){
   attr(RES, "boot.fail.msgs") <- fail.msgs
   return(RES)
 }
+
+
+
+#' @rdname case_bootstrap
+#' @export
+case_bootstrap.lme <- function (model, fn, B, replace){
+  
+  data <- model$data
+  data$.id <- seq_len(nrow(data))
+  clusters <- c(names(model$groups), ".id")
+  
+  ## ADD ERROR CHECKS!!
+  
+  t0 <- fn(model)
+  
+  # DEPRECATED rep.data <- as.data.frame( replicate(n = B, .cases.resamp(model = model, extra_step = extra_step)) )
+  rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(dat = data, cluster = clusters, replace = replace))))
+  #   rep.data <- lapply(integer(B), .cases.resamp(dat = data, cluster = clusters, replace = replace))
+  # Plugin to .cases.completion due to small changes
+  
+  res <- lapply(rep.data, function(df) {
+    fit <- tryCatch(fn(updated.model(model = model, new.data = df)),  
+                    error = function(e) e)
+    if (inherits(fit, "error")) {
+      structure(rep(NA, length(t0)), fail.msgs = fit$message)
+    } else{
+      fit
+    }
+  }
+  )
+  
+  tstar <- do.call('cbind', res)
+  
+  rownames(tstar) <- names(t0)
+  colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
+  
+  
+  if ((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
+    warning("some bootstrap runs failed (", numFail, "/", B, ")")
+    fail.msgs <- vapply(res[bad.runs], FUN = attr, FUN.VALUE = character(1), 
+                        "fail.msgs")
+  } else fail.msgs <- NULL
+  
+  RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model$data,
+                        seed = .Random.seed, statistic = fn,
+                        sim = "parametric", call = match.call()),
+                   class = "boot")
+  attr(RES, "bootFail") <- numFail
+  attr(RES, "boot.fail.msgs") <- fail.msgs
+  return(RES)
+}

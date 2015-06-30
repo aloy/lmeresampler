@@ -44,7 +44,7 @@ resid_bootstrap.lmerMod <- function (model, fn, B){
 case_bootstrap.lmerMod <- function (model, fn, B, replace){
   
   data <- model@frame
-  data$.id <- seq_along(nrow(data))
+  data$.id <- seq_len(nrow(data))
   clusters <- c(rev(names(lme4::getME(model, "flist"))), ".id")
   
   ## ADD ERROR CHECKS!!
