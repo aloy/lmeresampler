@@ -78,6 +78,27 @@ case_bootstrap.lmerMod <- function (model, fn, B, replace){
   do.call(rbind, sub)
 }
 
+.cases.resamp2 <- function(dat, cluster, replace) {
+  # exit early for trivial data
+  if(nrow(dat) == 1 || all(replace==FALSE))
+    return(dat)
+  
+  res <- dat
+  
+  for(i in 1:length(cluster)) {
+    
+    dots <- cluster[1:i]
+    grouped <- group_by_(res, .dots = dots)
+    ats <- attributes(grouped)
+    cls <- sample(seq_along(ats$indices), replace = replace[i])
+    idx <- unlist(ats$indices[cls])
+    res <- res[idx, ]
+    
+    
+  }
+ 
+}
+
 # .cases.resamp <- function (model, extra_step){
 #   # Draw sample of size J from level-2 units
 #   model.split <- split(x=model@frame, f=model@flist)
