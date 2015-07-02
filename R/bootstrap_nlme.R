@@ -136,3 +136,65 @@ case_bootstrap.lme <- function (model, fn, B, replace){
   attr(RES, "boot.fail.msgs") <- fail.msgs
   return(RES)
 }
+
+
+#' @rdname resid_bootstrap
+#' @export
+resid_bootstrap.lme <- function (model, fn, B){
+  fn <- match.fun(fn)
+  
+  ystar <- lapply(1:B, function(x) .resample.resids.lme(model))
+  
+  return(.bootstrap.completion(model, ystar, B, fn))
+}
+
+
+.resample.resids.lme <- function(model){
+  
+  # Extract fixed part of the model
+  Xbeta <- predict(model, level = 0) # This is X %*% fixef(model)
+  
+  # Extract random effects
+  model.ranef <- nlme::ranef(model)
+  
+  # Extract residuals
+  model.resid <- resid(model)
+  
+  # Extract Z design matrix
+  Z <- lme4::getME(object = model, name = "Ztlist")
+  
+  bstar <- lapply(model.ranef,
+                  FUN = function(x) {
+                    J <- nrow(x)
+                    
+                    # Sample of b*
+                    bstar.index <- sample(x = seq_len(J), size = J, replace = TRUE)
+                    bstar <- x[bstar.index,]
+                    return(bstar)
+                  })
+  
+  level.num <- lme4::getME(object = model, name = "n_rfacs")
+  
+  if(level.num == 1){
+    if(!is.numeric(bstar[[1]])) bstar <- lapply(bstar, FUN = function(x) as.list(x))[[1]]
+    names(bstar) <- names(Z)
+  } else {
+    bstar <- lapply(bstar, FUN = function(x) as.data.frame(x))
+    bstar <- do.call(c, bstar)
+    names(bstar) <- names(Z)
+  }
+  
+  # Get Zb*
+  Zbstar <- .Zbstar.combine(bstar = bstar, zstar = Z)
+  Zbstar.sum <- Reduce("+", Zbstar)
+  
+  
+  # Resample residuals
+  estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
+  
+  # Combine function
+  y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
+  
+  return(y.star)
+  
+}
