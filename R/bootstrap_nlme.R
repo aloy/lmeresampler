@@ -169,23 +169,25 @@ resid_bootstrap.lme <- function (model, fn, B){
   
   if(level.num == 1) {
     bstar <- sample(model.ranef, replace = TRUE)
-    Z <- as.data.frame(Z[[1]])
     
+    Z <- as.data.frame(Z[[1]])
     Zlist <- lapply(Z, function(col) split(col, model$group))
+    
     Zbstar <- lapply(1:length(Zlist), function(j) unlist(mapply("*", Zlist[[j]], bstar[,j], SIMPLIFY = FALSE) ))
     Zbstar.sum <- Reduce("+", Zbstar)
   } else{
+    bstar <- lapply(model.ranef,
+                    FUN = function(x) {
+                      J <- nrow(x)
+                      
+                      # Sample of b*
+                      bstar.index <- sample(x = seq_len(J), size = J, replace = TRUE)
+                      bstar <- x[bstar.index,]
+                      return(bstar)
+                    })
+    
     
   }
-  bstar <- lapply(model.ranef,
-                  FUN = function(x) {
-                    J <- nrow(x)
-                    
-                    # Sample of b*
-                    bstar.index <- sample(x = seq_len(J), size = J, replace = TRUE)
-                    bstar <- x[bstar.index,]
-                    return(bstar)
-                  })
   
   
   if(level.num == 1){
