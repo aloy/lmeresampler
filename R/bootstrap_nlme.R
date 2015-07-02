@@ -96,7 +96,7 @@ parametric_bootstrap.lme <- function(model, fn, B){
 case_bootstrap.lme <- function (model, fn, B, replace){
   
   data <- model$data
-  data$.id <- seq_len(nrow(data))
+  # data$.id <- seq_len(nrow(data))
   clusters <- c(names(model$groups), ".id")
   
   ## ADD ERROR CHECKS!!

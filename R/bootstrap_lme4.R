@@ -44,7 +44,7 @@ resid_bootstrap.lmerMod <- function (model, fn, B){
 case_bootstrap.lmerMod <- function (model, fn, B, replace){
   
   data <- model@frame
-  data$.id <- seq_len(nrow(data))
+  # data$.id <- seq_len(nrow(data))
   clusters <- c(rev(names(lme4::getME(model, "flist"))), ".id")
   
   ## ADD ERROR CHECKS!!
@@ -57,28 +57,28 @@ case_bootstrap.lmerMod <- function (model, fn, B, replace){
 }
 
 
-# Using recursion allows for a very general function...
-# How can I speed this up?
+# # Using recursion allows for a very general function...
+# # How can I speed this up?
+# .cases.resamp <- function(dat, cluster, replace) {
+#   # exit early for trivial data
+#   if(nrow(dat) == 1 || all(replace==FALSE))
+#     return(dat)
+#   
+#   # sample the clustering factor
+#   cls <- sample(unique(dat[[cluster[1]]]), replace=replace[1])
+#   
+#   # subset on the sampled clustering factors
+#   sub <- lapply(cls, function(b) dat[dat[[cluster[1]]]==b,])
+#   
+#   # sample lower levels of hierarchy (if any)
+#   if(length(cluster) > 1)
+#     sub <- lapply(sub, .cases.resamp, cluster=cluster[-1], replace=replace[-1])
+#   
+#   # join and return samples
+#   do.call(rbind, sub)
+# }
+# 
 .cases.resamp <- function(dat, cluster, replace) {
-  # exit early for trivial data
-  if(nrow(dat) == 1 || all(replace==FALSE))
-    return(dat)
-  
-  # sample the clustering factor
-  cls <- sample(unique(dat[[cluster[1]]]), replace=replace[1])
-  
-  # subset on the sampled clustering factors
-  sub <- lapply(cls, function(b) dat[dat[[cluster[1]]]==b,])
-  
-  # sample lower levels of hierarchy (if any)
-  if(length(cluster) > 1)
-    sub <- lapply(sub, .cases.resamp, cluster=cluster[-1], replace=replace[-1])
-  
-  # join and return samples
-  do.call(rbind, sub)
-}
-
-.cases.resamp2 <- function(dat, cluster, replace) {
   # exit early for trivial data
   if(nrow(dat) == 1 || all(replace==FALSE))
     return(dat)
@@ -87,17 +87,38 @@ case_bootstrap.lmerMod <- function (model, fn, B, replace){
   
   for(i in 1:length(cluster)) {
     
-    dots <- cluster[1:i]
-    grouped <- group_by_(res, .dots = dots)
-    ats <- attributes(grouped)
-    cls <- sample(seq_along(ats$indices), replace = replace[i])
-    idx <- unlist(ats$indices[cls])
-    res <- res[idx, ]
+    if(i==1 & replace[i]) {
+      dots <- cluster[1]
+      grouped <- group_by_(res, .dots = dots)
+      ats <- attributes(grouped)
+      cls <- sample(seq_along(ats$indices), replace = replace[i])
+      idx <- unlist(ats$indices[cls], recursive = FALSE) + 1 # b/c 0 based
+      res <- res[idx, ]
+    } else{
+      if(i == length(cluster) & replace[i]) {
+        dots <- cluster[-i]
+        grouped <- group_by_(res, .dots = dots)
+        res <- sample_frac(grouped, size = 1, replace = TRUE)
+      } else{
+        if(replace[i]) {
+          dots <- cluster[i]
+          res <- split(res, res[, cluster[1:(i-1)]], drop = TRUE)
+          res <- plyr::ldply(res, function(df) {
+            grouped <- group_by_(df, .dots = dots)
+            ats <- attributes(grouped)
+            cls <- sample(seq_along(ats$indices), replace = replace[i])
+            idx <- unlist(ats$indices[cls], recursive = FALSE) + 1 # b/c 0 based
+            grouped[idx, ]
+          }, .id = NULL)
+        }
+      }
+    }
     
     
   }
- 
+  return(res)
 }
+
 
 # .cases.resamp <- function (model, extra_step){
 #   # Draw sample of size J from level-2 units

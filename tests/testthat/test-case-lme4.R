@@ -11,7 +11,7 @@ Socatt$rv <- scale(Socatt$rv) # a plot shows this is clearly non-normal
 context("case bootstrap (lmerMod)")
 # ==============================================================================
 
-jjsp728 <- cbind(jsp728, .id = seq_along(nrow(jsp728)))
+jjsp728 <- cbind(jsp728, .id = seq_len(nrow(jsp728)))
 grouped <- group_by(jjsp728, school) %>%
   summarise(count = n())
 
@@ -19,6 +19,12 @@ cr1 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), replace = c(TR
 cr2 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), replace = c(FALSE, TRUE))
 cr3 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), replace = c(TRUE, FALSE))
 cr4 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), replace = c(FALSE, FALSE))
+
+cr1b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), replace = c(TRUE, TRUE))
+cr2b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), replace = c(FALSE, TRUE))
+cr3b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), replace = c(TRUE, FALSE))
+cr4b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), replace = c(FALSE, FALSE))
+
 
 test_that("two-level additive random intercept model",{
   expect_equal(nrow(cr2), nrow(jjsp728))
