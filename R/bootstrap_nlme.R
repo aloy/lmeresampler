@@ -8,14 +8,17 @@ bootstrap.lme <- function (model, fn, type, B, extra_step, reb_type){
          reb = reb_bootstrap.lme(model, fn, B, reb_type = 0))
 }
 
+
 #' @rdname parametric_bootstrap
 #' @export
 parametric_bootstrap.lme <- function(model, fn, B){
   # getVarCov.lme is the limiting factor...
   if (length(model$group) > 1) 
     stop("not implemented for multiple levels of nesting")
+  
   # Match function
   fn <- match.fun(fn)
+  
   # Extract fixed effects
   model.fixef <- nlme::fixef(model)
   
