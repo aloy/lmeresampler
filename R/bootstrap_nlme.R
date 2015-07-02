@@ -160,9 +160,23 @@ resid_bootstrap.lme <- function (model, fn, B){
   # Extract residuals
   model.resid <- resid(model)
   
-  # Extract Z design matrix
-  Z <- lme4::getME(object = model, name = "Ztlist")
+  level.num <- ncol(model$groups)
   
+  # Extract Zt (like lme4) design matrix
+  re.form <- formula(model$modelStruct$reStr)
+  Z <- lapply(1:length(re.form), function(i) model.matrix(formula(model$modelStruct$reStr)[[i]], data=model$data))
+  
+  
+  if(level.num == 1) {
+    bstar <- sample(model.ranef, replace = TRUE)
+    Z <- as.data.frame(Z[[1]])
+    
+    Zlist <- lapply(Z, function(col) split(col, model$group))
+    Zbstar <- lapply(1:length(Zlist), function(j) unlist(mapply("*", Zlist[[j]], bstar[,j], SIMPLIFY = FALSE) ))
+    Zbstar.sum <- Reduce("+", Zbstar)
+  } else{
+    
+  }
   bstar <- lapply(model.ranef,
                   FUN = function(x) {
                     J <- nrow(x)
@@ -173,7 +187,6 @@ resid_bootstrap.lme <- function (model, fn, B){
                     return(bstar)
                   })
   
-  level.num <- lme4::getME(object = model, name = "n_rfacs")
   
   if(level.num == 1){
     if(!is.numeric(bstar[[1]])) bstar <- lapply(bstar, FUN = function(x) as.list(x))[[1]]
