@@ -165,7 +165,7 @@ resid_bootstrap.lme <- function (model, fn, B){
   # Extract Zt (like lme4) design matrix
   re.form <- formula(model$modelStruct$reStr)
   Z <- lapply(1:length(re.form), function(i) model.matrix(formula(model$modelStruct$reStr)[[i]], data=model$data))
-  
+  names(Z) <- names(re.form)
   
   if(level.num == 1) {
     bstar <- sample(model.ranef, replace = TRUE)
@@ -187,21 +187,38 @@ resid_bootstrap.lme <- function (model, fn, B){
                     })
     
     
+    Z <- lapply(Z, function(zi) as.data.frame(zi))
+    Z  <- Z [rev(names(Z))] # agree w/ order of model$group and bstar
+    
+    Zlist <- lapply(1:length(Z), function(i) lapply(Z[[i]], function(col) split(col, model$group[,i])))
+    names(Zlist) <- names(Z)
+    
+    
+    Zbstar <- lapply(1:length(Zlist), function(e) {
+      z.e <- Zlist[[e]]
+      b.e <- bstar[[e]]
+      if(is.numeric(b.e)){
+        unlist(lapply(1:length(e), function(j) unlist(mapply("*", z.e[[j]], b.e, SIMPLIFY = FALSE) )), recursive = FALSE)
+      } else{
+        unlist(lapply(1:length(e), function(j) unlist(mapply("*", z.e[[j]], b.e[,j], SIMPLIFY = FALSE) )), recursive = FALSE)
+      }
+    })
+    
+    Zbstar.sum <- Reduce("+", Zbstar)
+    
+    
+#     Zlist <- lapply(Zlist, function(e) lapply(e, function(x) Matrix::bdiag(x)))
+#     names(Zlist) <- names(Z)
+#     
+#     Zlist  <- unlist(Zlist, recursive = FALSE) 
+#     
+#     bstar <- bstar[rev(names(bstar))] # agree w/ order of Zlist
+#     names(bstar) <- names(Zlist)
+#     
+#     Zbstar <- .Zbstar.combine(bstar = bstar, zstar = Z)
+#     Zbstar.sum <- Reduce("+", Zbstar)
+    
   }
-  
-  
-  if(level.num == 1){
-    if(!is.numeric(bstar[[1]])) bstar <- lapply(bstar, FUN = function(x) as.list(x))[[1]]
-    names(bstar) <- names(Z)
-  } else {
-    bstar <- lapply(bstar, FUN = function(x) as.data.frame(x))
-    bstar <- do.call(c, bstar)
-    names(bstar) <- names(Z)
-  }
-  
-  # Get Zb*
-  Zbstar <- .Zbstar.combine(bstar = bstar, zstar = Z)
-  Zbstar.sum <- Reduce("+", Zbstar)
   
   
   # Resample residuals
