@@ -124,7 +124,7 @@ test_that("two-level random coefficient model with interaction",{
 
 # ------------------------------------------------------------------------------
 
-rmA <- lmer(rv ~ religion + year  + (1 | respond) + (1 | district), data = Socatt)
+rmA <- lme4::lmer(rv ~ religion + year  + (1 | respond) + (1 | district), data = Socatt)
 
 orig.stats <- mySumm(rmA)
 boo <- case_bootstrap(model = rmA, fn = mySumm, B = nsim, replace = c(TRUE, TRUE, TRUE))
