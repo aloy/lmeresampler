@@ -130,7 +130,7 @@ case_bootstrap.lme <- function (model, fn, B, replace){
   
   RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model$data,
                         seed = .Random.seed, statistic = fn,
-                        sim = "parametric", call = match.call()),
+                        sim = "case", call = match.call()),
                    class = "boot")
   attr(RES, "bootFail") <- numFail
   attr(RES, "boot.fail.msgs") <- fail.msgs
@@ -143,9 +143,41 @@ case_bootstrap.lme <- function (model, fn, B, replace){
 resid_bootstrap.lme <- function (model, fn, B){
   fn <- match.fun(fn)
   
+  t0 <- fn(model)
   ystar <- lapply(1:B, function(x) .resample.resids.lme(model))
+
+#   return(.bootstrap.completion(model, ystar, B, fn))
   
-  return(.bootstrap.completion(model, ystar, B, fn))
+  res <- lapply(ystar, function(y) {
+    fit <- tryCatch(fn(updated.model(model = model, new.y = y)),  
+                    error = function(e) e)
+    if (inherits(fit, "error")) {
+      structure(rep(NA, length(t0)), fail.msgs = fit$message)
+    } else{
+      fit
+    }
+  }
+  )
+  
+  tstar <- do.call('cbind', res)
+
+#   rownames(tstar) <- names(t0)
+  colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
+  
+  
+  if ((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
+    warning("some bootstrap runs failed (", numFail, "/", B, ")")
+    fail.msgs <- vapply(res[bad.runs], FUN = attr, FUN.VALUE = character(1), 
+                        "fail.msgs")
+  } else fail.msgs <- NULL
+  
+  RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model$data,
+                        seed = .Random.seed, statistic = fn,
+                        sim = "resid", call = match.call()),
+                   class = "boot")
+  attr(RES, "bootFail") <- numFail
+  attr(RES, "boot.fail.msgs") <- fail.msgs
+  return(RES)
 }
 
 

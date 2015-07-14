@@ -1,7 +1,7 @@
 library(lme4)
 library(boot)
 library(mlmRev)
-library(dplyr)
+library(dplyr, quietly = TRUE)
 
 Socatt$religion <- relevel(Socatt$religion, ref = "none")
 Socatt$rv <- as.numeric(as.character(Socatt$numpos))
@@ -20,10 +20,10 @@ cr2 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), replace = c(FA
 cr3 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), replace = c(TRUE, FALSE))
 cr4 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), replace = c(FALSE, FALSE))
 
-cr1b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), replace = c(TRUE, TRUE))
-cr2b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), replace = c(FALSE, TRUE))
-cr3b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), replace = c(TRUE, FALSE))
-cr4b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), replace = c(FALSE, FALSE))
+# cr1b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), replace = c(TRUE, TRUE))
+# cr2b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), replace = c(FALSE, TRUE))
+# cr3b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), replace = c(TRUE, FALSE))
+# cr4b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), replace = c(FALSE, FALSE))
 
 
 test_that("two-level additive random intercept model",{

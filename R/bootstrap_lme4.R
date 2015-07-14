@@ -426,12 +426,12 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 }
 
 #' REB resampling procedures
-#' #'
+#' 
 #' @param reb_type Specifies the inclusion of REB/1
 #' @inheritParams bootstrap
 #' @import Matrix
 .resample.reb <- function(model, reb_type){
-  # use HLMresid to extract marginal residuals
+  # extract marginal residuals
   model.mresid <- lme4::getME(model, "y") - predict(model, re.form = NA)
   
   # Extract Z design matrix

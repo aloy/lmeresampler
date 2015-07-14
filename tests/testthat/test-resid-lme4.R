@@ -12,18 +12,19 @@ context("residual bootstrap (lmerMod)")
 
 
 ## See p. 31 of Goldstein's book
-vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + 
+vcmodA <- lme4::lmer(mathAge11 ~ mathAge8 + gender + class + 
                  (1 | school), data = jsp728)
 
 mySumm <- function(.) { 
-  s <- getME(., "sigma")
-  c(beta = getME(., "beta"), sigma = s, sig01 = unname(s * getME(., "theta"))) 
+  s <- lme4::getME(., "sigma")
+  c(beta = lme4::getME(., "beta"), sigma = s, sig01 = unname(s * lme4::getME(., "theta"))) 
 }
 
 orig.stats <- mySumm(vcmodA)
 
 nsim <- 10
 
+set.seed(7142015)
 boo <- resid_bootstrap(model = vcmodA, fn = mySumm, B = nsim)
 
 test_that("two-level additive random intercept model",{

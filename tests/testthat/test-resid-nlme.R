@@ -9,7 +9,7 @@ Socatt$rv <- as.numeric(as.character(Socatt$numpos))
 Socatt$rv <- scale(Socatt$rv) # a plot shows this is clearly non-normal
 
 # ==============================================================================
-context("case bootstrap (lme)")
+context("residual bootstrap (lme)")
 # ==============================================================================
 
 ## See p. 31 of Goldstein's book
@@ -25,7 +25,8 @@ orig.stats <- mySumm(vcmodA)
 
 nsim <- 10
 
-boo <- case_bootstrap.lme(model = vcmodA, fn = mySumm, B = nsim, replace = c(TRUE, TRUE))
+set.seed(7142015)
+boo <- resid_bootstrap.lme(model = vcmodA, fn = mySumm, B = nsim)
 
 test_that("two-level additive random intercept model",{
   expect_equal(class(boo), "boot")
@@ -33,34 +34,9 @@ test_that("two-level additive random intercept model",{
   expect_equal(nrow(boo$t), nsim)
   expect_equal(ncol(boo$t), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "case")
+  expect_equal(boo$sim, "resid")
   expect_equal(boo$statistic, mySumm)
 })
-
-boo <- case_bootstrap.lme(model = vcmodA, fn = mySumm, B = nsim, replace = c(FALSE, TRUE))
-
-test_that("two-level additive random intercept model",{
-  expect_equal(class(boo), "boot")
-  expect_equal(boo$t0, orig.stats)
-  expect_equal(nrow(boo$t), nsim)
-  expect_equal(ncol(boo$t), length(orig.stats))
-  expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "case")
-  expect_equal(boo$statistic, mySumm)
-})
-
-boo <- case_bootstrap.lme(model = vcmodA, fn = mySumm, B = nsim, replace = c(TRUE, FALSE))
-
-test_that("two-level additive random intercept model",{
-  expect_equal(class(boo), "boot")
-  expect_equal(boo$t0, orig.stats)
-  expect_equal(nrow(boo$t), nsim)
-  expect_equal(ncol(boo$t), length(orig.stats))
-  expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "case")
-  expect_equal(boo$statistic, mySumm)
-})
-
 
 # ------------------------------------------------------------------------------
 
@@ -69,7 +45,7 @@ vcmodC <- lme(mathAge11 ~ mathAge8 * schoolMathAge8 + gender + class,
               random = ~ 1 | school, data = jsp728)
 
 orig.stats <- mySumm(vcmodC)
-boo <- case_bootstrap.lme(model = vcmodC, fn = mySumm, B = nsim, replace = c(TRUE, TRUE))
+boo <- resid_bootstrap.lme(model = vcmodC, fn = mySumm, B = nsim)
 
 test_that("two-level random intercept model with interaction",{
   expect_equal(class(boo), "boot")
@@ -77,22 +53,9 @@ test_that("two-level random intercept model with interaction",{
   expect_equal(nrow(boo$t), nsim)
   expect_equal(ncol(boo$t), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "case")
+  expect_equal(boo$sim, "resid")
   expect_equal(boo$statistic, mySumm)
 })
-
-boo <- case_bootstrap.lme(model = vcmodC, fn = mySumm, B = nsim, replace = c(FALSE, TRUE))
-
-test_that("two-level random intercept model with interaction",{
-  expect_equal(class(boo), "boot")
-  expect_equal(boo$t0, orig.stats)
-  expect_equal(nrow(boo$t), nsim)
-  expect_equal(ncol(boo$t), length(orig.stats))
-  expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "case")
-  expect_equal(boo$statistic, mySumm)
-})
-
 
 # ------------------------------------------------------------------------------
 
@@ -101,7 +64,7 @@ rcmod <- lme(mathAge11 ~ mathAge8c * schoolMathAge8 + gender + class,
              random = ~ mathAge8c | school, data = jsp728)
 
 orig.stats <- mySumm(rcmod)
-boo <- case_bootstrap.lme(model = rcmod, fn = mySumm, B = nsim, replace = c(TRUE, TRUE))
+boo <- resid_bootstrap.lme(model = rcmod, fn = mySumm, B = nsim)
 
 
 test_that("two-level random coefficient model with interaction",{
@@ -110,7 +73,7 @@ test_that("two-level random coefficient model with interaction",{
   expect_equal(nrow(boo$t), nsim)
   expect_equal(ncol(boo$t), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "case")
+  expect_equal(boo$sim, "resid")
   expect_equal(boo$statistic, mySumm)
 })
 
@@ -127,42 +90,16 @@ mySumm <- function(.) {
 
 orig.stats <- mySumm(rmA)
 
-boo <- case_bootstrap.lme(model = rmA, fn = mySumm, B = nsim, 
-                          replace = c(TRUE, TRUE, TRUE))
+boo <- resid_bootstrap.lme(model = rmA, fn = mySumm, B = nsim)
 
 
-test_that("two-level random coefficient model with interaction",{
+test_that("three-level random intercept model",{
   expect_equal(class(boo), "boot")
   expect_equal(boo$t0, orig.stats)
   expect_equal(nrow(boo$t), nsim)
   expect_equal(ncol(boo$t), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "case")
+  expect_equal(boo$sim, "resid")
   expect_equal(boo$statistic, mySumm)
 })
 
-boo <- case_bootstrap.lme(model = rmA, fn = mySumm, B = nsim, 
-                          replace = c(FALSE, FALSE, TRUE))
-
-test_that("two-level random coefficient model with interaction",{
-  expect_equal(class(boo), "boot")
-  expect_equal(boo$t0, orig.stats)
-  expect_equal(nrow(boo$t), nsim)
-  expect_equal(ncol(boo$t), length(orig.stats))
-  expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "case")
-  expect_equal(boo$statistic, mySumm)
-})
-
-boo <- case_bootstrap.lme(model = rmA, fn = mySumm, B = nsim, 
-                          replace = c(TRUE, TRUE, FALSE))
-
-test_that("two-level random coefficient model with interaction",{
-  expect_equal(class(boo), "boot")
-  expect_equal(boo$t0, orig.stats)
-  expect_equal(nrow(boo$t), nsim)
-  expect_equal(ncol(boo$t), length(orig.stats))
-  expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "case")
-  expect_equal(boo$statistic, mySumm)
-})
