@@ -272,27 +272,31 @@ reb_bootstrap.lme <- function (model, fn, B, reb_type = 0){
     stop("The REB bootstrap has not been adapted for 3+ level models.")
   }
   
-  fn <- match.fun(fn)
+  if(reb_type != 2) fn <- match.fun(fn)
   
   ystar <- as.data.frame( replicate(n = B, .resample.reb.lme(model = model, reb_type = reb_type)) )
   
-  t0 <- fn(model)
+ 
   
   if(reb_type == 2){
+    fe.0 <- fixef(model)
+    vc.0 <- getVarCov(model)
+    t0 <- c(beta = fe.0, sigma = c(diag(vc.0), model$sigma^2))
     tstar <- lapply(ystar, function(y) {
       fit <- tryCatch(updated.model(model = model, new.y = y),  
                       error = function(e) e)
       if (inherits(fit, "error")) {
-        structure(list(poi = rep(NA, length(t0)), varcomp = NA), fail.msgs = fit$message)
+        structure(list(poi = rep(NA, length(fixef(model))), varcomp = rep(NA, length(diag(vc.0)) + 1)), 
+                  fail.msgs = fit$message)
       } else{
         vc <- getVarCov(fit)
-        list(poi = fn(fit), varcomp = unname(c(diag(vc), fit$sigma^2)))
+        list(fixef = fixef(fit), varcomp = unname(c(diag(vc), fit$sigma^2)))
       }
     })
     
     vcs <- lapply(tstar, function(x) x$varcomp)
     Sb <- log( do.call("rbind", vcs) )
-    tstar <- lapply(tstar, function(x) x$poi)
+    fes <- lapply(tstar, function(x) x$fixef)
     
     Mb <- matrix(rep(apply(Sb, 2, mean, na.rm = TRUE), times = B), nrow = B, byrow = TRUE)
     CovSb <- cov(na.omit(Sb))
@@ -306,8 +310,11 @@ reb_bootstrap.lme <- function (model, fn, B, reb_type = 0){
     Sbmod <- (Sb - Mb) %*% Whalf
     Sbmod <- Sbmod * Db # elementwise not a type 
     Lb <- exp(Mb + Sbmod)
+    
+    tstar <- lapply(tstar, unlist)
   } else{
-    Lb <- NULL
+    t0 <- fn(model)
+#     Lb <- NULL
     tstar <- lapply(ystar, function(y) {
       fit <- tryCatch(fn(updated.model(model = model, new.y = y)),  
                       error = function(e) e)
@@ -324,10 +331,24 @@ reb_bootstrap.lme <- function (model, fn, B, reb_type = 0){
   colnames(tstar) <- paste("sim", 1:ncol(tstar), sep = "_")
 #   rownames(tstar) <- names(fn(model))
   
-  
+  if(reb_type == 2) {
+    idx <- 1:length(fe.0)
+    fe.star <- tstar[idx,] 
+    fe.adj <- sweep(fe.star, MARGIN = 1, STATS = fe.0 - rowMeans(fe.star, na.rm = TRUE), FUN = "+")
+      
+    vc.star <- tstar[-idx,] 
+    vc.adj <- sweep(vc.star, MARGIN = 1, STATS = t0[-idx] / rowMeans(vc.star, na.rm = TRUE), FUN = "*")
+    
+    tstar <- rbind(fe.adj, vc.adj)
+    
+    fn <- function(.) {
+      c(beta = fixef(.), sigma = c(diag(getVarCov(.)), .$sigma^2))
+    }
+  }
+
   RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model$data,
                         seed = .Random.seed, statistic = fn,
-                        sim = paste("reb", reb_type, sep = ""), call = match.call(), reb2 = Lb),
+                        sim = paste("reb", reb_type, sep = ""), call = match.call()),
                    class = "boot")
   
   return(RES)
