@@ -160,8 +160,8 @@ vcmodA <- lme(mathAge11 ~ mathAge8 + gender + class,
               random = ~ 1 | school, data = jsp728)
 
 
-mySumm <- function(.) { 
-  c(beta = fixef(.), sigma = as.numeric(.$sigma), sig01 = as.numeric(VarCorr(.)[1,2]))
+mySumm <- function(.) {
+  c(beta = fixef(.), sigma = c(diag(getVarCov(.)), .$sigma^2))
 }
 
 orig.stats <- mySumm(vcmodA)

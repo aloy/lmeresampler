@@ -218,9 +218,8 @@ context("REB bootstrap type = 2 (lmerMod)")
 vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + 
                  (1 | school), data = jsp728)
 
-mySumm <- function(.) { 
-  s <- getME(., "sigma")
-  c(beta = getME(., "beta"), sigma = s, sig01 = unname(s * getME(., "theta"))) 
+mySumm <- function(.) {
+  c(beta = fixef(.), sigma =c(diag(bdiag(VarCorr(.))), lme4::getME(., "sigma")^2))
 }
 
 orig.stats <- mySumm(vcmodA)

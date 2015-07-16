@@ -245,7 +245,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
     tstar <- rbind(fe.adj, vc.adj)
     
     fn <- function(.) {
-      c(beta = fixef(.), sigma =c(bdiag(VarCorr(model)), lme4::getME(model, "sigma")^2))
+      c(beta = fixef(.), sigma =c(diag(bdiag(VarCorr(.))), lme4::getME(., "sigma")^2))
     }
   }
 
