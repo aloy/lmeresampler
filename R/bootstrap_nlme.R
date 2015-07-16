@@ -274,7 +274,7 @@ reb_bootstrap.lme <- function (model, fn, B, reb_type = 0){
   
   fn <- match.fun(fn)
   
-  ystar <- as.data.frame( replicate(n = B, .resample.reb(model = model, reb_type = reb_type)) )
+  ystar <- as.data.frame( replicate(n = B, .resample.reb.lme(model = model, reb_type = reb_type)) )
   
   t0 <- fn(model)
   
@@ -361,7 +361,7 @@ reb_bootstrap.lme <- function (model, fn, B, reb_type = 0){
     # Calculations
     Uhat <- lapply(u, function(x){
       S <- (t(x) %*% x) / nrow(x)
-      R <- bdiag(lme4::VarCorr(model))
+      R <- nlme::getVarCov(model)
       Ls <- chol(S, pivot = TRUE)
       Lr <- chol(R, pivot = TRUE)
       A <- t(Lr %*% solve(Ls))
