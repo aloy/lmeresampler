@@ -479,7 +479,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
       return(Uhat)
     })
     
-    sigma <- getME(model, "sigma")
+    sigma <- lme4::getME(model, "sigma")
     estar <- sigma * e %*% ((t(e) %*% e) / length(e))^(-1/2)
     estar <- data.frame(scale(estar, scale = FALSE))
     

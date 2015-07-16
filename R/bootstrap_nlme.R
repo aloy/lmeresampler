@@ -262,3 +262,159 @@ resid_bootstrap.lme <- function (model, fn, B){
   return(y.star)
   
 }
+
+
+#' @rdname reb_bootstrap
+#' @export
+reb_bootstrap.lme <- function (model, fn, B, reb_type = 0){
+  
+  if(ncol(model$groups) > 1) {
+    stop("The REB bootstrap has not been adapted for 3+ level models.")
+  }
+  
+  fn <- match.fun(fn)
+  
+  ystar <- as.data.frame( replicate(n = B, .resample.reb(model = model, reb_type = reb_type)) )
+  
+  t0 <- fn(model)
+  
+  if(reb_type == 2){
+    tstar <- lapply(ystar, function(x) {
+      m <- lme4::refit(object = model, newresp = x)
+      vc <- as.data.frame(lme4::VarCorr(m))
+      list(poi = fn(m), varcomp = vc$vcov[is.na(vc$var2)])
+    })
+    
+    vcs <- lapply(tstar, function(x) x$varcomp)
+    Sb <- log( do.call("rbind", vcs) )
+    tstar <- lapply(tstar, function(x) x$poi)
+    
+    Mb <- matrix(rep(apply(Sb, 2, mean), times = B), nrow = B, byrow = TRUE)
+    CovSb <- cov(Sb)
+    SdSb <- sqrt(diag(CovSb))
+    
+    Db <- matrix(rep(SdSb, times = B), nrow = B, byrow = TRUE)
+    
+    EW <- eigen(solve(CovSb), symmetric = T)
+    Whalf <- EW$vectors %*% diag(sqrt(EW$values))
+    
+    Sbmod <- (Sb - Mb) %*% Whalf
+    Sbmod <- Sbmod * Db # elementwise not a type 
+    Lb <- exp(Mb + Sbmod)
+  } else{
+    Lb <- NULL
+    tstar <- lapply(ystar, function(x) {
+      fn(lme4::refit(object = model, newresp = x))
+    })
+  }
+  
+  tstar <- do.call("cbind", tstar) # Can these be nested?
+  rownames(tstar) <- names(fn(model))
+  
+  
+  RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
+                        seed = .Random.seed, statistic = fn,
+                        sim = "parametric", call = match.call(), reb2 = Lb),
+                   class = "boot")
+  
+  return(RES)
+  
+}
+
+
+#' REB resampling procedures
+#' @import RLRsim
+.resample.reb.lme <- function(model, reb_type){
+  
+  dsgn <- RLRsim::extract.lmeDesign(model)
+  
+  # extract marginal residuals
+  model.mresid <- dsgn$y - predict(model, level = 0)
+  
+  # Extract Z design matrix
+  Z <- Matrix::Matrix(dsgn$Z)
+  
+  # level 2 resid
+  u <- solve(t(Z) %*% Z) %*% t(Z) %*% model.mresid # a single vector
+  
+  # level 1 resid
+  e <- model.mresid - Z %*% u
+  
+  # The current way u is organized is inspired by the 
+  # ranef.merMod function in lme4.
+  # TODO: think about 3+ level models...
+  #   ans <- model@pp$b(1)
+  levs <- lapply(fl <- model$groups, levels)
+  asgn <- seq_along(fl)
+  re <- model$coefficients$random
+  cnms <- lapply(re, colnames)
+  nc <- vapply(cnms, length, 1L)
+  nb <- nc * (nl <- vapply(levs, length, 1L))
+  nbseq <- rep.int(seq_along(nb), nb)
+  u <- split(u, nbseq)
+  for (i in seq_along(u))
+    u[[i]] <- matrix(u[[i]], ncol = nc[i], byrow = TRUE,
+                     dimnames = list(NULL, cnms[[i]]))
+  names(u) <- names(cnms)
+  
+  if(reb_type == 1){
+    # Calculations
+    Uhat <- lapply(u, function(x){
+      S <- (t(x) %*% x) / nrow(x)
+      R <- bdiag(lme4::VarCorr(model))
+      Ls <- chol(S, pivot = TRUE)
+      Lr <- chol(R, pivot = TRUE)
+      A <- t(Lr %*% solve(Ls))
+      
+      Uhat <- x%*%A
+      
+      # center
+      Uhat <- data.frame(scale(Uhat, scale = FALSE))
+      
+      return(Uhat)
+    })
+    
+    sigma <- model$sigma
+    estar <- sigma * e %*% ((t(e) %*% e) / length(e))^(-1/2)
+    estar <- data.frame(scale(estar, scale = FALSE))
+    
+  } else{
+    Uhat <- u
+    estar <- e
+  }
+  
+  Xbeta <- predict(model, level = 0)
+  
+  # resample uhats
+  ustar <- lapply(Uhat,
+                  FUN = function(x) {
+                    J <- nrow(x)
+                    x <- as.data.frame(x)
+                    # Sample of b*
+                    ustar <- sample(x, replace = TRUE)
+                    return(ustar)
+                  })
+   
+  ## TODO: fix this issue with the levels... Need to resample from here...
+  
+  # Extract Z design matrix separated by variance
+  re.form <- formula(model$modelStruct$reStr)
+  Z <- lapply(1:length(re.form), function(i) model.matrix(formula(model$modelStruct$reStr)[[i]], data=model$data))
+  names(Z) <- names(re.form)
+  Z <- as.data.frame(Z[[1]])
+  Zlist <- lapply(Z, function(col) split(col, model$group))
+
+  ustar <- ustar[[1]] # since only working with 2-levels models now
+  
+  # Get Zb*
+  Zbstar <- lapply(1:length(Zlist), function(j) unlist(mapply("*", Zlist[[j]], ustar[,j], SIMPLIFY = FALSE) ))
+  Zbstar.sum <- Reduce("+", Zbstar)
+
+  # Resample residuals
+  estar <- sample(x = model.mresid, size = length(model.mresid), replace = TRUE)
+  
+  # Combine function
+  y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
+  
+  return(y.star)
+}

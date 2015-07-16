@@ -77,7 +77,7 @@ test_that("two-level random intercept model with interaction",{
 # ------------------------------------------------------------------------------
 
 ## See p. 35 of Goldstein's book
-rcmod <- lmer(mathAge11 ~ mathAge8c * schoolMathAge8 + gender + class + 
+rcmod <- lme4::lmer(mathAge11 ~ mathAge8c * schoolMathAge8 + gender + class + 
                 (mathAge8c | school), data = jsp728)
 
 orig.stats <- mySumm(rcmod)
