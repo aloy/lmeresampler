@@ -279,18 +279,23 @@ reb_bootstrap.lme <- function (model, fn, B, reb_type = 0){
   t0 <- fn(model)
   
   if(reb_type == 2){
-    tstar <- lapply(ystar, function(x) {
-      m <- lme4::refit(object = model, newresp = x)
-      vc <- as.data.frame(lme4::VarCorr(m))
-      list(poi = fn(m), varcomp = vc$vcov[is.na(vc$var2)])
+    tstar <- lapply(ystar, function(y) {
+      fit <- tryCatch(updated.model(model = model, new.y = y),  
+                      error = function(e) e)
+      if (inherits(fit, "error")) {
+        structure(list(poi = rep(NA, length(t0)), varcomp = NA), fail.msgs = fit$message)
+      } else{
+        vc <- getVarCov(fit)
+        list(poi = fn(fit), varcomp = unname(c(diag(vc), fit$sigma^2)))
+      }
     })
     
     vcs <- lapply(tstar, function(x) x$varcomp)
     Sb <- log( do.call("rbind", vcs) )
     tstar <- lapply(tstar, function(x) x$poi)
     
-    Mb <- matrix(rep(apply(Sb, 2, mean), times = B), nrow = B, byrow = TRUE)
-    CovSb <- cov(Sb)
+    Mb <- matrix(rep(apply(Sb, 2, mean, na.rm = TRUE), times = B), nrow = B, byrow = TRUE)
+    CovSb <- cov(na.omit(Sb))
     SdSb <- sqrt(diag(CovSb))
     
     Db <- matrix(rep(SdSb, times = B), nrow = B, byrow = TRUE)
@@ -303,18 +308,26 @@ reb_bootstrap.lme <- function (model, fn, B, reb_type = 0){
     Lb <- exp(Mb + Sbmod)
   } else{
     Lb <- NULL
-    tstar <- lapply(ystar, function(x) {
-      fn(lme4::refit(object = model, newresp = x))
-    })
+    tstar <- lapply(ystar, function(y) {
+      fit <- tryCatch(fn(updated.model(model = model, new.y = y)),  
+                      error = function(e) e)
+      if (inherits(fit, "error")) {
+        structure(rep(NA, length(t0)), fail.msgs = fit$message)
+      } else{
+        fit
+      }
+    }
+    )
   }
   
   tstar <- do.call("cbind", tstar) # Can these be nested?
-  rownames(tstar) <- names(fn(model))
+  colnames(tstar) <- paste("sim", 1:ncol(tstar), sep = "_")
+#   rownames(tstar) <- names(fn(model))
   
   
-  RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
+  RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model$data,
                         seed = .Random.seed, statistic = fn,
-                        sim = "parametric", call = match.call(), reb2 = Lb),
+                        sim = paste("reb", reb_type, sep = ""), call = match.call(), reb2 = Lb),
                    class = "boot")
   
   return(RES)
