@@ -296,7 +296,7 @@ reb_bootstrap.lme <- function (model, fn, B, reb_type = 0){
     
     vcs <- lapply(tstar, function(x) x$varcomp)
     Sb <- log( do.call("rbind", vcs) )
-    fes <- lapply(tstar, function(x) x$fixef)
+#     fes <- lapply(tstar, function(x) x$fixef)
     
     Mb <- matrix(rep(apply(Sb, 2, mean, na.rm = TRUE), times = B), nrow = B, byrow = TRUE)
     CovSb <- cov(na.omit(Sb))

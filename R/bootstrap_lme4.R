@@ -188,7 +188,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   
   ystar <- as.data.frame( replicate(n = B, .resample.reb(model = model, reb_type = reb_type)) )
   
-  t0 <- fn(model)
+  if(reb_type != 2) t0 <- fn(model)
   
   # Refit the model and apply 'fn' to it using lapply
 #   tstar <- lapply(ystar[1,], function(x) {
@@ -196,15 +196,18 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #   })
 
   if(reb_type == 2){
+    fe.0 <- fixef(model)
+    vc.0 <- bdiag(VarCorr(model))
+    t0 <- c(beta = fe.0, sigma = c(diag(vc.0), lme4::getME(model, "sigma")^2))
     tstar <- lapply(ystar, function(x) {
       m <- lme4::refit(object = model, newresp = x)
       vc <- as.data.frame(lme4::VarCorr(m))
-      list(poi = fn(m), varcomp = vc$vcov[is.na(vc$var2)])
+      list(fixef = fixef(m), varcomp = vc$vcov[is.na(vc$var2)])
     })
     
     vcs <- lapply(tstar, function(x) x$varcomp)
     Sb <- log( do.call("rbind", vcs) )
-    tstar <- lapply(tstar, function(x) x$poi)
+#     fes <- lapply(tstar, function(x) x$fixef)
     
     Mb <- matrix(rep(apply(Sb, 2, mean), times = B), nrow = B, byrow = TRUE)
     CovSb <- cov(Sb)
@@ -218,6 +221,8 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
     Sbmod <- (Sb - Mb) %*% Whalf
     Sbmod <- Sbmod * Db # elementwise not a type 
     Lb <- exp(Mb + Sbmod)
+    
+    tstar <- lapply(tstar, unlist)
   } else{
     Lb <- NULL
     tstar <- lapply(ystar, function(x) {
@@ -226,7 +231,23 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   }
 
   tstar <- do.call("cbind", tstar) # Can these be nested?
-  rownames(tstar) <- names(fn(model))
+#   rownames(tstar) <- names(fn(model))
+
+
+  if(reb_type == 2) {
+    idx <- 1:length(fe.0)
+    fe.star <- tstar[idx,] 
+    fe.adj <- sweep(fe.star, MARGIN = 1, STATS = fe.0 - rowMeans(fe.star, na.rm = TRUE), FUN = "+")
+    
+    vc.star <- tstar[-idx,] 
+    vc.adj <- sweep(vc.star, MARGIN = 1, STATS = t0[-idx] / rowMeans(vc.star, na.rm = TRUE), FUN = "*")
+    
+    tstar <- rbind(fe.adj, vc.adj)
+    
+    fn <- function(.) {
+      c(beta = fixef(.), sigma =c(bdiag(VarCorr(model)), lme4::getME(model, "sigma")^2))
+    }
+  }
 
     
   RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,

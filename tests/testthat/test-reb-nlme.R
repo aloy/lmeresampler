@@ -207,7 +207,7 @@ rcmod <- lme(mathAge11 ~ mathAge8c * schoolMathAge8 + gender + class,
              random = ~ mathAge8c | school, data = jsp728)
 
 orig.stats <- mySumm(rcmod)
-boo <- reb_bootstrap.lme(model = rcmod, fn = mySumm, B = nsim, reb_type = 2)
+boo <- reb_bootstrap.lme(model = rcmod, B = nsim, reb_type = 2)
 
 
 test_that("two-level random coefficient model with interaction",{
