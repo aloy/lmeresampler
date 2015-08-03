@@ -13,7 +13,7 @@
 #'    (residual), \code{"case"}, \code{"cgr"} (), or one of the three versions 
 #'    of the random effect block bootstrap ("reb", "reb1", "reb2").
 #' @param B The number of bootstrap resamples.
-#' @param extra_step
+#' @param replace
 #' @param reb_type Chooses the type of REB bootstrap
 #' 
 #' @references
@@ -22,7 +22,7 @@
 #'    Morris:2002tj
 #'    vanderLeeden:208kv
 bootstrap <- function(model, fn, type, B, replace, reb_type) {
-  UseMethod("boostrap", model)
+  UseMethod("bootstrap", model)
 }
 
 

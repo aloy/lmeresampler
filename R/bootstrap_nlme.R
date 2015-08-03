@@ -1,9 +1,9 @@
 #' @rdname bootstrap
-bootstrap.lme <- function (model, fn, type, B, extra_step, reb_type){
+bootstrap.lme <- function (model, fn, type, B, replace, reb_type){
   switch(type,
-         par = parametric_bootstrap.lme(model, fn, B),
-         resid = resid_bootstrap.lme(model, fn, B),
-         case = case_bootstrap.lme(model, fn, B, extra_step = FALSE),
+         parametric = parametric_bootstrap.lme(model, fn, B),
+         residual = resid_bootstrap.lme(model, fn, B),
+         case = case_bootstrap.lme(model, fn, B, replace),
          cgr = cgr_bootstrap.lme(model, fn, B),
          reb = reb_bootstrap.lme(model, fn, B, reb_type = 0))
 }

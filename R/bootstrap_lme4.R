@@ -2,9 +2,9 @@
 #' @export
 bootstrap.lmerMod <- function (model, fn, type, B, extra_step, reb_type){
   switch(type,
-         par = parametric_bootstrap.lmerMod(model, fn, B),
-         resid = resid_bootstrap.lmerMod(model, fn, B),
-         case = case_bootstrap.lmerMod(model, fn, B, extra_step = FALSE),
+         parametric = parametric_bootstrap.lmerMod(model, fn, B),
+         residual = resid_bootstrap.lmerMod(model, fn, B),
+         case = case_bootstrap.lmerMod(model, fn, B, replace),
          cgr = cgr_bootstrap.lmerMod(model, fn, B),
          reb = reb_bootstrap.lmerMod(model, fn, B, reb_type = 0))
   # TODO: need to be able to save results
