@@ -452,3 +452,140 @@ reb_bootstrap.lme <- function (model, fn, B, reb_type = 0){
   
   return(y.star)
 }
+
+
+#' @rdname cgr_bootstrap
+#' @export
+cgr_bootstrap.lme <- function (model, fn, B){
+  fn <- match.fun(fn)
+  
+  ystar <- as.data.frame( replicate(n = B, .resample.cgr.lme(model = model)) )
+  
+  t0 <- fn(model)
+  
+  
+  tstar <- lapply(ystar, function(y) {
+    fit <- tryCatch(fn(updated.model(model = model, new.y = y)),  
+                    error = function(e) e)
+    if (inherits(fit, "error")) {
+      structure(rep(NA, length(t0)), fail.msgs = fit$message)
+    } else{
+      fit
+    }
+  }
+  )
+  
+  tstar <- do.call("cbind", tstar) # Can these be nested?
+  colnames(tstar) <- paste("sim", 1:ncol(tstar), sep = "_")
+  
+  if ((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
+    warning("some bootstrap runs failed (", numFail, "/", B, ")")
+    fail.msgs <- vapply(res[bad.runs], FUN = attr, FUN.VALUE = character(1), 
+                        "fail.msgs")
+  } else fail.msgs <- NULL
+  
+  RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model$data,
+                        seed = .Random.seed, statistic = fn,
+                        sim = "resid", call = match.call()),
+                   class = "boot")
+  attr(RES, "bootFail") <- numFail
+  attr(RES, "boot.fail.msgs") <- fail.msgs
+  return(RES)
+}
+
+
+#' CGR resampling procedure
+.resample.cgr.lme <- function(model){
+  level.num <- ncol(model$groups)
+  
+  # Extract random effects
+  model.ranef <- nlme::ranef(model)
+  
+  # Extract residuals
+  model.resid <- resid(model)
+  
+  # Higher levels
+  if(level.num == 1) {
+    model.ranef <- list(model.ranef)
+    names(model.ranef) <- colnames(model$groups)
+  }
+  
+  re.struct <- model$modelStruct$reStruct
+  sigma <- model$sigma
+  
+  Uhat.list <- lapply(seq_along(model.ranef),
+                      FUN = function(i) {
+                        u <- scale(model.ranef[[i]], scale = FALSE)
+                        S <- (t(u) %*% u) / length(u)
+                        
+                        re.name <- names(model.ranef)[i]
+                        R <- sigma^2 * as.matrix(re.struct[[re.name]])
+                        
+                        Ls <- chol(S, pivot = TRUE)
+                        Lr <- chol(R, pivot = TRUE)
+                        A <- t(Lr %*% solve(Ls))
+                        
+                        Uhat <- as.matrix(u %*% A)
+                        Uhat <- as.data.frame(Uhat)
+                        
+                        return(Uhat)
+                      })  
+  names(Uhat.list) <- names(model.ranef)
+  
+  # Level 1
+  e <- as.numeric(scale(model.resid, scale = FALSE))
+  ehat <- sigma * e * ((t(e) %*% e) / length(e))^(-1/2)
+  
+  # Resample Uhat
+  ustar <- lapply(Uhat.list,
+                  FUN = function(df) {
+                    index <- sample(x = seq_len(nrow(df)), size = nrow(df), replace = TRUE)
+                    return(as.data.frame(df[index,]))
+                  })
+  
+  # Extract Z design matrix
+  # Extract Zt (like lme4) design matrix
+  re.form <- formula(re.struct)
+  Z <- lapply(1:length(re.form), function(i) model.matrix(formula(model$modelStruct$reStr)[[i]], data=model$data))
+  names(Z) <- names(re.form)
+  
+  if(level.num == 1) {
+    ustar <- ustar[[1]]
+    
+    Z <- as.data.frame(Z[[1]])
+    Zlist <- lapply(Z, function(col) split(col, model$group))
+    
+    Zbstar <- lapply(1:length(Zlist), function(j) unlist(mapply("*", Zlist[[j]], ustar[,j], SIMPLIFY = FALSE) ))
+  } else{
+    
+    Z <- lapply(Z, function(zi) as.data.frame(zi))
+    Z  <- Z [rev(names(Z))] # agree w/ order of model$group and bstar
+    
+    Zlist <- lapply(1:length(Z), function(i) lapply(Z[[i]], function(col) split(col, model$group[,i])))
+    names(Zlist) <- names(Z)
+    
+    
+    Zbstar <- lapply(1:length(Zlist), function(e) {
+      z.e <- Zlist[[e]]
+      u.e <- ustar[[e]]
+      if(is.numeric(u.e)){
+        unlist(lapply(1:length(e), function(j) unlist(mapply("*", z.e[[j]], u.e, SIMPLIFY = FALSE) )), recursive = FALSE)
+      } else{
+        unlist(lapply(1:length(e), function(j) unlist(mapply("*", z.e[[j]], u.e[,j], SIMPLIFY = FALSE) )), recursive = FALSE)
+      }
+    })
+  }
+  
+  Zbstar.sum <- Reduce("+", Zbstar)  
+  
+  # Extract fixed part of the model
+  Xbeta <- predict(model, level = 0)
+  
+  # Get e*
+  estar <- sample(x = ehat, size = length(ehat), replace = TRUE)
+  
+  # Combine
+  y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
+  
+  return(y.star)
+}
