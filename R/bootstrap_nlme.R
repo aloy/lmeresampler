@@ -464,7 +464,7 @@ cgr_bootstrap.lme <- function (model, fn, B){
   t0 <- fn(model)
   
   
-  tstar <- lapply(ystar, function(y) {
+  res <- lapply(ystar, function(y) {
     fit <- tryCatch(fn(updated.model(model = model, new.y = y)),  
                     error = function(e) e)
     if (inherits(fit, "error")) {
@@ -475,8 +475,9 @@ cgr_bootstrap.lme <- function (model, fn, B){
   }
   )
   
-  tstar <- do.call("cbind", tstar) # Can these be nested?
+  tstar <- do.call("cbind", res) # Can these be nested?
   colnames(tstar) <- paste("sim", 1:ncol(tstar), sep = "_")
+  
   
   if ((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", numFail, "/", B, ")")
