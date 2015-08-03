@@ -486,15 +486,14 @@ cgr_bootstrap.lme <- function (model, fn, B){
   
   RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model$data,
                         seed = .Random.seed, statistic = fn,
-                        sim = "resid", call = match.call()),
+                        sim = "CGR", call = match.call()),
                    class = "boot")
   attr(RES, "bootFail") <- numFail
   attr(RES, "boot.fail.msgs") <- fail.msgs
   return(RES)
 }
 
-
-#' CGR resampling procedure
+#' CGR resampling procedures
 .resample.cgr.lme <- function(model){
   level.num <- ncol(model$groups)
   
