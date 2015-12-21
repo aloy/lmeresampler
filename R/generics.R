@@ -1,26 +1,60 @@
-#' @title Bootstrap Nested LMEs
+#' @title Bootstrap Nested Linear Mixed-Effects Models
 #'
 #' @description
-#' \code{bootstrap} helps streamline the bootstrap process for the parametric,
-#' residual, cases, CGR, and REB bootstraps.
-#'
+#' Perform various bootstrap process for nested linear mixed effects (LMEs) models including:
+#'parametric, residual, cases, CGR, and REB bootstraps.
 #'
 #' @export
 #' @param model The model object you wish to bootstrap.
 #' @param fn A function returning the statistic(s) of interest.
 #' @param type A character string indicating the type of bootstrap that is being
-#'    requested. Possible values are \code{"par"} (parametric), \code{"resid"} 
-#'    (residual), \code{"case"}, \code{"cgr"} (), or one of the three versions 
-#'    of the random effect block bootstrap ("reb", "reb1", "reb2").
+#'    requested. Possible values are \code{"parametric"}, \code{"residual"}, 
+#'    \code{"case"}, \code{"cgr"}, or \code{"reb"} (random effect block bootstrap).
 #' @param B The number of bootstrap resamples.
-#' @param replace
-#' @param reb_type Chooses the type of REB bootstrap
+#' @param replace A logical vector specifying whether each level of the model 
+#'    should be resampled in the cases bootsrap. The levels should be specified 
+#'    from the highest level (largest cluster) of the hierarchy to the lowest 
+#'    (observation-level); for example for students within a school, specify the 
+#'    school level first, then the student level.
+#' @param reb_type Specification of what random effect block bootstrap version to
+#' implement. Possible values are \code{0}, \code{1} or \code{2}.
+#' 
+#' @details
+#' All of the below methods have been implemented for nested linear mixed-effects
+#' models fit by \code{lmer} (i.e., an \code{lmerMod} object) and \code{lme} 
+#' (i.e., an \code{lmerMod} object). Details of the bootstrap procedures can be found
+#' in the help file for that specific function.
+#'   
+#' @return 
+#' The returned value is an object of class "boot", compatible with the \pkg{boot}
+#' package's \code{\link[boot]{boot}} methods.
+#' 
+#' @seealso 
+#' \itemize{
+#'   \item \code{\link{parametric_bootstrap}}, \code{\link{residual_bootstrap}},
+#'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
+#'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
+#'   \item \code{\link[lme4]{bootMer}} for an implementation of (semi-)parameteric bootstrap for mixed models.
+#'   \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}} 
+#'      from the \pkg{boot} package.
+#' }
 #' 
 #' @references
-#'    Carpenter:2003uy
-#'    Chambers:2013ba
-#'    Morris:2002tj
-#'    vanderLeeden:208kv
+#'    Carpenter, J. R., Goldstein, H. and Rasbash, J. (2003) A novel bootstrap 
+#'    procedure for assessing the relationship between class size and achievement. 
+#'    \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, 
+#'    \bold{52}, 431--443.
+#'    
+#'    Chambers, R. and Chandra, H. (2013) A random effect block bootstrap for 
+#'    clustered data. \emph{Journal of Computational and Graphical Statistics}, 
+#'    \bold{22}, 452--470.
+#'    
+#'    Morris, J. S. (2002) The BLUPs are not "best" when it comes to bootstrapping. 
+#'    \emph{Statistics and Probability Letters}, \bold{56}, 425--430.
+#'    
+#'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
+#'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
+#'    Multilevel Analysis}, pages 401--433. New York: Springer.
 bootstrap <- function(model, fn, type, B, replace, reb_type) {
   UseMethod("bootstrap", model)
 }
@@ -32,18 +66,31 @@ bootstrap <- function(model, fn, type, B, replace, reb_type) {
 #' The Parametric Bootstrap is uses the parametrically estimated
 #' distribution function of the data to generate bootstrap samples.
 #'
-#' @details
-#' This function extracts the fixed effects, simulates from the model, refits the model
-#' and then returns the results in a list.
-#'
 #' @export
 #' @inheritParams bootstrap
-#'
-#' @return list
+#' 
+#' @return 
+#' The returned value is an object of class "boot", compatible with the \pkg{boot}
+#' package's \code{\link[boot]{boot}} methods.
+#' 
+#' @seealso 
+#' \itemize{
+#'   \item \code{\link{bootstrap}}, \code{\link{residual_bootstrap}},
+#'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
+#'      \code{\link{reb_bootstrap}} for other bootstrap functions in \pkg{lmeresampler}.
+#'   \item \code{\link[lme4]{bootMer}} for an implementation of (semi-)parameteric bootstrap for mixed models.
+#'   \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}} 
+#'      from the \pkg{boot} package.
+#' }
 #'
 #' @references
-#' Chambers:2013ba
-#' vanderLeeden:208kv
+#'    Chambers, R. and Chandra, H. (2013) A random effect block bootstrap for 
+#'    clustered data. \emph{Journal of Computational and Graphical Statistics}, 
+#'    \bold{22}, 452--470.
+#'    
+#'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
+#'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
+#'    Multilevel Analysis}, pages 401--433. New York: Springer.
 parametric_bootstrap <- function(model, fn, B) {
   UseMethod("parametric_bootstrap", model)
 }
@@ -53,16 +100,28 @@ parametric_bootstrap <- function(model, fn, B) {
 #' @description
 #' The Residual Bootstrap uses residuals to generate bootstrap samples.
 #'
-#' @details
-#' Resamples the residuals and complete the bootstrap process.
-#'
 #' @export
 #' @inheritParams bootstrap
+#' 
+#' @return 
+#' The returned value is an object of class "boot", compatible with the \pkg{boot}
+#' package's \code{\link[boot]{boot}} methods.
+#' 
+#' @seealso 
+#' \itemize{
+#'   \item \code{\link{bootstrap}}, \code{\link{parametric_bootstrap}},
+#'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
+#'      \code{\link{reb_bootstrap}} for other bootstrap functions in \pkg{lmeresampler}.
+#'   \item \code{\link[lme4]{bootMer}} for an implementation of (semi-)parameteric bootstrap for mixed models.
+#'   \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}} 
+#'      from the \pkg{boot} package.
+#' }
 #'
-#' @return list
 #'
 #' @references
-#' vanderLeeden:208kv
+#'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
+#'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
+#'    Multilevel Analysis}, pages 401--433. New York: Springer.
 resid_bootstrap <- function(model, fn, B) {
   UseMethod("resid_bootstrap", model)
 }
@@ -72,16 +131,28 @@ resid_bootstrap <- function(model, fn, B) {
 #' @description
 #' The Cases Bootstrap samples entire cases to generate the bootstrap.
 #'
-#' @details
-#' add details
 #' 
 #' @export
 #' @inheritParams bootstrap
 #'
-#' @return list
+#' @return 
+#' The returned value is an object of class "boot", compatible with the \pkg{boot}
+#' package's \code{\link[boot]{boot}} methods.
+#' 
+#' @seealso 
+#' \itemize{
+#'   \item \code{\link{bootstrap}}, \code{\link{residual_bootstrap}},
+#'      \code{\link{parametric_bootstrap}}, \code{\link{cgr_bootstrap}}, 
+#'      \code{\link{reb_bootstrap}} for other bootstrap functions in \pkg{lmeresampler}.
+#'   \item \code{\link[lme4]{bootMer}} for an implementation of (semi-)parameteric bootstrap for mixed models.
+#'   \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}} 
+#'      from the \pkg{boot} package.
+#' }
 #'
 #' @references
-#' vanderLeeden:208kv
+#'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
+#'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
+#'    Multilevel Analysis}, pages 401--433. New York: Springer.
 case_bootstrap <- function(model, fn, B, replace) {
   UseMethod("case_bootstrap", model)
 }
@@ -91,18 +162,28 @@ case_bootstrap <- function(model, fn, B, replace) {
 #' @description
 #' CGR Bootstrap
 #'
-#' @details
-#' add details later
 #'
 #' @inheritParams bootstrap
 #'
-#' @return list
+#' @return 
+#' The returned value is an object of class "boot", compatible with the \pkg{boot}
+#' package's \code{\link[boot]{boot}} methods.
+#' 
+#' @seealso 
+#' \itemize{
+#'   \item \code{\link{bootstrap}}, \code{\link{residual_bootstrap}},
+#'      \code{\link{case_bootstrap}}, \code{\link{parametric_bootstrap}}, 
+#'      \code{\link{reb_bootstrap}} for other bootstrap functions in \pkg{lmeresampler}.
+#'   \item \code{\link[lme4]{bootMer}} for an implementation of (semi-)parameteric bootstrap for mixed models.
+#'   \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}} 
+#'      from the \pkg{boot} package.
+#' }
 #'
-#' @references Carpenter, J. R., Goldstein, H., and Rasbash, J. (2003)
-#'  A novel bootstrap procedure for assessing the relationship 
-#'  between class size and achievement. \emph{Journal of the Royal 
-#'  Statistical Society. Series C. Applied Statistics}, 52(4), 431--443. 
-#'  doi:10.1111/1467-9876.00415
+#' @references
+#'    Carpenter, J. R., Goldstein, H. and Rasbash, J. (2003) A novel bootstrap 
+#'    procedure for assessing the relationship between class size and achievement. 
+#'    \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, 
+#'    \bold{52}, 431--443.
 cgr_bootstrap <- function(model, fn, B) {
   UseMethod("cgr_bootstrap", model)
 }
@@ -118,13 +199,24 @@ cgr_bootstrap <- function(model, fn, B) {
 #' @export
 #' @inheritParams bootstrap
 #'
-#' @return list
+#' @return 
+#' The returned value is an object of class "boot", compatible with the \pkg{boot}
+#' package's \code{\link[boot]{boot}} methods.
+#' 
+#' @seealso 
+#' \itemize{
+#'   \item \code{\link{bootstrap}}, \code{\link{residual_bootstrap}},
+#'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
+#'      \code{\link{parametric_bootstrap}} for other bootstrap functions in \pkg{lmeresampler}.
+#'   \item \code{\link[lme4]{bootMer}} for an implementation of (semi-)parameteric bootstrap for mixed models.
+#'   \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}} 
+#'      from the \pkg{boot} package.
+#' }
 #'
 #' @references
-#' Chambers, R. and Chandra, H. (2013) 
-#' A Random Effect Block Bootstrap for Clustered Data. 
-#' \emph{Journal of Computational and Graphical Statistics}, 
-#' 22(2), 452–470. doi:10.1080/10618600.2012.681216
+#'    Chambers, R. and Chandra, H. (2013) A random effect block bootstrap for 
+#'    clustered data. \emph{Journal of Computational and Graphical Statistics}, 
+#'    \bold{22}, 452--470.
 reb_bootstrap <- function(model, fn, B, reb_type) {
   UseMethod("reb_bootstrap", model)
 }

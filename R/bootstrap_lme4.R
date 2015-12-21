@@ -1,6 +1,6 @@
 #' @rdname bootstrap
 #' @export
-bootstrap.lmerMod <- function (model, fn, type, B, extra_step, reb_type){
+bootstrap.lmerMod <- function (model, fn, type, B, replace, reb_type){
   switch(type,
          parametric = parametric_bootstrap.lmerMod(model, fn, B),
          residual = resid_bootstrap.lmerMod(model, fn, B),
