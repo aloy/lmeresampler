@@ -4,7 +4,7 @@
 \alias{cgr_bootstrap}
 \alias{cgr_bootstrap.lme}
 \alias{cgr_bootstrap.lmerMod}
-\title{CGR Bootstrap}
+\title{CGR Bootstrap for Nested LMEs}
 \usage{
 \method{cgr_bootstrap}{lmerMod}(model, fn, B)
 
@@ -20,33 +20,43 @@ cgr_bootstrap(model, fn, B)
 \item{B}{The number of bootstrap resamples.}
 }
 \value{
-list
+The returned value is an object of class "boot", compatible with the \pkg{boot}
+package's \code{\link[boot]{boot}} methods.
 }
 \description{
-CGR Bootstrap
+Generate semi-parametric bootstrap replicates of a statistic for a nested
+linear mixed-effects model.
 }
 \details{
-add details later
+The semi-parametric bootstrap algorithm implemented was outlined by  Carpenter,
+Goldstein and Rasbash (2003). The algorithm is outlined below:
+\enumerate{
+  \item Obtain the parameter estimates from the fitted model and calculate
+     the estimated error terms and EBLUPs.
+  \item Rescale the error terms and EBLUPs so that the empirical variance of
+     these quantities is equal to estimated variance components from the model.
+  \item Sample independently with replacement from the rescaled estimated error
+     terms and rescaled EBLUPs.
+  \item Obtain bootstrap samples by combining the samples via the fitted model equation.
+  \item Refit the model and extract the statistic(s) of interest.
+  \item Repeat steps 3-5 B times.
+}
 }
 \references{
-Carpenter, J. R., Goldstein, H., and Rasbash, J. (2003)
- A novel bootstrap procedure for assessing the relationship
- between class size and achievement. \emph{Journal of the Royal
- Statistical Society. Series C. Applied Statistics}, 52(4), 431--443.
- doi:10.1111/1467-9876.00415
+Carpenter, J. R., Goldstein, H. and Rasbash, J. (2003) A novel bootstrap
+   procedure for assessing the relationship between class size and achievement.
+   \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)},
+   \bold{52}, 431--443.
 }
 \seealso{
-Other bootstrap.functions: \code{\link{case_bootstrap}},
-  \code{\link{case_bootstrap.lme}},
-  \code{\link{case_bootstrap.lmerMod}};
-  \code{\link{parametric_bootstrap}},
-  \code{\link{parametric_bootstrap.lme}},
-  \code{\link{parametric_bootstrap.lmerMod}};
-  \code{\link{reb_bootstrap}},
-  \code{\link{reb_bootstrap.lme}},
-  \code{\link{reb_bootstrap.lmerMod}};
-  \code{\link{resid_bootstrap}},
-  \code{\link{resid_bootstrap.lme}},
-  \code{\link{resid_bootstrap.lmerMod}}
+\itemize{
+  \item \code{\link{parametric_bootstrap}}, \code{\link{residual_bootstrap}},
+     \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}},
+     \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
+  \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an
+     implementation of (semi-)parameteric bootstrap for mixed models.
+  \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}}
+     from the \pkg{boot} package.
+}
 }
 

@@ -4,13 +4,13 @@
 \alias{case_bootstrap}
 \alias{case_bootstrap.lme}
 \alias{case_bootstrap.lmerMod}
-\title{Cases Bootstrap}
+\title{Cases Bootstrap for Nested LMEs}
 \usage{
-\method{case_bootstrap}{lmerMod}(model, fn, B, replace)
+\method{case_bootstrap}{lmerMod}(model, fn, B, resample)
 
-\method{case_bootstrap}{lme}(model, fn, B, replace)
+\method{case_bootstrap}{lme}(model, fn, B, resample)
 
-case_bootstrap(model, fn, B, replace)
+case_bootstrap(model, fn, B, resample)
 }
 \arguments{
 \item{model}{The model object you wish to bootstrap.}
@@ -19,36 +19,52 @@ case_bootstrap(model, fn, B, replace)
 
 \item{B}{The number of bootstrap resamples.}
 
-\item{replace}{A logical vector specifying whether each level of the model
+\item{resample}{A logical vector specifying whether each level of the model
 should be resampled in the cases bootsrap. The levels should be specified
 from the highest level (largest cluster) of the hierarchy to the lowest
 (observation-level); for example for students within a school, specify the
 school level first, then the student level.}
 }
 \value{
-list
+The returned value is an object of class "boot", compatible with the \pkg{boot}
+package's \code{\link[boot]{boot}} methods.
 }
 \description{
-The Cases Bootstrap samples entire cases to generate the bootstrap.
+Generate cases bootstrap replicates of a statistic for a nested linear
+mixed-effects model.
 }
 \details{
-add details
+The cases bootstrap is a fully nonparametric bootstrap that resamples the data
+with respect to the clusters in order to generate bootstrap samples. Depending
+on the nature of the data, the resampling can be done only for the higher-level
+cluster(s), only at the observation-level within a cluster, or at all levels.
+See Van der Leeden et al. (2008) for a nice discussion of this decision.
+
+To resample a given level of the model, the corresponding entry in the logical
+vector specified in the \code{resample} parameter must be set to true. A few
+examples are given below in terms of a two-level model where students are
+clustered within schools:
+
+\itemize{
+  \item To resample only the schools, set \code{resample = c(TRUE, FALSE)}.
+  \item To resample only the students, set \code{resample = c(FALSE, TRUE)}.
+  \item To resample both the students and the schools, set \code{resample = c(TRUE, TRUE)}.
+}
 }
 \references{
-vanderLeeden:208kv
+Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel
+   models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of
+   Multilevel Analysis}, pages 401--433. New York: Springer.
 }
 \seealso{
-Other bootstrap.functions: \code{\link{cgr_bootstrap}},
-  \code{\link{cgr_bootstrap.lme}},
-  \code{\link{cgr_bootstrap.lmerMod}};
-  \code{\link{parametric_bootstrap}},
-  \code{\link{parametric_bootstrap.lme}},
-  \code{\link{parametric_bootstrap.lmerMod}};
-  \code{\link{reb_bootstrap}},
-  \code{\link{reb_bootstrap.lme}},
-  \code{\link{reb_bootstrap.lmerMod}};
-  \code{\link{resid_bootstrap}},
-  \code{\link{resid_bootstrap.lme}},
-  \code{\link{resid_bootstrap.lmerMod}}
+\itemize{
+  \item \code{\link{parametric_bootstrap}}, \code{\link{residual_bootstrap}},
+     \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}},
+     \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
+  \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an
+     implementation of (semi-)parameteric bootstrap for mixed models.
+  \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}}
+     from the \pkg{boot} package.
+}
 }
 

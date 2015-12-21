@@ -6,11 +6,11 @@
 \alias{bootstrap.lmerMod}
 \title{Bootstrap Nested Linear Mixed-Effects Models}
 \usage{
-\method{bootstrap}{lmerMod}(model, fn, type, B, replace, reb_type)
+\method{bootstrap}{lmerMod}(model, fn, type, B, resample, reb_type)
 
-\method{bootstrap}{lme}(model, fn, type, B, replace, reb_type)
+\method{bootstrap}{lme}(model, fn, type, B, resample, reb_type)
 
-bootstrap(model, fn, type, B, replace, reb_type)
+bootstrap(model, fn, type, B, resample, reb_type)
 }
 \arguments{
 \item{model}{The model object you wish to bootstrap.}
@@ -23,7 +23,7 @@ requested. Possible values are \code{"parametric"}, \code{"residual"},
 
 \item{B}{The number of bootstrap resamples.}
 
-\item{replace}{A logical vector specifying whether each level of the model
+\item{resample}{A logical vector specifying whether each level of the model
 should be resampled in the cases bootsrap. The levels should be specified
 from the highest level (largest cluster) of the hierarchy to the lowest
 (observation-level); for example for students within a school, specify the
@@ -44,16 +44,7 @@ parametric, residual, cases, CGR, and REB bootstraps.
 All of the below methods have been implemented for nested linear mixed-effects
 models fit by \code{lmer} (i.e., an \code{lmerMod} object) and \code{lme}
 (i.e., an \code{lmerMod} object). Details of the bootstrap procedures can be found
-in the help file for that specific function. Below is a quick start guide for bootstrapping
-nested LMEs.
-
-\describe{
-  \item{parametric bootstrap}{First item}
-  \item{residual boostrap}{Second item}
-  \item{cases boostrap}{}
-  \item{CGR bootstrap}{}
-  \item{REB boostrap}{}
-}
+in the help file for that specific function.
 }
 \references{
 Carpenter, J. R., Goldstein, H. and Rasbash, J. (2003) A novel bootstrap
@@ -77,7 +68,8 @@ Carpenter, J. R., Goldstein, H. and Rasbash, J. (2003) A novel bootstrap
   \item \code{\link{parametric_bootstrap}}, \code{\link{residual_bootstrap}},
      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}},
      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
-  \item \code{\link[lme4]{bootMer}} for an implementation of (semi-)parameteric bootstrap for mixed models.
+  \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an
+     implementation of (semi-)parameteric bootstrap for mixed models.
   \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}}
      from the \pkg{boot} package.
 }

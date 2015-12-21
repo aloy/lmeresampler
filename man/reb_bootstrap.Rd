@@ -4,7 +4,7 @@
 \alias{reb_bootstrap}
 \alias{reb_bootstrap.lme}
 \alias{reb_bootstrap.lmerMod}
-\title{REB Bootstrap}
+\title{REB Bootstrap for Two-Level Nested LMEs}
 \usage{
 \method{reb_bootstrap}{lmerMod}(model, fn, B, reb_type = 0)
 
@@ -23,32 +23,57 @@ reb_bootstrap(model, fn, B, reb_type)
 implement. Possible values are \code{0}, \code{1} or \code{2}.}
 }
 \value{
-list
+The returned value is an object of class "boot", compatible with the \pkg{boot}
+package's \code{\link[boot]{boot}} methods.
 }
 \description{
-REB Bootstrap
+Generate random effect block (REB) bootstrap replicates of a statistic for a
+two-level nested linear mixed-effects model.
 }
 \details{
-add details
+The random effects block (REB) bootstrap was outlined by Chambers and Chandra (2013)
+and has been developed for two-level nested linear mixed-effects (LME) models.
+Consider a two-level LME of the form
+\deqn{y = X \beta + Z b + \epsilon}
+
+The REB bootstrap algorithm (\code{type = 0}) is as follows:
+\enumerate{
+  \item Calculate the nonparametric residual quantities for the fitted model
+  \itemize{
+     \item marginal residuals \eqn{r = y - X\beta}
+     \item predicted random effects \eqn{\tilde{b} = (Z^\prime Z)^{-1} Z^\prime r}
+     \item error terms \eqn{ \tilde{e} = r - Z \tilde{b} }
+  }
+  \item Take a simple random sample with replacement of the groups and extract
+     the corresponding elements of \eqn{\tilde{b}} and \eqn{tilde{e}}.
+  \item Generate bootstrap samples via the fitted model equation
+     \eqn{y = X \widehat{\beta} + Z \tilde{b} + \tilde{e}}
+  \item Refit the model and extract the statistic(s) of interest.
+  \item Repeat steps 2-4 B times.
+}
+
+Variation 1 (\code{type = 1}):
+   The first variation of the REB bootstrap zero centers and rescales the
+   residual quantities prior to resampling.
+
+Variation 2 (\code{type = 2}):
+   The second variation of the REB bootstrap scales the estimates and centers
+   the bootstrap distributions (i.e., adjusts for bias) after REB bootstrapping.
 }
 \references{
-Chambers, R. and Chandra, H. (2013)
-A Random Effect Block Bootstrap for Clustered Data.
-\emph{Journal of Computational and Graphical Statistics},
-22(2), 452–470. doi:10.1080/10618600.2012.681216
+Chambers, R. and Chandra, H. (2013) A random effect block bootstrap for
+   clustered data. \emph{Journal of Computational and Graphical Statistics},
+   \bold{22}, 452--470.
 }
 \seealso{
-Other bootstrap.functions: \code{\link{case_bootstrap}},
-  \code{\link{case_bootstrap.lme}},
-  \code{\link{case_bootstrap.lmerMod}};
-  \code{\link{cgr_bootstrap}},
-  \code{\link{cgr_bootstrap.lme}},
-  \code{\link{cgr_bootstrap.lmerMod}};
-  \code{\link{parametric_bootstrap}},
-  \code{\link{parametric_bootstrap.lme}},
-  \code{\link{parametric_bootstrap.lmerMod}};
-  \code{\link{resid_bootstrap}},
-  \code{\link{resid_bootstrap.lme}},
-  \code{\link{resid_bootstrap.lmerMod}}
+\itemize{
+  \item \code{\link{parametric_bootstrap}}, \code{\link{residual_bootstrap}},
+     \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}},
+     \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
+  \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an
+     implementation of (semi-)parameteric bootstrap for mixed models.
+  \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}}
+     from the \pkg{boot} package.
+}
 }
 

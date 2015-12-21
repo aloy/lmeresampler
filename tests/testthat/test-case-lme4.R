@@ -15,15 +15,15 @@ jjsp728 <- cbind(jsp728, .id = seq_len(nrow(jsp728)))
 grouped <- group_by(jjsp728, school) %>%
   summarise(count = n())
 
-cr1 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), replace = c(TRUE, TRUE))
-cr2 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), replace = c(FALSE, TRUE))
-cr3 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), replace = c(TRUE, FALSE))
-cr4 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), replace = c(FALSE, FALSE))
+cr1 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), resample = c(TRUE, TRUE))
+cr2 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), resample = c(FALSE, TRUE))
+cr3 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), resample = c(TRUE, FALSE))
+cr4 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), resample = c(FALSE, FALSE))
 
-# cr1b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), replace = c(TRUE, TRUE))
-# cr2b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), replace = c(FALSE, TRUE))
-# cr3b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), replace = c(TRUE, FALSE))
-# cr4b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), replace = c(FALSE, FALSE))
+# cr1b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), resample = c(TRUE, TRUE))
+# cr2b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), resample = c(FALSE, TRUE))
+# cr3b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), resample = c(TRUE, FALSE))
+# cr4b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), resample = c(FALSE, FALSE))
 
 
 test_that("two-level additive random intercept model",{
@@ -50,7 +50,7 @@ orig.stats <- mySumm(vcmodA)
 
 nsim <- 10
 
-boo <- case_bootstrap(model = vcmodA, fn = mySumm, B = nsim, replace = c(TRUE, TRUE))
+boo <- case_bootstrap(model = vcmodA, fn = mySumm, B = nsim, resample = c(TRUE, TRUE))
 
 test_that("two-level additive random intercept model",{
   expect_equal(class(boo), "boot")
@@ -71,7 +71,7 @@ rimod <- lmer(normAge11 ~ mathAge8c + gender + class +
                 (1 | school), data = jsp728)
 
 orig.stats <- mySumm(rimod)
-boo <- case_bootstrap(model = rimod, fn = mySumm, B = nsim, replace = c(TRUE, TRUE))
+boo <- case_bootstrap(model = rimod, fn = mySumm, B = nsim, resample = c(TRUE, TRUE))
 
 
 test_that("two-level random intercept model without interaction",{
@@ -90,7 +90,7 @@ vcmodC <- lmer(mathAge11 ~ mathAge8 * schoolMathAge8 + gender + class +
                  (1 | school), data = jsp728)
 
 orig.stats <- mySumm(vcmodC)
-boo <- case_bootstrap(model = vcmodC, fn = mySumm, B = nsim, replace = c(TRUE, TRUE))
+boo <- case_bootstrap(model = vcmodC, fn = mySumm, B = nsim, resample = c(TRUE, TRUE))
 
 test_that("two-level random intercept model with interaction",{
   expect_equal(class(boo), "boot")
@@ -109,7 +109,7 @@ rcmod <- lmer(mathAge11 ~ mathAge8c * schoolMathAge8 + gender + class +
                 (mathAge8c | school), data = jsp728)
 
 orig.stats <- mySumm(rcmod)
-boo <- case_bootstrap(model = rcmod, fn = mySumm, B = nsim, replace = c(TRUE, TRUE))
+boo <- case_bootstrap(model = rcmod, fn = mySumm, B = nsim, resample = c(TRUE, TRUE))
 
 
 test_that("two-level random coefficient model with interaction",{
@@ -127,7 +127,7 @@ test_that("two-level random coefficient model with interaction",{
 rmA <- lme4::lmer(rv ~ religion + year  + (1 | respond) + (1 | district), data = Socatt)
 
 orig.stats <- mySumm(rmA)
-boo <- case_bootstrap(model = rmA, fn = mySumm, B = nsim, replace = c(TRUE, TRUE, TRUE))
+boo <- case_bootstrap(model = rmA, fn = mySumm, B = nsim, resample = c(TRUE, TRUE, TRUE))
 
 
 test_that("three-level random intercept model",{

@@ -1,9 +1,9 @@
 #' @rdname bootstrap
-bootstrap.lme <- function (model, fn, type, B, replace, reb_type){
+bootstrap.lme <- function (model, fn, type, B, resample, reb_type){
   switch(type,
          parametric = parametric_bootstrap.lme(model, fn, B),
          residual = resid_bootstrap.lme(model, fn, B),
-         case = case_bootstrap.lme(model, fn, B, replace),
+         case = case_bootstrap.lme(model, fn, B, resample),
          cgr = cgr_bootstrap.lme(model, fn, B),
          reb = reb_bootstrap.lme(model, fn, B, reb_type = 0))
 }
@@ -93,7 +93,7 @@ parametric_bootstrap.lme <- function(model, fn, B){
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lme <- function (model, fn, B, replace){
+case_bootstrap.lme <- function (model, fn, B, resample){
   
   data <- model$data
   # data$.id <- seq_len(nrow(data))
@@ -103,7 +103,7 @@ case_bootstrap.lme <- function (model, fn, B, replace){
   
   t0 <- fn(model)
   
-  rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(dat = data, cluster = clusters, replace = replace))))
+  rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(dat = data, cluster = clusters, resample = resample))))
   
   res <- lapply(rep.data, function(df) {
     fit <- tryCatch(fn(updated.model(model = model, new.data = df)),  

@@ -4,7 +4,7 @@
 \alias{resid_bootstrap}
 \alias{resid_bootstrap.lme}
 \alias{resid_bootstrap.lmerMod}
-\title{Residual Bootstrap}
+\title{Residual Bootstrap for Nested LMEs}
 \usage{
 \method{resid_bootstrap}{lmerMod}(model, fn, B)
 
@@ -20,29 +20,34 @@ resid_bootstrap(model, fn, B)
 \item{B}{The number of bootstrap resamples.}
 }
 \value{
-list
+The returned value is an object of class "boot", compatible with the \pkg{boot}
+package's \code{\link[boot]{boot}} methods.
 }
 \description{
-The Residual Bootstrap uses residuals to generate bootstrap samples.
+Generate residual bootstrap replicates of a statistic for a nested linear
+mixed-effects model.
 }
 \details{
-Resamples the residuals and complete the bootstrap process.
+The residual bootstrap resamples the residual quantities from the fitted
+linear mixed-effects model in order to generate bootstrap resamples. That is,
+a random sample, drawn with replacement, is taken from the estimated error terms
+and the EBLUPS (at each level) and the random samples are combined into bootstrap
+samples via the fitted model equation.
 }
 \references{
-vanderLeeden:208kv
+Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel
+   models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of
+   Multilevel Analysis}, pages 401--433. New York: Springer.
 }
 \seealso{
-Other bootstrap.functions: \code{\link{case_bootstrap}},
-  \code{\link{case_bootstrap.lme}},
-  \code{\link{case_bootstrap.lmerMod}};
-  \code{\link{cgr_bootstrap}},
-  \code{\link{cgr_bootstrap.lme}},
-  \code{\link{cgr_bootstrap.lmerMod}};
-  \code{\link{parametric_bootstrap}},
-  \code{\link{parametric_bootstrap.lme}},
-  \code{\link{parametric_bootstrap.lmerMod}};
-  \code{\link{reb_bootstrap}},
-  \code{\link{reb_bootstrap.lme}},
-  \code{\link{reb_bootstrap.lmerMod}}
+\itemize{
+  \item \code{\link{parametric_bootstrap}}, \code{\link{residual_bootstrap}},
+     \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}},
+     \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
+  \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an
+     implementation of (semi-)parameteric bootstrap for mixed models.
+  \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}}
+     from the \pkg{boot} package.
+}
 }
 
