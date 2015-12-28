@@ -89,7 +89,7 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
     
     if(i==1 & resample[i]) {
       dots <- cluster[1]
-      grouped <- group_by_(res, .dots = dots)
+      grouped <- dplyr::group_by_(res, .dots = dots)
       ats <- attributes(grouped)
       cls <- sample(seq_along(ats$indices), replace = resample[i])
       idx <- unlist(ats$indices[cls], recursive = FALSE) + 1 # b/c 0 based
@@ -97,14 +97,14 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
     } else{
       if(i == length(cluster) & resample[i]) {
         dots <- cluster[-i]
-        grouped <- group_by_(res, .dots = dots)
-        res <- sample_frac(grouped, size = 1, replace = TRUE)
+        grouped <- dplyr::group_by_(res, .dots = dots)
+        res <- dplyr::sample_frac(grouped, size = 1, replace = TRUE)
       } else{
         if(resample[i]) {
           dots <- cluster[i]
           res <- split(res, res[, cluster[1:(i-1)]], drop = TRUE)
           res <- plyr::ldply(res, function(df) {
-            grouped <- group_by_(df, .dots = dots)
+            grouped <- dplyr::group_by_(df, .dots = dots)
             ats <- attributes(grouped)
             cls <- sample(seq_along(ats$indices), replace = resample[i])
             idx <- unlist(ats$indices[cls], recursive = FALSE) + 1 # b/c 0 based
@@ -196,13 +196,13 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #   })
 
   if(reb_type == 2){
-    fe.0 <- fixef(model)
-    vc.0 <- bdiag(VarCorr(model))
+    fe.0 <- lme4::fixef(model)
+    vc.0 <- bdiag(lme4::VarCorr(model))
     t0 <- c(beta = fe.0, sigma = c(diag(vc.0), lme4::getME(model, "sigma")^2))
     tstar <- lapply(ystar, function(x) {
       m <- lme4::refit(object = model, newresp = x)
       vc <- as.data.frame(lme4::VarCorr(m))
-      list(fixef = fixef(m), varcomp = vc$vcov[is.na(vc$var2)])
+      list(fixef = lme4::fixef(m), varcomp = vc$vcov[is.na(vc$var2)])
     })
     
     vcs <- lapply(tstar, function(x) x$varcomp)
@@ -245,7 +245,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
     tstar <- rbind(fe.adj, vc.adj)
     
     fn <- function(.) {
-      c(beta = fixef(.), sigma =c(diag(bdiag(VarCorr(.))), lme4::getME(., "sigma")^2))
+      c(beta = lme4::fixef(.), sigma =c(diag(bdiag(lme4::VarCorr(.))), lme4::getME(., "sigma")^2))
     }
   }
 

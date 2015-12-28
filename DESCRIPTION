@@ -12,6 +12,7 @@ Imports:
 Suggests: 
     lme4 (>= 1.1-7),
     nlme,
+    nlmeU,
     testthat
 License: GPL-3
 LazyData: true

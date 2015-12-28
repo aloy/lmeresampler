@@ -1,4 +1,5 @@
 #' @rdname bootstrap
+#' @export
 bootstrap.lme <- function (model, fn, type, B, resample, reb_type){
   switch(type,
          parametric = parametric_bootstrap.lme(model, fn, B),
@@ -279,18 +280,18 @@ reb_bootstrap.lme <- function (model, fn, B, reb_type = 0){
  
   
   if(reb_type == 2){
-    fe.0 <- fixef(model)
-    vc.0 <- getVarCov(model)
+    fe.0 <- nlme::fixef(model)
+    vc.0 <- nlme::getVarCov(model)
     t0 <- c(beta = fe.0, sigma = c(diag(vc.0), model$sigma^2))
     tstar <- lapply(ystar, function(y) {
       fit <- tryCatch(updated.model(model = model, new.y = y),  
                       error = function(e) e)
       if (inherits(fit, "error")) {
-        structure(list(poi = rep(NA, length(fixef(model))), varcomp = rep(NA, length(diag(vc.0)) + 1)), 
+        structure(list(poi = rep(NA, length(nlme::fixef(model))), varcomp = rep(NA, length(diag(vc.0)) + 1)), 
                   fail.msgs = fit$message)
       } else{
-        vc <- getVarCov(fit)
-        list(fixef = fixef(fit), varcomp = unname(c(diag(vc), fit$sigma^2)))
+        vc <- nlme::getVarCov(fit)
+        list(fixef = nlme::fixef(fit), varcomp = unname(c(diag(vc), fit$sigma^2)))
       }
     })
     
@@ -342,7 +343,7 @@ reb_bootstrap.lme <- function (model, fn, B, reb_type = 0){
     tstar <- rbind(fe.adj, vc.adj)
     
     fn <- function(.) {
-      c(beta = fixef(.), sigma = c(diag(getVarCov(.)), .$sigma^2))
+      c(beta = nlme::fixef(.), sigma = c(diag(nlme::getVarCov(.)), .$sigma^2))
     }
   }
 
@@ -357,7 +358,6 @@ reb_bootstrap.lme <- function (model, fn, B, reb_type = 0){
 
 
 #' REB resampling procedures
-#' @import RLRsim
 .resample.reb.lme <- function(model, reb_type){
   
   dsgn <- RLRsim::extract.lmeDesign(model)

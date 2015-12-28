@@ -31,7 +31,7 @@
 #' 
 #' @seealso 
 #' \itemize{
-#'   \item \code{\link{parametric_bootstrap}}, \code{\link{residual_bootstrap}},
+#'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
 #'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
 #'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
@@ -82,7 +82,7 @@ bootstrap <- function(model, fn, type, B, resample, reb_type) {
 #' 
 #' @seealso 
 #' \itemize{
-#'   \item \code{\link{parametric_bootstrap}}, \code{\link{residual_bootstrap}},
+#'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
 #'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
 #'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
@@ -125,7 +125,7 @@ parametric_bootstrap <- function(model, fn, B) {
 #' 
 #' @seealso 
 #' \itemize{
-#'   \item \code{\link{parametric_bootstrap}}, \code{\link{residual_bootstrap}},
+#'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
 #'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
 #'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
@@ -177,7 +177,7 @@ resid_bootstrap <- function(model, fn, B) {
 #' 
 #' @seealso 
 #' \itemize{
-#'   \item \code{\link{parametric_bootstrap}}, \code{\link{residual_bootstrap}},
+#'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
 #'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
 #'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
@@ -223,7 +223,7 @@ case_bootstrap <- function(model, fn, B, resample) {
 #' 
 #' @seealso 
 #' \itemize{
-#'   \item \code{\link{parametric_bootstrap}}, \code{\link{residual_bootstrap}},
+#'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
 #'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
 #'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
@@ -286,7 +286,7 @@ cgr_bootstrap <- function(model, fn, B) {
 #' 
 #' @seealso 
 #' \itemize{
-#'   \item \code{\link{parametric_bootstrap}}, \code{\link{residual_bootstrap}},
+#'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
 #'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
 #'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
