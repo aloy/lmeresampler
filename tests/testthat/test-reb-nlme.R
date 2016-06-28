@@ -26,7 +26,7 @@ orig.stats <- mySumm(vcmodA)
 nsim <- 10
 
 set.seed(7142015)
-boo <- reb_bootstrap.lme(model = vcmodA, fn = mySumm, B = nsim, reb_type = 0)
+boo <- reb_bootstrap(model = vcmodA, fn = mySumm, B = nsim, reb_type = 0)
 
 test_that("two-level additive random intercept model",{
   expect_equal(class(boo), "boot")
@@ -45,7 +45,7 @@ vcmodC <- lme(mathAge11 ~ mathAge8 * schoolMathAge8 + gender + class,
               random = ~ 1 | school, data = jsp728)
 
 orig.stats <- mySumm(vcmodC)
-boo <- reb_bootstrap.lme(model = vcmodC, fn = mySumm, B = nsim)
+boo <- reb_bootstrap(model = vcmodC, fn = mySumm, B = nsim)
 
 test_that("two-level random intercept model with interaction",{
   expect_equal(class(boo), "boot")
@@ -64,7 +64,7 @@ rcmod <- lme(mathAge11 ~ mathAge8c * schoolMathAge8 + gender + class,
              random = ~ mathAge8c | school, data = jsp728)
 
 orig.stats <- mySumm(rcmod)
-boo <- reb_bootstrap.lme(model = rcmod, fn = mySumm, B = nsim)
+boo <- reb_bootstrap(model = rcmod, fn = mySumm, B = nsim)
 
 
 test_that("two-level random coefficient model with interaction",{
@@ -97,7 +97,7 @@ orig.stats <- mySumm(vcmodA)
 nsim <- 10
 
 set.seed(7142015)
-boo <- reb_bootstrap.lme(model = vcmodA, fn = mySumm, B = nsim, reb_type = 1)
+boo <- reb_bootstrap(model = vcmodA, fn = mySumm, B = nsim, reb_type = 1)
 
 test_that("two-level additive random intercept model",{
   expect_equal(class(boo), "boot")
@@ -116,7 +116,7 @@ vcmodC <- lme(mathAge11 ~ mathAge8 * schoolMathAge8 + gender + class,
               random = ~ 1 | school, data = jsp728)
 
 orig.stats <- mySumm(vcmodC)
-boo <- reb_bootstrap.lme(model = vcmodC, fn = mySumm, B = nsim, reb_type = 1)
+boo <- reb_bootstrap(model = vcmodC, fn = mySumm, B = nsim, reb_type = 1)
 
 test_that("two-level random intercept model with interaction",{
   expect_equal(class(boo), "boot")
@@ -135,7 +135,7 @@ rcmod <- lme(mathAge11 ~ mathAge8c * schoolMathAge8 + gender + class,
              random = ~ mathAge8c | school, data = jsp728)
 
 orig.stats <- mySumm(rcmod)
-boo <- reb_bootstrap.lme(model = rcmod, fn = mySumm, B = nsim, reb_type = 1)
+boo <- reb_bootstrap(model = rcmod, fn = mySumm, B = nsim, reb_type = 1)
 
 
 test_that("two-level random coefficient model with interaction",{
@@ -161,7 +161,7 @@ vcmodA <- lme(mathAge11 ~ mathAge8 + gender + class,
 
 
 mySumm <- function(.) {
-  c(beta = fixef(.), sigma = c(diag(getVarCov(.)), .$sigma^2))
+  c(beta = nlme::fixef(.), sigma = c(diag(nlme::getVarCov(.)), .$sigma^2))
 }
 
 orig.stats <- mySumm(vcmodA)
@@ -169,7 +169,7 @@ orig.stats <- mySumm(vcmodA)
 nsim <- 10
 
 set.seed(7142015)
-boo <- reb_bootstrap.lme(model = vcmodA, fn = mySumm, B = nsim, reb_type = 2)
+boo <- reb_bootstrap(model = vcmodA, fn = mySumm, B = nsim, reb_type = 2)
 
 test_that("two-level additive random intercept model",{
   expect_equal(class(boo), "boot")
@@ -188,7 +188,7 @@ vcmodC <- lme(mathAge11 ~ mathAge8 * schoolMathAge8 + gender + class,
               random = ~ 1 | school, data = jsp728)
 
 orig.stats <- mySumm(vcmodC)
-boo <- reb_bootstrap.lme(model = vcmodC, fn = mySumm, B = nsim, reb_type = 2)
+boo <- reb_bootstrap(model = vcmodC, fn = mySumm, B = nsim, reb_type = 2)
 
 test_that("two-level random intercept model with interaction",{
   expect_equal(class(boo), "boot")
@@ -207,7 +207,7 @@ rcmod <- lme(mathAge11 ~ mathAge8c * schoolMathAge8 + gender + class,
              random = ~ mathAge8c | school, data = jsp728)
 
 orig.stats <- mySumm(rcmod)
-boo <- reb_bootstrap.lme(model = rcmod, B = nsim, reb_type = 2)
+boo <- reb_bootstrap(model = rcmod, B = nsim, reb_type = 2)
 
 
 test_that("two-level random coefficient model with interaction",{

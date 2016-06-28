@@ -219,7 +219,7 @@ vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class +
                  (1 | school), data = jsp728)
 
 mySumm <- function(.) {
-  c(beta = fixef(.), sigma =c(diag(bdiag(VarCorr(.))), lme4::getME(., "sigma")^2))
+  c(beta = lme4::fixef(.), sigma =c(diag(bdiag(lme4::VarCorr(.))), lme4::getME(., "sigma")^2))
 }
 
 orig.stats <- mySumm(vcmodA)

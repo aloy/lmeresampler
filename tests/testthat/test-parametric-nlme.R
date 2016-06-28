@@ -25,7 +25,7 @@ orig.stats <- mySumm(vcmodA)
 
 nsim <- 10
 
-boo <- parametric_bootstrap.lme(model = vcmodA, fn = mySumm, B = nsim)
+boo <- parametric_bootstrap(model = vcmodA, fn = mySumm, B = nsim)
 
 test_that("two-level additive random intercept model",{
   expect_equal(class(boo), "boot")
@@ -43,7 +43,7 @@ rimod <- lme(mathAge11 ~ mathAge8c + gender + class,
              random = ~ 1 | school, data = jsp728)
   
 orig.stats <- mySumm(rimod)
-boo <- parametric_bootstrap.lme(model = rimod, fn = mySumm, B = nsim)
+boo <- parametric_bootstrap(model = rimod, fn = mySumm, B = nsim)
 
 
 test_that("two-level random intercept model without interaction",{
@@ -62,7 +62,7 @@ vcmodC <- lme(mathAge11 ~ mathAge8 * schoolMathAge8 + gender + class,
               random = ~ 1 | school, data = jsp728)
 
 orig.stats <- mySumm(vcmodC)
-boo <- parametric_bootstrap.lme(model = vcmodC, fn = mySumm, B = nsim)
+boo <- parametric_bootstrap(model = vcmodC, fn = mySumm, B = nsim)
 
 test_that("two-level random intercept model with interaction",{
   expect_equal(class(boo), "boot")
@@ -81,7 +81,7 @@ rcmod <- lme(mathAge11 ~ mathAge8c * schoolMathAge8 + gender + class,
              random = ~ mathAge8c | school, data = jsp728)
 
 orig.stats <- mySumm(rcmod)
-boo <- parametric_bootstrap.lme(model = rcmod, fn = mySumm, B = nsim)
+boo <- parametric_bootstrap(model = rcmod, fn = mySumm, B = nsim)
 
 
 test_that("two-level random coefficient model with interaction",{

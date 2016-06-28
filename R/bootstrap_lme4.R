@@ -1,5 +1,6 @@
 #' @rdname bootstrap
 #' @export
+#' @importFrom stats as.formula cov formula model.matrix na.exclude na.omit predict resid simulate
 bootstrap.lmerMod <- function (model, fn, type, B, resample, reb_type){
   switch(type,
          parametric = parametric_bootstrap.lmerMod(model, fn, B),
@@ -303,18 +304,22 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
     fn(lme4::refit(object = model, newresp = x))
   })
 
+  nsim <- length(tstar)
   tstar <- do.call("cbind", tstar) # Can these be nested?
   rownames(tstar) <- names(t0)
   
-  if ((nfail <- sum(apply(is.na(tstar), 2, all))) > 0) {
-    warning("some bootstrap runs failed (", numFail, "/", nsim, ")")
-  }
+  if ((nfail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
+    warning("some bootstrap runs failed (", nfail, "/", nsim, ")")
+    fail.msgs <- vapply(tstar[bad.runs], FUN=attr, FUN.VALUE = character(1),
+                        "fail.msgs")
+  } else fail.msgs <- NULL
 
   RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
                         seed = .Random.seed, statistic = fn,
                         sim = "parametric", call = match.call()),
                    class = "boot")
-
+  attr(RES,"bootFail") <- nfail
+  attr(RES,"boot.fail.msgs") <- fail.msgs
   return(RES)
 }
 

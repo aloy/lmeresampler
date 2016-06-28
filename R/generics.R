@@ -40,6 +40,17 @@
 #'      from the \pkg{boot} package.
 #' }
 #' 
+#' @example 
+#' library(lme4)
+#' vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
+#' mySumm <- function(.) { 
+#'   s <- getME(., "sigma")
+#'     c(beta = getME(., "beta"), sigma = s, sig01 = unname(s * getME(., "theta"))) 
+#'     }
+#'     orig.stats <- mySumm(vcmodA)
+#'     nsim <- 10
+#'     boo <- case_bootstrap(model = vcmodA, fn = mySumm, B = nsim, resample = c(TRUE, TRUE))
+#' 
 #' @references
 #'    Carpenter, J. R., Goldstein, H. and Rasbash, J. (2003) A novel bootstrap 
 #'    procedure for assessing the relationship between class size and achievement. 
@@ -200,6 +211,7 @@ case_bootstrap <- function(model, fn, B, resample) {
 #' Generate semi-parametric bootstrap replicates of a statistic for a nested 
 #' linear mixed-effects model.
 #'
+#' @export
 #' @inheritParams bootstrap
 #' 
 #' @details 
@@ -259,7 +271,7 @@ cgr_bootstrap <- function(model, fn, B) {
 #'   \itemize{
 #'      \item marginal residuals \eqn{r = y - X\beta}
 #'      \item predicted random effects \eqn{\tilde{b} = (Z^\prime Z)^{-1} Z^\prime r}
-#'      \item error terms \eqn{ \tilde{e} = r - Z \tilde{b} }
+#'      \item error terms \eqn{\tilde{e} = r - Z \tilde{b}}
 #'   }
 #'   \item Take a simple random sample with replacement of the groups and extract
 #'      the corresponding elements of \eqn{\tilde{b}} and \eqn{tilde{e}}.
