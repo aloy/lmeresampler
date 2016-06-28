@@ -17,7 +17,8 @@ Suggests:
     lme4 (>= 1.1-7),
     nlme,
     nlmeU,
-    testthat
+    testthat,
+    mlmRev
 License: GPL-3
 LazyData: true
 URL: https://github.com/aloy/lmeresampler
