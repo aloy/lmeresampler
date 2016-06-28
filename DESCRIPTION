@@ -1,7 +1,7 @@
 Package: lmeresampler
 Title: Bootstrapping Nested Linear Mixed Effects Models
 Version: 0.0.0.9000
-Authors@R: c(person("Adam", "Loy", email = "adam.m.loy@lawrence.edu",
+Authors@R: c(person("Adam", "Loy", email = "loyad01@gmail.com",
     role = c("aut", "cre")), person("Spenser", "steele", role = "aut"))
 Description: Bootstrap linear mixed effects models for clustered data that were
     fit using either the 'lme4' or 'nlme' packages...
