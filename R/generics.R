@@ -40,16 +40,51 @@
 #'      from the \pkg{boot} package.
 #' }
 #' 
-#' @example 
-#' library(lme4)
+#' @examples 
+#' library(lme4) 
 #' vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
+#' 
+#' ## you can write your own function to return stats, or use something like 'fixef'
 #' mySumm <- function(.) { 
 #'   s <- getME(., "sigma")
 #'     c(beta = getME(., "beta"), sigma = s, sig01 = unname(s * getME(., "theta"))) 
-#'     }
-#'     orig.stats <- mySumm(vcmodA)
-#'     nsim <- 10
-#'     boo <- case_bootstrap(model = vcmodA, fn = mySumm, B = nsim, resample = c(TRUE, TRUE))
+#' }
+#'
+#' ## running a parametric bootstrap 
+#' boo1 <- bootstrap(model = vcmodA, fn = mySumm, type = "parametric", B = 100)
+#' 
+#' \dontrun{
+#' ## running a cases bootstrap - only resampling the schools
+#' boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
+#' 
+#' ## running a cases bootstrap - resampling the schools and students within the school
+#' boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
+#' 
+#' ## running a semi-parametric bootstrap
+#' boo3 <- bootstrap(model = vcmodA, fn = mySumm, type = "cgr", B = 100)
+#' 
+#' ## running a residual bootstrap
+#' boo4 <- bootstrap(model = vcmodA, fn = mySumm, type = "residual", B = 100)
+#' 
+#' ## running an REB0 bootstrap
+#' boo5 <- bootstrap(model = vcmodA, fn = mySumm, type = "reb", B = 100, reb_typ = 0)
+#' }
+#' 
+#' ## to "look" at it you must have the 'boot' package loaded
+#' require("boot") 
+#' boo1
+#' 
+#' ## you can extract the boostrapped values as a data frame
+#' as.data.frame(boo1)
+#' 
+#' ## bootstrap confidence intervals are easily found using 'boot.ci'
+#' ##   warnings about "Some ... intervals may be unstable" go away
+#' ##   for larger bootstrap samples
+#' boot.ci(boo1, index = 1, type=c("norm", "basic", "perc"))
+#' boot.ci(boo1, index = 6, type=c("norm", "basic", "perc"))
+#' 
+#' ## you can also examine the bootstrap samples graphically
+#' plot(boo1, index = 1)
 #' 
 #' @references
 #'    Carpenter, J. R., Goldstein, H. and Rasbash, J. (2003) A novel bootstrap 
@@ -67,7 +102,12 @@
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-bootstrap <- function(model, fn, type, B, resample, reb_type) {
+bootstrap <- function(model, fn, type, B, resample = NULL, reb_type = NULL) {
+  if(!type %in% c("parametric", "residual", "case", "cgr", "reb"))
+    stop("'type' must be one of 'parametric', 'residual', 'case', 'cgr', or 'reb'")
+  if(!is.null(reb_type))
+    if(!reb_type %in% 0:2) 
+      stop("'reb_type' must be either 0, 1, or 2")
   UseMethod("bootstrap", model)
 }
 
