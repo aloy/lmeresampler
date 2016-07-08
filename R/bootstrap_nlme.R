@@ -101,8 +101,7 @@ case_bootstrap.lme <- function (model, fn, B, resample){
   clusters <- c(names(model$groups), ".id")
   
   if(length(clusters) != length(resample))
-    stop("'resample' is not the same length as the number of grouping variables.
-         Please specify whether to resample the data at each level of grouping.")
+    stop("'resample' is not the same length as the number of grouping variables. Please specify whether to resample the data at each level of grouping.")
   
   t0 <- fn(model)
   

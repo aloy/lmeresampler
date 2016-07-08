@@ -351,7 +351,7 @@ cgr_bootstrap <- function(model, fn, B) {
 #'    Chambers, R. and Chandra, H. (2013) A random effect block bootstrap for 
 #'    clustered data. \emph{Journal of Computational and Graphical Statistics}, 
 #'    \bold{22}, 452--470.
-reb_bootstrap <- function(model, fn, B, reb_type) {
+reb_bootstrap <- function(model, fn, B, reb_type = 0) {
   if(!reb_type %in% 0:2) 
     stop("'reb_type' must be either 0, 1, or 2")
   UseMethod("reb_bootstrap", model)
