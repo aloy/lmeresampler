@@ -10,7 +10,7 @@
 
 \method{reb_bootstrap}{lme}(model, fn, B, reb_type = 0)
 
-reb_bootstrap(model, fn, B, reb_type)
+reb_bootstrap(model, fn, B, reb_type = 0)
 }
 \arguments{
 \item{model}{The model object you wish to bootstrap.}
