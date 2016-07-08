@@ -352,5 +352,7 @@ cgr_bootstrap <- function(model, fn, B) {
 #'    clustered data. \emph{Journal of Computational and Graphical Statistics}, 
 #'    \bold{22}, 452--470.
 reb_bootstrap <- function(model, fn, B, reb_type) {
+  if(!reb_type %in% 0:2) 
+    stop("'reb_type' must be either 0, 1, or 2")
   UseMethod("reb_bootstrap", model)
 }
