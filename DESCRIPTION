@@ -1,10 +1,12 @@
 Package: lmeresampler
-Title: Bootstrapping Nested Linear Mixed Effects Models
+Title: Bootstrap Methods for Nested Linear Mixed-Effects Models
 Version: 0.0.0.9000
-Authors@R: c(person("Adam", "Loy", email = "adam.m.loy@lawrence.edu",
+Authors@R: c(person("Adam", "Loy", email = "loyad01@gmail.com",
     role = c("aut", "cre")), person("Spenser", "steele", role = "aut"))
-Description: Bootstrap linear mixed effects models for clustered data that were
-    fit using either the 'lme4' or 'nlme' packages...
+Description: Bootstrap routines for nested linear mixed effects models fit using
+    either 'lme4' or 'nlme'. The provided 'bootstrap()' function implements the
+    parametric, semi-parametric (i.e., CGR), residual, cases, and random effect
+    block (REB) bootstrap procedures.
 Depends:
     R (>= 3.1.2)
 Imports:
