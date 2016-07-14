@@ -36,7 +36,9 @@ resid_bootstrap.lmerMod <- function (model, fn, B){
   
   ystar <- lapply(1:B, function(x) .resample.resids(model))
 
-  return(.bootstrap.completion(model, ystar, B, fn))
+  RES <- .bootstrap.completion(model, ystar, B, fn)
+  RES$sim <- "resid"
+  return(RES)
 }
 
 
@@ -52,10 +54,11 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
     stop("'resample' is not the same length as the number of grouping variables. Please specify whether to resample the data at each level of grouping.")
   
   # DEPRECATED rep.data <- as.data.frame( replicate(n = B, .cases.resamp(model = model, extra_step = extra_step)) )
-  rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(dat = data, cluster = clusters, resample = resample))))
-#   rep.data <- lapply(integer(B), .cases.resamp(dat = data, cluster = clusters, resample = resample))
+  # rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(dat = data, cluster = clusters, resample = resample))))
+  rep.data <- lapply(integer(B), function(x) .cases.resamp(dat = data, cluster = clusters, resample = resample))
   # Plugin to .cases.completion due to small changes
-  return(.cases.completion(model, rep.data, B, fn))
+  RES <- .cases.completion(model, rep.data, B, fn)
+  return(RES)
 }
 
 
@@ -159,7 +162,7 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
   
   RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
                         seed = .Random.seed, statistic = fn,
-                        sim = "parametric", call = match.call()),
+                        sim = "case", call = match.call()),
                    class = "boot")
   
   return(RES)
@@ -173,7 +176,9 @@ cgr_bootstrap.lmerMod <- function (model, fn, B){
   
   ystar <- as.data.frame( replicate(n = B, .resample.cgr(model = model)) )
   
-  return(.bootstrap.completion(model, ystar, B, fn))
+  RES <- .bootstrap.completion(model, ystar, B, fn)
+  RES$sim <- "cgr"
+  return(RES)
   
 }
 
@@ -254,7 +259,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
     
   RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
                         seed = .Random.seed, statistic = fn,
-                        sim = "parametric", call = match.call(), reb2 = Lb),
+                        sim = "reb", call = match.call(), reb2 = Lb),
                    class = "boot")
   
   return(RES)

@@ -33,7 +33,7 @@ test_that("two-level additive random intercept model",{
   expect_equal(nrow(boo$t), nsim)
   expect_equal(ncol(boo$t), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "parametric")
+  expect_equal(boo$sim, "resid")
   expect_equal(boo$statistic, mySumm)
 })
 
@@ -52,7 +52,7 @@ test_that("two-level random intercept model without interaction",{
   expect_equal(nrow(boo$t), nsim)
   expect_equal(ncol(boo$t), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "parametric")
+  expect_equal(boo$sim, "resid")
   expect_equal(boo$statistic, mySumm)
 })
 
@@ -70,7 +70,7 @@ test_that("two-level random intercept model with interaction",{
   expect_equal(nrow(boo$t), nsim)
   expect_equal(ncol(boo$t), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "parametric")
+  expect_equal(boo$sim, "resid")
   expect_equal(boo$statistic, mySumm)
 })
 
@@ -90,7 +90,7 @@ test_that("two-level random coefficient model with interaction",{
   expect_equal(nrow(boo$t), nsim)
   expect_equal(ncol(boo$t), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "parametric")
+  expect_equal(boo$sim, "resid")
   expect_equal(boo$statistic, mySumm)
 })
 
@@ -108,6 +108,6 @@ test_that("three-level random intercept model",{
   expect_equal(nrow(boo$t), nsim)
   expect_equal(ncol(boo$t), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "parametric")
+  expect_equal(boo$sim, "resid")
   expect_equal(boo$statistic, mySumm)
 })
