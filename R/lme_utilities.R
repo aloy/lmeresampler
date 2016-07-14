@@ -62,6 +62,7 @@ updated.model<- function(model, new.y = NULL, new.data = NULL){
   }
   
   # create new lme
-  out.lme <- nlme::lme(fixed = mod.fixd, data = mod.data, random = mod.rand)
+  ctrl <- nlme::lmeControl(opt = 'optim')
+  out.lme <- nlme::lme(fixed = mod.fixd, data = mod.data, random = mod.rand, control = ctrl)
   return(out.lme)
 }
