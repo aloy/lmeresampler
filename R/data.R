@@ -3,7 +3,6 @@
 #' A dataset containing 728 students from 50 primary (elementary) schools in inner 
 #' Londan that were part of the Junior School Project (JSP). The variables are
 #' as follows:
-#' 
 #' \itemize{
 #'  \item mathAge11: score on Maths at age 11
 #'  \item mathAge8: score on Maths at age 8
@@ -22,4 +21,6 @@
 #' @usage data(jsp728)
 #' @format A data frame with 728 rows and 8 variables.
 #' @source \url{http://www.bristol.ac.uk/cmm/team/hg/msm-3rd-ed/datasets.html}
+#' @references 
+#'   Goldstein, H. (2011). Multilevel Statistical Models (4th ed.). Hoboken: Wiley
 NULL

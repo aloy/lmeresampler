@@ -15,8 +15,6 @@ data(jsp728)
 A dataset containing 728 students from 50 primary (elementary) schools in inner 
 Londan that were part of the Junior School Project (JSP). The variables are
 as follows:
-}
-\details{
 \itemize{
  \item mathAge11: score on Maths at age 11
  \item mathAge8: score on Maths at age 8
@@ -28,6 +26,9 @@ as follows:
  \item schoolMathAge8: average school Maths score
  \item mathAge8c: centered Maths score at age 8
 }
+}
+\references{
+Goldstein, H. (2011). Multilevel Statistical Models (4th ed.). Hoboken: Wiley
 }
 \keyword{datasets}
 
