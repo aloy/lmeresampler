@@ -12,6 +12,7 @@ bootstrap.lme <- function (model, fn, type, B, resample, reb_type){
 
 #' @rdname parametric_bootstrap
 #' @export
+#' @importFrom nlmeU simulateY
 parametric_bootstrap.lme <- function(model, fn, B){
   # getVarCov.lme is the limiting factor...
   if (length(model$group) > 1) 
@@ -359,6 +360,7 @@ reb_bootstrap.lme <- function (model, fn, B, reb_type = 0){
 
 
 #' REB resampling procedures
+#' @importFrom RLRsim extract.lmeDesign
 .resample.reb.lme <- function(model, reb_type){
   
   dsgn <- RLRsim::extract.lmeDesign(model)

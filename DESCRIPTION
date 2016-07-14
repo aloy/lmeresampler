@@ -14,11 +14,11 @@ Imports:
     plyr,
     dplyr,
     Matrix,
+    nlmeU,
     RLRsim
 Suggests:
     lme4 (>= 1.1-7),
     nlme,
-    nlmeU,
     testthat,
     mlmRev
 License: GPL-3
