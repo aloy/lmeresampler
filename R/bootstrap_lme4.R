@@ -53,9 +53,8 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
   if(length(clusters) != length(resample))
     stop("'resample' is not the same length as the number of grouping variables. Please specify whether to resample the data at each level of grouping.")
   
-  # DEPRECATED rep.data <- as.data.frame( replicate(n = B, .cases.resamp(model = model, extra_step = extra_step)) )
-  # rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(dat = data, cluster = clusters, resample = resample))))
   rep.data <- lapply(integer(B), function(x) .cases.resamp(dat = data, cluster = clusters, resample = resample))
+  
   # Plugin to .cases.completion due to small changes
   RES <- .cases.completion(model, rep.data, B, fn)
   return(RES)

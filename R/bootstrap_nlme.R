@@ -106,7 +106,8 @@ case_bootstrap.lme <- function (model, fn, B, resample){
   
   t0 <- fn(model)
   
-  rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(dat = data, cluster = clusters, resample = resample))))
+  # rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(dat = data, cluster = clusters, resample = resample))))
+  rep.data <- lapply(integer(B), function(x) .cases.resamp(dat = data, cluster = clusters, resample = resample))
   
   res <- lapply(rep.data, function(df) {
     fit <- tryCatch(fn(updated.model(model = model, new.data = df)),  

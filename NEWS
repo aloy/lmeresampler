@@ -1,6 +1,7 @@
 0.1.1
 =====
 
+* Bug fixed for `case_bootstrap.lme ` so that `.cases.resamp` can be found
 
 Version 0.1.0
 =============
