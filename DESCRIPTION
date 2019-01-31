@@ -12,7 +12,7 @@ Depends:
 Imports:
     boot,
     plyr,
-    dplyr,
+    dplyr (>= 0.8.0),
     Matrix,
     nlmeU,
     RLRsim
