@@ -8,4 +8,3 @@
 ADD A DESCRIPTION HERE.
 }
 \keyword{package}
-

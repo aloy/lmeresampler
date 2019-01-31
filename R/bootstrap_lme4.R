@@ -87,6 +87,7 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
   if(nrow(dat) == 1 || all(resample==FALSE))
     return(dat)
   
+  ver <- as.numeric_version(packageVersion("dplyr"))
   res <- dat
   
   for(i in 1:length(cluster)) {
@@ -95,6 +96,7 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
       dots <- cluster[1]
       grouped <- dplyr::group_by_(res, dots)
       g_rows <- dplyr::group_rows(grouped)
+      # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
       cls <- sample(seq_along(g_rows), replace = resample[i])
       idx <- unlist(g_rows[cls], recursive = FALSE)
       res <- res[idx, ]
@@ -110,6 +112,7 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
           res <- plyr::ldply(res, function(df) {
             grouped <- dplyr::group_by_(df, .dots = dots)
             g_rows <- dplyr::group_rows(grouped)
+            # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
             cls <- sample(seq_along(g_rows), replace = resample[i])
             idx <- unlist(g_rows[cls], recursive = FALSE)
             grouped[idx, ]
