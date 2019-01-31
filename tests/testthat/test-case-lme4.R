@@ -139,3 +139,5 @@ test_that("three-level random intercept model",{
   expect_equal(boo$sim, "case")
   expect_equal(boo$statistic, mySumm)
 })
+
+cr3lev <- .cases.resamp(dat = Socatt, cluster = c("district", "respond", ".id"), resample = c(TRUE, TRUE, TRUE))

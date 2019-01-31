@@ -538,7 +538,7 @@ cgr_bootstrap.lme <- function (model, fn, B){
   
   # Level 1
   e <- as.numeric(scale(model.resid, scale = FALSE))
-  ehat <- sigma * e * ((t(e) %*% e) / length(e))^(-1/2)
+  ehat <- sigma * e * as.numeric((t(e) %*% e) / length(e))^(-1/2)
   
   # Resample Uhat
   ustar <- lapply(Uhat.list,

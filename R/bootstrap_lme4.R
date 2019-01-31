@@ -93,10 +93,10 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
     
     if(i==1 & resample[i]) {
       dots <- cluster[1]
-      grouped <- dplyr::group_by_(res, .dots = dots)
-      ats <- attributes(grouped)
-      cls <- sample(seq_along(ats$indices), replace = resample[i])
-      idx <- unlist(ats$indices[cls], recursive = FALSE) + 1 # b/c 0 based
+      grouped <- dplyr::group_by_(res, dots)
+      g_rows <- dplyr::group_rows(grouped)
+      cls <- sample(seq_along(g_rows), replace = resample[i])
+      idx <- unlist(g_rows[cls], recursive = FALSE)
       res <- res[idx, ]
     } else{
       if(i == length(cluster) & resample[i]) {
@@ -109,9 +109,9 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
           res <- split(res, res[, cluster[1:(i-1)]], drop = TRUE)
           res <- plyr::ldply(res, function(df) {
             grouped <- dplyr::group_by_(df, .dots = dots)
-            ats <- attributes(grouped)
-            cls <- sample(seq_along(ats$indices), replace = resample[i])
-            idx <- unlist(ats$indices[cls], recursive = FALSE) + 1 # b/c 0 based
+            g_rows <- dplyr::group_rows(grouped)
+            cls <- sample(seq_along(g_rows), replace = resample[i])
+            idx <- unlist(g_rows[cls], recursive = FALSE)
             grouped[idx, ]
           }, .id = NULL)
         }
@@ -361,7 +361,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   # Level 1
   e <- as.numeric(scale(model.resid, scale = FALSE))
   sigma <- lme4::getME(model, "sigma")
-  ehat <- sigma * e * ((t(e)%*%e) / length(e))^(-1/2)
+  ehat <- sigma * e * as.numeric((t(e)%*%e) / length(e))^(-1/2)
   
   # Extract Z design matrix
   Z <- lme4::getME(object = model, name = "Ztlist")
