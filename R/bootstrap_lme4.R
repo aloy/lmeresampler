@@ -87,7 +87,7 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
   if(nrow(dat) == 1 || all(resample==FALSE))
     return(dat)
   
-  ver <- as.numeric_version(packageVersion("dplyr"))
+  # ver <- as.numeric_version(packageVersion("dplyr"))
   res <- dat
   
   for(i in 1:length(cluster)) {
@@ -284,6 +284,8 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #' @param zstar A list of matrices zstar
 #'
 #' @return matrix
+#' @keywords internal
+#' @noRd
 .Zbstar.combine <- function(bstar, zstar){
   lapply(1:length(bstar), function(i){
     Matrix::t(zstar[[i]]) %*% bstar[[i]]
@@ -304,6 +306,8 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #' @inheritParams bootstrap
 #'
 #' @return list
+#' @keywords internal
+#' @noRd
 .bootstrap.completion <- function(model, ystar, B, fn){
   t0 <- fn(model)
 
@@ -328,13 +332,13 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
                    class = "boot")
   attr(RES,"bootFail") <- nfail
   attr(RES,"boot.fail.msgs") <- fail.msgs
+  attr(RES,"boot_type") <- "boot"
   return(RES)
 }
 
 #' CGR resampling procedures
-#' 
-#'
-#' @inheritParams bootstrap
+#' @keywords internal
+#' @noRd
 .resample.cgr <- function(model){
   model.ranef <- lme4::ranef(model)
   
@@ -407,8 +411,8 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 }
 
 #' Resampling residuals from mixed models
-#'
-#' @inheritParams bootstrap
+#' @keywords internal
+#' @noRd
 .resample.resids <- function(model){
   
   # Extract fixed part of the model
@@ -464,6 +468,8 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #' @param reb_type Specifies the inclusion of REB/1
 #' @inheritParams bootstrap
 #' @import Matrix
+#' @keywords internal
+#' @noRd
 .resample.reb <- function(model, reb_type){
   # extract marginal residuals
   model.mresid <- lme4::getME(model, "y") - predict(model, re.form = NA)

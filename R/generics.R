@@ -51,6 +51,7 @@
 #' }
 #'
 #' ## running a parametric bootstrap 
+#' set.seed(1234)
 #' boo1 <- bootstrap(model = vcmodA, fn = mySumm, type = "parametric", B = 100)
 #' 
 #' \dontrun{
@@ -70,18 +71,18 @@
 #' boo5 <- bootstrap(model = vcmodA, fn = mySumm, type = "reb", B = 100, reb_typ = 0)
 #' }
 #' 
-#' ## to "look" at it you must have the 'boot' package loaded
-#' require("boot") 
+#' ## to print results in a formatted way
+#' requireNamespace("boot") 
 #' boo1
 #' 
 #' ## you can extract the boostrapped values as a data frame
-#' as.data.frame(boo1)
+#' as.data.frame(boo1$t)
 #' 
 #' ## bootstrap confidence intervals are easily found using 'boot.ci'
 #' ##   warnings about "Some ... intervals may be unstable" go away
 #' ##   for larger bootstrap samples
-#' boot.ci(boo1, index = 1, type=c("norm", "basic", "perc"))
-#' boot.ci(boo1, index = 6, type=c("norm", "basic", "perc"))
+#' boot::boot.ci(boo1, index = 1, type=c("norm", "basic", "perc"))
+#' boot::boot.ci(boo1, index = 6, type=c("norm", "basic", "perc"))
 #' 
 #' ## you can also examine the bootstrap samples graphically
 #' plot(boo1, index = 1)
@@ -102,6 +103,10 @@
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
+#'    
+#'    Bates, D., Maechler, M., Bolker, W., Walker, S. (2015).
+#'    Fitting Linear Mixed-Effects Models Using lme4. \emph{Journal of
+#'    Statistical Software}, \bold{67}, 1--48. doi:10.18637/jss.v067.i01.
 bootstrap <- function(model, fn, type, B, resample = NULL, reb_type = NULL) {
   if(!type %in% c("parametric", "residual", "case", "cgr", "reb"))
     stop("'type' must be one of 'parametric', 'residual', 'case', 'cgr', or 'reb'")
