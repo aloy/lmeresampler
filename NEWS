@@ -1,6 +1,10 @@
 0.1.1
 =====
 
+
+0.1.1
+=====
+
 * Unarchiving from CRAN - back to active development
 * Updating for use with the new version of dplyr (>= 0.8.0)
 * Bug fixed for `case_bootstrap.lme ` so that `.cases.resamp` can be found

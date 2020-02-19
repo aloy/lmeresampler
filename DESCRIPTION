@@ -1,6 +1,6 @@
 Package: lmeresampler
 Title: Bootstrap Methods for Nested Linear Mixed-Effects Models
-Version: 0.1.1
+Version: 0.1.1.9000
 Authors@R: c(person("Adam", "Loy", email = "loyad01@gmail.com",
     role = c("aut", "cre")), person("Spenser", "steele", role = "aut"))
 Description: Bootstrap routines for nested linear mixed effects models fit using
