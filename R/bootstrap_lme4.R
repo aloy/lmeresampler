@@ -91,18 +91,77 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
   res <- dat
 
   if(parallel == TRUE){
-   cl <- snow::makeCluster(nCores)
-   clusterExport(cl=cl, varlist=c("dat", "cluster", "resample"), envir=environment())
-   doParallel::registerDoParallel(cl)
-   
-   
-  }
-  else{
+    cl <- snow::makeCluster(nCores)
+    clusterExport(cl=cl, varlist=c("dat", "cluster", "resample"), envir=environment())
+    doParallel::registerDoParallel(cl)
     
+    foreach::foreach(i = 1:length(cluster), .combine = rbind) %dopar% {
+      if(i==1 & resample[i]) {
+        dots <- cluster[1]
+        grouped <- dplyr::group_by(res, dots)
+        g_rows <- dplyr::group_rows(grouped)
+        # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
+        cls <- sample(seq_along(g_rows), replace = resample[i])
+        idx <- unlist(g_rows[cls], recursive = FALSE)
+        res <- res[idx, ]
+      } else{
+        if(i == length(cluster) & resample[i]) {
+          dots <- cluster[-i]
+          grouped <- dplyr::group_by(res, .dots = dots)
+          res <- dplyr::sample_frac(grouped, size = 1, replace = TRUE)
+        } else{
+          if(resample[i]) {
+            dots <- cluster[i]
+            res <- split(res, res[, cluster[1:(i-1)]], drop = TRUE)
+            res <- plyr::ldply(res, function(df) {
+              grouped <- dplyr::group_by(df, .dots = dots)
+              g_rows <- dplyr::group_rows(grouped)
+              # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
+              cls <- sample(seq_along(g_rows), replace = resample[i])
+              idx <- unlist(g_rows[cls], recursive = FALSE)
+              grouped[idx, ]
+            }, .id = NULL)
+          }
+        }
+      }
+    }
+    stopCluster()
+    return(res)
   }
-   
-
-
+  else {
+    for(i in 1:length(cluster)) {
+      if(i==1 & resample[i]) {
+        dots <- cluster[1]
+        grouped <- dplyr::group_by(res, dots)
+        g_rows <- dplyr::group_rows(grouped)
+        # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
+        cls <- sample(seq_along(g_rows), replace = resample[i])
+        idx <- unlist(g_rows[cls], recursive = FALSE)
+        res <- res[idx, ]
+      } else{
+        if(i == length(cluster) & resample[i]) {
+          dots <- cluster[-i]
+          grouped <- dplyr::group_by(res, .dots = dots)
+          res <- dplyr::sample_frac(grouped, size = 1, replace = TRUE)
+        } else{
+          if(resample[i]) {
+            dots <- cluster[i]
+            res <- split(res, res[, cluster[1:(i-1)]], drop = TRUE)
+            res <- plyr::ldply(res, function(df) {
+              grouped <- dplyr::group_by(df, .dots = dots)
+              g_rows <- dplyr::group_rows(grouped)
+              # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
+              cls <- sample(seq_along(g_rows), replace = resample[i])
+              idx <- unlist(g_rows[cls], recursive = FALSE)
+              grouped[idx, ]
+            }, .id = NULL)
+          }
+        }
+      }
+    }
+    return(res)
+  }
+}
 
 # .cases.resamp <- function (model, extra_step){
 #   # Draw sample of size J from level-2 units
@@ -289,13 +348,21 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   t0 <- fn(model)
   
   # Refit the model and apply 'fn' to it using lapply
-  cl2 <- snow::makeCluster(nCores)
-  clusterExport(cl=cl2, varlist=c("model", "ystar", "B", "fn"), envir=environment())
-
-  tstar <- snow::parLapply(cl2, ystar, function(x) {
-    fn(lme4::refit(object = model, newresp = x))
-  })
-  # stopCluster()
+  
+  if(parallel == TRUE) {
+    cl2 <- snow::makeCluster(nCores)
+    clusterExport(cl=cl2, varlist=c("model", "ystar", "B", "fn"), envir=environment())
+    
+    tstar <- snow::parLapply(cl2, ystar, function(x) {
+      fn(lme4::refit(object = model, newresp = x))
+    })
+    stopCluster()
+  }
+  else{
+    tstar <- lapply(ystar, function(x) {
+      fn(lme4::refit(object = model, newresp = x))
+    })
+  }
   
   nsim <- length(tstar)
   tstar <- do.call("cbind", tstar) # Can these be nested?
