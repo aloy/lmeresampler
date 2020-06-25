@@ -92,7 +92,7 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample, parallel, nCores){
 
   if(parallel == TRUE){
     cl <- snow::makeCluster(nCores)
-    snow::clusterExport(cl=cl, varlist=c("dat", "cluster", "resample", "parallel", "nCores"), envir=environment())
+    snow::clusterExport(cl=cl, varlist=c("cluster", "resample", "nCores"), envir= NULL)
     doParallel::registerDoParallel(cl)
     
     foreach::foreach(i = 1:length(cluster), .combine = rbind) %dopar% {
@@ -351,7 +351,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   
   if(parallel == TRUE) {
     cl2 <- snow::makeCluster(nCores)
-    snow::clusterExport(cl=cl2, varlist=c("model", "ystar", "B", "fn", "parallel", "nCores"), envir=environment())
+    snow::clusterExport(cl=cl2, varlist=c("model", "ystar", "nCores"), envir= NULL)
     
     tstar <- snow::parLapply(cl2, ystar, function(x) {
       fn(lme4::refit(object = model, newresp = x))
