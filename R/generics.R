@@ -112,11 +112,14 @@ bootstrap <- function(model, fn, type, B, resample = NULL, reb_type = NULL, para
       stop("'reb_type' must be either 0, 1, or 2")
   if(parallel == FALSE) nCores <- 1
   else {
-    if(nCores %in% 2:parallel::detectCores())
-      stop("for parallelization 'nCores' must be greater than 1 and within the range of your machine's cores")
-    if(is.null(nCores)) 
+    if(is.null(nCores)) {
       warning("'nCores' unspecified, using 2 cores")
       nCores <- 2
+    }
+    else {
+      (!nCores %in% 2:parallel::detectCores())
+      stop("for parallelization 'nCores' must be greater than 1 and within the range of your machine's cores")
+    }
   }
   UseMethod("bootstrap", model)
 }
@@ -156,7 +159,7 @@ bootstrap <- function(model, fn, type, B, resample = NULL, reb_type = NULL, para
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-parametric_bootstrap <- function(model, fn, B) {
+parametric_bootstrap <- function(model, fn, B, parallel, nCores) {
   UseMethod("parametric_bootstrap", model)
 }
 
@@ -193,7 +196,7 @@ parametric_bootstrap <- function(model, fn, B) {
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-resid_bootstrap <- function(model, fn, B) {
+resid_bootstrap <- function(model, fn, B, parallel, nCores) {
   UseMethod("resid_bootstrap", model)
 }
 
@@ -241,7 +244,7 @@ resid_bootstrap <- function(model, fn, B) {
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-case_bootstrap <- function(model, fn, B, resample) {
+case_bootstrap <- function(model, fn, B, resample, parallel, nCores) {
   UseMethod("case_bootstrap", model)
 }
 
@@ -286,7 +289,7 @@ case_bootstrap <- function(model, fn, B, resample) {
 #'    procedure for assessing the relationship between class size and achievement. 
 #'    \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, 
 #'    \bold{52}, 431--443.
-cgr_bootstrap <- function(model, fn, B) {
+cgr_bootstrap <- function(model, fn, B, parallel, nCores) {
   UseMethod("cgr_bootstrap", model)
 }
 

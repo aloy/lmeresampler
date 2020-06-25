@@ -1,6 +1,6 @@
 # Extract the residual covariance matrix from an lme object
 .extractR.lme <- function(lme.fit) {
-  n <- length( nlme::getResponse(lme.fit) )
+  n <- length(nlme::getResponse(lme.fit))
   if(length(lme.fit$group) > 1) {
     stop("not implemented for multiple levels of nesting")
   } 
