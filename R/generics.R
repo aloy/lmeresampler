@@ -56,7 +56,7 @@
 #' boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
 #' 
 #' ## running a cases bootstrap - resampling the schools and students within the school
-#' boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
+#' boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample = c(TRUE, TRUE))
 #' 
 #' ## running a semi-parametric bootstrap
 #' boo3 <- bootstrap(model = vcmodA, fn = mySumm, type = "cgr", B = 100)
@@ -114,7 +114,9 @@ bootstrap <- function(model, fn, type, B, resample = NULL, reb_type = NULL, para
   else {
     if(nCores %in% 2:parallel::detectCores())
       stop("for parallelization 'nCores' must be greater than 1 and within the range of your machine's cores")
-    if(is.null(nCores)) nCores <- 2
+    if(is.null(nCores)) 
+      warning("'nCores' unspecified, using 2 cores")
+      nCores <- 2
   }
   UseMethod("bootstrap", model)
 }

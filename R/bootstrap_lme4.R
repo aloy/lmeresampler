@@ -1,12 +1,12 @@
 #' @rdname bootstrap
 #' @export
 #' @importFrom stats as.formula cov formula model.matrix na.exclude na.omit predict resid simulate
-bootstrap.lmerMod <- function (model, fn, type, B, resample, reb_type, nCores){
+bootstrap.lmerMod <- function (model, fn, type, B, resample, reb_type, parallel, nCores){
   switch(type,
-         parametric = parametric_bootstrap.lmerMod(model, fn, B),
-         residual = resid_bootstrap.lmerMod(model, fn, B),
-         case = case_bootstrap.lmerMod(model, fn, B, resample),
-         cgr = cgr_bootstrap.lmerMod(model, fn, B),
+         parametric = parametric_bootstrap.lmerMod(model, fn, B, parallel, nCores),
+         residual = resid_bootstrap.lmerMod(model, fn, B, parallel, nCores),
+         case = case_bootstrap.lmerMod(model, fn, B, resample, parallel, nCores),
+         cgr = cgr_bootstrap.lmerMod(model, fn, B, parallel, nCores),
          reb = reb_bootstrap.lmerMod(model, fn, B, reb_type = 0))
   # TODO: need to be able to save results
 }
@@ -14,13 +14,13 @@ bootstrap.lmerMod <- function (model, fn, type, B, resample, reb_type, nCores){
 
 #' @rdname parametric_bootstrap
 #' @export
-parametric_bootstrap.lmerMod <- function(model, fn, B){
+parametric_bootstrap.lmerMod <- function(model, fn, B, parallel, nCores){
   fn <- match.fun(fn)
   
   model.fixef <- lme4::fixef(model) # Extract fixed effects
   ystar <- simulate(model, nsim = B, na.action = na.exclude)
   
-  return(.bootstrap.completion(model, ystar, B, fn))
+  return(.bootstrap.completion(model, ystar, B, fn, parallel, nCores))
   
   # TODO: once we have things working, think about parallelization.
   #       using an llply statement would make this easy with the .parallel
@@ -31,12 +31,12 @@ parametric_bootstrap.lmerMod <- function(model, fn, B){
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lmerMod <- function (model, fn, B){
+resid_bootstrap.lmerMod <- function (model, fn, B, parallel, nCores){
   fn <- match.fun(fn)
   
   ystar <- lapply(1:B, function(x) .resample.resids(model))
   
-  RES <- .bootstrap.completion(model, ystar, B, fn)
+  RES <- .bootstrap.completion(model, ystar, B, fn, parallel, nCores)
   RES$sim <- "resid"
   return(RES)
 }
@@ -44,7 +44,7 @@ resid_bootstrap.lmerMod <- function (model, fn, B){
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lmerMod <- function (model, fn, B, resample){
+case_bootstrap.lmerMod <- function (model, fn, B, resample, parallel, nCores){
   
   data <- model@frame
   # data$.id <- seq_len(nrow(data))
@@ -53,7 +53,7 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
   if(length(clusters) != length(resample))
     stop("'resample' is not the same length as the number of grouping variables. Please specify whether to resample the data at each level of grouping.")
   
-  rep.data <- lapply(integer(B), function(x) .cases.resamp(dat = data, cluster = clusters, resample = resample))
+  rep.data <- lapply(integer(B), function(x) .cases.resamp(dat = data, cluster = clusters, resample = resample, parallel, nCores))
   
   # Plugin to .cases.completion due to small changes
   RES <- .cases.completion(model, rep.data, B, fn)
@@ -82,7 +82,7 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
 #   do.call(rbind, sub)
 # }
 # 
-.cases.resamp <- function(dat, cluster, resample) {
+.cases.resamp <- function(dat, cluster, resample, parallel, nCores) {
   # exit early for trivial data
   if(nrow(dat) == 1 || all(resample==FALSE))
     return(dat)
@@ -209,12 +209,12 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
 
 #' @rdname cgr_bootstrap
 #' @export
-cgr_bootstrap.lmerMod <- function (model, fn, B){
+cgr_bootstrap.lmerMod <- function (model, fn, B, parallel, nCores){
   fn <- match.fun(fn)
   
   ystar <- as.data.frame( replicate(n = B, .resample.cgr(model = model)) )
   
-  RES <- .bootstrap.completion(model, ystar, B, fn)
+  RES <- .bootstrap.completion(model, ystar, B, fn, parallel, nCores)
   RES$sim <- "cgr"
   return(RES)
   
@@ -344,7 +344,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #' @return list
 #' @keywords internal
 #' @noRd
-.bootstrap.completion <- function(model, ystar, B, fn){
+.bootstrap.completion <- function(model, ystar, B, fn, parallel, nCores){
   t0 <- fn(model)
   
   # Refit the model and apply 'fn' to it using lapply
