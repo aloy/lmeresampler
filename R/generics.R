@@ -1,6 +1,5 @@
-#' @title Bootstrap Nested Linear Mixed-Effects Models
+#' Bootstrap nested linear mixed-effects models
 #'
-#' @description
 #' Perform various bootstrap process for nested linear mixed effects (LMEs) models including:
 #' parametric, residual, cases, CGR, and REB bootstraps.
 #'
@@ -19,14 +18,12 @@
 #' @param reb_type Specification of what random effect block bootstrap version to
 #' implement. Possible values are \code{0}, \code{1} or \code{2}.
 #' 
-#' @details
 #' All of the below methods have been implemented for nested linear mixed-effects
 #' models fit by \code{lmer} (i.e., an \code{lmerMod} object) and \code{lme} 
 #' (i.e., an \code{lmerMod} object). Details of the bootstrap procedures can be found
 #' in the help file for that specific function.
 #'   
-#' @return 
-#' The returned value is an object of class "boot", compatible with the \pkg{boot}
+#' @return An object of class "boot", compatible with the \pkg{boot}
 #' package's \code{\link[boot]{boot}} methods.
 #' 
 #' @seealso 
@@ -107,23 +104,26 @@
 #'    Bates, D., Maechler, M., Bolker, W., Walker, S. (2015).
 #'    Fitting Linear Mixed-Effects Models Using lme4. \emph{Journal of
 #'    Statistical Software}, \bold{67}, 1--48. doi:10.18637/jss.v067.i01.
-bootstrap <- function(model, fn, type, B, resample = NULL, reb_type = NULL) {
+bootstrap <- function(model, fn, type, B, resample = NULL, reb_type = NULL, parallel = FALSE, nCores = NULL) {
   if(!type %in% c("parametric", "residual", "case", "cgr", "reb"))
     stop("'type' must be one of 'parametric', 'residual', 'case', 'cgr', or 'reb'")
   if(!is.null(reb_type))
     if(!reb_type %in% 0:2) 
       stop("'reb_type' must be either 0, 1, or 2")
+  if(parallel == FALSE) nCores <- 1
+  else {
+    if(nCores %in% 2:parallel::detectCores())
+      stop("for parallelization 'nCores' must be greater than 1 and within the range of your machine's cores")
+    if(is.null(nCores)) nCores <- 2
+  }
   UseMethod("bootstrap", model)
 }
 
-
-#' @title Parametric Bootstrap for Nested LMEs
+#' Parametric bootstrap for nested LMEs.
 #'
-#' @description
 #' Generate parametric bootstrap replicates of a statistic for a nested linear 
 #' mixed-effects model.
 #' 
-#' @details
 #' The parametric bootstrap simulates bootstrap samples from the estimated 
 #' distribution functions. That is, error terms and random effects are simulated
 #' from their estimated normal distributions and are combined into bootstrap
@@ -132,8 +132,7 @@ bootstrap <- function(model, fn, type, B, resample = NULL, reb_type = NULL) {
 #' @export
 #' @inheritParams bootstrap
 #' 
-#' @return 
-#' The returned value is an object of class "boot", compatible with the \pkg{boot}
+#' @return An object of class "boot", compatible with the \pkg{boot}
 #' package's \code{\link[boot]{boot}} methods.
 #' 
 #' @seealso 
@@ -159,13 +158,11 @@ parametric_bootstrap <- function(model, fn, B) {
   UseMethod("parametric_bootstrap", model)
 }
 
-#' @title Residual Bootstrap for Nested LMEs
+#' Residual bootstrap for nested LMEs.
 #'
-#' @description
 #' Generate residual bootstrap replicates of a statistic for a nested linear 
 #' mixed-effects model.
 #' 
-#' @details
 #' The residual bootstrap resamples the residual quantities from the fitted 
 #' linear mixed-effects model in order to generate bootstrap resamples. That is, 
 #' a random sample, drawn with replacement, is taken from the estimated error terms 
@@ -175,8 +172,7 @@ parametric_bootstrap <- function(model, fn, B) {
 #' @export
 #' @inheritParams bootstrap
 #' 
-#' @return 
-#' The returned value is an object of class "boot", compatible with the \pkg{boot}
+#' @return An object of class "boot", compatible with the \pkg{boot}
 #' package's \code{\link[boot]{boot}} methods.
 #' 
 #' @seealso 
@@ -199,13 +195,11 @@ resid_bootstrap <- function(model, fn, B) {
   UseMethod("resid_bootstrap", model)
 }
 
-#' @title Cases Bootstrap for Nested LMEs
+#' Cases bootstrap for nested LMEs.
 #'
-#' @description
 #' Generate cases bootstrap replicates of a statistic for a nested linear 
 #' mixed-effects model.
 #'
-#' @details 
 #' The cases bootstrap is a fully nonparametric bootstrap that resamples the data
 #' with respect to the clusters in order to generate bootstrap samples. Depending 
 #' on the nature of the data, the resampling can be done only for the higher-level 
@@ -227,8 +221,7 @@ resid_bootstrap <- function(model, fn, B) {
 #' @export
 #' @inheritParams bootstrap
 #'
-#' @return 
-#' The returned value is an object of class "boot", compatible with the \pkg{boot}
+#' @return An object of class "boot", compatible with the \pkg{boot}
 #' package's \code{\link[boot]{boot}} methods.
 #' 
 #' @seealso 
@@ -250,16 +243,14 @@ case_bootstrap <- function(model, fn, B, resample) {
   UseMethod("case_bootstrap", model)
 }
 
-#' CGR Bootstrap for Nested LMEs
+#' CGR gootstrap for nested LMEs.
 #'
-#' @description
 #' Generate semi-parametric bootstrap replicates of a statistic for a nested 
 #' linear mixed-effects model.
 #'
 #' @export
 #' @inheritParams bootstrap
 #' 
-#' @details 
 #' The semi-parametric bootstrap algorithm implemented was outlined by  Carpenter,  
 #' Goldstein and Rasbash (2003). The algorithm is outlined below:
 #' \enumerate{
@@ -274,8 +265,7 @@ case_bootstrap <- function(model, fn, B, resample) {
 #'   \item Repeat steps 3-5 B times.
 #' }
 #'
-#' @return 
-#' The returned value is an object of class "boot", compatible with the \pkg{boot}
+#' @return An object of class "boot", compatible with the \pkg{boot}
 #' package's \code{\link[boot]{boot}} methods.
 #' 
 #' @seealso 
@@ -298,13 +288,11 @@ cgr_bootstrap <- function(model, fn, B) {
   UseMethod("cgr_bootstrap", model)
 }
 
-#' @title REB Bootstrap for Two-Level Nested LMEs
+#' REB bootstrap for two-level nested LMEs.
 #'
-#' @description
 #' Generate random effect block (REB) bootstrap replicates of a statistic for a 
 #' two-level nested linear mixed-effects model.
 #'
-#' @details
 #' The random effects block (REB) bootstrap was outlined by Chambers and Chandra (2013)
 #' and has been developed for two-level nested linear mixed-effects (LME) models. 
 #' Consider a two-level LME of the form
@@ -337,8 +325,7 @@ cgr_bootstrap <- function(model, fn, B) {
 #' @export
 #' @inheritParams bootstrap
 #'
-#' @return 
-#' The returned value is an object of class "boot", compatible with the \pkg{boot}
+#' @return An object of class "boot", compatible with the \pkg{boot}
 #' package's \code{\link[boot]{boot}} methods.
 #' 
 #' @seealso 
@@ -361,3 +348,4 @@ reb_bootstrap <- function(model, fn, B, reb_type = 0) {
     stop("'reb_type' must be either 0, 1, or 2")
   UseMethod("reb_bootstrap", model)
 }
+

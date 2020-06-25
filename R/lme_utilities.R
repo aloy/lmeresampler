@@ -1,17 +1,17 @@
 # Extract the residual covariance matrix from an lme object
 .extractR.lme <- function(lme.fit) {
   n <- length( nlme::getResponse(lme.fit) )
-  if (length(lme.fit$group) > 1) {
+  if(length(lme.fit$group) > 1) {
     stop("not implemented for multiple levels of nesting")
   } 
   else{
     ugroups <- unique(lme.fit$groups[[1]])
-    if (!is.null(lme.fit$modelStruct$corStruct)) {
-      V <- Matrix( nlme::corMatrix(lme.fit$modelStruct$corStruct) )
+    if(!is.null(lme.fit$modelStruct$corStruct)) {
+      V <- Matrix(nlme::corMatrix(lme.fit$modelStruct$corStruct) )
     }
     else V <- Diagonal(n)
   }
-  if (!is.null(lme.fit$modelStruct$varStruct)) 
+  if(!is.null(lme.fit$modelStruct$varStruct)) 
     sds <- 1/nlme::varWeights(lme.fit$modelStruct$varStruct)
   else sds <- rep(1, n)
   sds <- lme.fit$sigma * sds
@@ -23,7 +23,7 @@
 # Extract the ranef covariance matrix from an lme object
 .extractD.lme <- function(lme.fit) {
   mod.mats <- RLRsim::extract.lmeDesign(lme.fit)
-  D <- Matrix( mod.mats$Vr )
+  D <- Matrix(mod.mats$Vr)
   return(D)
 }
 
@@ -66,3 +66,4 @@ updated.model<- function(model, new.y = NULL, new.data = NULL){
   out.lme <- nlme::lme(fixed = mod.fixd, data = mod.data, random = mod.rand, control = ctrl)
   return(out.lme)
 }
+

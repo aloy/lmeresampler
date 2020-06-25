@@ -1,6 +1,6 @@
 #' @rdname bootstrap
 #' @export
-bootstrap.lme <- function (model, fn, type, B, resample, reb_type){
+bootstrap.lme <- function(model, fn, type, B, resample, reb_type){
   switch(type,
          parametric = parametric_bootstrap.lme(model, fn, B),
          residual = resid_bootstrap.lme(model, fn, B),
@@ -96,7 +96,7 @@ parametric_bootstrap.lme <- function(model, fn, B){
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lme <- function (model, fn, B, resample){
+case_bootstrap.lme <- function(model, fn, B, resample){
   
   data <- model$data
   # data$.id <- seq_len(nrow(data))
@@ -145,7 +145,7 @@ case_bootstrap.lme <- function (model, fn, B, resample){
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lme <- function (model, fn, B){
+resid_bootstrap.lme <- function(model, fn, B){
   fn <- match.fun(fn)
   
   t0 <- fn(model)
@@ -273,7 +273,7 @@ resid_bootstrap.lme <- function (model, fn, B){
 #' @rdname reb_bootstrap
 #' @inheritParams bootstrap
 #' @export
-reb_bootstrap.lme <- function (model, fn, B, reb_type = 0){
+reb_bootstrap.lme <- function(model, fn, B, reb_type = 0){
   
   if(ncol(model$groups) > 1) {
     stop("The REB bootstrap has not been adapted for 3+ level models.")
@@ -466,7 +466,7 @@ reb_bootstrap.lme <- function (model, fn, B, reb_type = 0){
 #' @rdname cgr_bootstrap
 #' @inheritParams bootstrap
 #' @export
-cgr_bootstrap.lme <- function (model, fn, B){
+cgr_bootstrap.lme <- function(model, fn, B){
   fn <- match.fun(fn)
   
   ystar <- as.data.frame( replicate(n = B, .resample.cgr.lme(model = model)) )

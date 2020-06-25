@@ -1,4 +1,4 @@
-#' Bootstrapping Nested Linear Mixed Effects Models
+#' lmeresampler: A package for bootstrapping nested linear mixed effects models.
 #'
 #' The lme4 and nlme packages have made fitting nested 
 #' linear mixed-effects models quite easy. Using the the 
@@ -16,6 +16,7 @@
 #' (REB) bootstrap fit using either lme4 or nlme.
 #' 
 #' @name lmeresampler
+#' @docType package
 #' @aliases lmeresampler package-lmeresampler
 #' @keywords package
 NULL
