@@ -48,19 +48,3 @@ boo5 <- bootstrap(model = vcmodA, fn = mySumm, type = "reb", B = 100, reb_typ = 
 lb5 <- bench::mark( bootstrap(model = vcmodA, fn = mySumm, type = "reb", B = 100, reb_typ = 0), filter_gc = FALSE)
 lb5[c(2:9)]
 
-# nCores idea, this is in generics.R, easier for me to see where I made changes here
-
-bootstrap <- function(model, fn, type, B, resample = NULL, reb_type = NULL, parallel = FALSE, nCores = NULL) {
-  if(!type %in% c("parametric", "residual", "case", "cgr", "reb"))
-    stop("'type' must be one of 'parametric', 'residual', 'case', 'cgr', or 'reb'")
-  if(!is.null(reb_type))
-    if(!reb_type %in% 0:2) 
-      stop("'reb_type' must be either 0, 1, or 2")
-  if(parallel == FALSE) nCores <- 1
-  else {
-    if(nCores %in% 2:parallel::detectCores())
-      stop("for parallelization 'nCores' must be greater than 1 and within the range of your machine's cores")
-    if(is.null(nCores)) nCores <- 2
-  }
-  UseMethod("bootstrap", model)
-}

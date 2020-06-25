@@ -117,8 +117,9 @@ bootstrap <- function(model, fn, type, B, resample = NULL, reb_type = NULL, para
       nCores <- 2
     }
     else {
-      (!nCores %in% 2:parallel::detectCores())
-      stop("for parallelization 'nCores' must be greater than 1 and within the range of your machine's cores")
+      if(!nCores %in% 2:parallel::detectCores()){
+        stop("for parallelization 'nCores' must be greater than 1 and within the range of your machine's cores")
+      }
     }
   }
   UseMethod("bootstrap", model)
