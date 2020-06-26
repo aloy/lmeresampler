@@ -4,9 +4,9 @@
 bootstrap.lmerMod <- function (model, fn, type, B, resample, reb_type, parallel, nCores){
   switch(type,
          parametric = parametric_bootstrap.lmerMod(model, fn, B, parallel = FALSE, nCores = NULL),
-         residual = resid_bootstrap.lmerMod(model, fn, B, parallel = FALSE, nCores = NUL),
-         case = case_bootstrap.lmerMod(model, fn, B, resample, parallel = FALSE, nCores = NUL),
-         cgr = cgr_bootstrap.lmerMod(model, fn, B, parallel = FALSE, nCores = NUL),
+         residual = resid_bootstrap.lmerMod(model, fn, B, parallel = FALSE, nCores = NULL),
+         case = case_bootstrap.lmerMod(model, fn, B, resample, parallel = FALSE, nCores = NULL),
+         cgr = cgr_bootstrap.lmerMod(model, fn, B, parallel = FALSE, nCores = NULL),
          reb = reb_bootstrap.lmerMod(model, fn, B, reb_type = 0))
   # TODO: need to be able to save results
 }
@@ -53,7 +53,7 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample, parallel = FALSE, nC
   if(length(clusters) != length(resample))
     stop("'resample' is not the same length as the number of grouping variables. Please specify whether to resample the data at each level of grouping.")
   
-  rep.data <- lapply(integer(B), function(x) .cases.resamp(dat = data, cluster = clusters, resample = resample, parallel, nCores))
+  rep.data <- lapply(integer(B), function(x) .cases.resamp(dat = data, cluster = clusters, resample = resample, parallel = FALSE, nCores = NULL))
   
   # Plugin to .cases.completion due to small changes
   RES <- .cases.completion(model, rep.data, B, fn)
@@ -82,7 +82,7 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample, parallel = FALSE, nC
 #   do.call(rbind, sub)
 # }
 # 
-.cases.resamp <- function(dat, cluster, resample, parallel, nCores) {
+.cases.resamp <- function(dat, cluster, resample, parallel = FALSE, nCores = NULL) {
   # exit early for trivial data
   if(nrow(dat) == 1 || all(resample==FALSE))
     return(dat)
