@@ -92,7 +92,7 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample, parallel = FALSE, nC
 
   if(parallel == TRUE){
     cl <- snow::makeSOCKcluster(nCores) # snow is deprecated, but this is supported by the parallel package
-    parallel::clusterExport(cl=cl, varlist=c("cluster", "resample", "nCores"))
+    parallel::clusterExport(cl=cl, varlist=c("dat", "cluster", "resample", "nCores"))
     doParallel::registerDoParallel(cl)
     
     foreach::foreach(i = 1:length(cluster), .combine = rbind) %dopar% {
@@ -350,7 +350,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   # Refit the model and apply 'fn' to it using lapply
   
   if(parallel == TRUE) {
-    cl2 <- snow::makeSOCKcluster(nCores)
+    cl2 <- snow::makeSOCKcluster(nCores) # snow is deprecated, but this is supported by the parallel package
     parallel::clusterExport(cl=cl2, varlist=c("model", "ystar", "nCores"))
     
     tstar <- parallel::parLapply(cl2, ystar, function(x) {
