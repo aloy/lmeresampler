@@ -15,9 +15,9 @@ mySumm <- function(.) {
 
 ## running a parametric bootstrap 
 set.seed(1234)
-boo1 <- bootstrap(model = vcmodA, fn = mySumm, type = "parametric", B = 100, parallel = FALSE)
+boo1 <- bootstrap(model = vcmodA, fn = mySumm, type = "parametric", B = 100, parallel = TRUE)
 
-lb1 <- bench::mark(bootstrap(model = vcmodA, fn = mySumm, type = "parametric", B = 100, parallel = FALSE), filter_gc = FALSE)
+lb1 <- bench::mark(bootstrap(model = vcmodA, fn = mySumm, type = "parametric", B = 10000, parallel = TRUE), filter_gc = FALSE)
 lb1[c(2:9)]
 
 ## Not run: 
@@ -31,15 +31,15 @@ lb2 <- bench::mark(bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100
 lb2[c(2:9)]
 
 ## running a semi-parametric bootstrap
-boo3 <- bootstrap(model = vcmodA, fn = mySumm, type = "cgr", B = 100, parallel = TRUE)
+boo3 <- bootstrap(model = vcmodA, fn = mySumm, type = "cgr", B = 10000, parallel = TRUE)
 
-lb3 <- bench::mark(bootstrap(model = vcmodA, fn = mySumm, type = "cgr", B = 100, parallel = TRUE), filter_gc = FALSE)
+lb3 <- bench::mark(bootstrap(model = vcmodA, fn = mySumm, type = "cgr", B = 10000, parallel = TRUE), filter_gc = FALSE)
 lb3[c(2:9)]
 
 ## running a residual bootstrap
-boo4 <- bootstrap(model = vcmodA, fn = mySumm, type = "residual", B = 100, parallel = TRUE)
+boo4 <- bootstrap(model = vcmodA, fn = mySumm, type = "residual", B = 10000, parallel = TRUE)
 
-lb4 <- bench::mark(bootstrap(model = vcmodA, fn = mySumm, type = "residual", B = 100, parallel = TRUE), filter_gc = FALSE)
+lb4 <- bench::mark(bootstrap(model = vcmodA, fn = mySumm, type = "residual", B = 10000, parallel = TRUE), filter_gc = FALSE)
 lb4[c(2:9)]
 
 ## running an REB0 bootstrap

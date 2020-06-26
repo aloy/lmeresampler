@@ -1,11 +1,11 @@
 #' @rdname bootstrap
 #' @export
-bootstrap.lme <- function(model, fn, type, B, resample, reb_type){
+bootstrap.lme <- function(model, fn, type, B, resample, reb_type, parallel, nCores){
   switch(type,
-         parametric = parametric_bootstrap.lme(model, fn, B),
-         residual = resid_bootstrap.lme(model, fn, B),
-         case = case_bootstrap.lme(model, fn, B, resample),
-         cgr = cgr_bootstrap.lme(model, fn, B),
+         parametric = parametric_bootstrap.lme(model, fn, B, parallel = FALSE, nCores = NULL),
+         residual = resid_bootstrap.lme(model, fn, B, parallel = FALSE, nCores = NULL),
+         case = case_bootstrap.lme(model, fn, B, resample, parallel = FALSE, nCores = NULL),
+         cgr = cgr_bootstrap.lme(model, fn, B, parallel = FALSE, nCores = NULL),
          reb = reb_bootstrap.lme(model, fn, B, reb_type = 0))
 }
 
@@ -13,7 +13,7 @@ bootstrap.lme <- function(model, fn, type, B, resample, reb_type){
 #' @rdname parametric_bootstrap
 #' @export
 #' @importFrom nlmeU simulateY
-parametric_bootstrap.lme <- function(model, fn, B){
+parametric_bootstrap.lme <- function(model, fn, B, parallel = FALSE, nCores = NULL){
   # getVarCov.lme is the limiting factor...
   if (length(model$group) > 1) 
     stop("not implemented for multiple levels of nesting")
@@ -39,18 +39,34 @@ parametric_bootstrap.lme <- function(model, fn, B){
   #     t.res[i,] <- fn(model.update)
   #   }
   
-  
-  
-  res <- lapply(ystar, function(y) {
-    fit <- tryCatch(fn(updated.model(model = model, new.y = y)),  
-                    error = function(e) e)
-    if (inherits(fit, "error")) {
-      structure(rep(NA, length(t0)), fail.msgs = fit$message)
-    } else{
-      fit
+  if(parallel == TRUE) {
+    cl3 <- snow::makeSOCKcluster(nCores) # snow is deprecated, but this is supported by the parallel package
+    parallel::clusterExport(cl=cl3, varlist=c("model", "ystar", "nCores"))
+    
+    res <- parallel::parLapply(cl3, ystar, function(y) {
+      fit <- tryCatch(fn(updated.model(model = model, new.y = y)),  
+                      error = function(e) e)
+      if (inherits(fit, "error")) {
+        structure(rep(NA, length(t0)), fail.msgs = fit$message)
+      } else{
+        fit
+      }
     }
+    )
   }
-  )
+  else{
+    res <- lapply(ystar, function(y) {
+      fit <- tryCatch(fn(updated.model(model = model, new.y = y)),  
+                      error = function(e) e)
+      if (inherits(fit, "error")) {
+        structure(rep(NA, length(t0)), fail.msgs = fit$message)
+      } else{
+        fit
+      }
+    }
+    )
+  }
+  
   
 #   for(i in 1:B){
 #     #     myin <- ystar[,i]
@@ -96,7 +112,7 @@ parametric_bootstrap.lme <- function(model, fn, B){
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lme <- function(model, fn, B, resample){
+case_bootstrap.lme <- function(model, fn, B, resample, parallel = FALSE, nCores = NULL){
   
   data <- model$data
   # data$.id <- seq_len(nrow(data))
@@ -108,24 +124,40 @@ case_bootstrap.lme <- function(model, fn, B, resample){
   t0 <- fn(model)
   
   # rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(dat = data, cluster = clusters, resample = resample))))
-  rep.data <- lapply(integer(B), function(x) .cases.resamp(dat = data, cluster = clusters, resample = resample))
+  rep.data <- lapply(integer(B), function(x) .cases.resamp(dat = data, cluster = clusters, resample = resample, parallel = FALSE, nCores = NULL))
   
-  res <- lapply(rep.data, function(df) {
-    fit <- tryCatch(fn(updated.model(model = model, new.data = df)),  
-                    error = function(e) e)
-    if (inherits(fit, "error")) {
-      structure(rep(NA, length(t0)), fail.msgs = fit$message)
-    } else{
-      fit
+  if(parallel == TRUE) {
+    cl4 <- snow::makeSOCKcluster(nCores) # snow is deprecated, but this is supported by the parallel package
+    parallel::clusterExport(cl=cl3, varlist=c("model", "ystar", "nCores"))
+    
+    res <- parallel::parLapply(cl4, rep.data, function(df) {
+      fit <- tryCatch(fn(updated.model(model = model, new.data = df)),  
+                      error = function(e) e)
+      if (inherits(fit, "error")) {
+        structure(rep(NA, length(t0)), fail.msgs = fit$message)
+      } else{
+        fit
+      }
     }
+    )
   }
-  )
+  else {
+    res <- lapply(rep.data, function(df) {
+      fit <- tryCatch(fn(updated.model(model = model, new.data = df)),  
+                      error = function(e) e)
+      if (inherits(fit, "error")) {
+        structure(rep(NA, length(t0)), fail.msgs = fit$message)
+      } else{
+        fit
+      }
+    }
+    )
+  }
   
   tstar <- do.call('cbind', res)
   
   rownames(tstar) <- names(t0)
   colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
-  
   
   if ((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", numFail, "/", B, ")")
@@ -145,24 +177,41 @@ case_bootstrap.lme <- function(model, fn, B, resample){
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lme <- function(model, fn, B){
+resid_bootstrap.lme <- function(model, fn, B, parallel = FALSE, nCores = NULL){
   fn <- match.fun(fn)
   
   t0 <- fn(model)
   ystar <- lapply(1:B, function(x) .resample.resids.lme(model))
 
-#   return(.bootstrap.completion(model, ystar, B, fn))
+#   return(.bootstrap.completion(model, ystar, B, fn, parallel, nCores))
   
-  res <- lapply(ystar, function(y) {
-    fit <- tryCatch(fn(updated.model(model = model, new.y = y)),  
-                    error = function(e) e)
-    if (inherits(fit, "error")) {
-      structure(rep(NA, length(t0)), fail.msgs = fit$message)
-    } else{
-      fit
+  if(parallel == TRUE){
+    cl5 <- snow::makeSOCKcluster(nCores) # snow is deprecated, but this is supported by the parallel package
+    parallel::clusterExport(cl=cl5, varlist=c("model", "ystar", "nCores"))
+    
+    res <- parallel::parLapply(cl5, ystar, function(y) {
+      fit <- tryCatch(fn(updated.model(model = model, new.y = y)),  
+                      error = function(e) e)
+      if (inherits(fit, "error")) {
+        structure(rep(NA, length(t0)), fail.msgs = fit$message)
+      } else{
+        fit
+      }
     }
+    )
   }
-  )
+  else{
+    res <- lapply(ystar, function(y) {
+      fit <- tryCatch(fn(updated.model(model = model, new.y = y)),  
+                      error = function(e) e)
+      if (inherits(fit, "error")) {
+        structure(rep(NA, length(t0)), fail.msgs = fit$message)
+      } else{
+        fit
+      }
+    }
+    )
+  }
   
   tstar <- do.call('cbind', res)
 
@@ -466,24 +515,40 @@ reb_bootstrap.lme <- function(model, fn, B, reb_type = 0){
 #' @rdname cgr_bootstrap
 #' @inheritParams bootstrap
 #' @export
-cgr_bootstrap.lme <- function(model, fn, B){
+cgr_bootstrap.lme <- function(model, fn, B, parallel = FALSE, nCores = NULL){
   fn <- match.fun(fn)
   
   ystar <- as.data.frame( replicate(n = B, .resample.cgr.lme(model = model)) )
   
   t0 <- fn(model)
   
-  
-  res <- lapply(ystar, function(y) {
-    fit <- tryCatch(fn(updated.model(model = model, new.y = y)),  
-                    error = function(e) e)
-    if (inherits(fit, "error")) {
-      structure(rep(NA, length(t0)), fail.msgs = fit$message)
-    } else{
-      fit
+  if(parallel == TRUE){
+    cl6 <- snow::makeSOCKcluster(nCores) # snow is deprecated, but this is supported by the parallel package
+    parallel::clusterExport(cl=cl6, varlist=c("model", "ystar", "nCores"))
+    
+    res <- parallel::parLapply(cl6, ystar, function(y) {
+      fit <- tryCatch(fn(updated.model(model = model, new.y = y)),  
+                      error = function(e) e)
+      if (inherits(fit, "error")) {
+        structure(rep(NA, length(t0)), fail.msgs = fit$message)
+      } else{
+        fit
+      }
     }
+    )
   }
-  )
+  else{
+    res <- lapply(ystar, function(y) {
+      fit <- tryCatch(fn(updated.model(model = model, new.y = y)),  
+                      error = function(e) e)
+      if (inherits(fit, "error")) {
+        structure(rep(NA, length(t0)), fail.msgs = fit$message)
+      } else{
+        fit
+      }
+    }
+    )
+  }
   
   tstar <- do.call("cbind", res) # Can these be nested?
   colnames(tstar) <- paste("sim", 1:ncol(tstar), sep = "_")
