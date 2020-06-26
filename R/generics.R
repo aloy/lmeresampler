@@ -160,7 +160,19 @@ bootstrap <- function(model, fn, type, B, resample = NULL, reb_type = NULL, para
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-parametric_bootstrap <- function(model, fn, B, parallel, nCores) {
+parametric_bootstrap <- function(model, fn, B, parallel = FALSE, nCores = NULL) {
+  if(parallel == FALSE) nCores <- 1
+  else {
+    if(is.null(nCores)) {
+      warning("'nCores' unspecified, using 2 cores")
+      nCores <- 2
+    }
+    else {
+      if(!nCores %in% 2:parallel::detectCores()){
+        stop("for parallelization 'nCores' must be greater than 1 and within the range of your machine's cores")
+      }
+    }
+  }
   UseMethod("parametric_bootstrap", model)
 }
 
@@ -197,7 +209,7 @@ parametric_bootstrap <- function(model, fn, B, parallel, nCores) {
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-resid_bootstrap <- function(model, fn, B, parallel, nCores) {
+resid_bootstrap <- function(model, fn, B, parallel = FALSE, nCores = NULL) {
   UseMethod("resid_bootstrap", model)
 }
 
@@ -245,7 +257,7 @@ resid_bootstrap <- function(model, fn, B, parallel, nCores) {
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-case_bootstrap <- function(model, fn, B, resample, parallel, nCores) {
+case_bootstrap <- function(model, fn, B, resample, parallel = FALSE, nCores = NULL) {
   UseMethod("case_bootstrap", model)
 }
 
@@ -290,7 +302,7 @@ case_bootstrap <- function(model, fn, B, resample, parallel, nCores) {
 #'    procedure for assessing the relationship between class size and achievement. 
 #'    \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, 
 #'    \bold{52}, 431--443.
-cgr_bootstrap <- function(model, fn, B, parallel, nCores) {
+cgr_bootstrap <- function(model, fn, B, parallel = FALSE, nCores = NULL) {
   UseMethod("cgr_bootstrap", model)
 }
 

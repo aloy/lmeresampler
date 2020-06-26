@@ -3,10 +3,10 @@
 #' @importFrom stats as.formula cov formula model.matrix na.exclude na.omit predict resid simulate
 bootstrap.lmerMod <- function (model, fn, type, B, resample, reb_type, parallel, nCores){
   switch(type,
-         parametric = parametric_bootstrap.lmerMod(model, fn, B, parallel, nCores),
-         residual = resid_bootstrap.lmerMod(model, fn, B, parallel, nCores),
-         case = case_bootstrap.lmerMod(model, fn, B, resample, parallel, nCores),
-         cgr = cgr_bootstrap.lmerMod(model, fn, B, parallel, nCores),
+         parametric = parametric_bootstrap.lmerMod(model, fn, B, parallel = FALSE, nCores = NULL),
+         residual = resid_bootstrap.lmerMod(model, fn, B, parallel = FALSE, nCores = NUL),
+         case = case_bootstrap.lmerMod(model, fn, B, resample, parallel = FALSE, nCores = NUL),
+         cgr = cgr_bootstrap.lmerMod(model, fn, B, parallel = FALSE, nCores = NUL),
          reb = reb_bootstrap.lmerMod(model, fn, B, reb_type = 0))
   # TODO: need to be able to save results
 }
@@ -14,7 +14,7 @@ bootstrap.lmerMod <- function (model, fn, type, B, resample, reb_type, parallel,
 
 #' @rdname parametric_bootstrap
 #' @export
-parametric_bootstrap.lmerMod <- function(model, fn, B, parallel, nCores){
+parametric_bootstrap.lmerMod <- function(model, fn, B, parallel = FALSE, nCores = NULL){
   fn <- match.fun(fn)
   
   model.fixef <- lme4::fixef(model) # Extract fixed effects
@@ -31,7 +31,7 @@ parametric_bootstrap.lmerMod <- function(model, fn, B, parallel, nCores){
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lmerMod <- function (model, fn, B, parallel, nCores){
+resid_bootstrap.lmerMod <- function (model, fn, B, parallel = FALSE, nCores = NULL){
   fn <- match.fun(fn)
   
   ystar <- lapply(1:B, function(x) .resample.resids(model))
@@ -44,7 +44,7 @@ resid_bootstrap.lmerMod <- function (model, fn, B, parallel, nCores){
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lmerMod <- function (model, fn, B, resample, parallel, nCores){
+case_bootstrap.lmerMod <- function (model, fn, B, resample, parallel = FALSE, nCores = NULL){
   
   data <- model@frame
   # data$.id <- seq_len(nrow(data))
@@ -91,8 +91,8 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample, parallel, nCores){
   res <- dat
 
   if(parallel == TRUE){
-    cl <- snow::makeCluster(nCores)
-    snow::clusterExport(cl=cl, varlist=c("cluster", "resample", "nCores"), envir= NULL)
+    cl <- snow::makeSOCKcluster(nCores) # snow is deprecated, but this is supported by the parallel package
+    parallel::clusterExport(cl=cl, varlist=c("cluster", "resample", "nCores"))
     doParallel::registerDoParallel(cl)
     
     foreach::foreach(i = 1:length(cluster), .combine = rbind) %dopar% {
@@ -209,7 +209,7 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample, parallel, nCores){
 
 #' @rdname cgr_bootstrap
 #' @export
-cgr_bootstrap.lmerMod <- function (model, fn, B, parallel, nCores){
+cgr_bootstrap.lmerMod <- function (model, fn, B, parallel = FALSE, nCores = NULLs){
   fn <- match.fun(fn)
   
   ystar <- as.data.frame( replicate(n = B, .resample.cgr(model = model)) )
@@ -350,10 +350,10 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   # Refit the model and apply 'fn' to it using lapply
   
   if(parallel == TRUE) {
-    cl2 <- snow::makeCluster(nCores)
-    snow::clusterExport(cl=cl2, varlist=c("model", "ystar", "nCores"), envir= NULL)
+    cl2 <- snow::makeSOCKcluster(nCores)
+    parallel::clusterExport(cl=cl2, varlist=c("model", "ystar", "nCores"))
     
-    tstar <- snow::parLapply(cl2, ystar, function(x) {
+    tstar <- parallel::parLapply(cl2, ystar, function(x) {
       fn(lme4::refit(object = model, newresp = x))
     })
     stopCluster()
