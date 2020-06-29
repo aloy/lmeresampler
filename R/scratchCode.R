@@ -27,7 +27,7 @@ boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample 
 ## running a cases bootstrap - resampling the schools and students within the school
 boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE), parallel = FALSE)
 
-lb2 <- bench::mark(bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE), parallel = FALSE), filter_gc = FALSE)
+lb2 <- bench::mark(bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 1000, resample = c(TRUE, FALSE), parallel = FALSE), filter_gc = FALSE)
 lb2[c(2:9)]
 
 ## running a semi-parametric bootstrap
