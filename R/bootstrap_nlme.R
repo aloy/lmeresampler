@@ -39,6 +39,7 @@ parametric_bootstrap.lme <- function(model, fn, B, parallel = FALSE, nCores = NU
   #     t.res[i,] <- fn(model.update)
   #   }
   
+  # parallelization
   if(parallel == TRUE) {
     cl3 <- snow::makeSOCKcluster(nCores) # snow is deprecated, but this is supported by the parallel package
     parallel::clusterExport(cl=cl3, varlist=c("model", "ystar", "nCores"))
@@ -127,6 +128,7 @@ case_bootstrap.lme <- function(model, fn, B, resample, parallel = FALSE, nCores 
   # rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(dat = data, cluster = clusters, resample = resample))))
   rep.data <- lapply(integer(B), function(x) .cases.resamp(dat = data, cluster = clusters, resample = resample, parallel = FALSE, nCores = NULL))
   
+  # parallelization
   if(parallel == TRUE) {
     cl4 <- snow::makeSOCKcluster(nCores) # snow is deprecated, but this is supported by the parallel package
     parallel::clusterExport(cl=cl3, varlist=c("model", "ystar", "nCores"))
@@ -187,6 +189,7 @@ resid_bootstrap.lme <- function(model, fn, B, parallel = FALSE, nCores = NULL){
 
 #   return(.bootstrap.completion(model, ystar, B, fn, parallel, nCores))
   
+  # parallelization
   if(parallel == TRUE){
     cl5 <- snow::makeSOCKcluster(nCores) # snow is deprecated, but this is supported by the parallel package
     parallel::clusterExport(cl=cl5, varlist=c("model", "ystar", "nCores"))
@@ -525,6 +528,7 @@ cgr_bootstrap.lme <- function(model, fn, B, parallel = FALSE, nCores = NULL){
   
   t0 <- fn(model)
   
+  # parallelization
   if(parallel == TRUE){
     cl6 <- snow::makeSOCKcluster(nCores) # snow is deprecated, but this is supported by the parallel package
     parallel::clusterExport(cl=cl6, varlist=c("model", "ystar", "nCores"))

@@ -94,6 +94,7 @@ case_bootstrap.lmerMod <- function(model, fn, B, resample, parallel = FALSE, nCo
   # ver <- as.numeric_version(packageVersion("dplyr"))
   res <- dat
 
+  # parallelization
   if(parallel == TRUE){
     cl <- snow::makeSOCKcluster(nCores) # snow is deprecated, but this is supported by the parallel package
     parallel::clusterExport(cl=cl, varlist=c("dat", "cluster", "resample", "nCores"))
@@ -198,9 +199,9 @@ case_bootstrap.lmerMod <- function(model, fn, B, resample, parallel = FALSE, nCo
 #' This function is given \code{model, data, B, fn} and uses them to complete
 #' the cases bootstrap process. They are then structured into a list for output and returned.
 #'
-#' @param data The data being passed in
-#' @param B The B being passed in 
-#' @param fn The fn being passed in
+#' @param data The data being passed in.
+#' @param B The \code{B} being passed in.
+#' @param fn The \code{fn} being passed in.
 #' @inheritParams bootstrap
 #'
 #' @return list
@@ -337,8 +338,8 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #' @details
 #' This function combines \code{bstar} and \code{zstar} to create {Zbstar} using an lapply statement.
 #'
-#' @param bstar A list of matrices bstar
-#' @param zstar A list of matrices zstar
+#' @param bstar A list of matrices \code{bstar}.
+#' @param zstar A list of matrices \code{zstar}.
 #'
 #' @return matrix
 #' @keywords internal
@@ -359,11 +360,11 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #' This function is given \code{model, ystar, B, fn, parallel, nCores} and uses them to complete
 #' the bootstrap process. They are then structured into a list for output and returned.
 #'
-#' @param ystar The ystar being passed in
-#' @param B The B being passed in 
-#' @param fn The fn being passed in
-#' @param parallel Whether the bootstrap should be executed in parallel
-#' @param nCores The number of cores the bootstrap should use
+#' @param ystar The \code{ystar} being passed in.
+#' @param B The \code{B} being passed in. 
+#' @param fn The \code{fn} being passed in.
+#' @param parallel A logical argument. Whether or not the bootstrap should be executed in parallel.
+#' @param nCores The number of cores the bootstrap should use.
 #' @inheritParams bootstrap
 #'
 #' @return list
@@ -374,6 +375,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   
   # Refit the model and apply 'fn' to it using lapply
   
+  # parallelization
   if(parallel == TRUE) {
     cl2 <- snow::makeSOCKcluster(nCores) # snow is deprecated, but this is supported by the parallel package
     parallel::clusterExport(cl=cl2, varlist=c("model", "ystar", "nCores"))
@@ -538,7 +540,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 
 #' REB resampling procedures
 #' 
-#' @param reb_type Specifies the inclusion of REB/1
+#' @param reb_type Specifies the inclusion of REB/1.
 #' @inheritParams bootstrap
 #' @import Matrix
 #' @keywords internal

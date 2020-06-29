@@ -17,7 +17,7 @@ mySumm <- function(.) {
 set.seed(1234)
 boo1 <- bootstrap(model = vcmodA, fn = mySumm, type = "parametric", B = 100, parallel = FALSE, nCores = 2)
 
-lb1 <- bench::mark(bootstrap(model = vcmodA, fn = mySumm, type = "parametric", B = 10000, parallel = TRUE), filter_gc = FALSE)
+lb1 <- bench::mark(bootstrap(model = vcmodA, fn = mySumm, type = "parametric", B = 100, parallel = TRUE), filter_gc = FALSE)
 lb1[c(2:9)]
 
 ## Not run: 

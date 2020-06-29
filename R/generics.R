@@ -17,6 +17,12 @@
 #'    school level first, then the student level.
 #' @param reb_type Specification of what random effect block bootstrap version to
 #' implement. Possible values are \code{0}, \code{1} or \code{2}.
+#' @param parallel A logical value indicating whether or not the bootstrap will
+#' be executed using parallelization.
+#' @param nCores The number of cores the parallelization process will use
+#' if parallel is \code{TRUE}. Possible values are \code{2} through the
+#' number of logical cores your machine has.If parallel is \code{FALSE}, 
+#' set to \code{1}. 
 #' 
 #' All of the below methods have been implemented for nested linear mixed-effects
 #' models fit by \code{lmer} (i.e., an \code{lmerMod} object) and \code{lme} 
@@ -72,7 +78,7 @@
 #' requireNamespace("boot") 
 #' boo1
 #' 
-#' ## you can extract the boostrapped values as a data frame
+#' ## you can extract the bootstrapped values as a data frame
 #' as.data.frame(boo1$t)
 #' 
 #' ## bootstrap confidence intervals are easily found using 'boot.ci'
@@ -210,6 +216,18 @@ parametric_bootstrap <- function(model, fn, B, parallel = FALSE, nCores = NULL) 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
 resid_bootstrap <- function(model, fn, B, parallel = FALSE, nCores = NULL) {
+  if(parallel == FALSE) nCores <- 1
+  else {
+    if(is.null(nCores)) {
+      warning("'nCores' unspecified, using 2 cores")
+      nCores <- 2
+    }
+    else {
+      if(!nCores %in% 2:parallel::detectCores()){
+        stop("for parallelization 'nCores' must be greater than 1 and within the range of your machine's cores")
+      }
+    }
+  }
   UseMethod("resid_bootstrap", model)
 }
 
@@ -258,10 +276,22 @@ resid_bootstrap <- function(model, fn, B, parallel = FALSE, nCores = NULL) {
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
 case_bootstrap <- function(model, fn, B, resample, parallel = FALSE, nCores = NULL) {
+  if(parallel == FALSE) nCores <- 1
+  else {
+    if(is.null(nCores)) {
+      warning("'nCores' unspecified, using 2 cores")
+      nCores <- 2
+    }
+    else {
+      if(!nCores %in% 2:parallel::detectCores()){
+        stop("for parallelization 'nCores' must be greater than 1 and within the range of your machine's cores")
+      }
+    }
+  }
   UseMethod("case_bootstrap", model)
 }
 
-#' CGR gootstrap for nested LMEs.
+#' CGR bootstrap for nested LMEs.
 #'
 #' Generate semi-parametric bootstrap replicates of a statistic for a nested 
 #' linear mixed-effects model.
@@ -303,6 +333,18 @@ case_bootstrap <- function(model, fn, B, resample, parallel = FALSE, nCores = NU
 #'    \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, 
 #'    \bold{52}, 431--443.
 cgr_bootstrap <- function(model, fn, B, parallel = FALSE, nCores = NULL) {
+  if(parallel == FALSE) nCores <- 1
+  else {
+    if(is.null(nCores)) {
+      warning("'nCores' unspecified, using 2 cores")
+      nCores <- 2
+    }
+    else {
+      if(!nCores %in% 2:parallel::detectCores()){
+        stop("for parallelization 'nCores' must be greater than 1 and within the range of your machine's cores")
+      }
+    }
+  }
   UseMethod("cgr_bootstrap", model)
 }
 
