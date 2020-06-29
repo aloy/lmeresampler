@@ -666,3 +666,4 @@ cgr_bootstrap.lme <- function(model, fn, B, parallel = FALSE, nCores = NULL){
   
   return(y.star)
 }
+
