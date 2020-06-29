@@ -1,7 +1,7 @@
 #' @rdname bootstrap
 #' @export
 #' @importFrom stats as.formula cov formula model.matrix na.exclude na.omit predict resid simulate
-bootstrap.lmerMod <- function (model, fn, type, B, resample, reb_type, parallel, nCores){
+bootstrap.lmerMod <- function(model, fn, type, B, resample, reb_type, parallel, nCores){
   switch(type,
          parametric = parametric_bootstrap.lmerMod(model, fn, B, parallel = FALSE, nCores = NULL),
          residual = resid_bootstrap.lmerMod(model, fn, B, parallel = FALSE, nCores = NULL),
@@ -31,7 +31,7 @@ parametric_bootstrap.lmerMod <- function(model, fn, B, parallel = FALSE, nCores 
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lmerMod <- function (model, fn, B, parallel = FALSE, nCores = NULL){
+resid_bootstrap.lmerMod <- function(model, fn, B, parallel = FALSE, nCores = NULL){
   fn <- match.fun(fn)
   
   ystar <- lapply(1:B, function(x) .resample.resids(model))
@@ -44,7 +44,7 @@ resid_bootstrap.lmerMod <- function (model, fn, B, parallel = FALSE, nCores = NU
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lmerMod <- function (model, fn, B, resample, parallel = FALSE, nCores = NULL){
+case_bootstrap.lmerMod <- function(model, fn, B, resample, parallel = FALSE, nCores = NULL){
   
   data <- model@frame
   # data$.id <- seq_len(nrow(data))
@@ -82,6 +82,10 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample, parallel = FALSE, nC
 #   do.call(rbind, sub)
 # }
 # 
+
+#' Cases resampling procedures
+#' @keywords internal
+#' @noRd
 .cases.resamp <- function(dat, cluster, resample, parallel = FALSE, nCores = NULL) {
   # exit early for trivial data
   if(nrow(dat) == 1 || all(resample==FALSE))
@@ -185,6 +189,23 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample, parallel = FALSE, nC
 #   }
 # }
 
+#' @title Cases Completion
+#'
+#' @description
+#' Finishes the cases bootstrap process and makes the output readable.
+#'
+#' @details
+#' This function is given \code{model, data, B, fn} and uses them to complete
+#' the cases bootstrap process. They are then structured into a list for output and returned.
+#'
+#' @param data The data being passed in
+#' @param B The B being passed in 
+#' @param fn The fn being passed in
+#' @inheritParams bootstrap
+#'
+#' @return list
+#' @keywords internal
+#' @noRd
 .cases.completion <- function(model, data, B, fn){
   t0 <- fn(model)
   
@@ -335,10 +356,14 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #' Finishes the bootstrap process and makes the output readable.
 #'
 #' @details
-#' This function is given \code{model, ystar, B, fn} and uses them to complete
+#' This function is given \code{model, ystar, B, fn, parallel, nCores} and uses them to complete
 #' the bootstrap process. They are then structured into a list for output and returned.
 #'
 #' @param ystar The ystar being passed in
+#' @param B The B being passed in 
+#' @param fn The fn being passed in
+#' @param parallel Whether the bootstrap should be executed in parallel
+#' @param nCores The number of cores the bootstrap should use
 #' @inheritParams bootstrap
 #'
 #' @return list

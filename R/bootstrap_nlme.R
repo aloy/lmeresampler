@@ -53,6 +53,7 @@ parametric_bootstrap.lme <- function(model, fn, B, parallel = FALSE, nCores = NU
       }
     }
     )
+    stopCluster()
   }
   else{
     res <- lapply(ystar, function(y) {
@@ -140,6 +141,7 @@ case_bootstrap.lme <- function(model, fn, B, resample, parallel = FALSE, nCores 
       }
     }
     )
+    stopCluster()
   }
   else {
     res <- lapply(rep.data, function(df) {
@@ -199,6 +201,7 @@ resid_bootstrap.lme <- function(model, fn, B, parallel = FALSE, nCores = NULL){
       }
     }
     )
+    stopCluster()
   }
   else{
     res <- lapply(ystar, function(y) {
@@ -536,6 +539,7 @@ cgr_bootstrap.lme <- function(model, fn, B, parallel = FALSE, nCores = NULL){
       }
     }
     )
+    stopCluster()
   }
   else{
     res <- lapply(ystar, function(y) {
