@@ -84,6 +84,7 @@ case_bootstrap.lmerMod <- function(model, fn, B, resample, parallel = FALSE, nCo
 # 
 
 #' Cases resampling procedures
+#' @importFrom(magrittr,"%>%")
 #' @keywords internal
 #' @noRd
 .cases.resamp <- function(dat, cluster, resample, parallel = FALSE, nCores = NULL) {
@@ -93,7 +94,7 @@ case_bootstrap.lmerMod <- function(model, fn, B, resample, parallel = FALSE, nCo
   
   # ver <- as.numeric_version(packageVersion("dplyr"))
   res <- dat
-
+  
   # parallelization
   if(parallel == TRUE){
     cl <- snow::makeSOCKcluster(nCores) # snow is deprecated, but this is supported by the parallel package

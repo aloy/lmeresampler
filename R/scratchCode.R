@@ -16,6 +16,7 @@ mySumm <- function(.) {
 ## running a parametric bootstrap 
 set.seed(1234)
 boo1 <- bootstrap(model = vcmodA, fn = mySumm, type = "parametric", B = 100, parallel = FALSE, nCores = 2)
+system.time(bootstrap(model = vcmodA, fn = mySumm, type = "parametric", B = 100, parallel = TRUE))
 
 lb1 <- bench::mark(bootstrap(model = vcmodA, fn = mySumm, type = "parametric", B = 100, parallel = TRUE), filter_gc = FALSE)
 lb1[c(2:9)]
@@ -25,9 +26,9 @@ lb1[c(2:9)]
 boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
 
 ## running a cases bootstrap - resampling the schools and students within the school
-boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE), parallel = FALSE)
+boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE), parallel = TRUE)
 
-lb2 <- bench::mark(bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 1000, resample = c(TRUE, FALSE), parallel = FALSE), filter_gc = FALSE)
+lb2 <- bench::mark(bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 10000, resample = c(TRUE, FALSE), parallel = TRUE), filter_gc = FALSE)
 lb2[c(2:9)]
 
 ## running a semi-parametric bootstrap
