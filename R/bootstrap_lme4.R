@@ -138,7 +138,7 @@ case_bootstrap.lmerMod <- function(model, fn, B, resample, parallel = FALSE, nCo
     for(i in 1:length(cluster)) {
       if(i==1 & resample[i]) {
         dots <- cluster[1]
-        grouped <- dplyr::group_by({{res}}) %>% dplyr::group_by({{res}})
+        grouped <- dplyr::group_by({{res}}) %>% dplyr::group_by({{dots}})
         g_rows <- dplyr::group_rows(grouped)
         # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
         cls <- sample(seq_along(g_rows), replace = resample[i])
