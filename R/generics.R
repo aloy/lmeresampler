@@ -1,5 +1,6 @@
-#' Bootstrap nested linear mixed-effects models
+#' @title Bootstrap Nested Linear Mixed-Effects Models
 #'
+#' @description
 #' Perform various bootstrap process for nested linear mixed effects (LMEs) models including:
 #' parametric, residual, cases, CGR, and REB bootstraps.
 #'
@@ -17,19 +18,15 @@
 #'    school level first, then the student level.
 #' @param reb_type Specification of what random effect block bootstrap version to
 #' implement. Possible values are \code{0}, \code{1} or \code{2}.
-#' @param parallel A logical value indicating whether or not the bootstrap will
-#' be executed using parallelization.
-#' @param nCores The number of cores the parallelization process will use
-#' if parallel is \code{TRUE}. Possible values are \code{2} through the
-#' number of logical cores your machine has.If parallel is \code{FALSE}, 
-#' set to \code{1}. 
 #' 
+#' @details
 #' All of the below methods have been implemented for nested linear mixed-effects
 #' models fit by \code{lmer} (i.e., an \code{lmerMod} object) and \code{lme} 
 #' (i.e., an \code{lmerMod} object). Details of the bootstrap procedures can be found
 #' in the help file for that specific function.
 #'   
-#' @return An object of class "boot", compatible with the \pkg{boot}
+#' @return 
+#' The returned value is an object of class "boot", compatible with the \pkg{boot}
 #' package's \code{\link[boot]{boot}} methods.
 #' 
 #' @seealso 
@@ -62,7 +59,7 @@
 #' boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
 #' 
 #' ## running a cases bootstrap - resampling the schools and students within the school
-#' boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample = c(TRUE, TRUE))
+#' boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
 #' 
 #' ## running a semi-parametric bootstrap
 #' boo3 <- bootstrap(model = vcmodA, fn = mySumm, type = "cgr", B = 100)
@@ -78,7 +75,7 @@
 #' requireNamespace("boot") 
 #' boo1
 #' 
-#' ## you can extract the bootstrapped values as a data frame
+#' ## you can extract the boostrapped values as a data frame
 #' as.data.frame(boo1$t)
 #' 
 #' ## bootstrap confidence intervals are easily found using 'boot.ci'
@@ -110,32 +107,23 @@
 #'    Bates, D., Maechler, M., Bolker, W., Walker, S. (2015).
 #'    Fitting Linear Mixed-Effects Models Using lme4. \emph{Journal of
 #'    Statistical Software}, \bold{67}, 1--48. doi:10.18637/jss.v067.i01.
-bootstrap <- function(model, fn, type, B, resample = NULL, reb_type = NULL, parallel = FALSE, nCores = NULL) {
+bootstrap <- function(model, fn, type, B, resample = NULL, reb_type = NULL) {
   if(!type %in% c("parametric", "residual", "case", "cgr", "reb"))
     stop("'type' must be one of 'parametric', 'residual', 'case', 'cgr', or 'reb'")
   if(!is.null(reb_type))
     if(!reb_type %in% 0:2) 
       stop("'reb_type' must be either 0, 1, or 2")
-  if(parallel == FALSE) nCores <- 1
-  else {
-    if(is.null(nCores)) {
-      warning("'nCores' unspecified, using 2 cores")
-      nCores <- 2
-    }
-    else {
-      if(!nCores %in% 2:parallel::detectCores()){
-        stop("for parallelization 'nCores' must be greater than 1 and within the range of your machine's cores")
-      }
-    }
-  }
   UseMethod("bootstrap", model)
 }
 
-#' Parametric bootstrap for nested LMEs.
+
+#' @title Parametric Bootstrap for Nested LMEs
 #'
+#' @description
 #' Generate parametric bootstrap replicates of a statistic for a nested linear 
 #' mixed-effects model.
 #' 
+#' @details
 #' The parametric bootstrap simulates bootstrap samples from the estimated 
 #' distribution functions. That is, error terms and random effects are simulated
 #' from their estimated normal distributions and are combined into bootstrap
@@ -144,7 +132,8 @@ bootstrap <- function(model, fn, type, B, resample = NULL, reb_type = NULL, para
 #' @export
 #' @inheritParams bootstrap
 #' 
-#' @return An object of class "boot", compatible with the \pkg{boot}
+#' @return 
+#' The returned value is an object of class "boot", compatible with the \pkg{boot}
 #' package's \code{\link[boot]{boot}} methods.
 #' 
 #' @seealso 
@@ -166,27 +155,17 @@ bootstrap <- function(model, fn, type, B, resample = NULL, reb_type = NULL, para
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-parametric_bootstrap <- function(model, fn, B, parallel = FALSE, nCores = NULL) {
-  if(parallel == FALSE) nCores <- 1
-  else {
-    if(is.null(nCores)) {
-      warning("'nCores' unspecified, using 2 cores")
-      nCores <- 2
-    }
-    else {
-      if(!nCores %in% 2:parallel::detectCores()){
-        stop("for parallelization 'nCores' must be greater than 1 and within the range of your machine's cores")
-      }
-    }
-  }
+parametric_bootstrap <- function(model, fn, B) {
   UseMethod("parametric_bootstrap", model)
 }
 
-#' Residual bootstrap for nested LMEs.
+#' @title Residual Bootstrap for Nested LMEs
 #'
+#' @description
 #' Generate residual bootstrap replicates of a statistic for a nested linear 
 #' mixed-effects model.
 #' 
+#' @details
 #' The residual bootstrap resamples the residual quantities from the fitted 
 #' linear mixed-effects model in order to generate bootstrap resamples. That is, 
 #' a random sample, drawn with replacement, is taken from the estimated error terms 
@@ -196,7 +175,8 @@ parametric_bootstrap <- function(model, fn, B, parallel = FALSE, nCores = NULL) 
 #' @export
 #' @inheritParams bootstrap
 #' 
-#' @return An object of class "boot", compatible with the \pkg{boot}
+#' @return 
+#' The returned value is an object of class "boot", compatible with the \pkg{boot}
 #' package's \code{\link[boot]{boot}} methods.
 #' 
 #' @seealso 
@@ -215,27 +195,17 @@ parametric_bootstrap <- function(model, fn, B, parallel = FALSE, nCores = NULL) 
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-resid_bootstrap <- function(model, fn, B, parallel = FALSE, nCores = NULL) {
-  if(parallel == FALSE) nCores <- 1
-  else {
-    if(is.null(nCores)) {
-      warning("'nCores' unspecified, using 2 cores")
-      nCores <- 2
-    }
-    else {
-      if(!nCores %in% 2:parallel::detectCores()){
-        stop("for parallelization 'nCores' must be greater than 1 and within the range of your machine's cores")
-      }
-    }
-  }
+resid_bootstrap <- function(model, fn, B) {
   UseMethod("resid_bootstrap", model)
 }
 
-#' Cases bootstrap for nested LMEs.
+#' @title Cases Bootstrap for Nested LMEs
 #'
+#' @description
 #' Generate cases bootstrap replicates of a statistic for a nested linear 
 #' mixed-effects model.
 #'
+#' @details 
 #' The cases bootstrap is a fully nonparametric bootstrap that resamples the data
 #' with respect to the clusters in order to generate bootstrap samples. Depending 
 #' on the nature of the data, the resampling can be done only for the higher-level 
@@ -257,7 +227,8 @@ resid_bootstrap <- function(model, fn, B, parallel = FALSE, nCores = NULL) {
 #' @export
 #' @inheritParams bootstrap
 #'
-#' @return An object of class "boot", compatible with the \pkg{boot}
+#' @return 
+#' The returned value is an object of class "boot", compatible with the \pkg{boot}
 #' package's \code{\link[boot]{boot}} methods.
 #' 
 #' @seealso 
@@ -275,30 +246,20 @@ resid_bootstrap <- function(model, fn, B, parallel = FALSE, nCores = NULL) {
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-case_bootstrap <- function(model, fn, B, resample, parallel = FALSE, nCores = NULL) {
-  if(parallel == FALSE) nCores <- 1
-  else {
-    if(is.null(nCores)) {
-      warning("'nCores' unspecified, using 2 cores")
-      nCores <- 2
-    }
-    else {
-      if(!nCores %in% 2:parallel::detectCores()){
-        stop("for parallelization 'nCores' must be greater than 1 and within the range of your machine's cores")
-      }
-    }
-  }
+case_bootstrap <- function(model, fn, B, resample) {
   UseMethod("case_bootstrap", model)
 }
 
-#' CGR bootstrap for nested LMEs.
+#' CGR Bootstrap for Nested LMEs
 #'
+#' @description
 #' Generate semi-parametric bootstrap replicates of a statistic for a nested 
 #' linear mixed-effects model.
 #'
 #' @export
 #' @inheritParams bootstrap
 #' 
+#' @details 
 #' The semi-parametric bootstrap algorithm implemented was outlined by  Carpenter,  
 #' Goldstein and Rasbash (2003). The algorithm is outlined below:
 #' \enumerate{
@@ -313,7 +274,8 @@ case_bootstrap <- function(model, fn, B, resample, parallel = FALSE, nCores = NU
 #'   \item Repeat steps 3-5 B times.
 #' }
 #'
-#' @return An object of class "boot", compatible with the \pkg{boot}
+#' @return 
+#' The returned value is an object of class "boot", compatible with the \pkg{boot}
 #' package's \code{\link[boot]{boot}} methods.
 #' 
 #' @seealso 
@@ -332,27 +294,17 @@ case_bootstrap <- function(model, fn, B, resample, parallel = FALSE, nCores = NU
 #'    procedure for assessing the relationship between class size and achievement. 
 #'    \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, 
 #'    \bold{52}, 431--443.
-cgr_bootstrap <- function(model, fn, B, parallel = FALSE, nCores = NULL) {
-  if(parallel == FALSE) nCores <- 1
-  else {
-    if(is.null(nCores)) {
-      warning("'nCores' unspecified, using 2 cores")
-      nCores <- 2
-    }
-    else {
-      if(!nCores %in% 2:parallel::detectCores()){
-        stop("for parallelization 'nCores' must be greater than 1 and within the range of your machine's cores")
-      }
-    }
-  }
+cgr_bootstrap <- function(model, fn, B) {
   UseMethod("cgr_bootstrap", model)
 }
 
-#' REB bootstrap for two-level nested LMEs.
+#' @title REB Bootstrap for Two-Level Nested LMEs
 #'
+#' @description
 #' Generate random effect block (REB) bootstrap replicates of a statistic for a 
 #' two-level nested linear mixed-effects model.
 #'
+#' @details
 #' The random effects block (REB) bootstrap was outlined by Chambers and Chandra (2013)
 #' and has been developed for two-level nested linear mixed-effects (LME) models. 
 #' Consider a two-level LME of the form
@@ -385,7 +337,8 @@ cgr_bootstrap <- function(model, fn, B, parallel = FALSE, nCores = NULL) {
 #' @export
 #' @inheritParams bootstrap
 #'
-#' @return An object of class "boot", compatible with the \pkg{boot}
+#' @return 
+#' The returned value is an object of class "boot", compatible with the \pkg{boot}
 #' package's \code{\link[boot]{boot}} methods.
 #' 
 #' @seealso 

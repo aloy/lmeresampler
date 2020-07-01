@@ -1,12 +1,12 @@
 #' @rdname bootstrap
 #' @export
 #' @importFrom stats as.formula cov formula model.matrix na.exclude na.omit predict resid simulate
-bootstrap.lmerMod <- function(model, fn, type, B, resample, reb_type, parallel, nCores){
+bootstrap.lmerMod <- function (model, fn, type, B, resample, reb_type){
   switch(type,
-         parametric = parametric_bootstrap.lmerMod(model, fn, B, parallel = FALSE, nCores = NULL),
-         residual = resid_bootstrap.lmerMod(model, fn, B, parallel = FALSE, nCores = NULL),
-         case = case_bootstrap.lmerMod(model, fn, B, resample, parallel = FALSE, nCores = NULL),
-         cgr = cgr_bootstrap.lmerMod(model, fn, B, parallel = FALSE, nCores = NULL),
+         parametric = parametric_bootstrap.lmerMod(model, fn, B),
+         residual = resid_bootstrap.lmerMod(model, fn, B),
+         case = case_bootstrap.lmerMod(model, fn, B, resample),
+         cgr = cgr_bootstrap.lmerMod(model, fn, B),
          reb = reb_bootstrap.lmerMod(model, fn, B, reb_type = 0))
   # TODO: need to be able to save results
 }
@@ -14,13 +14,13 @@ bootstrap.lmerMod <- function(model, fn, type, B, resample, reb_type, parallel, 
 
 #' @rdname parametric_bootstrap
 #' @export
-parametric_bootstrap.lmerMod <- function(model, fn, B, parallel = FALSE, nCores = NULL){
+parametric_bootstrap.lmerMod <- function(model, fn, B){
   fn <- match.fun(fn)
   
   model.fixef <- lme4::fixef(model) # Extract fixed effects
   ystar <- simulate(model, nsim = B, na.action = na.exclude)
   
-  return(.bootstrap.completion(model, ystar, B, fn, parallel, nCores))
+  return(.bootstrap.completion(model, ystar, B, fn))
   
   # TODO: once we have things working, think about parallelization.
   #       using an llply statement would make this easy with the .parallel
@@ -31,12 +31,12 @@ parametric_bootstrap.lmerMod <- function(model, fn, B, parallel = FALSE, nCores 
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lmerMod <- function(model, fn, B, parallel = FALSE, nCores = NULL){
+resid_bootstrap.lmerMod <- function (model, fn, B){
   fn <- match.fun(fn)
   
   ystar <- lapply(1:B, function(x) .resample.resids(model))
   
-  RES <- .bootstrap.completion(model, ystar, B, fn, parallel, nCores)
+  RES <- .bootstrap.completion(model, ystar, B, fn)
   RES$sim <- "resid"
   return(RES)
 }
@@ -44,7 +44,7 @@ resid_bootstrap.lmerMod <- function(model, fn, B, parallel = FALSE, nCores = NUL
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lmerMod <- function(model, fn, B, resample, parallel = FALSE, nCores = NULL){
+case_bootstrap.lmerMod <- function (model, fn, B, resample){
   
   data <- model@frame
   # data$.id <- seq_len(nrow(data))
@@ -53,7 +53,7 @@ case_bootstrap.lmerMod <- function(model, fn, B, resample, parallel = FALSE, nCo
   if(length(clusters) != length(resample))
     stop("'resample' is not the same length as the number of grouping variables. Please specify whether to resample the data at each level of grouping.")
   
-  rep.data <- lapply(integer(B), function(x) .cases.resamp(dat = data, cluster = clusters, resample = resample, parallel = FALSE, nCores = NULL))
+  rep.data <- lapply(integer(B), function(x) .cases.resamp(dat = data, cluster = clusters, resample = resample))
   
   # Plugin to .cases.completion due to small changes
   RES <- .cases.completion(model, rep.data, B, fn)
@@ -82,12 +82,7 @@ case_bootstrap.lmerMod <- function(model, fn, B, resample, parallel = FALSE, nCo
 #   do.call(rbind, sub)
 # }
 # 
-
-#' Cases resampling procedures
-#' @importFrom(magrittr,"%>%")
-#' @keywords internal
-#' @noRd
-.cases.resamp <- function(dat, cluster, resample, parallel = FALSE, nCores = NULL) {
+.cases.resamp <- function(dat, cluster, resample) {
   # exit early for trivial data
   if(nrow(dat) == 1 || all(resample==FALSE))
     return(dat)
@@ -95,79 +90,42 @@ case_bootstrap.lmerMod <- function(model, fn, B, resample, parallel = FALSE, nCo
   # ver <- as.numeric_version(packageVersion("dplyr"))
   res <- dat
   
-  # parallelization
-  if(parallel == TRUE){
-    cl <- snow::makeSOCKcluster(nCores) # snow is deprecated, but this is supported by the parallel package
-    parallel::clusterExport(cl=cl, varlist=c("dat", "cluster", "resample", "nCores"))
-    doParallel::registerDoParallel(cl)
+  for(i in 1:length(cluster)) {
     
-    foreach::foreach(i = 1:length(cluster), .combine = rbind) %dopar% {
-      if(i==1 & resample[i]) {
-        dots <- cluster[1]
-        grouped <- dplyr::group_by({{res}}) %>% dplyr::group_by({{dots}})
-        g_rows <- dplyr::group_rows(grouped)
-        # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
-        cls <- sample(seq_along(g_rows), replace = resample[i])
-        idx <- unlist(g_rows[cls], recursive = FALSE)
-        res <- res[idx, ]
+    if(i==1 & resample[i]) {
+      dots <- cluster[1]
+      grouped <- dplyr::group_by_(res, dots)
+      g_rows <- dplyr::group_rows(grouped)
+      # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
+      cls <- sample(seq_along(g_rows), replace = resample[i])
+      idx <- unlist(g_rows[cls], recursive = FALSE)
+      res <- res[idx, ]
+    } else{
+      if(i == length(cluster) & resample[i]) {
+        dots <- cluster[-i]
+        grouped <- dplyr::group_by_(res, .dots = dots)
+        res <- dplyr::sample_frac(grouped, size = 1, replace = TRUE)
       } else{
-        if(i == length(cluster) & resample[i]) {
-          dots <- cluster[-i]
-          grouped <- dplyr::group_by({{res}}) %>% dplyr::group_by({{.dots = dots}})
-          res <- dplyr::sample_frac(grouped, size = 1, replace = TRUE)
-        } else{
-          if(resample[i]) {
-            dots <- cluster[i]
-            res <- split(res, res[, cluster[1:(i-1)]], drop = TRUE)
-            res <- plyr::ldply(res, function(df) {
-              grouped <- dplyr::group_by({{df}}) %>% dplyr::group_by({{.dots = dots}})
-              g_rows <- dplyr::group_rows(grouped)
-              # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
-              cls <- sample(seq_along(g_rows), replace = resample[i])
-              idx <- unlist(g_rows[cls], recursive = FALSE)
-              grouped[idx, ]
-            }, .id = NULL)
-          }
+        if(resample[i]) {
+          dots <- cluster[i]
+          res <- split(res, res[, cluster[1:(i-1)]], drop = TRUE)
+          res <- plyr::ldply(res, function(df) {
+            grouped <- dplyr::group_by_(df, .dots = dots)
+            g_rows <- dplyr::group_rows(grouped)
+            # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
+            cls <- sample(seq_along(g_rows), replace = resample[i])
+            idx <- unlist(g_rows[cls], recursive = FALSE)
+            grouped[idx, ]
+          }, .id = NULL)
         }
       }
     }
-    stopCluster()
-    return(res)
+    
+    
   }
-  else {
-    for(i in 1:length(cluster)) {
-      if(i==1 & resample[i]) {
-        dots <- cluster[1]
-        grouped <- dplyr::group_by({{res}}) %>% dplyr::group_by({{dots}})
-        g_rows <- dplyr::group_rows(grouped)
-        # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
-        cls <- sample(seq_along(g_rows), replace = resample[i])
-        idx <- unlist(g_rows[cls], recursive = FALSE)
-        res <- res[idx, ]
-      } else{
-        if(i == length(cluster) & resample[i]) {
-          dots <- cluster[-i]
-          grouped <- dplyr::group_by({{res}}) %>% dplyr::group_by({{.dots = dots}})
-          res <- dplyr::sample_frac(grouped, size = 1, replace = TRUE)
-        } else{
-          if(resample[i]) {
-            dots <- cluster[i]
-            res <- split(res, res[, cluster[1:(i-1)]], drop = TRUE)
-            res <- plyr::ldply(res, function(df) {
-              grouped <- dplyr::group_by({{df}}) %>% dplyr::group_by({{.dots = dots}})
-              g_rows <- dplyr::group_rows(grouped)
-              # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
-              cls <- sample(seq_along(g_rows), replace = resample[i])
-              idx <- unlist(g_rows[cls], recursive = FALSE)
-              grouped[idx, ]
-            }, .id = NULL)
-          }
-        }
-      }
-    }
-    return(res)
-  }
+  return(res)
 }
+
 
 # .cases.resamp <- function (model, extra_step){
 #   # Draw sample of size J from level-2 units
@@ -191,23 +149,6 @@ case_bootstrap.lmerMod <- function(model, fn, B, resample, parallel = FALSE, nCo
 #   }
 # }
 
-#' @title Cases Completion
-#'
-#' @description
-#' Finishes the cases bootstrap process and makes the output readable.
-#'
-#' @details
-#' This function is given \code{model, data, B, fn} and uses them to complete
-#' the cases bootstrap process. They are then structured into a list for output and returned.
-#'
-#' @param data The data being passed in.
-#' @param B The \code{B} being passed in.
-#' @param fn The \code{fn} being passed in.
-#' @inheritParams bootstrap
-#'
-#' @return list
-#' @keywords internal
-#' @noRd
 .cases.completion <- function(model, data, B, fn){
   t0 <- fn(model)
   
@@ -232,12 +173,12 @@ case_bootstrap.lmerMod <- function(model, fn, B, resample, parallel = FALSE, nCo
 
 #' @rdname cgr_bootstrap
 #' @export
-cgr_bootstrap.lmerMod <- function (model, fn, B, parallel = FALSE, nCores = NULLs){
+cgr_bootstrap.lmerMod <- function (model, fn, B){
   fn <- match.fun(fn)
   
   ystar <- as.data.frame( replicate(n = B, .resample.cgr(model = model)) )
   
-  RES <- .bootstrap.completion(model, ystar, B, fn, parallel, nCores)
+  RES <- .bootstrap.completion(model, ystar, B, fn)
   RES$sim <- "cgr"
   return(RES)
   
@@ -339,8 +280,8 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #' @details
 #' This function combines \code{bstar} and \code{zstar} to create {Zbstar} using an lapply statement.
 #'
-#' @param bstar A list of matrices \code{bstar}.
-#' @param zstar A list of matrices \code{zstar}.
+#' @param bstar A list of matrices bstar
+#' @param zstar A list of matrices zstar
 #'
 #' @return matrix
 #' @keywords internal
@@ -358,39 +299,22 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #' Finishes the bootstrap process and makes the output readable.
 #'
 #' @details
-#' This function is given \code{model, ystar, B, fn, parallel, nCores} and uses them to complete
+#' This function is given \code{model, ystar, B, fn} and uses them to complete
 #' the bootstrap process. They are then structured into a list for output and returned.
 #'
-#' @param ystar The \code{ystar} being passed in.
-#' @param B The \code{B} being passed in. 
-#' @param fn The \code{fn} being passed in.
-#' @param parallel A logical argument. Whether or not the bootstrap should be executed in parallel.
-#' @param nCores The number of cores the bootstrap should use.
+#' @param ystar The ystar being passed in
 #' @inheritParams bootstrap
 #'
 #' @return list
 #' @keywords internal
 #' @noRd
-.bootstrap.completion <- function(model, ystar, B, fn, parallel, nCores){
+.bootstrap.completion <- function(model, ystar, B, fn){
   t0 <- fn(model)
   
   # Refit the model and apply 'fn' to it using lapply
-  
-  # parallelization
-  if(parallel == TRUE) {
-    cl2 <- snow::makeSOCKcluster(nCores) # snow is deprecated, but this is supported by the parallel package
-    parallel::clusterExport(cl=cl2, varlist=c("model", "ystar", "nCores"))
-    
-    tstar <- parallel::parLapply(cl2, ystar, function(x) {
-      fn(lme4::refit(object = model, newresp = x))
-    })
-    stopCluster()
-  }
-  else{
-    tstar <- lapply(ystar, function(x) {
-      fn(lme4::refit(object = model, newresp = x))
-    })
-  }
+  tstar <- lapply(ystar, function(x) {
+    fn(lme4::refit(object = model, newresp = x))
+  })
   
   nsim <- length(tstar)
   tstar <- do.call("cbind", tstar) # Can these be nested?
@@ -541,7 +465,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 
 #' REB resampling procedures
 #' 
-#' @param reb_type Specifies the inclusion of REB/1.
+#' @param reb_type Specifies the inclusion of REB/1
 #' @inheritParams bootstrap
 #' @import Matrix
 #' @keywords internal
