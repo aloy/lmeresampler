@@ -34,7 +34,7 @@ parametric_bootstrap.lmerMod <- function(model, fn, B){
 resid_bootstrap.lmerMod <- function (model, fn, B){
   fn <- match.fun(fn)
   
-  ystar <- lapply(1:B, function(x) .resample.resids(model))
+  ystar <- purrr::map(1:B, function(x) .resample.resids(model))
   
   RES <- .bootstrap.completion(model, ystar, B, fn)
   RES$sim <- "resid"
@@ -44,7 +44,7 @@ resid_bootstrap.lmerMod <- function (model, fn, B){
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lmerMod <- function (model, fn, B, resample){
+case_bootstrap.lmerMod <- function(model, fn, B, resample){
   
   data <- model@frame
   # data$.id <- seq_len(nrow(data))
@@ -53,7 +53,7 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
   if(length(clusters) != length(resample))
     stop("'resample' is not the same length as the number of grouping variables. Please specify whether to resample the data at each level of grouping.")
   
-  rep.data <- lapply(integer(B), function(x) .cases.resamp(dat = data, cluster = clusters, resample = resample))
+  rep.data <- purrr::map(integer(B), function(x) .cases.resamp(model = model, dat = data, cluster = clusters, resample = resample))
   
   # Plugin to .cases.completion due to small changes
   RES <- .cases.completion(model, rep.data, B, fn)
@@ -82,7 +82,7 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
 #   do.call(rbind, sub)
 # }
 # 
-.cases.resamp <- function(dat, cluster, resample) {
+.cases.resamp <- function(model, dat, cluster, resample) {
   # exit early for trivial data
   if(nrow(dat) == 1 || all(resample==FALSE))
     return(dat)
@@ -94,7 +94,7 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
     
     if(i==1 & resample[i]) {
       dots <- cluster[1]
-      grouped <- dplyr::group_by_(res, dots)
+      grouped <- dplyr::group_by({{res}}) %>% dplyr::group_by({{dots}})
       g_rows <- dplyr::group_rows(grouped)
       # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
       cls <- sample(seq_along(g_rows), replace = resample[i])
@@ -103,14 +103,14 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
     } else{
       if(i == length(cluster) & resample[i]) {
         dots <- cluster[-i]
-        grouped <- dplyr::group_by_(res, .dots = dots)
+        grouped <- dplyr::group_by({{res}}) %>% dplyr::group_by({{.dots = dots}})
         res <- dplyr::sample_frac(grouped, size = 1, replace = TRUE)
       } else{
         if(resample[i]) {
           dots <- cluster[i]
           res <- split(res, res[, cluster[1:(i-1)]], drop = TRUE)
-          res <- plyr::ldply(res, function(df) {
-            grouped <- dplyr::group_by_(df, .dots = dots)
+          res <- purrr::map_dfr(res, function(df) { # ldply to purrr map from list to df
+            grouped <- dplyr::group_by({{df}}) %>% dplyr::group_by({{.dots = dots}})
             g_rows <- dplyr::group_rows(grouped)
             # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
             cls <- sample(seq_along(g_rows), replace = resample[i])
@@ -123,7 +123,17 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
     
     
   }
+  
+  # Refit the model and apply 'fn' to it using map
+  form <- model@call$formula
+  reml <- lme4::isREML(model)
+  tstar <- purrr::map(data, function(x) {
+    fn(lme4::lmer(formula = form, data = x, REML = reml)) 
+  })
+  
+  res$tstar <- res$tstar
   return(res)
+  
 }
 
 
@@ -135,7 +145,7 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
 #   
 #   if(extra_step == TRUE){
 #     model.resamp <- lapply(model.split.samp,
-#                            FUN = function(x) {
+#                            .f = function(x) {
 #                              J <- nrow(x)
 #                              
 #                              # Sample of level-2 rows
@@ -149,16 +159,19 @@ case_bootstrap.lmerMod <- function (model, fn, B, resample){
 #   }
 # }
 
-.cases.completion <- function(model, data, B, fn){
+# data parameter needs to change, will be result of .cases.resamp
+.cases.completion <- function(model, data = res, B, fn){
   t0 <- fn(model)
   
-  # Refit the model and apply 'fn' to it using lapply
-  form <- model@call$formula
-  reml <- lme4::isREML(model)
-  tstar <- lapply(data, function(x) {
-    fn(lme4::lmer(formula = form, data = x, REML = reml)) 
-  })
-  
+  # moved to .cases.resamp
+  # # Refit the model and apply 'fn' to it using map
+  # form <- model@call$formula
+  # reml <- lme4::isREML(model)
+  # tstar <- purrr::map(data, function(x) {
+  #   fn(lme4::lmer(formula = form, data = x, REML = reml))
+  # })
+
+  tstar <- res$tstar
   tstar <- do.call("cbind", tstar) # Can these be nested?
   rownames(tstar) <- names(t0)
   
@@ -199,7 +212,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   
   if(reb_type != 2) t0 <- fn(model)
   
-  # Refit the model and apply 'fn' to it using lapply
+  # Refit the model and apply 'fn' to it using map
   #   tstar <- lapply(ystar[1,], function(x) {
   #     fn(refit(object = model, newresp = x))
   #   })
@@ -208,13 +221,13 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
     fe.0 <- lme4::fixef(model)
     vc.0 <- bdiag(lme4::VarCorr(model))
     t0 <- c(beta = fe.0, sigma = c(diag(vc.0), lme4::getME(model, "sigma")^2))
-    tstar <- lapply(ystar, function(x) {
+    tstar <- purrr::map(ystar, function(x) {
       m <- lme4::refit(object = model, newresp = x)
       vc <- as.data.frame(lme4::VarCorr(m))
       list(fixef = lme4::fixef(m), varcomp = vc$vcov[is.na(vc$var2)])
     })
     
-    vcs <- lapply(tstar, function(x) x$varcomp)
+    vcs <- purrr::map(tstar, function(x) x$varcomp)
     Sb <- log( do.call("rbind", vcs) )
     #     fes <- lapply(tstar, function(x) x$fixef)
     
@@ -231,10 +244,10 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
     Sbmod <- Sbmod * Db # elementwise not a type 
     Lb <- exp(Mb + Sbmod)
     
-    tstar <- lapply(tstar, unlist)
+    tstar <- purrr::map(tstar, unlist)
   } else{
     Lb <- NULL
-    tstar <- lapply(ystar, function(x) {
+    tstar <- purrr:map(ystar, function(x) {
       fn(lme4::refit(object = model, newresp = x))
     })
   }
@@ -246,10 +259,10 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   if(reb_type == 2) {
     idx <- 1:length(fe.0)
     fe.star <- tstar[idx,] 
-    fe.adj <- sweep(fe.star, MARGIN = 1, STATS = fe.0 - rowMeans(fe.star, na.rm = TRUE), FUN = "+")
+    fe.adj <- sweep(fe.star, MARGIN = 1, STATS = fe.0 - rowMeans(fe.star, na.rm = TRUE), .f = "+")
     
     vc.star <- tstar[-idx,] 
-    vc.adj <- sweep(vc.star, MARGIN = 1, STATS = t0[-idx] / rowMeans(vc.star, na.rm = TRUE), FUN = "*")
+    vc.adj <- sweep(vc.star, MARGIN = 1, STATS = t0[-idx] / rowMeans(vc.star, na.rm = TRUE), .f = "*")
     
     tstar <- rbind(fe.adj, vc.adj)
     
@@ -278,7 +291,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #' Combine \code{bstar} and \code{zstar} to create {Zbstar}.
 #'
 #' @details
-#' This function combines \code{bstar} and \code{zstar} to create {Zbstar} using an lapply statement.
+#' This function combines \code{bstar} and \code{zstar} to create {Zbstar} using an map statement.
 #'
 #' @param bstar A list of matrices bstar
 #' @param zstar A list of matrices zstar
@@ -287,7 +300,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 #' @keywords internal
 #' @noRd
 .Zbstar.combine <- function(bstar, zstar){
-  lapply(1:length(bstar), function(i){
+  purrr::map(1:length(bstar), function(i){
     Matrix::t(zstar[[i]]) %*% bstar[[i]]
   })
 }
@@ -311,18 +324,13 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
 .bootstrap.completion <- function(model, ystar, B, fn){
   t0 <- fn(model)
   
-  # Refit the model and apply 'fn' to it using lapply
-  tstar <- lapply(ystar, function(x) {
-    fn(lme4::refit(object = model, newresp = x))
-  })
-  
   nsim <- length(tstar)
   tstar <- do.call("cbind", tstar) # Can these be nested?
   rownames(tstar) <- names(t0)
   
   if ((nfail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", nfail, "/", nsim, ")")
-    fail.msgs <- vapply(tstar[bad.runs], FUN=attr, FUN.VALUE = character(1),
+    fail.msgs <- vapply(tstar[bad.runs], .f =attr, FUN.VALUE = character(1),
                         "fail.msgs")
   } else fail.msgs <- NULL
   
@@ -346,8 +354,8 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   model.resid <- resid(model)
   
   # Higher levels
-  Uhat.list <- lapply(seq_along(model.ranef),
-                      FUN = function(i) {
+  Uhat.list <- purrr::map(seq_along(model.ranef),
+                      .f = function(i) {
                         u <- scale(model.ranef[[i]], scale = FALSE)
                         S <- (t(u) %*% u) / length(u)
                         
@@ -379,8 +387,8 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   level.num <- lme4::getME(object = model, name = "n_rfacs")
   
   # Resample Uhat
-  ustar <- lapply(Uhat.list,
-                  FUN = function(df) {
+  ustar <- purrr::map(Uhat.list,
+                  .f = function(df) {
                     index <- sample(x = seq_len(nrow(df)), size = nrow(df), replace = TRUE)
                     return(df[index,])
                   })
@@ -388,11 +396,11 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   # Structure u*
   if(level.num == 1){
     if(is.data.frame(ustar[[1]])){
-      ustar <- lapply(ustar, FUN = function(x) as.list(x))[[1]] 
+      ustar <- purrr::map(ustar, .f = function(x) as.list(x))[[1]] 
     }
     names(ustar) <- names(Z)
   } else {
-    ustar <- lapply(ustar, FUN = function(x) as.data.frame(x))
+    ustar <- purrr::map(ustar, .f = function(x) as.data.frame(x))
     ustar <- do.call(c, ustar)
     names(ustar) <- names(Z)
   }
@@ -407,7 +415,11 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   # Combine
   y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
   
-  return(y.star)
+  # Refit the model and apply 'fn' to it using map
+  tstar <- purrr::map_dfc(y.star, function(x) {
+    fn(lme4::refit(object = model, newresp = x))
+  })
+  
 }
 
 #' Resampling residuals from mixed models
@@ -427,8 +439,8 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   # Extract Z design matrix
   Z <- lme4::getME(object = model, name = "Ztlist")
   
-  bstar <- lapply(model.ranef,
-                  FUN = function(x) {
+  bstar <- purrr::map(model.ranef,
+                  .f = function(x) {
                     J <- nrow(x)
                     
                     # Sample of b*
@@ -440,10 +452,10 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   level.num <- lme4::getME(object = model, name = "n_rfacs")
   
   if(level.num == 1){
-    if(!is.numeric(bstar[[1]])) bstar <- lapply(bstar, FUN = function(x) as.list(x))[[1]]
+    if(!is.numeric(bstar[[1]])) bstar <- purrr::map(bstar, .f = function(x) as.list(x))[[1]]
     names(bstar) <- names(Z)
   } else {
-    bstar <- lapply(bstar, FUN = function(x) as.data.frame(x))
+    bstar <- purrr::map_dfr(bstar, .f = function(x) as.data.frame(x))
     bstar <- do.call(c, bstar)
     names(bstar) <- names(Z)
   }
@@ -459,7 +471,11 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   # Combine function
   y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
   
-  return(y.star)
+  # Refit the model and apply 'fn' to it using map
+  tstar <- purrr::map_dfc(y.star, function(x) {
+    fn(lme4::refit(object = model, newresp = x))
+  })
+  
   
 }
 
@@ -487,7 +503,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   # ranef.merMod function in lme4.
   # TODO: think about 3+ level models...
   #   ans <- model@pp$b(1)
-  levs <- lapply(fl <- model@flist, levels)
+  levs <- purrr::map(fl <- model@flist, levels)
   asgn <- attr(fl, "assign")
   cnms <- model@cnms
   nc <- vapply(cnms, length, 1L)
@@ -504,7 +520,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   if(reb_type == 1){
     if(level.num > 1) stop("reb_type = 1 is not yet implemented for higher order models")
     # Calculations
-    Uhat <- lapply(u, function(x){
+    Uhat <- purrr::map(u, function(x){
       S <- (t(x) %*% x) / nrow(x)
       R <- bdiag(lme4::VarCorr(model))
       Ls <- chol(S, pivot = TRUE)
@@ -531,8 +547,8 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   Xbeta <- predict(model, re.form = NA)
   
   # resample uhats
-  ustar <- lapply(Uhat,
-                  FUN = function(x) {
+  ustar <- purrr::map(Uhat,
+                  .f = function(x) {
                     J <- nrow(x)
                     
                     # Sample of b*
@@ -550,9 +566,9 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   Ztlist <- lme4::getME(object = model, name = "Ztlist")
   
   if(level.num == 1){
-    ustar <- lapply(ustar, FUN = function(x) as.list(x))[[1]]
+    ustar <- purrr::map(ustar, .f = function(x) as.list(x))[[1]]
   } else {
-    ustar <- lapply(ustar, FUN = function(x) as.data.frame(x))
+    ustar <- purrr::map_dfr(ustar, .f = function(x) as.data.frame(x))
     ustar <- do.call(c, ustar)
   }
   
@@ -560,10 +576,10 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   ustar.df <- as.data.frame(ustar)
   
   #   if(level.num == 1){
-  #     Uhat.list <- lapply(Uhat.list, FUN = function(x) as.list(x))[[1]]
+  #     Uhat.list <- lapply(Uhat.list, .f = function(x) as.list(x))[[1]]
   #     names(Uhat.list) <- names(Ztlist)
   #   } else {
-  #     Uhat.list <- sapply(Uhat.list, FUN = function(x) as.list(x))
+  #     Uhat.list <- sapply(Uhat.list, .f = function(x) as.list(x))
   #   }
   
   #   # Resample Uhat
@@ -579,6 +595,10 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   # Combine function
   y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
   
-  return(y.star)
+  # Refit the model and apply 'fn' to it using map
+  tstar <- purrr::map_dfc(y.star, function(x) {
+    fn(lme4::refit(object = model, newresp = x))
+  })
+  
 }
 

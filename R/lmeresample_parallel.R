@@ -4,6 +4,12 @@ library(lme4)
 # fit model
 vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
 
+## you can write your own function to return stats, or use something like 'fixef'
+mySumm <- function(.) { 
+  s <- getME(., "sigma")
+  c(beta = getME(., "beta"), sigma = s, sig01 = unname(s * getME(., "theta"))) 
+}
+
 # run sequential parametric bootstrap
 library(tictoc)
 tic()
@@ -12,7 +18,7 @@ toc()
 
 # run sequential cases bootstrap
 tic()
-boo2 <- bootstrap(model = vcmodA, fn = fixef, type = "case", B = 100, resample = c(TRUE, FALSE))
+boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
 toc()
 
 
