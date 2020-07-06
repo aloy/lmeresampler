@@ -4,24 +4,25 @@ library(lme4)
 # fit model
 vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
 
+getME(vcmodA, "X")
+
 ## you can write your own function to return stats, or use something like 'fixef'
 mySumm <- function(.) { 
-  s <- getME(., "sigma")
-  c(beta = getME(., "beta"), sigma = s, sig01 = unname(s * getME(., "theta"))) 
+  s <- lme4::getME(., "sigma")
+  c(beta = lme4::getME(., "beta"), sigma = s, sig01 = unname(s * getME(., "theta"))) 
 }
 
+set.seed(1234)
 # run sequential parametric bootstrap
 library(tictoc)
 tic()
-b_nopar  <- bootstrap(vcmodA, fn = fixef, type = "parametric", B = 5000)
+b_nopar  <- bootstrap(vcmodA, fn = mySumm, type = "parametric", B = 500)
 toc()
 
 # run sequential cases bootstrap
 tic()
-boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
+boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 500, resample = c(TRUE, FALSE))
 toc()
-
-
 
 # run sequential cgr bootstrap
 tic()
@@ -53,32 +54,72 @@ combine <- function(...) {
   return(RES)
 }
 
+# ---------------------------------------------------------------------------------
+
+# doParallel and foreach will automatically adapt to the user's system?
+
+## CLUSTERING ##
+# pro: system agnostic, con: slow
 library(doParallel)
-registerDoParallel(cores = 2)
+set.seed(1234)
+cl <- snow::makeSOCKcluster(2)
+doParallel::registerDoParallel(cl)
 
 # parallel parametric bootstrap, 2 workers
+# all packages being used need to explicitly specified in .packages
 tic()
-b_parallel2 <- foreach(B = rep(2500, 2), .combine = combine, .packages = "lmeresampler") %dopar%
-  bootstrap(vcmodA, fn = fixef, type = "parametric", B = B)
+b_parallel2 <- foreach(B = rep(250, 2), .combine = combine, .packages = c("lmeresampler", "lme4")) %dopar%
+  bootstrap(vcmodA, fn = mySumm, type = "parametric", B = B)
 toc()
+stopCluster(cl)
 
 # parallel cases bootstrap, 2 workers
 # Why is the parallel version slower??!!
+cl <- snow::makeSOCKcluster(2)
+doParallel::registerDoParallel(cl)
+
 tic()
-boo2_parallel <- foreach(B = rep(50, 2), .combine = combine, .packages = "lmeresampler") %dopar%
-  bootstrap(model = vcmodA, fn = fixef, type = "case", B = B, resample = c(TRUE, FALSE))
+boo2_parallel <- foreach(B = rep(250, 2), .combine = combine, .packages = c("lmeresampler", "lme4")) %dopar%
+  bootstrap(model = vcmodA, fn = mySumm, type = "case", B = B, resample = c(TRUE, FALSE))
 toc()
+snow::stopCluster(cl)
 
 profvis::profvis({
   boo2_parallel <- foreach(B = rep(50, 2), .combine = combine, .packages = "lmeresampler") %dopar%
     bootstrap(model = vcmodA, fn = fixef, type = "case", B = B, resample = c(TRUE, FALSE))
 })
 
+snow::stopCluster(cl)
+
+# ---------------------------------------------------------------------------------
+
+## FORKING ##
+# pro: faster, con: only works on UNIX systems (not Windows), so runtime will not be a Windows runtime
+
+registerDoParallel(cores = 2)
+
+# parallel parametric bootstrap, 2 workers
+tic()
+b_parallel2 <- foreach(B = rep(250, 2), .combine = combine, .packages = "lmeresampler") %dopar%
+  bootstrap(vcmodA, fn = fixef, type = "parametric", B = B)
+toc()
+
+# parallel cases bootstrap, 2 workers
+# Why is the parallel version slower??!!
+tic()
+boo2_parallel <- foreach(B = rep(250, 2), .combine = combine, .packages = "lmeresampler") %dopar%
+  bootstrap(model = vcmodA, fn = fixef, type = "case", B = B, resample = c(TRUE, FALSE))
+toc()
+
+# ---------------------------------------------------------------------------------
+
 # Let's investigate .cases.resamp() first...
 
 repeated_case_resamp <- function(data, cluster, resample, B){
   purrr::map(1:B, ~.cases.resamp(dat = data, cluster = cluster, resample = resample))
 }
+
+snow::stopCluster(cl)
 
 # Change dopar to do for sequential
 # For 2000 reps, sequential ~ 10.726s; parallel ~7.07 s (so it's about 1.5x faster)
@@ -87,6 +128,7 @@ resampled_cases <- foreach(B = rep(1000, 2), .combine = append, .packages = "lme
   repeated_case_resamp(data = vcmodA@frame, cluster = c(rev(names(lme4::getME(vcmodA, "flist"))), ".id"), resample = c(TRUE, FALSE), B = B)
 toc()
 
+snow::stopCluster(cl)
 
 # Now, let's see what happens if we add the model refit to the resampling bit...
 
