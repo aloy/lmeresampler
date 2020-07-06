@@ -1,7 +1,7 @@
 #' @rdname bootstrap
 #' @export
 #' @importFrom stats as.formula cov formula model.matrix na.exclude na.omit predict resid simulate
-bootstrap.lmerMod <- function (model, fn, type, B, resample, reb_type){
+bootstrap.lmerMod <- function(model, fn, type, B, resample, reb_type){
   switch(type,
          parametric = parametric_bootstrap.lmerMod(model, fn, B),
          residual = resid_bootstrap.lmerMod(model, fn, B),
@@ -31,7 +31,7 @@ parametric_bootstrap.lmerMod <- function(model, fn, B){
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lmerMod <- function (model, fn, B){
+resid_bootstrap.lmerMod <- function(model, fn, B){
   fn <- match.fun(fn)
   
   ystar <- purrr::map(1:B, function(x) .resample.resids(model))
@@ -59,7 +59,6 @@ case_bootstrap.lmerMod <- function(model, fn, B, resample){
   RES <- .cases.completion(model, rep.data, B, fn)
   return(RES)
 }
-
 
 # # Using recursion allows for a very general function...
 # # How can I speed this up?
@@ -120,20 +119,18 @@ case_bootstrap.lmerMod <- function(model, fn, B, resample){
         }
       }
     }
-    
-    
   }
   
   # Refit the model and apply 'fn' to it using map
   form <- model@call$formula
   reml <- lme4::isREML(model)
+  # tstar <- purrr::map(data, ~.x$fn(lme4::lmer(formula = form, data = x, REML = reml)))
   tstar <- purrr::map(data, function(x) {
     fn(lme4::lmer(formula = form, data = x, REML = reml)) 
   })
   
   res$tstar <- res$tstar
   return(res)
-  
 }
 
 
@@ -165,6 +162,7 @@ case_bootstrap.lmerMod <- function(model, fn, B, resample){
   
   # moved to .cases.resamp
   # # Refit the model and apply 'fn' to it using map
+  
   # form <- model@call$formula
   # reml <- lme4::isREML(model)
   # tstar <- purrr::map(data, function(x) {
@@ -186,7 +184,7 @@ case_bootstrap.lmerMod <- function(model, fn, B, resample){
 
 #' @rdname cgr_bootstrap
 #' @export
-cgr_bootstrap.lmerMod <- function (model, fn, B){
+cgr_bootstrap.lmerMod <- function(model, fn, B){
   fn <- match.fun(fn)
   
   ystar <- as.data.frame( replicate(n = B, .resample.cgr(model = model)) )
@@ -200,7 +198,7 @@ cgr_bootstrap.lmerMod <- function (model, fn, B){
 
 #' @rdname reb_bootstrap
 #' @export
-reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
+reb_bootstrap.lmerMod <- function(model, fn, B, reb_type = 0){
   
   if(lme4::getME(object = model, name = "n_rfacs") > 1) {
     stop("The REB bootstrap has not been adapted for 3+ level models.")
@@ -208,7 +206,7 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   
   fn <- match.fun(fn)
   
-  ystar <- as.data.frame( replicate(n = B, .resample.reb(model = model, reb_type = reb_type)) )
+  ystar <- as.data.frame(replicate(n = B, .resample.reb(model = model, reb_type = reb_type)))
   
   if(reb_type != 2) t0 <- fn(model)
   
@@ -254,7 +252,6 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   
   tstar <- do.call("cbind", tstar) # Can these be nested?
   #   rownames(tstar) <- names(fn(model))
-  
   
   if(reb_type == 2) {
     idx <- 1:length(fe.0)
@@ -475,8 +472,6 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   tstar <- purrr::map_dfc(y.star, function(x) {
     fn(lme4::refit(object = model, newresp = x))
   })
-  
-  
 }
 
 #' REB resampling procedures
@@ -599,6 +594,5 @@ reb_bootstrap.lmerMod <- function (model, fn, B, reb_type = 0){
   tstar <- purrr::map_dfc(y.star, function(x) {
     fn(lme4::refit(object = model, newresp = x))
   })
-  
 }
 

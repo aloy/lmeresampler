@@ -1,6 +1,6 @@
 #' @rdname bootstrap
 #' @export
-bootstrap.lme <- function (model, fn, type, B, resample, reb_type){
+bootstrap.lme <- function(model, fn, type, B, resample, reb_type){
   switch(type,
          parametric = parametric_bootstrap.lme(model, fn, B),
          residual = resid_bootstrap.lme(model, fn, B),
@@ -40,7 +40,6 @@ parametric_bootstrap.lme <- function(model, fn, B){
   #   }
   
   
-  
   res <- lapply(ystar, function(y) {
     fit <- tryCatch(fn(updated.model(model = model, new.y = y)),  
                     error = function(e) e)
@@ -49,8 +48,7 @@ parametric_bootstrap.lme <- function(model, fn, B){
     } else{
       fit
     }
-  }
-  )
+  })
   
   #   for(i in 1:B){
   #     #     myin <- ystar[,i]
@@ -93,10 +91,9 @@ parametric_bootstrap.lme <- function(model, fn, B){
 }
 
 
-
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lme <- function (model, fn, B, resample){
+case_bootstrap.lme <- function(model, fn, B, resample){
   
   data <- model$data
   # data$.id <- seq_len(nrow(data))
@@ -145,7 +142,7 @@ case_bootstrap.lme <- function (model, fn, B, resample){
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lme <- function (model, fn, B){
+resid_bootstrap.lme <- function(model, fn, B){
   fn <- match.fun(fn)
   
   t0 <- fn(model)
@@ -273,17 +270,15 @@ resid_bootstrap.lme <- function (model, fn, B){
 #' @rdname reb_bootstrap
 #' @inheritParams bootstrap
 #' @export
-reb_bootstrap.lme <- function (model, fn, B, reb_type = 0){
+reb_bootstrap.lme <- function(model, fn, B, reb_type = 0){
   
-  if(ncol(model$groups) > 1) {
+  if(ncol(model$groups) > 1){
     stop("The REB bootstrap has not been adapted for 3+ level models.")
   }
   
   if(reb_type != 2) fn <- match.fun(fn)
   
   ystar <- as.data.frame( replicate(n = B, .resample.reb.lme(model = model, reb_type = reb_type)) )
-  
-  
   
   if(reb_type == 2){
     fe.0 <- nlme::fixef(model)
@@ -330,8 +325,7 @@ reb_bootstrap.lme <- function (model, fn, B, reb_type = 0){
       } else{
         fit
       }
-    }
-    )
+    })
   }
   
   tstar <- do.call("cbind", tstar) # Can these be nested?
@@ -359,7 +353,6 @@ reb_bootstrap.lme <- function (model, fn, B, reb_type = 0){
                    class = "boot")
   
   return(RES)
-  
 }
 
 

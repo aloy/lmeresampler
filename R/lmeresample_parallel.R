@@ -46,7 +46,7 @@ library(purrr)
 
 combine <- function(...) {
   boot_list <- list(...)
-  combo_stat <- map_dfr(boot_list, ~as.data.frame(.x$t))
+  combo_stat <- purrr::map_dfr(boot_list, ~as.data.frame(.x$t))
   combo_r <- sum(map_dbl(boot_list, ~.x$R))
   RES <- boot_list[[1]]
   RES$t <- combo_stat
@@ -96,7 +96,7 @@ snow::stopCluster(cl)
 ## FORKING ##
 # pro: faster, con: only works on UNIX systems (not Windows), so runtime will not be a Windows runtime
 
-registerDoParallel(cores = 2)
+doParallel::registerDoParallel(cores = 2)
 
 # parallel parametric bootstrap, 2 workers
 tic()
