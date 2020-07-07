@@ -6,7 +6,7 @@
 #'
 #' @export
 #' @param model The model object you wish to bootstrap.
-#' @param fn A function returning the statistic(s) of interest.
+#' @param .f A function returning the statistic(s) of interest.
 #' @param type A character string indicating the type of bootstrap that is being
 #'    requested. Possible values are \code{"parametric"}, \code{"residual"}, 
 #'    \code{"case"}, \code{"cgr"}, or \code{"reb"} (random effect block bootstrap).
@@ -52,23 +52,23 @@
 #'
 #' ## running a parametric bootstrap 
 #' set.seed(1234)
-#' boo1 <- bootstrap(model = vcmodA, fn = mySumm, type = "parametric", B = 100)
+#' boo1 <- bootstrap(model = vcmodA, .f = mySumm, type = "parametric", B = 100)
 #' 
 #' \dontrun{
 #' ## running a cases bootstrap - only resampling the schools
-#' boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
+#' boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
 #' 
 #' ## running a cases bootstrap - resampling the schools and students within the school
-#' boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
+#' boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
 #' 
 #' ## running a semi-parametric bootstrap
-#' boo3 <- bootstrap(model = vcmodA, fn = mySumm, type = "cgr", B = 100)
+#' boo3 <- bootstrap(model = vcmodA, .f = mySumm, type = "cgr", B = 100)
 #' 
 #' ## running a residual bootstrap
-#' boo4 <- bootstrap(model = vcmodA, fn = mySumm, type = "residual", B = 100)
+#' boo4 <- bootstrap(model = vcmodA, .f = mySumm, type = "residual", B = 100)
 #' 
 #' ## running an REB0 bootstrap
-#' boo5 <- bootstrap(model = vcmodA, fn = mySumm, type = "reb", B = 100, reb_typ = 0)
+#' boo5 <- bootstrap(model = vcmodA, .f = mySumm, type = "reb", B = 100, reb_typ = 0)
 #' }
 #' 
 #' ## to print results in a formatted way
@@ -107,7 +107,7 @@
 #'    Bates, D., Maechler, M., Bolker, W., Walker, S. (2015).
 #'    Fitting Linear Mixed-Effects Models Using lme4. \emph{Journal of
 #'    Statistical Software}, \bold{67}, 1--48. doi:10.18637/jss.v067.i01.
-bootstrap <- function(model, fn, type, B, resample = NULL, reb_type = NULL) {
+bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL) {
   if(!type %in% c("parametric", "residual", "case", "cgr", "reb"))
     stop("'type' must be one of 'parametric', 'residual', 'case', 'cgr', or 'reb'")
   if(!is.null(reb_type))
@@ -155,7 +155,7 @@ bootstrap <- function(model, fn, type, B, resample = NULL, reb_type = NULL) {
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-parametric_bootstrap <- function(model, fn, B) {
+parametric_bootstrap <- function(model, .f, B) {
   UseMethod("parametric_bootstrap", model)
 }
 
@@ -195,7 +195,7 @@ parametric_bootstrap <- function(model, fn, B) {
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-resid_bootstrap <- function(model, fn, B) {
+resid_bootstrap <- function(model, .f, B) {
   UseMethod("resid_bootstrap", model)
 }
 
@@ -246,7 +246,7 @@ resid_bootstrap <- function(model, fn, B) {
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-case_bootstrap <- function(model, fn, B, resample) {
+case_bootstrap <- function(model, .f, B, resample) {
   UseMethod("case_bootstrap", model)
 }
 
@@ -294,7 +294,7 @@ case_bootstrap <- function(model, fn, B, resample) {
 #'    procedure for assessing the relationship between class size and achievement. 
 #'    \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, 
 #'    \bold{52}, 431--443.
-cgr_bootstrap <- function(model, fn, B) {
+cgr_bootstrap <- function(model, .f, B) {
   UseMethod("cgr_bootstrap", model)
 }
 
@@ -356,7 +356,7 @@ cgr_bootstrap <- function(model, fn, B) {
 #'    Chambers, R. and Chandra, H. (2013) A random effect block bootstrap for 
 #'    clustered data. \emph{Journal of Computational and Graphical Statistics}, 
 #'    \bold{22}, 452--470.
-reb_bootstrap <- function(model, fn, B, reb_type = 0) {
+reb_bootstrap <- function(model, .f, B, reb_type = 0) {
   if(!reb_type %in% 0:2) 
     stop("'reb_type' must be either 0, 1, or 2")
   UseMethod("reb_bootstrap", model)

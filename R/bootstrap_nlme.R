@@ -1,25 +1,25 @@
 #' @rdname bootstrap
 #' @export
-bootstrap.lme <- function(model, fn, type, B, resample, reb_type){
+bootstrap.lme <- function(model, .f, type, B, resample, reb_type){
   switch(type,
-         parametric = parametric_bootstrap.lme(model, fn, B),
-         residual = resid_bootstrap.lme(model, fn, B),
-         case = case_bootstrap.lme(model, fn, B, resample),
-         cgr = cgr_bootstrap.lme(model, fn, B),
-         reb = reb_bootstrap.lme(model, fn, B, reb_type = 0))
+         parametric = parametric_bootstrap.lme(model, .f, B),
+         residual = resid_bootstrap.lme(model, .f, B),
+         case = case_bootstrap.lme(model, .f, B, resample),
+         cgr = cgr_bootstrap.lme(model, .f, B),
+         reb = reb_bootstrap.lme(model, .f, B, reb_type = 0))
 }
 
 
 #' @rdname parametric_bootstrap
 #' @export
 #' @importFrom nlmeU simulateY
-parametric_bootstrap.lme <- function(model, fn, B){
+parametric_bootstrap.lme <- function(model, .f, B){
   # getVarCov.lme is the limiting factor...
   if (length(model$group) > 1) 
     stop("not implemented for multiple levels of nesting")
   
   # Match function
-  fn <- match.fun(fn)
+  .f <- match.fun(.f)
   
   # Extract fixed effects
   model.fixef <- nlme::fixef(model)
@@ -28,7 +28,7 @@ parametric_bootstrap.lme <- function(model, fn, B){
   row.names(ystar) <- 1:model$dims$N
   ystar <- data.frame(ystar)
   
-  t0 <- fn(model)
+  t0 <- .f(model)
   
   # t.res <- list()
   # length(t.res) <- B
@@ -36,12 +36,12 @@ parametric_bootstrap.lme <- function(model, fn, B){
   #   for(i in 1:B){
   #     myin <- ystar[,i]
   #     model.update <- update(object = model, fixed = myin ~ .)
-  #     t.res[i,] <- fn(model.update)
+  #     t.res[i,] <- .f(model.update)
   #   }
   
   
   res <- lapply(ystar, function(y) {
-    fit <- tryCatch(fn(updated.model(model = model, new.y = y)),  
+    fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
                     error = function(e) e)
     if (inherits(fit, "error")) {
       structure(rep(NA, length(t0)), fail.msgs = fit$message)
@@ -53,16 +53,16 @@ parametric_bootstrap.lme <- function(model, fn, B){
   #   for(i in 1:B){
   #     #     myin <- ystar[,i]
   #     #     model.update <- nlme:::update.lme(object = model, fixed = myin ~ .)
-  #     #     t.res[i,] <- fn(model.update)
-  #     fit <- tryCatch(fn(updated.model(model = model, new.y = ystar[,i])),  error = function(e) e)
+  #     #     t.res[i,] <- .f(model.update)
+  #     fit <- tryCatch(.f(updated.model(model = model, new.y = ystar[,i])),  error = function(e) e)
   #     if (inherits(fit, "error")) {
   #       structure(rep(NA, length(t0)), fail.msgs = fit$message)
   #     } else{
   #       t.res[[i]] <- fit
   #     }
-  ### NOTE: Need to check if there was an error in try, and then use fn()
+  ### NOTE: Need to check if there was an error in try, and then use .f()
   # tmp.mod <- updated.model(model = model, new.y = ystar[,i])
-  # t.res[[i]] <- fn(try.fit)
+  # t.res[[i]] <- .f(try.fit)
   # }
   tstar <- do.call('cbind', res)
   # tstar <- data.frame(tstar)
@@ -81,7 +81,7 @@ parametric_bootstrap.lme <- function(model, fn, B){
   } else fail.msgs <- NULL
   
   RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model$data,
-                        seed = .Random.seed, statistic = fn,
+                        seed = .Random.seed, statistic = .f,
                         sim = "parametric", call = match.call()),
                    class = "boot")
   attr(RES, "bootFail") <- numFail
@@ -93,7 +93,7 @@ parametric_bootstrap.lme <- function(model, fn, B){
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lme <- function(model, fn, B, resample){
+case_bootstrap.lme <- function(model, .f, B, resample){
   
   data <- model$data
   # data$.id <- seq_len(nrow(data))
@@ -102,13 +102,13 @@ case_bootstrap.lme <- function(model, fn, B, resample){
   if(length(clusters) != length(resample))
     stop("'resample' is not the same length as the number of grouping variables. Please specify whether to resample the data at each level of grouping.")
   
-  t0 <- fn(model)
+  t0 <- .f(model)
   
   # rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(dat = data, cluster = clusters, resample = resample))))
   rep.data <- lapply(integer(B), function(x) .cases.resamp(dat = data, cluster = clusters, resample = resample))
   
   res <- lapply(rep.data, function(df) {
-    fit <- tryCatch(fn(updated.model(model = model, new.data = df)),  
+    fit <- tryCatch(.f(updated.model(model = model, new.data = df)),  
                     error = function(e) e)
     if (inherits(fit, "error")) {
       structure(rep(NA, length(t0)), fail.msgs = fit$message)
@@ -131,7 +131,7 @@ case_bootstrap.lme <- function(model, fn, B, resample){
   } else fail.msgs <- NULL
   
   RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model$data,
-                        seed = .Random.seed, statistic = fn,
+                        seed = .Random.seed, statistic = .f,
                         sim = "case", call = match.call()),
                    class = "boot")
   attr(RES, "bootFail") <- numFail
@@ -142,16 +142,16 @@ case_bootstrap.lme <- function(model, fn, B, resample){
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lme <- function(model, fn, B){
-  fn <- match.fun(fn)
+resid_bootstrap.lme <- function(model, .f, B){
+  .f <- match.fun(.f)
   
-  t0 <- fn(model)
+  t0 <- .f(model)
   ystar <- lapply(1:B, function(x) .resample.resids.lme(model))
   
-  #   return(.bootstrap.completion(model, ystar, B, fn))
+  #   return(.bootstrap.completion(model, ystar, B, .f))
   
   res <- lapply(ystar, function(y) {
-    fit <- tryCatch(fn(updated.model(model = model, new.y = y)),  
+    fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
                     error = function(e) e)
     if (inherits(fit, "error")) {
       structure(rep(NA, length(t0)), fail.msgs = fit$message)
@@ -174,7 +174,7 @@ resid_bootstrap.lme <- function(model, fn, B){
   } else fail.msgs <- NULL
   
   RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model$data,
-                        seed = .Random.seed, statistic = fn,
+                        seed = .Random.seed, statistic = .f,
                         sim = "resid", call = match.call()),
                    class = "boot")
   attr(RES, "bootFail") <- numFail
@@ -270,13 +270,13 @@ resid_bootstrap.lme <- function(model, fn, B){
 #' @rdname reb_bootstrap
 #' @inheritParams bootstrap
 #' @export
-reb_bootstrap.lme <- function(model, fn, B, reb_type = 0){
+reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
   
   if(ncol(model$groups) > 1){
     stop("The REB bootstrap has not been adapted for 3+ level models.")
   }
   
-  if(reb_type != 2) fn <- match.fun(fn)
+  if(reb_type != 2) .f <- match.fun(.f)
   
   ystar <- as.data.frame( replicate(n = B, .resample.reb.lme(model = model, reb_type = reb_type)) )
   
@@ -315,10 +315,10 @@ reb_bootstrap.lme <- function(model, fn, B, reb_type = 0){
     
     tstar <- lapply(tstar, unlist)
   } else{
-    t0 <- fn(model)
+    t0 <- .f(model)
     #     Lb <- NULL
     tstar <- lapply(ystar, function(y) {
-      fit <- tryCatch(fn(updated.model(model = model, new.y = y)),  
+      fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
                       error = function(e) e)
       if (inherits(fit, "error")) {
         structure(rep(NA, length(t0)), fail.msgs = fit$message)
@@ -330,7 +330,7 @@ reb_bootstrap.lme <- function(model, fn, B, reb_type = 0){
   
   tstar <- do.call("cbind", tstar) # Can these be nested?
   colnames(tstar) <- paste("sim", 1:ncol(tstar), sep = "_")
-  #   rownames(tstar) <- names(fn(model))
+  #   rownames(tstar) <- names(.f(model))
   
   if(reb_type == 2) {
     idx <- 1:length(fe.0)
@@ -342,13 +342,13 @@ reb_bootstrap.lme <- function(model, fn, B, reb_type = 0){
     
     tstar <- rbind(fe.adj, vc.adj)
     
-    fn <- function(.) {
+    .f <- function(.) {
       c(beta = nlme::fixef(.), sigma = c(diag(nlme::getVarCov(.)), .$sigma^2))
     }
   }
   
   RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model$data,
-                        seed = .Random.seed, statistic = fn,
+                        seed = .Random.seed, statistic = .f,
                         sim = paste("reb", reb_type, sep = ""), call = match.call()),
                    class = "boot")
   
@@ -459,16 +459,16 @@ reb_bootstrap.lme <- function(model, fn, B, reb_type = 0){
 #' @rdname cgr_bootstrap
 #' @inheritParams bootstrap
 #' @export
-cgr_bootstrap.lme <- function (model, fn, B){
-  fn <- match.fun(fn)
+cgr_bootstrap.lme <- function (model, .f, B){
+  .f <- match.fun(.f)
   
   ystar <- as.data.frame( replicate(n = B, .resample.cgr.lme(model = model)) )
   
-  t0 <- fn(model)
+  t0 <- .f(model)
   
   
   res <- lapply(ystar, function(y) {
-    fit <- tryCatch(fn(updated.model(model = model, new.y = y)),  
+    fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
                     error = function(e) e)
     if (inherits(fit, "error")) {
       structure(rep(NA, length(t0)), fail.msgs = fit$message)
@@ -489,7 +489,7 @@ cgr_bootstrap.lme <- function (model, fn, B){
   } else fail.msgs <- NULL
   
   RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model$data,
-                        seed = .Random.seed, statistic = fn,
+                        seed = .Random.seed, statistic = .f,
                         sim = "CGR", call = match.call()),
                    class = "boot")
   attr(RES, "bootFail") <- numFail

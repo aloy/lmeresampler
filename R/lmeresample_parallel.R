@@ -16,27 +16,27 @@ set.seed(1234)
 # run sequential parametric bootstrap
 library(tictoc)
 tic()
-b_nopar  <- bootstrap(vcmodA, fn = mySumm, type = "parametric", B = 500)
+b_nopar  <- bootstrap(vcmodA, .f = mySumm, type = "parametric", B = 500)
 toc()
 
 # run sequential cases bootstrap
 tic()
-boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 500, resample = c(TRUE, FALSE))
+boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 500, resample = c(TRUE, FALSE))
 toc()
 
 # run sequential cgr bootstrap
 tic()
-boo4 <- bootstrap(model = vcmodA, fn = fixef, type = "cgr", B = 1000)
+boo4 <- bootstrap(model = vcmodA, .f = fixef, type = "cgr", B = 1000)
 toc()
 
 # run sequential resid bootstrap
 tic()
-boo4 <- bootstrap(model = vcmodA, fn = fixef, type = "residual", B = 1000)
+boo4 <- bootstrap(model = vcmodA, .f = fixef, type = "residual", B = 1000)
 toc()
 
 # run sequential reb bootstrap
 tic()
-boo5 <- bootstrap(model = vcmodA, fn = fixef, type = "reb", B = 1000, reb_typ = 0)
+boo5 <- bootstrap(model = vcmodA, .f = fixef, type = "reb", B = 1000, reb_typ = 0)
 toc()
 
 
@@ -69,7 +69,7 @@ doParallel::registerDoParallel(cl)
 # all packages being used need to explicitly specified in .packages
 tic()
 b_parallel2 <- foreach(B = rep(250, 2), .combine = combine, .packages = c("lmeresampler", "lme4")) %dopar%
-  bootstrap(vcmodA, fn = mySumm, type = "parametric", B = B)
+  bootstrap(vcmodA, .f = mySumm, type = "parametric", B = B)
 toc()
 stopCluster(cl)
 
@@ -80,13 +80,13 @@ doParallel::registerDoParallel(cl)
 
 tic()
 boo2_parallel <- foreach(B = rep(250, 2), .combine = combine, .packages = c("lmeresampler", "lme4")) %dopar%
-  bootstrap(model = vcmodA, fn = mySumm, type = "case", B = B, resample = c(TRUE, FALSE))
+  bootstrap(model = vcmodA, .f = mySumm, type = "case", B = B, resample = c(TRUE, FALSE))
 toc()
 snow::stopCluster(cl)
 
 profvis::profvis({
   boo2_parallel <- foreach(B = rep(50, 2), .combine = combine, .packages = "lmeresampler") %dopar%
-    bootstrap(model = vcmodA, fn = fixef, type = "case", B = B, resample = c(TRUE, FALSE))
+    bootstrap(model = vcmodA, .f = fixef, type = "case", B = B, resample = c(TRUE, FALSE))
 })
 
 snow::stopCluster(cl)
@@ -101,14 +101,14 @@ doParallel::registerDoParallel(cores = 2)
 # parallel parametric bootstrap, 2 workers
 tic()
 b_parallel2 <- foreach(B = rep(250, 2), .combine = combine, .packages = "lmeresampler") %dopar%
-  bootstrap(vcmodA, fn = fixef, type = "parametric", B = B)
+  bootstrap(vcmodA, .f = fixef, type = "parametric", B = B)
 toc()
 
 # parallel cases bootstrap, 2 workers
 # Why is the parallel version slower??!!
 tic()
 boo2_parallel <- foreach(B = rep(250, 2), .combine = combine, .packages = "lmeresampler") %dopar%
-  bootstrap(model = vcmodA, fn = fixef, type = "case", B = B, resample = c(TRUE, FALSE))
+  bootstrap(model = vcmodA, .f = fixef, type = "case", B = B, resample = c(TRUE, FALSE))
 toc()
 
 # ---------------------------------------------------------------------------------
@@ -132,7 +132,7 @@ snow::stopCluster(cl)
 
 # Now, let's see what happens if we add the model refit to the resampling bit...
 
-.cases.resamp.refit <- function(model, dat, cluster, resample, fn) {
+.cases.resamp.refit <- function(model, dat, cluster, resample, .f) {
   form <- model@call$formula
   reml <- lme4::isREML(model)
   
@@ -173,15 +173,13 @@ snow::stopCluster(cl)
         }
       }
     }
-    
-    
   }
-  # fn(update(model, newdata = res, REML = reml)) 
-  fn(lme4::lmer(formula = form, data = res, REML = reml))
+  # .f(update(model, newdata = res, REML = reml)) 
+  .f(lme4::lmer(formula = form, data = res, REML = reml))
 }
 
-repeated_case_resamp_refit <- function(model, data, cluster, resample, fn, B){
-  purrr::map(1:B, ~.cases.resamp.refit(model = model, dat = data, cluster = cluster, resample = resample, fn = fixef))
+repeated_case_resamp_refit <- function(model, data, cluster, resample, .f, B){
+  purrr::map(1:B, ~.cases.resamp.refit(model = model, dat = data, cluster = cluster, resample = resample, .f = fixef))
 }
 
 ## Timings using lmer() for full refit
@@ -197,7 +195,7 @@ bootstrap_stats <- foreach(B = rep(1000, 2), .combine = dplyr::bind_rows, .packa
     dat = vcmodA@frame, 
     cluster = c(rev(names(lme4::getME(vcmodA, "flist"))), ".id"), 
     resample = c(TRUE, FALSE), 
-    fn = fixef,
+    .f = fixef,
     B = B
   )
 toc()
@@ -206,23 +204,23 @@ toc()
 # parallel residual bootstrap, 2 workers
 tic()
 boo4_parallel <- foreach(B = rep(500, 2), .combine = combine, .packages = "lmeresampler") %dopar%
-  bootstrap(model = vcmodA, fn = fixef, type = "residual", B = B)
+  bootstrap(model = vcmodA, .f = fixef, type = "residual", B = B)
 toc()
 
 # parallel cgr, 2 workers
 tic()
 boo3_parallel <- foreach(B = rep(500, 2), .combine = combine, .packages = "lmeresampler") %dopar%
-  bootstrap(model = vcmodA, fn = fixef, type = "cgr", B = B)
+  bootstrap(model = vcmodA, .f = fixef, type = "cgr", B = B)
 toc()
 
 # parallel reb, 2 workers
 tic()
 boo5_parallel <- foreach(B = rep(500, 2), .combine = combine, .packages = "lmeresampler") %dopar%
-  bootstrap(model = vcmodA, fn = fixef, type = "reb", B = B, reb_typ = 0)
+  bootstrap(model = vcmodA, .f = fixef, type = "reb", B = B, reb_typ = 0)
 toc()
 
 tic()
 boo5_parallel <- foreach(B = rep(500, 2), .combine = combine, .packages = "lmeresampler") %dopar%
-  bootstrap(model = vcmodA, fn = fixef, type = "reb", B = B, reb_typ = 1)
+  bootstrap(model = vcmodA, .f = fixef, type = "reb", B = B, reb_typ = 1)
 toc()
 
