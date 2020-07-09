@@ -26,17 +26,17 @@ toc()
 
 # run sequential cgr bootstrap
 tic()
-boo4 <- bootstrap(model = vcmodA, .f = fixef, type = "cgr", B = 1000)
+boo4 <- bootstrap(model = vcmodA, .f = mySumm, type = "cgr", B = 100)
 toc()
 
 # run sequential resid bootstrap
 tic()
-boo4 <- bootstrap(model = vcmodA, .f = fixef, type = "residual", B = 1000)
+boo4 <- bootstrap(model = vcmodA, .f = mySumm, type = "residual", B = 100)
 toc()
 
 # run sequential reb bootstrap
 tic()
-boo5 <- bootstrap(model = vcmodA, .f = fixef, type = "reb", B = 1000, reb_typ = 0)
+boo5 <- bootstrap(model = vcmodA, .f = mySumm, type = "reb", B = 100, reb_type = 0)
 toc()
 
 

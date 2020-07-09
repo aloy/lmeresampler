@@ -3,10 +3,10 @@
 #' @importFrom stats as.formula cov formula model.matrix na.exclude na.omit predict resid simulate
 bootstrap.lmerMod <- function(model, .f, type, B, resample, reb_type){
   switch(type,
-         parametric = parametric_bootstrap.lmerMod(model, .f, B),
-         residual = resid_bootstrap.lmerMod(model, .f, B),
-         case = case_bootstrap.lmerMod(model, .f, B, resample),
-         cgr = cgr_bootstrap.lmerMod(model, .f, B),
+         parametric = parametric_bootstrap.lmerMod(model, .f, B, type = type),
+         residual = resid_bootstrap.lmerMod(model, .f, B, type = type),
+         case = case_bootstrap.lmerMod(model, .f, B, resample, type = type),
+         cgr = cgr_bootstrap.lmerMod(model, .f, B, type = type),
          reb = reb_bootstrap.lmerMod(model, .f, B, reb_type = 0))
   # TODO: need to be able to save results
 }
@@ -14,36 +14,35 @@ bootstrap.lmerMod <- function(model, .f, type, B, resample, reb_type){
 
 #' @rdname parametric_bootstrap
 #' @export
-parametric_bootstrap.lmerMod <- function(model, .f, B){
+parametric_bootstrap.lmerMod <- function(model, .f, B, type){
   .f <- match.fun(.f)
   
   model.fixef <- lme4::fixef(model) # Extract fixed effects
   ystar <- simulate(model, nsim = B, na.action = na.exclude)
   
-  # refit here, changed tstar to ystar.refit
-  ystar.refit <- purrr::map_dfc(ystar, function(ystar) {
+  # refit here
+  tstar <- purrr::map_dfc(ystar, function(ystar) {
     .f(lme4::refit(object = model, newresp = ystar))
   })
-  return(.bootstrap.completion(model, ystar.refit, B, .f))
+  return(.bootstrap.completion(model, tstar, B, .f, type))
 }
 
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lmerMod <- function(model, .f, B){
+resid_bootstrap.lmerMod <- function(model, .f, B, type){
   .f <- match.fun(.f)
   
-  ystar <- purrr::map(1:B, function(x) .resample.resids(model))
+  tstar <- purrr::map(1:B, function(x) .resample.resids(model, .f))
   
-  RES <- .bootstrap.completion(model, ystar, B, .f)
-  RES$sim <- "resid"
+  RES <- .bootstrap.completion(model, tstar, B, .f, type)
   return(RES)
 }
 
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lmerMod <- function(model, .f, B, resample){
+case_bootstrap.lmerMod <- function(model, .f, B, resample, type){
   
   data <- model@frame
   # data$.id <- seq_len(nrow(data))
@@ -53,10 +52,9 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample){
     stop("'resample' is not the same length as the number of grouping variables. Please specify whether to resample the data at each level of grouping.")
   
   # rep.data <- purrr::map(integer(B), function(x) .cases.resamp(model = model, dat = data, cluster = clusters, resample = resample))
-  ystar <- purrr::map(integer(B), function(x) .cases.resamp(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
+  tstar <- purrr::map(integer(B), function(x) .cases.resamp(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
   
-  # Plugin to .cases.completion due to small changes
-  RES <- .bootstrap.completion(model, ystar, B, .f)
+  RES <- .bootstrap.completion(model, tstar, B, .f, type)
   return(RES)
 }
 
@@ -90,7 +88,6 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample){
   res <- dat
   
   for(i in 1:length(cluster)) {
-    
     if(i==1 & resample[i]) {
       dots <- cluster[1]
       grouped <- dplyr::group_by({{res}}) %>% dplyr::group_by({{dots}})
@@ -124,10 +121,9 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample){
   # Refit the model and apply '.f' to it using map
   form <- model@call$formula
   reml <- lme4::isREML(model)
-  # tstar <- purrr::map(data, ~.x$.f(lme4::lmer(formula = form, data = x, REML = reml)))
-  tstar <- purrr::map(dat, function(x) {
-    .f(lme4::lmer(formula = form, data = as.data.frame(x), REML = reml)) 
-  })
+
+  tstar <- .f(lme4::lmer(formula = form, data = as.data.frame(res), REML = reml)) 
+  return(tstar)
 }
 
 
@@ -181,13 +177,12 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample){
 
 #' @rdname cgr_bootstrap
 #' @export
-cgr_bootstrap.lmerMod <- function(model, .f, B){
+cgr_bootstrap.lmerMod <- function(model, .f, B, type){
   .f <- match.fun(.f)
   
-  ystar <- as.data.frame(replicate(n = B, .resample.cgr(model = model)))
+  tstar <- as.data.frame(replicate(n = B, .resample.cgr(model = model, .f)))
   
-  RES <- .bootstrap.completion(model, ystar, B, .f)
-  RES$sim <- "cgr"
+  RES <- .bootstrap.completion(model, tstar, B, .f, type)
   return(RES)
 }
 
@@ -202,7 +197,8 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   
   .f <- match.fun(.f)
   
-  ystar <- as.data.frame(replicate(n = B, .resample.reb(model = model, reb_type = reb_type)))
+  # changed this from ystar to tstar
+  tstar <- as.data.frame(replicate(n = B, .resample.reb(model = model, .f = .f, reb_type = reb_type)))
   
   if(reb_type != 2) t0 <- .f(model)
   
@@ -238,15 +234,15 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
     Sbmod <- Sbmod * Db # elementwise not a type 
     Lb <- exp(Mb + Sbmod)
     
-    tstar <- purrr::map(tstar, unlist)
+    # tstar <- purrr::map(tstar, unlist)
   } else{
     Lb <- NULL
-    tstar <- purrr::map(ystar, function(x) {
-      .f(lme4::refit(object = model, newresp = x))
-    })
+    # tstar <- purrr::map(ystar, function(x) {
+    #   .f(lme4::refit(object = model, newresp = x))
+    # })
   }
   
-  tstar <- do.call("cbind", tstar) # Can these be nested?
+  # tstar <- do.call("cbind", tstar) # Can these be nested?
   #   rownames(tstar) <- names(.f(model))
   
   if(reb_type == 2) {
@@ -264,11 +260,22 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
     }
   }
   
+  replicates <- as.data.frame(t(tstar))
+  observed <- t0
+  mean <- colMeans(replicates)
+  se <- unlist(purrr::map(replicates, sd))
+  bias <- mean - observed
   
-  RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
-                        seed = .Random.seed, statistic = .f,
-                        sim = "reb", call = match.call(), reb2 = Lb),
-                   class = "boot")
+  stats <- data.frame(observed, mean, se, bias)
+  
+  RES <- structure(list(observed = observed, .f = .f, replicates = replicates,
+                        stats = stats, R = B, data = model@frame,
+                        seed = .Random.seed, reb2 = Lb, call = match.call()))
+  
+  # RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
+  #                       seed = .Random.seed, statistic = .f,
+  #                       sim = "reb", call = match.call(), reb2 = Lb),
+  #                  class = "boot")
   
   return(RES)
 }
@@ -314,36 +321,31 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
 #' @return list
 #' @keywords internal
 #' @noRd
-.bootstrap.completion <- function(model, ystar, B, .f){
-  # this seems bad
-  tstar <- ystar
+.bootstrap.completion <- function(model, tstar, B, .f, type = type){
   t0 <- .f(model)
   
   nsim <- length(tstar)
   tstar <- do.call("cbind", tstar) # Can these be nested?
-  rownames(tstar) <- names(t0)
+  row.names(tstar) <- names(t0)
   
   if((nfail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", nfail, "/", nsim, ")")
-    fail.msgs <- vapply(tstar[bad.runs], .f =attr, FUN.VALUE = character(1),
+    fail.msgs <- vapply(tstar[bad.runs], .f = attr, FUN.VALUE = character(1),
                         "fail.msgs")
   } else fail.msgs <- NULL
   
   # prep for stats df
   replicates <- as.data.frame(t(tstar))
   observed <- t0
-  mean <- colMeans(replicates)
+  mean <- mean(replicates[, 1:length(replicates)]) # colMeans(replicates, na.rm = TRUE)
   se <- unlist(purrr::map(replicates, sd))
   bias <- mean - observed
   
   stats <- data.frame(observed, mean, se, bias)
   
-  # fix type
   RES <- structure(list(observed = observed, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model@frame,
-                        seed = .Random.seed,
-                        type = NULL, call = match.call()),
-                   class = "boot")
+                        seed = .Random.seed, type = type, call = match.call()))
   attr(RES,"bootFail") <- nfail
   attr(RES,"boot.fail.msgs") <- fail.msgs
   attr(RES,"boot_type") <- "boot"
@@ -353,7 +355,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
 #' CGR resampling procedures
 #' @keywords internal
 #' @noRd
-.resample.cgr <- function(model){
+.resample.cgr <- function(model, .f){
   model.ranef <- lme4::ranef(model)
   
   # Extract residuals
@@ -423,15 +425,13 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   
   # Refit the model and apply '.f' to it using map
   # changed x to y.star for function and newresp
-  tstar <- purrr::map_dfr(y.star, function(y.star) {
-    .f(lme4::refit(object = model, newresp = y.star))
-  })
+  tstar <- .f(lme4::refit(object = model, newresp = y.star))
 }
 
 #' Resampling residuals from mixed models
 #' @keywords internal
 #' @noRd
-.resample.resids <- function(model){
+.resample.resids <- function(model, .f){
   
   # Extract fixed part of the model
   Xbeta <- predict(model, re.form = NA) # This is X %*% fixef(model)
@@ -480,6 +480,8 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
   
   # Refit the model and apply '.f' to it using map
+  
+  ## .f() no mapping
   tstar <- purrr::map_dfc(y.star, function(y.star) {
     .f(lme4::refit(object = model, newresp = y.star))
   })
@@ -492,7 +494,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
 #' @import Matrix
 #' @keywords internal
 #' @noRd
-.resample.reb <- function(model, reb_type){
+.resample.reb <- function(model, .f, reb_type){
   # extract marginal residuals
   model.mresid <- lme4::getME(model, "y") - predict(model, re.form = NA)
   
@@ -602,8 +604,6 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
   
   # Refit the model and apply '.f' to it using map
-  tstar <- purrr::map_dfc(y.star, function(x) {
-    .f(lme4::refit(object = model, newresp = x))
-  })
+  tstar <- .f(lme4::refit(object = model, newresp = y.star))
 }
 
