@@ -21,7 +21,9 @@ parametric_bootstrap.lmerMod <- function(model, .f, B, type){
   ystar <- simulate(model, nsim = B, na.action = na.exclude)
   
   # refit here
-  tstar <- .f(lme4::refit(object = model, newresp = ystar))
+  tstar <- purrr::map_dfc(ystar, function(x) {
+    .f(lme4::refit(object = model, newresp = x))
+  })
   return(.bootstrap.completion(model, tstar, B, .f, type))
 }
 
@@ -120,7 +122,10 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample, type){
   form <- model@call$formula
   reml <- lme4::isREML(model)
 
-  tstar <- .f(lme4::lmer(formula = form, data = as.data.frame(res), REML = reml)) 
+  # tstar <- .f(lme4::lmer(formula = form, data = as.data.frame(res), REML = reml)) 
+  tstar <- purrr::map(dat, function(x) {
+    .f(lme4::lmer(formula = form, data = as.data.frame(x), REML = reml)) 
+  })
   return(tstar)
 }
 

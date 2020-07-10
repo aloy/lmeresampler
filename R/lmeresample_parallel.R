@@ -21,12 +21,12 @@ toc()
 
 # run sequential cases bootstrap
 tic()
-boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 500, resample = c(TRUE, FALSE))
+boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
 toc()
 
 # run sequential cgr bootstrap
 tic()
-boo4 <- bootstrap(model = vcmodA, .f = mySumm, type = "cgr", B = 100)
+boo3 <- bootstrap(model = vcmodA, .f = mySumm, type = "cgr", B = 100)
 toc()
 
 # run sequential resid bootstrap
