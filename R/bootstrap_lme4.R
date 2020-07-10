@@ -99,14 +99,14 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample, type){
     } else{
       if(i == length(cluster) & resample[i]) {
         dots <- as.name(cluster[-i])
-        grouped <- dplyr::group_by(res, !!.dots = dots)
+        grouped <- dplyr::group_by(res, .dots = !!dots) 
         res <- dplyr::sample_frac(grouped, size = 1, replace = TRUE)
       } else{
         if(resample[i]) {
           dots <- as.name(cluster[i])
           res <- split(res, res[, cluster[1:(i-1)]], drop = TRUE)
           res <- purrr::map_dfr(res, function(df) { # ldply to purrr map from list to df
-            grouped <- dplyr::group_by(df, !!.dots = dots)
+            grouped <- dplyr::group_by(df, .dots = !!dots)
             g_rows <- dplyr::group_rows(grouped)
             # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
             cls <- sample(seq_along(g_rows), replace = resample[i])
@@ -117,16 +117,16 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample, type){
       }
     }
   }
+  return(res)
   
   # Refit the model and apply '.f' to it using map
   form <- model@call$formula
   reml <- lme4::isREML(model)
 
-  # tstar <- .f(lme4::lmer(formula = form, data = as.data.frame(res), REML = reml)) 
-  tstar <- purrr::map(dat, function(x) {
-    .f(lme4::lmer(formula = form, data = as.data.frame(x), REML = reml)) 
-  })
-  return(tstar)
+  tstar <- .f(lme4::lmer(formula = form, data = res, REML = reml)) 
+  # tstar <- purrr::map(res, function(x) {
+  #   .f(lme4::lmer(formula = form, data = as.data.frame(x), REML = reml)) 
+  # })
 }
 
 
