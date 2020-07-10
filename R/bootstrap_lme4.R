@@ -89,8 +89,8 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample, type){
   
   for(i in 1:length(cluster)) {
     if(i==1 & resample[i]) {
-      dots <- cluster[1]
-      grouped <- dplyr::group_by({{res}}) %>% dplyr::group_by({{dots}})
+      dots <- as.name(cluster[1])
+      grouped <- dplyr::group_by(res, !!dots)
       g_rows <- dplyr::group_rows(grouped)
       # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
       cls <- sample(seq_along(g_rows), replace = resample[i])
@@ -98,15 +98,15 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample, type){
       res <- res[idx, ]
     } else{
       if(i == length(cluster) & resample[i]) {
-        dots <- cluster[-i]
-        grouped <- dplyr::group_by({{res}}) %>% dplyr::group_by({{.dots = dots}})
+        dots <- as.name(cluster[-i])
+        grouped <- dplyr::group_by(res, !!.dots = dots)
         res <- dplyr::sample_frac(grouped, size = 1, replace = TRUE)
       } else{
         if(resample[i]) {
-          dots <- cluster[i]
+          dots <- as.name(cluster[i])
           res <- split(res, res[, cluster[1:(i-1)]], drop = TRUE)
           res <- purrr::map_dfr(res, function(df) { # ldply to purrr map from list to df
-            grouped <- dplyr::group_by({{df}}) %>% dplyr::group_by({{.dots = dots}})
+            grouped <- dplyr::group_by(df, !!.dots = dots)
             g_rows <- dplyr::group_rows(grouped)
             # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
             cls <- sample(seq_along(g_rows), replace = resample[i])
@@ -437,7 +437,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   
   # Extract random effects
   # centered
-  model.ranef <- as.data.frame(scale(lme4::getME(model, "b"), scale = FALSE))
+  model.ranef <- purrr::map(lme4::ranef(model), .f = scale, scale = FALSE)
   
   # Extract residuals
   # centered
@@ -481,9 +481,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   # Refit the model and apply '.f' to it using map
   
   ## .f() no mapping
-  tstar <- purrr::map_dfc(y.star, function(y.star) {
-    .f(lme4::refit(object = model, newresp = y.star))
-  })
+  tstar <- .f(lme4::refit(object = model, newresp = y.star))
 }
 
 #' REB resampling procedures 
