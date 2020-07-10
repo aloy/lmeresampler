@@ -337,7 +337,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   observed <- t0
   rep.mean <- colMeans(replicates)
   se <- unlist(purrr::map(replicates, sd))
-  bias <- mean - observed
+  bias <- rep.mean - observed
   
   stats <- data.frame(observed, rep.mean, se, bias)
   
