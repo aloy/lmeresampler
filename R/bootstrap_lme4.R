@@ -21,9 +21,7 @@ parametric_bootstrap.lmerMod <- function(model, .f, B, type){
   ystar <- simulate(model, nsim = B, na.action = na.exclude)
   
   # refit here
-  tstar <- purrr::map_dfc(ystar, function(ystar) {
-    .f(lme4::refit(object = model, newresp = ystar))
-  })
+  tstar <- .f(lme4::refit(object = model, newresp = ystar))
   return(.bootstrap.completion(model, tstar, B, .f, type))
 }
 
@@ -325,6 +323,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   t0 <- .f(model)
   
   nsim <- length(tstar)
+  tstar <- do.call("cbind", tstar) # Can these be nested?
   row.names(tstar) <- names(t0)
   
   if((nfail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
