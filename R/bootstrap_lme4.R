@@ -325,7 +325,6 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   t0 <- .f(model)
   
   nsim <- length(tstar)
-  tstar <- do.call("cbind", tstar) # Can these be nested?
   row.names(tstar) <- names(t0)
   
   if((nfail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
@@ -337,11 +336,11 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   # prep for stats df
   replicates <- as.data.frame(t(tstar))
   observed <- t0
-  mean <- mean(replicates[, 1:length(replicates)]) # colMeans(replicates, na.rm = TRUE)
+  rep.mean <- colMeans(replicates)
   se <- unlist(purrr::map(replicates, sd))
   bias <- mean - observed
   
-  stats <- data.frame(observed, mean, se, bias)
+  stats <- data.frame(observed, rep.mean, se, bias)
   
   RES <- structure(list(observed = observed, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model@frame,
@@ -438,7 +437,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   
   # Extract random effects
   # centered
-  model.ranef <- scale(lme4::ranef(model), scale = FALSE)
+  model.ranef <- as.data.frame(scale(lme4::getME(model, "b"), scale = FALSE))
   
   # Extract residuals
   # centered
