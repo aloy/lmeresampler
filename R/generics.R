@@ -195,7 +195,7 @@ parametric_bootstrap <- function(model, .f, B) {
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-resid_bootstrap <- function(model, .f, B) {
+resid_bootstrap <- function(model, .f, B, link = FALSE) {
   UseMethod("resid_bootstrap", model)
 }
 
