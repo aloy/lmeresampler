@@ -107,7 +107,7 @@
 #'    Bates, D., Maechler, M., Bolker, W., Walker, S. (2015).
 #'    Fitting Linear Mixed-Effects Models Using lme4. \emph{Journal of
 #'    Statistical Software}, \bold{67}, 1--48. doi:10.18637/jss.v067.i01.
-bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL) {
+bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL, link = FALSE) {
   if(!type %in% c("parametric", "residual", "case", "cgr", "reb"))
     stop("'type' must be one of 'parametric', 'residual', 'case', 'cgr', or 'reb'")
   if(!is.null(reb_type))

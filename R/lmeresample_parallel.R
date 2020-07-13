@@ -31,7 +31,7 @@ toc()
 
 # run sequential resid bootstrap
 tic()
-boo4 <- bootstrap(model = vcmodA, .f = mySumm, type = "residual", B = 100)
+boo4 <- bootstrap(model = vcmodA, .f = mySumm, type = "residual", B = 100, link = TRUE)
 toc()
 
 # run sequential reb bootstrap

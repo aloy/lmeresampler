@@ -1,7 +1,7 @@
 #' @rdname bootstrap
 #' @export
 #' @importFrom stats as.formula cov formula model.matrix na.exclude na.omit predict resid simulate
-bootstrap.lmerMod <- function(model, .f, type, B, resample, reb_type){
+bootstrap.lmerMod <- function(model, .f, type, B, resample, reb_type, link){
   switch(type,
          parametric = parametric_bootstrap.lmerMod(model, .f, B, type = type),
          residual = resid_bootstrap.lmerMod(model, .f, B, type = type, link = FALSE),
