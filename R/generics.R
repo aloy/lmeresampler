@@ -155,7 +155,7 @@ bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL, link
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-parametric_bootstrap <- function(model, .f, B) {
+parametric_bootstrap <- function(model, .f, B, type) {
   UseMethod("parametric_bootstrap", model)
 }
 
@@ -195,7 +195,7 @@ parametric_bootstrap <- function(model, .f, B) {
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-resid_bootstrap <- function(model, .f, B, link = FALSE) {
+resid_bootstrap <- function(model, .f, B, type, link = FALSE) {
   UseMethod("resid_bootstrap", model)
 }
 
@@ -246,7 +246,7 @@ resid_bootstrap <- function(model, .f, B, link = FALSE) {
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-case_bootstrap <- function(model, .f, B, resample) {
+case_bootstrap <- function(model, .f, B, type, resample) {
   UseMethod("case_bootstrap", model)
 }
 
@@ -294,7 +294,7 @@ case_bootstrap <- function(model, .f, B, resample) {
 #'    procedure for assessing the relationship between class size and achievement. 
 #'    \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, 
 #'    \bold{52}, 431--443.
-cgr_bootstrap <- function(model, .f, B) {
+cgr_bootstrap <- function(model, .f, B, type) {
   UseMethod("cgr_bootstrap", model)
 }
 

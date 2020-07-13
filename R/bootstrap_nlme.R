@@ -2,10 +2,10 @@
 #' @export
 bootstrap.lme <- function(model, .f, type, B, resample, reb_type){
   switch(type,
-         parametric = parametric_bootstrap.lme(model, .f, B),
-         residual = resid_bootstrap.lme(model, .f, B),
-         case = case_bootstrap.lme(model, .f, B, resample),
-         cgr = cgr_bootstrap.lme(model, .f, B),
+         parametric = parametric_bootstrap.lme(model, .f, B, type = type),
+         residual = resid_bootstrap.lme(model, .f, B, type = type),
+         case = case_bootstrap.lme(model, .f, B, resample, type = type),
+         cgr = cgr_bootstrap.lme(model, .f, B, type = type),
          reb = reb_bootstrap.lme(model, .f, B, reb_type = 0))
 }
 
@@ -13,9 +13,9 @@ bootstrap.lme <- function(model, .f, type, B, resample, reb_type){
 #' @rdname parametric_bootstrap
 #' @export
 #' @importFrom nlmeU simulateY
-parametric_bootstrap.lme <- function(model, .f, B){
+parametric_bootstrap.lme <- function(model, .f, B, type){
   # getVarCov.lme is the limiting factor...
-  if (length(model$group) > 1) 
+  if(length(model$group) > 1) 
     stop("not implemented for multiple levels of nesting")
   
   # Match function
@@ -39,8 +39,7 @@ parametric_bootstrap.lme <- function(model, .f, B){
   #     t.res[i,] <- .f(model.update)
   #   }
   
-  
-  res <- lapply(ystar, function(y) {
+  res <- purrr::map(ystar, function(y) {
     fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
                     error = function(e) e)
     if (inherits(fit, "error")) {
@@ -70,20 +69,30 @@ parametric_bootstrap.lme <- function(model, .f, B){
   #   tstar <- split(t.res, rep(1:ncol(t.res), each = nrow(t.res)))
   #   
   #   tstar <- do.call("cbind", tstar) # Can these be nested?
-  rownames(tstar) <- names(t0)
-  colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
-  
-  
-  if ((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
+  row.names(tstar) <- names(t0)
+  # colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
+
+  if((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", numFail, "/", B, ")")
-    fail.msgs <- vapply(res[bad.runs], FUN = attr, FUN.VALUE = character(1), 
+    # fail.msgs <- vapply(res[bad.runs], .f = attr, 
+    #                     "fail.msgs")
+    fail.msgs <- purrr::map_chr(res[bad.runs], .f = attr, FUN.VALUE = character(1),
                         "fail.msgs")
   } else fail.msgs <- NULL
   
-  RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model$data,
-                        seed = .Random.seed, statistic = .f,
-                        sim = "parametric", call = match.call()),
-                   class = "boot")
+  # prep for stats df
+  replicates <- as.data.frame(t(tstar))
+  observed <- t0
+  rep.mean <- colMeans(replicates)
+  se <- unlist(purrr::map(replicates, sd))
+  bias <- rep.mean - observed
+  
+  stats <- data.frame(observed, rep.mean, se, bias)
+  
+  RES <- structure(list(observed = observed, .f = .f, replicates = replicates,
+                        stats = stats, R = B, data = model$data,
+                        seed = .Random.seed, type = type, call = match.call()))
+  
   attr(RES, "bootFail") <- numFail
   attr(RES, "boot.fail.msgs") <- fail.msgs
   attr(RES,"boot_type") <- "boot"
@@ -93,7 +102,7 @@ parametric_bootstrap.lme <- function(model, .f, B){
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lme <- function(model, .f, B, resample){
+case_bootstrap.lme <- function(model, .f, B, resample, type){
   
   data <- model$data
   # data$.id <- seq_len(nrow(data))
@@ -105,9 +114,9 @@ case_bootstrap.lme <- function(model, .f, B, resample){
   t0 <- .f(model)
   
   # rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(dat = data, cluster = clusters, resample = resample))))
-  rep.data <- lapply(integer(B), function(x) .cases.resamp(dat = data, cluster = clusters, resample = resample))
+  rep.data <- purrr::map(integer(B), function(x) .cases.resamp(dat = data, cluster = clusters, resample = resample))
   
-  res <- lapply(rep.data, function(df) {
+  res <- purrr::map(rep.data, function(df) {
     fit <- tryCatch(.f(updated.model(model = model, new.data = df)),  
                     error = function(e) e)
     if (inherits(fit, "error")) {
@@ -124,9 +133,9 @@ case_bootstrap.lme <- function(model, .f, B, resample){
   colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
   
   
-  if ((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
+  if((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", numFail, "/", B, ")")
-    fail.msgs <- vapply(res[bad.runs], FUN = attr, FUN.VALUE = character(1), 
+    fail.msgs <- vapply(res[bad.runs], .f = attr,  FUN.VALUE = character(1),
                         "fail.msgs")
   } else fail.msgs <- NULL
   
@@ -142,15 +151,13 @@ case_bootstrap.lme <- function(model, .f, B, resample){
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lme <- function(model, .f, B){
+resid_bootstrap.lme <- function(model, .f, B, type, link = FALSE){
   .f <- match.fun(.f)
   
   t0 <- .f(model)
-  ystar <- lapply(1:B, function(x) .resample.resids.lme(model))
+  ystar <- purrr::map(1:B, function(x) .resample.resids.lme(model))
   
-  #   return(.bootstrap.completion(model, ystar, B, .f))
-  
-  res <- lapply(ystar, function(y) {
+  res <- purrr::map(ystar, function(y) {
     fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
                     error = function(e) e)
     if (inherits(fit, "error")) {
@@ -169,7 +176,7 @@ resid_bootstrap.lme <- function(model, .f, B){
   
   if ((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", numFail, "/", B, ")")
-    fail.msgs <- vapply(res[bad.runs], FUN = attr, FUN.VALUE = character(1), 
+    fail.msgs <- vapply(res[bad.runs], .f = attr,  FUN.VALUE = character(1),
                         "fail.msgs")
   } else fail.msgs <- NULL
   
@@ -199,20 +206,20 @@ resid_bootstrap.lme <- function(model, .f, B){
   
   # Extract Zt (like lme4) design matrix
   re.form <- formula(model$modelStruct$reStr)
-  Z <- lapply(1:length(re.form), function(i) model.matrix(formula(model$modelStruct$reStr)[[i]], data=model$data))
+  Z <- purrr::map(1:length(re.form), function(i) model.matrix(formula(model$modelStruct$reStr)[[i]], data=model$data))
   names(Z) <- names(re.form)
   
   if(level.num == 1) {
     bstar <- sample(model.ranef, replace = TRUE)
     
     Z <- as.data.frame(Z[[1]])
-    Zlist <- lapply(Z, function(col) split(col, model$group))
+    Zlist <- purrr::map(Z, function(col) split(col, model$group))
     
-    Zbstar <- lapply(1:length(Zlist), function(j) unlist(mapply("*", Zlist[[j]], bstar[,j], SIMPLIFY = FALSE) ))
+    Zbstar <- purrr::map(1:length(Zlist), function(j) unlist(mapply("*", Zlist[[j]], bstar[,j], SIMPLIFY = FALSE) ))
     Zbstar.sum <- Reduce("+", Zbstar)
   } else{
-    bstar <- lapply(model.ranef,
-                    FUN = function(x) {
+    bstar <- purrr::map(model.ranef,
+                    .f = function(x) {
                       J <- nrow(x)
                       
                       # Sample of b*
@@ -222,20 +229,20 @@ resid_bootstrap.lme <- function(model, .f, B){
                     })
     
     
-    Z <- lapply(Z, function(zi) as.data.frame(zi))
+    Z <- purrr::map(Z, function(zi) as.data.frame(zi))
     Z  <- Z [rev(names(Z))] # agree w/ order of model$group and bstar
     
-    Zlist <- lapply(1:length(Z), function(i) lapply(Z[[i]], function(col) split(col, model$group[,i])))
+    Zlist <- purrr::map(1:length(Z), function(i) purrr::map(Z[[i]], function(col) split(col, model$group[,i])))
     names(Zlist) <- names(Z)
     
     
-    Zbstar <- lapply(1:length(Zlist), function(e) {
+    Zbstar <- purrr::map(1:length(Zlist), function(e) {
       z.e <- Zlist[[e]]
       b.e <- bstar[[e]]
       if(is.numeric(b.e)){
-        unlist(lapply(1:length(e), function(j) unlist(mapply("*", z.e[[j]], b.e, SIMPLIFY = FALSE) )), recursive = FALSE)
+        unlist(purrr::map(1:length(e), function(j) unlist(mapply("*", z.e[[j]], b.e, SIMPLIFY = FALSE) )), recursive = FALSE)
       } else{
-        unlist(lapply(1:length(e), function(j) unlist(mapply("*", z.e[[j]], b.e[,j], SIMPLIFY = FALSE) )), recursive = FALSE)
+        unlist(purrr::map(1:length(e), function(j) unlist(mapply("*", z.e[[j]], b.e[,j], SIMPLIFY = FALSE) )), recursive = FALSE)
       }
     })
     
@@ -278,13 +285,13 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
   
   if(reb_type != 2) .f <- match.fun(.f)
   
-  ystar <- as.data.frame( replicate(n = B, .resample.reb.lme(model = model, reb_type = reb_type)) )
+  ystar <- as.data.frame(replicate(n = B, .resample.reb.lme(model = model, reb_type = reb_type)) )
   
   if(reb_type == 2){
     fe.0 <- nlme::fixef(model)
     vc.0 <- nlme::getVarCov(model)
     t0 <- c(beta = fe.0, sigma = c(diag(vc.0), model$sigma^2))
-    tstar <- lapply(ystar, function(y) {
+    tstar <- purrr::map(ystar, function(y) {
       fit <- tryCatch(updated.model(model = model, new.y = y),  
                       error = function(e) e)
       if (inherits(fit, "error")) {
@@ -296,8 +303,8 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
       }
     })
     
-    vcs <- lapply(tstar, function(x) x$varcomp)
-    Sb <- log( do.call("rbind", vcs) )
+    vcs <- purrr::map(tstar, function(x) x$varcomp)
+    Sb <- log(do.call("rbind", vcs))
     #     fes <- lapply(tstar, function(x) x$fixef)
     
     Mb <- matrix(rep(apply(Sb, 2, mean, na.rm = TRUE), times = B), nrow = B, byrow = TRUE)
@@ -313,11 +320,11 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
     Sbmod <- Sbmod * Db # elementwise not a type 
     Lb <- exp(Mb + Sbmod)
     
-    tstar <- lapply(tstar, unlist)
+    tstar <- purrr::map(tstar, unlist)
   } else{
     t0 <- .f(model)
     #     Lb <- NULL
-    tstar <- lapply(ystar, function(y) {
+    tstar <- purrr::map(ystar, function(y) {
       fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
                       error = function(e) e)
       if (inherits(fit, "error")) {
@@ -380,10 +387,10 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
   # ranef.merMod function in lme4.
   # TODO: think about 3+ level models...
   #   ans <- model@pp$b(1)
-  levs <- lapply(fl <- model$groups, levels)
+  levs <- purrr::map(fl <- model$groups, levels)
   asgn <- seq_along(fl)
   re <- model$coefficients$random
-  cnms <- lapply(re, colnames)
+  cnms <- purrr::map(re, colnames)
   nc <- vapply(cnms, length, 1L)
   nb <- nc * (nl <- vapply(levs, length, 1L))
   nbseq <- rep.int(seq_along(nb), nb)
@@ -395,7 +402,7 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
   
   if(reb_type == 1){
     # Calculations
-    Uhat <- lapply(u, function(x){
+    Uhat <- purrr::map(u, function(x){
       S <- (t(x) %*% x) / nrow(x)
       R <- nlme::getVarCov(model)
       Ls <- chol(S, pivot = TRUE)
@@ -422,8 +429,8 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
   Xbeta <- predict(model, level = 0)
   
   # resample uhats
-  ustar <- lapply(Uhat,
-                  FUN = function(x) {
+  ustar <- purrr::map(Uhat,
+                  .f = function(x) {
                     J <- nrow(x)
                     x <- as.data.frame(x)
                     # Sample of b*
@@ -435,15 +442,15 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
   
   # Extract Z design matrix separated by variance
   re.form <- formula(model$modelStruct$reStr)
-  Z <- lapply(1:length(re.form), function(i) model.matrix(formula(model$modelStruct$reStr)[[i]], data=model$data))
+  Z <- purrr::map(1:length(re.form), function(i) model.matrix(formula(model$modelStruct$reStr)[[i]], data=model$data))
   names(Z) <- names(re.form)
   Z <- as.data.frame(Z[[1]])
-  Zlist <- lapply(Z, function(col) split(col, model$group))
+  Zlist <- purrr::Map(Z, function(col) split(col, model$group))
   
   ustar <- ustar[[1]] # since only working with 2-levels models now
   
   # Get Zb*
-  Zbstar <- lapply(1:length(Zlist), function(j) unlist(mapply("*", Zlist[[j]], ustar[,j], SIMPLIFY = FALSE) ))
+  Zbstar <- purrr::map(1:length(Zlist), function(j) unlist(mapply("*", Zlist[[j]], ustar[,j], SIMPLIFY = FALSE) ))
   Zbstar.sum <- Reduce("+", Zbstar)
   
   # Resample residuals
@@ -462,12 +469,11 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
 cgr_bootstrap.lme <- function (model, .f, B){
   .f <- match.fun(.f)
   
-  ystar <- as.data.frame( replicate(n = B, .resample.cgr.lme(model = model)) )
+  ystar <- as.data.frame(replicate(n = B, .resample.cgr.lme(model = model)))
   
   t0 <- .f(model)
   
-  
-  res <- lapply(ystar, function(y) {
+  res <- purrr::map(ystar, function(y) {
     fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
                     error = function(e) e)
     if (inherits(fit, "error")) {
@@ -482,9 +488,9 @@ cgr_bootstrap.lme <- function (model, .f, B){
   colnames(tstar) <- paste("sim", 1:ncol(tstar), sep = "_")
   
   
-  if ((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
+  if((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", numFail, "/", B, ")")
-    fail.msgs <- vapply(res[bad.runs], FUN = attr, FUN.VALUE = character(1), 
+    fail.msgs <- vapply(res[bad.runs], .f = attr,  FUN.VALUE = character(1),
                         "fail.msgs")
   } else fail.msgs <- NULL
   
@@ -518,7 +524,7 @@ cgr_bootstrap.lme <- function (model, .f, B){
   re.struct <- model$modelStruct$reStruct
   sigma <- model$sigma
   
-  Uhat.list <- lapply(seq_along(model.ranef),
+  Uhat.list <- purrr::map(seq_along(model.ranef),
                       FUN = function(i) {
                         u <- scale(model.ranef[[i]], scale = FALSE)
                         S <- (t(u) %*% u) / length(u)
@@ -542,8 +548,8 @@ cgr_bootstrap.lme <- function (model, .f, B){
   ehat <- sigma * e * as.numeric((t(e) %*% e) / length(e))^(-1/2)
   
   # Resample Uhat
-  ustar <- lapply(Uhat.list,
-                  FUN = function(df) {
+  ustar <- purrr::map(Uhat.list,
+                  .f = function(df) {
                     index <- sample(x = seq_len(nrow(df)), size = nrow(df), replace = TRUE)
                     return(as.data.frame(df[index,]))
                   })
@@ -551,32 +557,32 @@ cgr_bootstrap.lme <- function (model, .f, B){
   # Extract Z design matrix
   # Extract Zt (like lme4) design matrix
   re.form <- formula(re.struct)
-  Z <- lapply(1:length(re.form), function(i) model.matrix(formula(model$modelStruct$reStr)[[i]], data=model$data))
+  Z <- purrr::map(1:length(re.form), function(i) model.matrix(formula(model$modelStruct$reStr)[[i]], data=model$data))
   names(Z) <- names(re.form)
   
   if(level.num == 1) {
     ustar <- ustar[[1]]
     
     Z <- as.data.frame(Z[[1]])
-    Zlist <- lapply(Z, function(col) split(col, model$group))
+    Zlist <- purrr::map(Z, function(col) split(col, model$group))
     
-    Zbstar <- lapply(1:length(Zlist), function(j) unlist(mapply("*", Zlist[[j]], ustar[,j], SIMPLIFY = FALSE) ))
+    Zbstar <- purrr::map(1:length(Zlist), function(j) unlist(mapply("*", Zlist[[j]], ustar[,j], SIMPLIFY = FALSE) ))
   } else{
     
-    Z <- lapply(Z, function(zi) as.data.frame(zi))
+    Z <- purrr::map(Z, function(zi) as.data.frame(zi))
     Z  <- Z [rev(names(Z))] # agree w/ order of model$group and bstar
     
-    Zlist <- lapply(1:length(Z), function(i) lapply(Z[[i]], function(col) split(col, model$group[,i])))
+    Zlist <- purrr::map(1:length(Z), function(i) purrr:map(Z[[i]], function(col) split(col, model$group[,i])))
     names(Zlist) <- names(Z)
     
     
-    Zbstar <- lapply(1:length(Zlist), function(e) {
+    Zbstar <- purrr::map(1:length(Zlist), function(e) {
       z.e <- Zlist[[e]]
       u.e <- ustar[[e]]
       if(is.numeric(u.e)){
-        unlist(lapply(1:length(e), function(j) unlist(mapply("*", z.e[[j]], u.e, SIMPLIFY = FALSE) )), recursive = FALSE)
+        unlist(purrr::map(1:length(e), function(j) unlist(mapply("*", z.e[[j]], u.e, SIMPLIFY = FALSE) )), recursive = FALSE)
       } else{
-        unlist(lapply(1:length(e), function(j) unlist(mapply("*", z.e[[j]], u.e[,j], SIMPLIFY = FALSE) )), recursive = FALSE)
+        unlist(purrr::map(1:length(e), function(j) unlist(mapply("*", z.e[[j]], u.e[,j], SIMPLIFY = FALSE) )), recursive = FALSE)
       }
     })
   }

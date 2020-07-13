@@ -1,13 +1,20 @@
 library(lmeresampler)
 library(lme4)
+library(nlme)
 
 # fit model
 vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
+vcmodB <- lme(mathAge11 ~ mathAge8 + gender + class, random = ~1|school, data = jsp728)
 
 getME(vcmodA, "X")
 
 ## you can write your own function to return stats, or use something like 'fixef'
 mySumm <- function(.) { 
+  s <- lme4::getME(., "sigma")
+  c(beta = lme4::getME(., "beta"), sigma = s, sig01 = unname(s * getME(., "theta"))) 
+}
+
+mySumm2 <- function(.) { 
   s <- lme4::getME(., "sigma")
   c(beta = lme4::getME(., "beta"), sigma = s, sig01 = unname(s * getME(., "theta"))) 
 }
