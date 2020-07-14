@@ -3,7 +3,7 @@
 bootstrap.lme <- function(model, .f, type, B, resample, reb_type){
   switch(type,
          parametric = parametric_bootstrap.lme(model, .f, B, type = type),
-         residual = resid_bootstrap.lme(model, .f, B, type = type),
+         residual = resid_bootstrap.lme(model, .f, B, type = type, link = FALSE),
          case = case_bootstrap.lme(model, .f, B, resample, type = type),
          cgr = cgr_bootstrap.lme(model, .f, B, type = type),
          reb = reb_bootstrap.lme(model, .f, B, reb_type = 0))
@@ -15,7 +15,8 @@ bootstrap.lme <- function(model, .f, type, B, resample, reb_type){
 #' @importFrom nlmeU simulateY
 parametric_bootstrap.lme <- function(model, .f, B, type){
   # getVarCov.lme is the limiting factor...
-  if(length(model$group) > 1) 
+  # if(length(model$group) > 1) 
+  if(length(model$groups) > 1) 
     stop("not implemented for multiple levels of nesting")
   
   # Match function
@@ -99,7 +100,6 @@ parametric_bootstrap.lme <- function(model, .f, B, type){
   return(RES)
 }
 
-
 #' @rdname case_bootstrap
 #' @export
 case_bootstrap.lme <- function(model, .f, B, resample, type){
@@ -124,14 +124,12 @@ case_bootstrap.lme <- function(model, .f, B, resample, type){
     } else{
       fit
     }
-  }
-  )
+  })
   
   tstar <- do.call('cbind', res)
   
   rownames(tstar) <- names(t0)
   colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
-  
   
   if((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", numFail, "/", B, ")")
@@ -139,15 +137,22 @@ case_bootstrap.lme <- function(model, .f, B, resample, type){
                         "fail.msgs")
   } else fail.msgs <- NULL
   
-  RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model$data,
-                        seed = .Random.seed, statistic = .f,
-                        sim = "case", call = match.call()),
-                   class = "boot")
+  replicates <- as.data.frame(t(tstar))
+  observed <- t0
+  rep.mean <- colMeans(replicates)
+  se <- unlist(purrr::map(replicates, sd))
+  bias <- rep.mean - observed
+  
+  stats <- data.frame(observed, rep.mean, se, bias)
+  
+  RES <- structure(list(observed = observed, .f = .f, replicates = replicates,
+                        stats = stats, R = B, data = model$data,
+                        seed = .Random.seed, type = type, call = match.call()))
+  
   attr(RES, "bootFail") <- numFail
   attr(RES, "boot.fail.msgs") <- fail.msgs
   return(RES)
 }
-
 
 #' @rdname resid_bootstrap
 #' @export
@@ -165,14 +170,12 @@ resid_bootstrap.lme <- function(model, .f, B, type, link = FALSE){
     } else{
       fit
     }
-  }
-  )
+  })
   
   tstar <- do.call('cbind', res)
   
   #   rownames(tstar) <- names(t0)
   colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
-  
   
   if ((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", numFail, "/", B, ")")
@@ -180,10 +183,17 @@ resid_bootstrap.lme <- function(model, .f, B, type, link = FALSE){
                         "fail.msgs")
   } else fail.msgs <- NULL
   
-  RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model$data,
-                        seed = .Random.seed, statistic = .f,
-                        sim = "resid", call = match.call()),
-                   class = "boot")
+  replicates <- as.data.frame(t(tstar))
+  observed <- t0
+  rep.mean <- colMeans(replicates)
+  se <- unlist(purrr::map(replicates, sd))
+  bias <- rep.mean - observed
+  
+  stats <- data.frame(observed, rep.mean, se, bias)
+  
+  RES <- structure(list(observed = observed, .f = .f, replicates = replicates,
+                        stats = stats, R = B, data = model$data,
+                        seed = .Random.seed, type = type, call = match.call()))
   attr(RES, "bootFail") <- numFail
   attr(RES, "boot.fail.msgs") <- fail.msgs
   return(RES)
@@ -228,13 +238,11 @@ resid_bootstrap.lme <- function(model, .f, B, type, link = FALSE){
                       return(bstar)
                     })
     
-    
     Z <- purrr::map(Z, function(zi) as.data.frame(zi))
     Z  <- Z [rev(names(Z))] # agree w/ order of model$group and bstar
     
     Zlist <- purrr::map(1:length(Z), function(i) purrr::map(Z[[i]], function(col) split(col, model$group[,i])))
     names(Zlist) <- names(Z)
-    
     
     Zbstar <- purrr::map(1:length(Zlist), function(e) {
       z.e <- Zlist[[e]]
@@ -247,8 +255,7 @@ resid_bootstrap.lme <- function(model, .f, B, type, link = FALSE){
     })
     
     Zbstar.sum <- Reduce("+", Zbstar)
-    
-    
+  
     #     Zlist <- lapply(Zlist, function(e) lapply(e, function(x) Matrix::bdiag(x)))
     #     names(Zlist) <- names(Z)
     #     
@@ -262,15 +269,28 @@ resid_bootstrap.lme <- function(model, .f, B, type, link = FALSE){
     
   }
   
-  
-  # Resample residuals
-  estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
-  
-  # Combine function
-  y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
-  
-  return(y.star)
-  
+  if(link == FALSE){
+    # Resample residuals
+    estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
+    
+    # Combine function
+    y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
+    
+    return(y.star)
+  }
+  else {
+    #link
+    model.mresid <- nlme::getResponse(model) - predict(model, re.form = ~0)
+    model.mresid.cent <- scale(model.mresid, scale = FALSE)
+
+    # Resample residuals
+    mresid.star <- sample(x = model.mresid.cent, size = length(model.mresid.cent), replace = TRUE)
+    
+    # Combine function
+    y.star <- as.numeric(Xbeta + mresid.star)
+    
+    return(y.star)
+  }
 }
 
 

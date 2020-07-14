@@ -16,7 +16,7 @@ mySumm <- function(.) {
 
 mySumm2 <- function(.) { 
   s <- lme4::getME(., "sigma")
-  c(beta = lme4::getME(., "beta"), sigma = s, sig01 = unname(s * getME(., "theta"))) 
+  c(beta = lme::getME(., "beta"), sigma = s, sig01 = unname(s * getME(., "theta"))) 
 }
 
 set.seed(1234)

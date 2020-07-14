@@ -489,7 +489,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   }
   else{
     # link
-    model.mresid <- getME(model, "y") - predict(model, re.form = ~0)
+    model.mresid <- lme4::getME(model, "y") - predict(model, re.form = ~0)
     model.mresid.cent <- scale(model.mresid, scale = FALSE)
     
     # Resample residuals
