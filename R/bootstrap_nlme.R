@@ -3,7 +3,7 @@
 bootstrap.lme <- function(model, .f, type, B, resample, reb_type){
   switch(type,
          parametric = parametric_bootstrap.lme(model, .f, B, type = type),
-         residual = resid_bootstrap.lme(model, .f, B, type = type, link = FALSE),
+         residual = resid_bootstrap.lme(model, .f, B, type = type, linked = FALSE),
          case = case_bootstrap.lme(model, .f, B, resample, type = type),
          cgr = cgr_bootstrap.lme(model, .f, B, type = type),
          reb = reb_bootstrap.lme(model, .f, B, reb_type = 0))
@@ -15,9 +15,10 @@ bootstrap.lme <- function(model, .f, type, B, resample, reb_type){
 #' @importFrom nlmeU simulateY
 parametric_bootstrap.lme <- function(model, .f, B, type){
   # getVarCov.lme is the limiting factor...
-  # if(length(model$group) > 1) 
-  if(length(model$groups) > 1) 
-    stop("not implemented for multiple levels of nesting")
+  
+  if(ncol(model$groups) > 1){
+    stop("The REB bootstrap has not been adapted for 3+ level models.")
+  }
   
   # Match function
   .f <- match.fun(.f)
@@ -40,7 +41,7 @@ parametric_bootstrap.lme <- function(model, .f, B, type){
   #     t.res[i,] <- .f(model.update)
   #   }
   
-  res <- purrr::map(ystar, function(y) {
+  tstar <- purrr::map(ystar, function(y) {
     fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
                     error = function(e) e)
     if (inherits(fit, "error")) {
@@ -64,7 +65,7 @@ parametric_bootstrap.lme <- function(model, .f, B, type){
   # tmp.mod <- updated.model(model = model, new.y = ystar[,i])
   # t.res[[i]] <- .f(try.fit)
   # }
-  tstar <- do.call('cbind', res)
+  tstar <- do.call('cbind', tstar)
   # tstar <- data.frame(tstar)
   
   #   tstar <- split(t.res, rep(1:ncol(t.res), each = nrow(t.res)))
@@ -77,7 +78,7 @@ parametric_bootstrap.lme <- function(model, .f, B, type){
     warning("some bootstrap runs failed (", numFail, "/", B, ")")
     # fail.msgs <- vapply(res[bad.runs], .f = attr, 
     #                     "fail.msgs")
-    fail.msgs <- purrr::map_chr(res[bad.runs], .f = attr, FUN.VALUE = character(1),
+    fail.msgs <- purrr::map_chr(tstar[bad.runs], .f = attr, FUN.VALUE = character(1),
                         "fail.msgs")
   } else fail.msgs <- NULL
   
@@ -114,29 +115,30 @@ case_bootstrap.lme <- function(model, .f, B, resample, type){
   t0 <- .f(model)
   
   # rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(dat = data, cluster = clusters, resample = resample))))
-  rep.data <- purrr::map(integer(B), function(x) .cases.resamp(dat = data, cluster = clusters, resample = resample))
+  tstar <- purrr::map(integer(B), function(x) .cases.resamp(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
   
-  res <- purrr::map(rep.data, function(df) {
-    fit <- tryCatch(.f(updated.model(model = model, new.data = df)),  
-                    error = function(e) e)
-    if (inherits(fit, "error")) {
-      structure(rep(NA, length(t0)), fail.msgs = fit$message)
-    } else{
-      fit
-    }
-  })
+  # res <- purrr::map(rep.data, function(df) {
+  #   fit <- tryCatch(.f(updated.model(model = model, new.data = df)),  
+  #                   error = function(e) e)
+  #   if (inherits(fit, "error")) {
+  #     structure(rep(NA, length(t0)), fail.msgs = fit$message)
+  #   } else{
+  #     fit
+  #   }
+  # })
   
-  tstar <- do.call('cbind', res)
+  tstar <- do.call('cbind', tstar)
   
   rownames(tstar) <- names(t0)
-  colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
+  # colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
   
   if((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", numFail, "/", B, ")")
-    fail.msgs <- vapply(res[bad.runs], .f = attr,  FUN.VALUE = character(1),
+    fail.msgs <- purrr::map_chr(res[bad.runs], .f = attr,  FUN.VALUE = character(1),
                         "fail.msgs")
   } else fail.msgs <- NULL
   
+  # prep for stats df
   replicates <- as.data.frame(t(tstar))
   observed <- t0
   rep.mean <- colMeans(replicates)
@@ -156,33 +158,24 @@ case_bootstrap.lme <- function(model, .f, B, resample, type){
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lme <- function(model, .f, B, type, link = FALSE){
+resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
   .f <- match.fun(.f)
   
   t0 <- .f(model)
-  ystar <- purrr::map(1:B, function(x) .resample.resids.lme(model))
+  tstar <- purrr::map(1:B, function(x) .resample.resids.lme(model))
   
-  res <- purrr::map(ystar, function(y) {
-    fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
-                    error = function(e) e)
-    if (inherits(fit, "error")) {
-      structure(rep(NA, length(t0)), fail.msgs = fit$message)
-    } else{
-      fit
-    }
-  })
-  
-  tstar <- do.call('cbind', res)
+  tstar <- do.call('cbind', tstar)
   
   #   rownames(tstar) <- names(t0)
-  colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
+  # colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
   
   if ((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", numFail, "/", B, ")")
-    fail.msgs <- vapply(res[bad.runs], .f = attr,  FUN.VALUE = character(1),
+    fail.msgs <- purrr::map_chr(res[bad.runs], .f = attr,  FUN.VALUE = character(1),
                         "fail.msgs")
   } else fail.msgs <- NULL
   
+  # prep for stats df
   replicates <- as.data.frame(t(tstar))
   observed <- t0
   rep.mean <- colMeans(replicates)
@@ -225,7 +218,8 @@ resid_bootstrap.lme <- function(model, .f, B, type, link = FALSE){
     Z <- as.data.frame(Z[[1]])
     Zlist <- purrr::map(Z, function(col) split(col, model$group))
     
-    Zbstar <- purrr::map(1:length(Zlist), function(j) unlist(mapply("*", Zlist[[j]], bstar[,j], SIMPLIFY = FALSE) ))
+    # purrr::map2, check output and see what each apply does
+    Zbstar <- purrr::map(1:length(Zlist), function(j) unlist(mapply("*", Zlist[[j]], bstar[,j], SIMPLIFY = FALSE)))
     Zbstar.sum <- Reduce("+", Zbstar)
   } else{
     bstar <- purrr::map(model.ranef,
@@ -269,17 +263,27 @@ resid_bootstrap.lme <- function(model, .f, B, type, link = FALSE){
     
   }
   
-  if(link == FALSE){
+  if(linked == FALSE){
     # Resample residuals
     estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
     
     # Combine function
     y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
     
-    return(y.star)
+    # .f(model) is t0
+    tstar <- purrr::map(y.star, function(y) {
+      fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
+                      error = function(e) e)
+      if(inherits(fit, "error")) {
+        structure(rep(NA, length(.f(model))), fail.msgs = fit$message)
+      } else{
+        fit
+      }
+    })
+    return(tstar)
   }
   else {
-    #link
+    #linked
     model.mresid <- nlme::getResponse(model) - predict(model, re.form = ~0)
     model.mresid.cent <- scale(model.mresid, scale = FALSE)
 
@@ -289,7 +293,18 @@ resid_bootstrap.lme <- function(model, .f, B, type, link = FALSE){
     # Combine function
     y.star <- as.numeric(Xbeta + mresid.star)
     
-    return(y.star)
+    # .f(model) is t0
+    # Refit
+    tstar <- purrr::map(y.star, function(y) {
+      fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
+                      error = function(e) e)
+      if(inherits(fit, "error")) {
+        structure(rep(NA, length(.f(model))), fail.msgs = fit$message)
+      } else{
+        fit
+      }
+    })
+    return(tstar)
   }
 }
 
@@ -305,7 +320,7 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
   
   if(reb_type != 2) .f <- match.fun(.f)
   
-  ystar <- as.data.frame(replicate(n = B, .resample.reb.lme(model = model, reb_type = reb_type)) )
+  ystar <- as.data.frame(replicate(n = B, .resample.reb.lme(model = model, reb_type = reb_type)))
   
   if(reb_type == 2){
     fe.0 <- nlme::fixef(model)
@@ -327,7 +342,7 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
     Sb <- log(do.call("rbind", vcs))
     #     fes <- lapply(tstar, function(x) x$fixef)
     
-    Mb <- matrix(rep(apply(Sb, 2, mean, na.rm = TRUE), times = B), nrow = B, byrow = TRUE)
+    Mb <- matrix(rep(colMeans(Sb, na.rm = TRUE), times = B), nrow = B, byrow = TRUE)
     CovSb <- cov(na.omit(Sb))
     SdSb <- sqrt(diag(CovSb))
     
@@ -356,7 +371,7 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
   }
   
   tstar <- do.call("cbind", tstar) # Can these be nested?
-  colnames(tstar) <- paste("sim", 1:ncol(tstar), sep = "_")
+  # colnames(tstar) <- paste("sim", 1:ncol(tstar), sep = "_")
   #   rownames(tstar) <- names(.f(model))
   
   if(reb_type == 2) {
@@ -374,11 +389,18 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
     }
   }
   
-  RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model$data,
-                        seed = .Random.seed, statistic = .f,
-                        sim = paste("reb", reb_type, sep = ""), call = match.call()),
-                   class = "boot")
+  # prep for stats df
+  replicates <- as.data.frame(t(tstar))
+  observed <- t0
+  rep.mean <- colMeans(replicates)
+  se <- unlist(purrr::map(replicates, sd))
+  bias <- rep.mean - observed
   
+  stats <- data.frame(observed, rep.mean, se, bias)
+  
+  RES <- structure(list(observed = observed, .f = .f, replicates = replicates,
+                        stats = stats, R = B, data = model$data,
+                        seed = .Random.seed, type = paste("reb", reb_type, sep = ""), call = match.call()))
   return(RES)
 }
 
@@ -411,8 +433,8 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
   asgn <- seq_along(fl)
   re <- model$coefficients$random
   cnms <- purrr::map(re, colnames)
-  nc <- vapply(cnms, length, 1L)
-  nb <- nc * (nl <- vapply(levs, length, 1L))
+  nc <- purrr::map_int(cnms, length, 1L) #map_int()
+  nb <- nc * (nl <- purrr::map_int(levs, length, 1L))
   nbseq <- rep.int(seq_along(nb), nb)
   u <- split(u, nbseq)
   for (i in seq_along(u))
@@ -465,7 +487,7 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
   Z <- purrr::map(1:length(re.form), function(i) model.matrix(formula(model$modelStruct$reStr)[[i]], data=model$data))
   names(Z) <- names(re.form)
   Z <- as.data.frame(Z[[1]])
-  Zlist <- purrr::Map(Z, function(col) split(col, model$group))
+  Zlist <- purrr::map(Z, function(col) split(col, model$group))
   
   ustar <- ustar[[1]] # since only working with 2-levels models now
   
@@ -489,35 +511,32 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
 cgr_bootstrap.lme <- function (model, .f, B){
   .f <- match.fun(.f)
   
-  ystar <- as.data.frame(replicate(n = B, .resample.cgr.lme(model = model)))
+  tstar <- as.data.frame(replicate(n = B, .resample.cgr.lme(model = model)))
   
   t0 <- .f(model)
   
-  res <- purrr::map(ystar, function(y) {
-    fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
-                    error = function(e) e)
-    if (inherits(fit, "error")) {
-      structure(rep(NA, length(t0)), fail.msgs = fit$message)
-    } else{
-      fit
-    }
-  }
-  )
-  
-  tstar <- do.call("cbind", res) # Can these be nested?
-  colnames(tstar) <- paste("sim", 1:ncol(tstar), sep = "_")
+  tstar <- do.call("cbind", tstar) # Can these be nested?
+  # colnames(tstar) <- paste("sim", 1:ncol(tstar), sep = "_")
   
   
   if((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", numFail, "/", B, ")")
-    fail.msgs <- vapply(res[bad.runs], .f = attr,  FUN.VALUE = character(1),
+    fail.msgs <- purrr::map_chr(res[bad.runs], .f = attr,  FUN.VALUE = character(1),
                         "fail.msgs")
   } else fail.msgs <- NULL
   
-  RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model$data,
-                        seed = .Random.seed, statistic = .f,
-                        sim = "CGR", call = match.call()),
-                   class = "boot")
+  # prep for stats df
+  replicates <- as.data.frame(t(tstar))
+  observed <- t0
+  rep.mean <- colMeans(replicates)
+  se <- unlist(purrr::map(replicates, sd))
+  bias <- rep.mean - observed
+  
+  stats <- data.frame(observed, rep.mean, se, bias)
+  
+  RES <- structure(list(observed = observed, .f = .f, replicates = replicates,
+                        stats = stats, R = B, data = model$data,
+                        seed = .Random.seed, type = type, call = match.call()))
   attr(RES, "bootFail") <- numFail
   attr(RES, "boot.fail.msgs") <- fail.msgs
   return(RES)
@@ -618,6 +637,16 @@ cgr_bootstrap.lme <- function (model, .f, B){
   # Combine
   y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
   
-  return(y.star)
+  # Refit
+  tstar <- purrr::map(y.star, function(y) {
+    fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
+                    error = function(e) e)
+    if (inherits(fit, "error")) {
+      structure(rep(NA, length(t0)), fail.msgs = fit$message)
+    } else{
+      fit
+    }
+  })
+  return(tstar)
 }
 

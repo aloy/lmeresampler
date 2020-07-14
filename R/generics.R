@@ -18,6 +18,8 @@
 #'    school level first, then the student level.
 #' @param reb_type Specification of what random effect block bootstrap version to
 #' implement. Possible values are \code{0}, \code{1} or \code{2}.
+#' @param linked A logical value specifying whether the residual bootstrap should
+#' be performed with linked error terms and random effects prior to resampling.
 #' 
 #' @details
 #' All of the below methods have been implemented for nested linear mixed-effects
@@ -27,16 +29,16 @@
 #'   
 #' @return 
 #' The returned value is an object of class "boot", compatible with the \pkg{boot}
-#' package's \code{\link[boot]{boot}} methods.
+#' package's \code{\linked[boot]{boot}} methods.
 #' 
 #' @seealso 
 #' \itemize{
-#'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
-#'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
-#'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
+#'   \item \code{\linked{parametric_bootstrap}}, \code{\linked{resid_bootstrap}},
+#'      \code{\linked{case_bootstrap}}, \code{\linked{cgr_bootstrap}}, 
+#'      \code{\linked{reb_bootstrap}} for more details on a specific bootstrap.
+#'   \item \code{\linked[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
-#'   \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}} 
+#'   \item \code{\linked[boot]{boot}}, \code{\linked[boot]{boot.ci}}, and \code{\linked[boot]{plot.boot}} 
 #'      from the \pkg{boot} package.
 #' }
 #' 
@@ -107,7 +109,7 @@
 #'    Bates, D., Maechler, M., Bolker, W., Walker, S. (2015).
 #'    Fitting Linear Mixed-Effects Models Using lme4. \emph{Journal of
 #'    Statistical Software}, \bold{67}, 1--48. doi:10.18637/jss.v067.i01.
-bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL, link = FALSE) {
+bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL, linked = FALSE) {
   if(!type %in% c("parametric", "residual", "case", "cgr", "reb"))
     stop("'type' must be one of 'parametric', 'residual', 'case', 'cgr', or 'reb'")
   if(!is.null(reb_type))
@@ -134,16 +136,16 @@ bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL, link
 #' 
 #' @return 
 #' The returned value is an object of class "boot", compatible with the \pkg{boot}
-#' package's \code{\link[boot]{boot}} methods.
+#' package's \code{\linked[boot]{boot}} methods.
 #' 
 #' @seealso 
 #' \itemize{
-#'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
-#'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
-#'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
+#'   \item \code{\linked{parametric_bootstrap}}, \code{\linked{resid_bootstrap}},
+#'      \code{\linked{case_bootstrap}}, \code{\linked{cgr_bootstrap}}, 
+#'      \code{\linked{reb_bootstrap}} for more details on a specific bootstrap.
+#'   \item \code{\linked[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
-#'   \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}} 
+#'   \item \code{\linked[boot]{boot}}, \code{\linked[boot]{boot.ci}}, and \code{\linked[boot]{plot.boot}} 
 #'      from the \pkg{boot} package.
 #' }
 #'
@@ -177,16 +179,16 @@ parametric_bootstrap <- function(model, .f, B, type) {
 #' 
 #' @return 
 #' The returned value is an object of class "boot", compatible with the \pkg{boot}
-#' package's \code{\link[boot]{boot}} methods.
+#' package's \code{\linked[boot]{boot}} methods.
 #' 
 #' @seealso 
 #' \itemize{
-#'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
-#'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
-#'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
+#'   \item \code{\linked{parametric_bootstrap}}, \code{\linked{resid_bootstrap}},
+#'      \code{\linked{case_bootstrap}}, \code{\linked{cgr_bootstrap}}, 
+#'      \code{\linked{reb_bootstrap}} for more details on a specific bootstrap.
+#'   \item \code{\linked[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
-#'   \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}} 
+#'   \item \code{\linked[boot]{boot}}, \code{\linked[boot]{boot.ci}}, and \code{\linked[boot]{plot.boot}} 
 #'      from the \pkg{boot} package.
 #' }
 #'
@@ -195,7 +197,7 @@ parametric_bootstrap <- function(model, .f, B, type) {
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-resid_bootstrap <- function(model, .f, B, type, link = FALSE) {
+resid_bootstrap <- function(model, .f, B, type, linked = FALSE) {
   UseMethod("resid_bootstrap", model)
 }
 
@@ -229,16 +231,16 @@ resid_bootstrap <- function(model, .f, B, type, link = FALSE) {
 #'
 #' @return 
 #' The returned value is an object of class "boot", compatible with the \pkg{boot}
-#' package's \code{\link[boot]{boot}} methods.
+#' package's \code{\linked[boot]{boot}} methods.
 #' 
 #' @seealso 
 #' \itemize{
-#'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
-#'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
-#'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
+#'   \item \code{\linked{parametric_bootstrap}}, \code{\linked{resid_bootstrap}},
+#'      \code{\linked{case_bootstrap}}, \code{\linked{cgr_bootstrap}}, 
+#'      \code{\linked{reb_bootstrap}} for more details on a specific bootstrap.
+#'   \item \code{\linked[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
-#'   \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}} 
+#'   \item \code{\linked[boot]{boot}}, \code{\linked[boot]{boot.ci}}, and \code{\linked[boot]{plot.boot}} 
 #'      from the \pkg{boot} package.
 #' }
 #'
@@ -276,16 +278,16 @@ case_bootstrap <- function(model, .f, B, type, resample) {
 #'
 #' @return 
 #' The returned value is an object of class "boot", compatible with the \pkg{boot}
-#' package's \code{\link[boot]{boot}} methods.
+#' package's \code{\linked[boot]{boot}} methods.
 #' 
 #' @seealso 
 #' \itemize{
-#'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
-#'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
-#'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
+#'   \item \code{\linked{parametric_bootstrap}}, \code{\linked{resid_bootstrap}},
+#'      \code{\linked{case_bootstrap}}, \code{\linked{cgr_bootstrap}}, 
+#'      \code{\linked{reb_bootstrap}} for more details on a specific bootstrap.
+#'   \item \code{\linked[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
-#'   \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}} 
+#'   \item \code{\linked[boot]{boot}}, \code{\linked[boot]{boot.ci}}, and \code{\linked[boot]{plot.boot}} 
 #'      from the \pkg{boot} package.
 #' }
 #'
@@ -339,16 +341,16 @@ cgr_bootstrap <- function(model, .f, B, type) {
 #'
 #' @return 
 #' The returned value is an object of class "boot", compatible with the \pkg{boot}
-#' package's \code{\link[boot]{boot}} methods.
+#' package's \code{\linked[boot]{boot}} methods.
 #' 
 #' @seealso 
 #' \itemize{
-#'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
-#'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
-#'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
+#'   \item \code{\linked{parametric_bootstrap}}, \code{\linked{resid_bootstrap}},
+#'      \code{\linked{case_bootstrap}}, \code{\linked{cgr_bootstrap}}, 
+#'      \code{\linked{reb_bootstrap}} for more details on a specific bootstrap.
+#'   \item \code{\linked[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
-#'   \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}} 
+#'   \item \code{\linked[boot]{boot}}, \code{\linked[boot]{boot.ci}}, and \code{\linked[boot]{plot.boot}} 
 #'      from the \pkg{boot} package.
 #' }
 #'
