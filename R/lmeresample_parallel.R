@@ -21,24 +21,50 @@ mySumm2 <- function(.) {
 
 set.seed(1234)
 # run sequential parametric bootstrap
+
+## lme4
 library(tictoc)
 tic()
-b_nopar  <- bootstrap(vcmodA, .f = mySumm, type = "parametric", B = 500)
+b_nopar  <- bootstrap(vcmodA, .f = mySumm, type = "parametric", B = 100)
+toc()
+
+## nlme
+tic()
+b_nopar2  <- bootstrap(vcmodB, .f = fixef, type = "parametric", B = 500)
 toc()
 
 # run sequential cases bootstrap
+
+## lme4
 tic()
 boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
 toc()
 
+## nlme
+tic()
+boo2.2 <- bootstrap(model = vcmodB, .f = fixef, type = "case", B = 100, resample = c(TRUE, FALSE))
+toc()
+
 # run sequential cgr bootstrap
+
+## lme4
 tic()
 boo3 <- bootstrap(model = vcmodA, .f = mySumm, type = "cgr", B = 100)
+toc()
+
+## nlme
+tic()
+boo3.2 <- bootstrap(model = vcmodB, .f = fixef, type = "cgr", B = 100)
 toc()
 
 # run sequential resid bootstrap
 tic()
 boo4 <- bootstrap(model = vcmodA, .f = mySumm, type = "residual", B = 100, linked = TRUE)
+toc()
+
+## nlme
+tic()
+boo4.2 <- bootstrap(model = vcmodB, .f = fixef, type = "residual", B = 100, linked = FALSE)
 toc()
 
 # run sequential reb bootstrap

@@ -44,7 +44,7 @@ parametric_bootstrap.lme <- function(model, .f, B, type){
   tstar <- purrr::map(ystar, function(y) {
     fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
                     error = function(e) e)
-    if (inherits(fit, "error")) {
+    if(inherits(fit, "error")) {
       structure(rep(NA, length(t0)), fail.msgs = fit$message)
     } else{
       fit
@@ -76,11 +76,10 @@ parametric_bootstrap.lme <- function(model, .f, B, type){
 
   if((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", numFail, "/", B, ")")
-    # fail.msgs <- vapply(res[bad.runs], .f = attr, 
-    #                     "fail.msgs")
-    fail.msgs <- purrr::map_chr(tstar[bad.runs], .f = attr, FUN.VALUE = character(1),
-                        "fail.msgs")
-  } else fail.msgs <- NULL
+    fail.msgs <- purrr::map_chr(tstar[bad.runs], .f = function(x){
+    attr(x)})
+    }
+  else fail.msgs <- NULL 
   
   # prep for stats df
   replicates <- as.data.frame(t(tstar))
@@ -112,8 +111,6 @@ case_bootstrap.lme <- function(model, .f, B, resample, type){
   if(length(clusters) != length(resample))
     stop("'resample' is not the same length as the number of grouping variables. Please specify whether to resample the data at each level of grouping.")
   
-  t0 <- .f(model)
-  
   # rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(dat = data, cluster = clusters, resample = resample))))
   tstar <- purrr::map(integer(B), function(x) .cases.resamp(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
   
@@ -127,14 +124,14 @@ case_bootstrap.lme <- function(model, .f, B, resample, type){
   #   }
   # })
   
-  tstar <- do.call('cbind', tstar)
-  
-  rownames(tstar) <- names(t0)
+  t0 <- .f(model)
+  tstar <- do.call("cbind", tstar)
+  row.names(tstar) <- names(t0)
   # colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
   
   if((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", numFail, "/", B, ")")
-    fail.msgs <- purrr::map_chr(res[bad.runs], .f = attr,  FUN.VALUE = character(1),
+    fail.msgs <- purrr::map_chr(tstar[bad.runs], .f = attr,  FUN.VALUE = character(1),
                         "fail.msgs")
   } else fail.msgs <- NULL
   
@@ -162,7 +159,7 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
   .f <- match.fun(.f)
   
   t0 <- .f(model)
-  tstar <- purrr::map(1:B, function(x) .resample.resids.lme(model))
+  tstar <- purrr::map(1:B, function(x) .resample.resids.lme(model, linked = linked))
   
   tstar <- do.call('cbind', tstar)
   
@@ -194,7 +191,7 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
 
 #' @keywords internal
 #' @noRd
-.resample.resids.lme <- function(model){
+.resample.resids.lme <- function(model, linked = linked){
   
   # Extract fixed part of the model
   Xbeta <- predict(model, level = 0) # This is X %*% fixef(model)
@@ -508,7 +505,7 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
 #' @rdname cgr_bootstrap
 #' @inheritParams bootstrap
 #' @export
-cgr_bootstrap.lme <- function (model, .f, B){
+cgr_bootstrap.lme <- function(model, .f, B, type = type){
   .f <- match.fun(.f)
   
   tstar <- as.data.frame(replicate(n = B, .resample.cgr.lme(model = model)))
@@ -564,7 +561,7 @@ cgr_bootstrap.lme <- function (model, .f, B){
   sigma <- model$sigma
   
   Uhat.list <- purrr::map(seq_along(model.ranef),
-                      FUN = function(i) {
+                      .f = function(i) {
                         u <- scale(model.ranef[[i]], scale = FALSE)
                         S <- (t(u) %*% u) / length(u)
                         

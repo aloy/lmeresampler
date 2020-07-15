@@ -118,7 +118,7 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample, type){
     }
   }
   
-  if(typeof(model) == "lmerMod"){
+  if(class(model) == "lmerMod"){
     # Refit the model and apply '.f' to it using map
     form <- model@call$formula
     reml <- lme4::isREML(model)
@@ -128,8 +128,7 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample, type){
     # tstar <- purrr::map(res, function(x) {
     #   .f(lme4::lmer(formula = form, data = as.data.frame(x), REML = reml)) 
     # })
-  }
-  else if(typeof(model) == "lme"){
+  } else if(class(model) == "lme"){
     # is new.data res here?
     tstar <- purrr::map(res, function(df) {
       fit <- tryCatch(.f(updated.model(model = model, new.data = df)),  
@@ -141,6 +140,9 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample, type){
       }
     })
     return(tstar)
+  }
+  else{
+    stop("model class must be either 'lme' or 'lmerMod'")
   }
 }
 
@@ -288,7 +290,13 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   
   RES <- structure(list(observed = observed, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model@frame,
-                        seed = .Random.seed, reb2 = Lb, call = match.call()))
+                        seed = .Random.seed, reb_type = reb_type, call = match.call()))
+  
+  cat(paste("Bootstrap type: REB", reb_type, "\n"))
+  cat(paste("\n"))
+  cat(paste("Number of resamples:", B, "\n"))
+  cat(paste("\n"))
+  print(stats)
   
   return(RES)
 }
@@ -359,6 +367,13 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   RES <- structure(list(observed = observed, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model@frame,
                         seed = .Random.seed, type = type, call = match.call()))
+  
+  cat(paste("Bootstrap type:", type, "\n"))
+  cat(paste("\n"))
+  cat(paste("Number of resamples:", B, "\n"))
+  cat(paste("\n"))
+  print(stats)
+  
   attr(RES,"bootFail") <- nfail
   attr(RES,"boot.fail.msgs") <- fail.msgs
   attr(RES,"boot_type") <- "boot"
