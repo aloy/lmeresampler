@@ -297,6 +297,9 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   cat(paste("Number of resamples:", B, "\n"))
   cat(paste("\n"))
   print(stats)
+  cat(paste("\n"))
+  cat(paste("95% confidence intervals:"))
+  print(cis)
   
   return(RES)
 }
@@ -373,6 +376,9 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   cat(paste("Number of resamples:", B, "\n"))
   cat(paste("\n"))
   print(stats)
+  
+  # Confidence intervals
+  boot.ci(replicates$beta1, conf = 0.95, type = c("norm", "perc", "basic"))
   
   attr(RES,"bootFail") <- nfail
   attr(RES,"boot.fail.msgs") <- fail.msgs

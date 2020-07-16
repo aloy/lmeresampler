@@ -3,7 +3,7 @@ library(lme4)
 library(nlme)
 
 # fit model
-vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
+vcmodA <- lmer(mathAge11 ~ mathAge8 + mathAge8c + gender + class + (1 | school), data = jsp728)
 vcmodB <- lme(mathAge11 ~ mathAge8 + gender + class, random = ~1|school, data = jsp728)
 
 getME(vcmodA, "X")
@@ -37,7 +37,7 @@ toc()
 
 ## lme4
 tic()
-boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
+boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 500, resample = c(TRUE, FALSE))
 toc()
 
 ## nlme
