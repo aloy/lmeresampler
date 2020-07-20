@@ -377,8 +377,16 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   cat(paste("\n"))
   print(stats)
   
-  # Confidence intervals
-  boot.ci(replicates$beta1, conf = 0.95, type = c("norm", "perc", "basic"))
+  # Confidence intervals from ci_prep
+  # put them all together 
+  norm.t.cis <-  data.frame(cbind(norm.t.lower, norm.t.upper))
+  other.cis <- data.frame(cbind(boot.t, perc.t.lower, perc.t.upper))
+  cat(paste("\n"))
+  cat(paste("95% normal t-interval: \n"))
+  print(norm.t.cis)
+  cat(paste("\n"))
+  cat(paste("95% bootstrap-t and percentile confidence intervals: \n"))
+  print(other.cis)
   
   attr(RES,"bootFail") <- nfail
   attr(RES,"boot.fail.msgs") <- fail.msgs
