@@ -82,7 +82,7 @@ parametric_bootstrap.lme <- function(model, .f, B, type){
   else fail.msgs <- NULL 
   
   # prep for stats df
-  replicates <- as.data.frame(t(tstar))
+  replicates <- as.data.frame(tstar)
   observed <- t0
   rep.mean <- colMeans(replicates)
   se <- unlist(purrr::map(replicates, sd))
@@ -136,7 +136,7 @@ case_bootstrap.lme <- function(model, .f, B, resample, type){
   } else fail.msgs <- NULL
   
   # prep for stats df
-  replicates <- as.data.frame(t(tstar))
+  replicates <- as.data.frame(tstar)
   observed <- t0
   rep.mean <- colMeans(replicates)
   se <- unlist(purrr::map(replicates, sd))
@@ -173,7 +173,7 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
   } else fail.msgs <- NULL
   
   # prep for stats df
-  replicates <- as.data.frame(t(tstar))
+  replicates <- as.data.frame(tstar)
   observed <- t0
   rep.mean <- colMeans(replicates)
   se <- unlist(purrr::map(replicates, sd))
@@ -387,7 +387,7 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
   }
   
   # prep for stats df
-  replicates <- as.data.frame(t(tstar))
+  replicates <- as.data.frame(tstar)
   observed <- t0
   rep.mean <- colMeans(replicates)
   se <- unlist(purrr::map(replicates, sd))
@@ -523,7 +523,7 @@ cgr_bootstrap.lme <- function(model, .f, B, type = type){
   } else fail.msgs <- NULL
   
   # prep for stats df
-  replicates <- as.data.frame(t(tstar))
+  replicates <- as.data.frame(tstar)
   observed <- t0
   rep.mean <- colMeans(replicates)
   se <- unlist(purrr::map(replicates, sd))

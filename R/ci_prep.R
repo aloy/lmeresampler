@@ -24,7 +24,7 @@ if(class(model) == "lmerMod"){
   out <- summary(model)
   model.sds <- out$coefficients[,2] # fixef
   
-  ## sd for variance components, thank you Stack Overflow!!
+  ## sd for variance components, thank you Ben Bolker!!
   dd.ML <- lme4:::devfun2(model,useSc=TRUE,signames=FALSE)
   
   vv <- as.data.frame(VarCorr(model)) ## need ML estimates!
@@ -92,17 +92,31 @@ if(class(model) == "lmerMod"){
   
   # sd of of estimates for boot_t calculation
   out <- summary(model)
-  model.sds <- out$coefficients[,2] # fixef
+  model.sds <- out$tTable[,2] # fixef 
   
-  ## sd for variance components, thank you Stack Overflow!!
-  dd.ML <- lme4:::devfun2(model,useSc=TRUE,signames=FALSE)
+  ## sd for variance components, thank you Ben Bolker!!
+  getTheta <- function(phi,sigma,nmax) {
+    ## make corStruct: fake data sequence within a single block
+    cc <- nlme::Initialize(nlme::corAR1(phi),data=data.frame(t=seq(nmax)))
+    ## get inverse Cholesky factor
+    mm <- matrix(nlme::corFactor(cc),nrow=nmax) ## 
+    ## check backsolve() idiom: all.equal(solve(mm),backsolve(mm,diag(nmax),upper.tri=FALSE))
+    mm2 <- backsolve(mm,diag(nmax),upper.tri=FALSE) ## invert ...
+    return(sigma*mm2[lower.tri(mm2,diag=TRUE)])     ## take lower tri & scale by SD
+  }
   
-  vv <- as.data.frame(VarCorr(model)) ## need ML estimates!
-  pars <- vv[,"sdcor"]
+  devfun2.2 <- function(theta,nmax) { # no idea what nmax is
+    new_theta <- getTheta(phi=theta[2],sigma=theta[3],nmax)
+    devfun(c(theta[1],new_theta))
+  }
+  
+  dd.ML <- devfun2.2(model,useSc=TRUE,signames=FALSE)
+  
+  vv <- VarCorr(model) ## need ML estimates!
+  pars <- as.numeric(vv[,"StdDev"]) # not sure if losing the label names is bad
   ## will need to be careful about order if using this for
   ## a random-slopes model ...
   
-  library("numDeriv")
   hh1 <- hessian(dd.ML,pars)
   vv2 <- 2*solve(hh1)  ## 2* converts from log-likelihood to deviance scale
   ranef.sds <- sqrt(diag(vv2))  ## get standard errors
