@@ -292,15 +292,6 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
                         stats = stats, R = B, data = model@frame,
                         seed = .Random.seed, reb_type = reb_type, call = match.call()))
   
-  cat(paste("Bootstrap type: REB", reb_type, "\n"))
-  cat(paste("\n"))
-  cat(paste("Number of resamples:", B, "\n"))
-  cat(paste("\n"))
-  print(stats)
-  cat(paste("\n"))
-  cat(paste("95% confidence intervals:"))
-  print(cis)
-  
   return(RES)
 }
 
@@ -370,23 +361,6 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   RES <- structure(list(observed = observed, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model@frame,
                         seed = .Random.seed, type = type, call = match.call()))
-  
-  cat(paste("Bootstrap type:", type, "\n"))
-  cat(paste("\n"))
-  cat(paste("Number of resamples:", B, "\n"))
-  cat(paste("\n"))
-  print(stats)
-  
-  # Confidence intervals from ci_prep
-  # put them all together 
-  norm.t.cis <-  data.frame(cbind(norm.t.lower, norm.t.upper))
-  other.cis <- data.frame(cbind(boot.t, perc.t.lower, perc.t.upper))
-  cat(paste("\n"))
-  cat(paste("95% normal t-interval: \n"))
-  print(norm.t.cis)
-  cat(paste("\n"))
-  cat(paste("95% bootstrap-t and percentile confidence intervals: \n"))
-  print(other.cis)
   
   attr(RES,"bootFail") <- nfail
   attr(RES,"boot.fail.msgs") <- fail.msgs
