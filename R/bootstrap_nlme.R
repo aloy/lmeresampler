@@ -90,7 +90,7 @@ parametric_bootstrap.lme <- function(model, .f, B, type){
   
   stats <- data.frame(observed, rep.mean, se, bias)
   
-  RES <- structure(list(observed = observed, .f = .f, replicates = replicates,
+  RES <- structure(list(observed = observed, model = model$call, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model$data,
                         seed = .Random.seed, type = type, call = match.call()))
   
@@ -144,7 +144,7 @@ case_bootstrap.lme <- function(model, .f, B, resample, type){
   
   stats <- data.frame(observed, rep.mean, se, bias)
   
-  RES <- structure(list(observed = observed, .f = .f, replicates = replicates,
+  RES <- structure(list(observed = observed, model = model$call, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model$data,
                         seed = .Random.seed, type = type, call = match.call()))
   
@@ -181,7 +181,7 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
   
   stats <- data.frame(observed, rep.mean, se, bias)
   
-  RES <- structure(list(observed = observed, .f = .f, replicates = replicates,
+  RES <- structure(list(observed = observed, model = model$call, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model$data,
                         seed = .Random.seed, type = type, call = match.call()))
   attr(RES, "bootFail") <- numFail
@@ -395,7 +395,7 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
   
   stats <- data.frame(observed, rep.mean, se, bias)
   
-  RES <- structure(list(observed = observed, .f = .f, replicates = replicates,
+  RES <- structure(list(observed = observed, model = model$call, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model$data,
                         seed = .Random.seed, type = paste("reb", reb_type, sep = ""), call = match.call()))
   return(RES)
@@ -531,7 +531,7 @@ cgr_bootstrap.lme <- function(model, .f, B, type = type){
   
   stats <- data.frame(observed, rep.mean, se, bias)
   
-  RES <- structure(list(observed = observed, .f = .f, replicates = replicates,
+  RES <- structure(list(observed = observed, model = model$call, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model$data,
                         seed = .Random.seed, type = type, call = match.call()))
   attr(RES, "bootFail") <- numFail
