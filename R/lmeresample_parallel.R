@@ -14,11 +14,6 @@ mySumm <- function(.) {
   c(beta = lme4::getME(., "beta"), sigma = s, sig01 = unname(s * getME(., "theta"))) 
 }
 
-mySumm2 <- function(.) { 
-  s <- lme4::getME(., "sigma")
-  c(beta = lme::getME(., "beta"), sigma = s, sig01 = unname(s * getME(., "theta"))) 
-}
-
 set.seed(1234)
 # run sequential parametric bootstrap
 
@@ -70,6 +65,10 @@ toc()
 # run sequential reb bootstrap
 tic()
 boo5 <- bootstrap(model = vcmodA, .f = mySumm, type = "reb", B = 100, reb_type = 0)
+toc()
+
+tic()
+boo5.2 <- bootstrap(model = vcmodB, .f = fixef, type = "reb", B = 100, reb_type = 0)
 toc()
 
 

@@ -329,7 +329,6 @@ cgr_bootstrap <- function(model, .f, B, type) {
 #'    clustered data. \emph{Journal of Computational and Graphical Statistics}, 
 #'    \bold{22}, 452--470.
 reb_bootstrap <- function(model, .f, B, reb_type = 0) {
-  s
   UseMethod("reb_bootstrap", model)
 }
 

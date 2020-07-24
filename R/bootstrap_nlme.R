@@ -1,6 +1,6 @@
 #' @rdname bootstrap
 #' @export
-bootstrap.lme <- function(model, .f, type, B, resample, reb_type){
+bootstrap.lme <- function(model, .f, type, B, resample, reb_type, linked){
   switch(type,
          parametric = parametric_bootstrap.lme(model, .f, B, type = type),
          residual = resid_bootstrap.lme(model, .f, B, type = type, linked = FALSE),
@@ -82,7 +82,7 @@ parametric_bootstrap.lme <- function(model, .f, B, type){
   else fail.msgs <- NULL 
   
   # prep for stats df
-  replicates <- as.data.frame(tstar)
+  replicates <- as.data.frame(t(tstar))
   observed <- t0
   rep.mean <- colMeans(replicates)
   se <- unlist(purrr::map(replicates, sd))
@@ -136,7 +136,7 @@ case_bootstrap.lme <- function(model, .f, B, resample, type){
   } else fail.msgs <- NULL
   
   # prep for stats df
-  replicates <- as.data.frame(tstar)
+  replicates <- as.data.frame(t(tstar))
   observed <- t0
   rep.mean <- colMeans(replicates)
   se <- unlist(purrr::map(replicates, sd))
@@ -173,7 +173,7 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
   } else fail.msgs <- NULL
   
   # prep for stats df
-  replicates <- as.data.frame(tstar)
+  replicates <- as.data.frame(t(tstar))
   observed <- t0
   rep.mean <- colMeans(replicates)
   se <- unlist(purrr::map(replicates, sd))
@@ -184,6 +184,7 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
   RES <- structure(list(observed = observed, model = model$call, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model$data,
                         seed = .Random.seed, type = type, call = match.call()))
+  
   attr(RES, "bootFail") <- numFail
   attr(RES, "boot.fail.msgs") <- fail.msgs
   return(RES)
@@ -277,7 +278,6 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
         fit
       }
     })
-    return(tstar)
   }
   else {
     #linked
@@ -301,8 +301,8 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
         fit
       }
     })
-    return(tstar)
   }
+  return(tstar)
 }
 
 
@@ -387,7 +387,7 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
   }
   
   # prep for stats df
-  replicates <- as.data.frame(tstar)
+  replicates <- as.data.frame(t(tstar))
   observed <- t0
   rep.mean <- colMeans(replicates)
   se <- unlist(purrr::map(replicates, sd))
@@ -430,8 +430,8 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
   asgn <- seq_along(fl)
   re <- model$coefficients$random
   cnms <- purrr::map(re, colnames)
-  nc <- purrr::map_int(cnms, length, 1L) #map_int()
-  nb <- nc * (nl <- purrr::map_int(levs, length, 1L))
+  nc <- purrr::map_int(cnms, length) #map_int()
+  nb <- nc * (nl <- purrr::map_int(levs, length))
   nbseq <- rep.int(seq_along(nb), nb)
   u <- split(u, nbseq)
   for (i in seq_along(u))
@@ -489,7 +489,7 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
   ustar <- ustar[[1]] # since only working with 2-levels models now
   
   # Get Zb*
-  Zbstar <- purrr::map(1:length(Zlist), function(j) unlist(mapply("*", Zlist[[j]], ustar[,j], SIMPLIFY = FALSE) ))
+  Zbstar <- purrr::map(1:length(Zlist), function(j) unlist(mapply("*", Zlist[[j]], ustar[,j], SIMPLIFY = FALSE)))
   Zbstar.sum <- Reduce("+", Zbstar)
   
   # Resample residuals
@@ -523,7 +523,7 @@ cgr_bootstrap.lme <- function(model, .f, B, type = type){
   } else fail.msgs <- NULL
   
   # prep for stats df
-  replicates <- as.data.frame(tstar)
+  replicates <- as.data.frame(t(tstar))
   observed <- t0
   rep.mean <- colMeans(replicates)
   se <- unlist(purrr::map(replicates, sd))
@@ -616,9 +616,9 @@ cgr_bootstrap.lme <- function(model, .f, B, type = type){
       z.e <- Zlist[[e]]
       u.e <- ustar[[e]]
       if(is.numeric(u.e)){
-        unlist(purrr::map(1:length(e), function(j) unlist(mapply("*", z.e[[j]], u.e, SIMPLIFY = FALSE) )), recursive = FALSE)
+        unlist(purrr::map(1:length(e), function(j) unlist(mapply("*", z.e[[j]], u.e, SIMPLIFY = FALSE))), recursive = FALSE)
       } else{
-        unlist(purrr::map(1:length(e), function(j) unlist(mapply("*", z.e[[j]], u.e[,j], SIMPLIFY = FALSE) )), recursive = FALSE)
+        unlist(purrr::map(1:length(e), function(j) unlist(mapply("*", z.e[[j]], u.e[,j], SIMPLIFY = FALSE))), recursive = FALSE)
       }
     })
   }
@@ -639,7 +639,7 @@ cgr_bootstrap.lme <- function(model, .f, B, type = type){
     fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
                     error = function(e) e)
     if (inherits(fit, "error")) {
-      structure(rep(NA, length(t0)), fail.msgs = fit$message)
+      structure(rep(NA, length(.f(model))), fail.msgs = fit$message)
     } else{
       fit
     }

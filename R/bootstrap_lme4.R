@@ -133,8 +133,8 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample, type){
     tstar <- purrr::map(res, function(df) {
       fit <- tryCatch(.f(updated.model(model = model, new.data = df)),  
                       error = function(e) e)
-      if (inherits(fit, "error")) {
-        structure(rep(NA, length(t0)), fail.msgs = fit$message)
+      if(inherits(fit, "error")) {
+        structure(rep(NA, length(.f(model))), fail.msgs = fit$message)
       } else{
         fit
       }
@@ -351,7 +351,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   } else fail.msgs <- NULL
   
   # prep for stats df
-  replicates <- as.data.frame(tstar)
+  replicates <- as.data.frame(t(tstar))
   observed <- t0
   rep.mean <- colMeans(replicates)
   se <- unlist(purrr::map(replicates, sd))
