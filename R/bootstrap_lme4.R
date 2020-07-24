@@ -1,10 +1,10 @@
 #' @rdname bootstrap
 #' @export
 #' @importFrom stats as.formula cov formula model.matrix na.exclude na.omit predict resid simulate
-bootstrap.lmerMod <- function(model, .f, type, B, resample, reb_type){
+bootstrap.lmerMod <- function(model, .f, type, B, resample, reb_type, linked){
   switch(type,
          parametric = parametric_bootstrap.lmerMod(model, .f, B, type = type),
-         residual = resid_bootstrap.lmerMod(model, .f, B, type = type, link = FALSE),
+         residual = resid_bootstrap.lmerMod(model, .f, B, type = type, linked = FALSE),
          case = case_bootstrap.lmerMod(model, .f, B, resample, type = type),
          cgr = cgr_bootstrap.lmerMod(model, .f, B, type = type),
          reb = reb_bootstrap.lmerMod(model, .f, B, reb_type = 0))
@@ -30,10 +30,10 @@ parametric_bootstrap.lmerMod <- function(model, .f, B, type){
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lmerMod <- function(model, .f, B, type, link = FALSE){
+resid_bootstrap.lmerMod <- function(model, .f, B, type, linked = FALSE){
   .f <- match.fun(.f)
   
-  tstar <- purrr::map(1:B, function(x) .resample.resids(model, .f, link = link))
+  tstar <- purrr::map(1:B, function(x) .resample.resids(model, .f, linked = linked))
   
   RES <- .bootstrap.completion(model, tstar, B, .f, type)
   return(RES)
@@ -118,15 +118,32 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample, type){
     }
   }
   
-  # Refit the model and apply '.f' to it using map
-  form <- model@call$formula
-  reml <- lme4::isREML(model)
-
-  tstar <- .f(lme4::lmer(formula = form, data = res, REML = reml)) 
-  return(tstar)
-  # tstar <- purrr::map(res, function(x) {
-  #   .f(lme4::lmer(formula = form, data = as.data.frame(x), REML = reml)) 
-  # })
+  if(class(model) == "lmerMod"){
+    # Refit the model and apply '.f' to it using map
+    form <- model@call$formula
+    reml <- lme4::isREML(model)
+    
+    tstar <- .f(lme4::lmer(formula = form, data = res, REML = reml)) 
+    return(tstar)
+    # tstar <- purrr::map(res, function(x) {
+    #   .f(lme4::lmer(formula = form, data = as.data.frame(x), REML = reml)) 
+    # })
+  } else if(class(model) == "lme"){
+    # is new.data res here?
+    tstar <- purrr::map(res, function(df) {
+      fit <- tryCatch(.f(updated.model(model = model, new.data = df)),  
+                      error = function(e) e)
+      if (inherits(fit, "error")) {
+        structure(rep(NA, length(t0)), fail.msgs = fit$message)
+      } else{
+        fit
+      }
+    })
+    return(tstar)
+  }
+  else{
+    stop("model class must be either 'lme' or 'lmerMod'")
+  }
 }
 
 
@@ -214,7 +231,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
     fe.0 <- lme4::fixef(model)
     vc.0 <- bdiag(lme4::VarCorr(model))
     t0 <- c(beta = fe.0, sigma = c(diag(vc.0), lme4::getME(model, "sigma")^2))
-    tstar <- purrr::map(ystar, function(x) {
+    tstar <- purrr::map(tstar, function(x) { # changed ystar map to tstar map
       m <- lme4::refit(object = model, newresp = x)
       vc <- as.data.frame(lme4::VarCorr(m))
       list(fixef = lme4::fixef(m), varcomp = vc$vcov[is.na(vc$var2)])
@@ -224,7 +241,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
     Sb <- log( do.call("rbind", vcs) )
     #     fes <- lapply(tstar, function(x) x$fixef)
     
-    Mb <- matrix(rep(apply(Sb, 2, mean), times = B), nrow = B, byrow = TRUE)
+    Mb <- matrix(rep(colMeans(Sb), times = B), nrow = B, byrow = TRUE)
     CovSb <- cov(Sb)
     SdSb <- sqrt(diag(CovSb))
     
@@ -263,7 +280,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
     }
   }
   
-  replicates <- as.data.frame(t(tstar))
+  replicates <- as.data.frame(tstar)
   observed <- t0
   mean <- colMeans(replicates)
   se <- unlist(purrr::map(replicates, sd))
@@ -271,14 +288,10 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   
   stats <- data.frame(observed, mean, se, bias)
   
-  RES <- structure(list(observed = observed, .f = .f, replicates = replicates,
+  RES <- structure(list(observed = observed, model = model@call, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model@frame,
-                        seed = .Random.seed, reb2 = Lb, call = match.call()))
-  
-  # RES <- structure(list(t0 = t0, t = t(tstar), R = B, data = model@frame,
-  #                       seed = .Random.seed, statistic = .f,
-  #                       sim = "reb", call = match.call(), reb2 = Lb),
-  #                  class = "boot")
+                        seed = .Random.seed, reb_type = reb_type, call = match.call()),
+                   class = "lmeresamp")
   
   return(RES)
 }
@@ -315,10 +328,10 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
 #' Finishes the bootstrap process and makes the output readable.
 #'
 #' @details
-#' This function is given \code{model, ystar, B, .f} and uses them to complete
+#' This function is given \code{model, tstar, B, .f} and uses them to complete
 #' the bootstrap process. They are then structured into a list for output and returned.
 #'
-#' @param ystar The ystar being passed in
+#' @param tstar The tstar being passed in
 #' @inheritParams bootstrap
 #'
 #' @return list
@@ -333,12 +346,12 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   
   if((nfail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", nfail, "/", nsim, ")")
-    fail.msgs <- vapply(tstar[bad.runs], .f = attr, FUN.VALUE = character(1),
+    fail.msgs <- purrr::map_chr(tstar[bad.runs], .f = attr, FUN.VALUE = character(1),
                         "fail.msgs")
   } else fail.msgs <- NULL
   
   # prep for stats df
-  replicates <- as.data.frame(t(tstar))
+  replicates <- as.data.frame(tstar)
   observed <- t0
   rep.mean <- colMeans(replicates)
   se <- unlist(purrr::map(replicates, sd))
@@ -346,9 +359,11 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   
   stats <- data.frame(observed, rep.mean, se, bias)
   
-  RES <- structure(list(observed = observed, .f = .f, replicates = replicates,
+  RES <- structure(list(observed = observed, model = model@call, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model@frame,
-                        seed = .Random.seed, type = type, call = match.call()))
+                        seed = .Random.seed, type = type, call = match.call()), 
+                   class = "lmeresamp")
+  
   attr(RES,"bootFail") <- nfail
   attr(RES,"boot.fail.msgs") <- fail.msgs
   attr(RES,"boot_type") <- "boot"
@@ -432,9 +447,10 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
 }
 
 #' Resampling residuals from mixed models
+#' @param linkeded Specifies the use of marginal residual linkeding
 #' @keywords internal
 #' @noRd
-.resample.resids <- function(model, .f, link = link) {
+.resample.resids <- function(model, .f, linked = linked) {
   
   # Extract fixed part of the model
   Xbeta <- predict(model, re.form = NA) # This is X %*% fixef(model)
@@ -475,7 +491,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   Zbstar <- .Zbstar.combine(bstar = bstar, zstar = Z)
   Zbstar.sum <- Reduce("+", Zbstar)
   
-  if(link == FALSE){
+  if(linked == FALSE){
     # Resample residuals
     estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
     
@@ -488,8 +504,8 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
     tstar <- .f(lme4::refit(object = model, newresp = y.star))
   }
   else{
-    # link
-    model.mresid <- getME(model, "y") - predict(model, re.form = ~0)
+    # linked
+    model.mresid <- lme4::getME(model, "y") - predict(model, re.form = ~0)
     model.mresid.cent <- scale(model.mresid, scale = FALSE)
     
     # Resample residuals
