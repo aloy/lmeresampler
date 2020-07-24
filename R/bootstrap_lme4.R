@@ -552,9 +552,10 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   nb <- nc * (nl <- vapply(levs, length, 1L)[asgn])
   nbseq <- rep.int(seq_along(nb), nb)
   u <- split(u, nbseq)
-  for (i in seq_along(u))
+  for (i in seq_along(u)){
     u[[i]] <- matrix(u[[i]], ncol = nc[i], byrow = TRUE,
                      dimnames = list(NULL, cnms[[i]]))
+  }
   names(u) <- names(cnms)
   
   level.num <- lme4::getME(object = model, name = "n_rfacs")
