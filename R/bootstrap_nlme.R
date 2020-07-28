@@ -73,12 +73,12 @@ parametric_bootstrap.lme <- function(model, .f, B, type){
   #   tstar <- do.call("cbind", tstar) # Can these be nested?
   row.names(tstar) <- names(t0)
   # colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
-
+  
   if((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", numFail, "/", B, ")")
     fail.msgs <- purrr::map_chr(tstar[bad.runs], .f = function(x){
-    attr(x)})
-    }
+      attr(x)})
+  }
   else fail.msgs <- NULL 
   
   # prep for stats df
@@ -132,7 +132,7 @@ case_bootstrap.lme <- function(model, .f, B, resample, type){
   if((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", numFail, "/", B, ")")
     fail.msgs <- purrr::map_chr(tstar[bad.runs], .f = attr,  FUN.VALUE = character(1),
-                        "fail.msgs")
+                                "fail.msgs")
   } else fail.msgs <- NULL
   
   # prep for stats df
@@ -169,7 +169,7 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
   if ((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", numFail, "/", B, ")")
     fail.msgs <- purrr::map_chr(res[bad.runs], .f = attr,  FUN.VALUE = character(1),
-                        "fail.msgs")
+                                "fail.msgs")
   } else fail.msgs <- NULL
   
   # prep for stats df
@@ -221,14 +221,14 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
     Zbstar.sum <- Reduce("+", Zbstar)
   } else{
     bstar <- purrr::map(model.ranef,
-                    .f = function(x) {
-                      J <- nrow(x)
-                      
-                      # Sample of b*
-                      bstar.index <- sample(x = seq_len(J), size = J, replace = TRUE)
-                      bstar <- x[bstar.index,]
-                      return(bstar)
-                    })
+                        .f = function(x) {
+                          J <- nrow(x)
+                          
+                          # Sample of b*
+                          bstar.index <- sample(x = seq_len(J), size = J, replace = TRUE)
+                          bstar <- x[bstar.index,]
+                          return(bstar)
+                        })
     
     Z <- purrr::map(Z, function(zi) as.data.frame(zi))
     Z  <- Z [rev(names(Z))] # agree w/ order of model$group and bstar
@@ -247,7 +247,7 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
     })
     
     Zbstar.sum <- Reduce("+", Zbstar)
-  
+    
     #     Zlist <- lapply(Zlist, function(e) lapply(e, function(x) Matrix::bdiag(x)))
     #     names(Zlist) <- names(Z)
     #     
@@ -269,21 +269,19 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
     y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
     
     # .f(model) is t0
-    tstar <- purrr::map(y.star, function(y) {
-      fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
+    tstar <- tryCatch(.f(updated.model(model = model, new.y = y.star)),  
                       error = function(e) e)
-      if(inherits(fit, "error")) {
-        structure(rep(NA, length(.f(model))), fail.msgs = fit$message)
-      } else{
-        fit
-      }
-    })
+    if(inherits(tstar, "error")) {
+      structure(rep(NA, length(.f(model))), fail.msgs = tstar$message)
+    } else{
+      tstar
+    }
   }
   else {
     #linked
     model.mresid <- nlme::getResponse(model) - predict(model, re.form = ~0)
     model.mresid.cent <- scale(model.mresid, scale = FALSE)
-
+    
     # Resample residuals
     mresid.star <- sample(x = model.mresid.cent, size = length(model.mresid.cent), replace = TRUE)
     
@@ -292,15 +290,13 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
     
     # .f(model) is t0
     # Refit
-    tstar <- purrr::map(y.star, function(y) {
-      fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
+      tstar <- tryCatch(.f(updated.model(model = model, new.y = y.star)),  
                       error = function(e) e)
-      if(inherits(fit, "error")) {
-        structure(rep(NA, length(.f(model))), fail.msgs = fit$message)
+      if(inherits(tstar, "error")) {
+        structure(rep(NA, length(.f(model))), fail.msgs = tstar$message)
       } else{
-        fit
+        tstar
       }
-    })
   }
   return(tstar)
 }
@@ -469,13 +465,13 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
   
   # resample uhats
   ustar <- purrr::map(Uhat,
-                  .f = function(x) {
-                    J <- nrow(x)
-                    x <- as.data.frame(x)
-                    # Sample of b*
-                    ustar <- sample(x, replace = TRUE)
-                    return(ustar)
-                  })
+                      .f = function(x) {
+                        J <- nrow(x)
+                        x <- as.data.frame(x)
+                        # Sample of b*
+                        ustar <- sample(x, replace = TRUE)
+                        return(ustar)
+                      })
   
   ## TODO: fix this issue with the levels... Need to resample from here...
   
@@ -519,7 +515,7 @@ cgr_bootstrap.lme <- function(model, .f, B, type = type){
   if((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", numFail, "/", B, ")")
     fail.msgs <- purrr::map_chr(res[bad.runs], .f = attr,  FUN.VALUE = character(1),
-                        "fail.msgs")
+                                "fail.msgs")
   } else fail.msgs <- NULL
   
   # prep for stats df
@@ -561,22 +557,22 @@ cgr_bootstrap.lme <- function(model, .f, B, type = type){
   sigma <- model$sigma
   
   Uhat.list <- purrr::map(seq_along(model.ranef),
-                      .f = function(i) {
-                        u <- scale(model.ranef[[i]], scale = FALSE)
-                        S <- (t(u) %*% u) / length(u)
-                        
-                        re.name <- names(model.ranef)[i]
-                        R <- sigma^2 * as.matrix(re.struct[[re.name]])
-                        
-                        Ls <- chol(S, pivot = TRUE)
-                        Lr <- chol(R, pivot = TRUE)
-                        A <- t(Lr %*% solve(Ls))
-                        
-                        Uhat <- as.matrix(u %*% A)
-                        Uhat <- as.data.frame(Uhat)
-                        
-                        return(Uhat)
-                      })  
+                          .f = function(i) {
+                            u <- scale(model.ranef[[i]], scale = FALSE)
+                            S <- (t(u) %*% u) / length(u)
+                            
+                            re.name <- names(model.ranef)[i]
+                            R <- sigma^2 * as.matrix(re.struct[[re.name]])
+                            
+                            Ls <- chol(S, pivot = TRUE)
+                            Lr <- chol(R, pivot = TRUE)
+                            A <- t(Lr %*% solve(Ls))
+                            
+                            Uhat <- as.matrix(u %*% A)
+                            Uhat <- as.data.frame(Uhat)
+                            
+                            return(Uhat)
+                          })  
   names(Uhat.list) <- names(model.ranef)
   
   # Level 1
@@ -585,10 +581,10 @@ cgr_bootstrap.lme <- function(model, .f, B, type = type){
   
   # Resample Uhat
   ustar <- purrr::map(Uhat.list,
-                  .f = function(df) {
-                    index <- sample(x = seq_len(nrow(df)), size = nrow(df), replace = TRUE)
-                    return(as.data.frame(df[index,]))
-                  })
+                      .f = function(df) {
+                        index <- sample(x = seq_len(nrow(df)), size = nrow(df), replace = TRUE)
+                        return(as.data.frame(df[index,]))
+                      })
   
   # Extract Z design matrix
   # Extract Zt (like lme4) design matrix
@@ -635,15 +631,13 @@ cgr_bootstrap.lme <- function(model, .f, B, type = type){
   y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
   
   # Refit
-  tstar <- purrr::map(y.star, function(y) {
-    fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
+  tstar <- tryCatch(.f(updated.model(model = model, new.y = y.star)),  
                     error = function(e) e)
-    if (inherits(fit, "error")) {
-      structure(rep(NA, length(.f(model))), fail.msgs = fit$message)
-    } else{
-      fit
-    }
-  })
+  if (inherits(tstar, "error")) {
+    structure(rep(NA, length(.f(model))), fail.msgs = tstar$message)
+  } else{
+    tstar
+  }
   return(tstar)
 }
 

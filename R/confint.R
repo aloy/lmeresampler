@@ -11,7 +11,6 @@ confint.lmeresamp <- function(object, method = "all", level = 0.95) {
     
     ## normal t
     
-    ### these are not in the right order, will need to be returned separately
     if(method == "norm") {
       
       con <- data.frame(lme4::confint.merMod(object$model, level = level))
@@ -35,7 +34,7 @@ confint.lmeresamp <- function(object, method = "all", level = 0.95) {
       model.sds <- out$coefficients[, 2] # fixef
       
       ### sd for variance components, thank you Ben Bolker!!
-      dd.ML <- lme4:::devfun2(object$model, nuseSc=TRUE, nsignames=FALSE)
+      dd.ML <- lme4:::devfun2(object$model, useSc=TRUE, signames=FALSE)
       
       vv <- as.data.frame(VarCorr(object$model)) ## need ML estimates!
       pars <- vv[,"sdcor"]
@@ -99,7 +98,7 @@ confint.lmeresamp <- function(object, method = "all", level = 0.95) {
       model.sds <- out$coefficients[, 2] # fixef
       
       ### sd for variance components, thank you Ben Bolker!!
-      dd.ML <- lme4:::devfun2(object$model, nuseSc=TRUE, nsignames=FALSE)
+      dd.ML <- lme4:::devfun2(object$model, useSc=TRUE, signames=FALSE)
       
       vv <- as.data.frame(VarCorr(object$model)) ## need ML estimates!
       pars <- vv[,"sdcor"]
@@ -183,6 +182,9 @@ confint.lmeresamp <- function(object, method = "all", level = 0.95) {
       out <- summary(object$model)
       model.sds <- out$tTable[,2] # fixef 
       
+      ## construct deviance function
+      devfun <- do.call(mkLmerDevfun, object$model)
+      
       ### sd for variance components, thank you Ben Bolker!!
       getTheta <- function(phi,sigma,nmax) {
         ## make corStruct: fake data sequence within a single block
@@ -199,7 +201,7 @@ confint.lmeresamp <- function(object, method = "all", level = 0.95) {
         devfun(c(theta[1],new_theta))
       }
       
-      dd.ML <- devfun2.2(object$model, useSc=TRUE, signames=FALSE)
+      dd.ML <- devfun2.2(c(1,0.5,1),nmax=20)
       
       vv <- VarCorr(object$model) ## need ML estimates!
       pars <- as.numeric(vv[,"StdDev"]) # not sure if losing the label names is bad

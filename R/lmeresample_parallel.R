@@ -59,7 +59,7 @@ toc()
 
 ## nlme
 tic()
-boo4.2 <- bootstrap(model = vcmodB, .f = fixef, type = "residual", B = 100, linked = FALSE)
+boo4.2 <- bootstrap(model = vcmodB, .f = fixef, type = "residual", B = 100, linked = TRUE)
 toc()
 
 # run sequential reb bootstrap
