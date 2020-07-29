@@ -92,7 +92,8 @@ parametric_bootstrap.lme <- function(model, .f, B, type){
   
   RES <- structure(list(observed = observed, model = model$call, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model$data,
-                        seed = .Random.seed, type = type, call = match.call()))
+                        seed = .Random.seed, type = type, call = match.call()), 
+                   class = "lmeresamp")
   
   attr(RES, "bootFail") <- numFail
   attr(RES, "boot.fail.msgs") <- fail.msgs
@@ -146,7 +147,8 @@ case_bootstrap.lme <- function(model, .f, B, resample, type){
   
   RES <- structure(list(observed = observed, model = model$call, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model$data,
-                        seed = .Random.seed, type = type, call = match.call()))
+                        seed = .Random.seed, type = type, call = match.call()),
+                   class = "lmeresamp")
   
   attr(RES, "bootFail") <- numFail
   attr(RES, "boot.fail.msgs") <- fail.msgs
@@ -183,7 +185,8 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
   
   RES <- structure(list(observed = observed, model = model$call, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model$data,
-                        seed = .Random.seed, type = type, call = match.call()))
+                        seed = .Random.seed, type = type, call = match.call()),
+                   class = "lmeresamp")
   
   attr(RES, "bootFail") <- numFail
   attr(RES, "boot.fail.msgs") <- fail.msgs
@@ -393,7 +396,8 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
   
   RES <- structure(list(observed = observed, model = model$call, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model$data,
-                        seed = .Random.seed, type = paste("reb", reb_type, sep = ""), call = match.call()))
+                        seed = .Random.seed, type = paste("reb", reb_type, sep = ""), call = match.call()),
+                   class = "lmeresamp")
   return(RES)
 }
 
@@ -529,7 +533,8 @@ cgr_bootstrap.lme <- function(model, .f, B, type = type){
   
   RES <- structure(list(observed = observed, model = model$call, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model$data,
-                        seed = .Random.seed, type = type, call = match.call()))
+                        seed = .Random.seed, type = type, call = match.call()),
+                   class = "lmeresamp")
   attr(RES, "bootFail") <- numFail
   attr(RES, "boot.fail.msgs") <- fail.msgs
   return(RES)

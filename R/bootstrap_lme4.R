@@ -304,7 +304,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
 #' Combine \code{bstar} and \code{zstar} to create {Zbstar}.
 #'
 #' @details
-#' This function combines \code{bstar} and \code{zstar} to create {Zbstar} using an map statement.
+#' This function combines \code{bstar} and \code{zstar} to create {Zbstar} using a map statement
 #'
 #' @param bstar A list of matrices bstar
 #' @param zstar A list of matrices zstar
