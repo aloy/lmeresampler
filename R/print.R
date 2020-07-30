@@ -17,7 +17,7 @@ print.lmeresamp <- function(x, ci = FALSE){
   if(x$type = "reb"){
     cat(paste("Bootstrap type: REB", x$reb_type, "\n"))
     cat(paste("\n"))
-    cat(paste("Number of resamples:", x$B, "\n"))
+    cat(paste("Number of resamples:", x$R, "\n"))
     cat(paste("\n"))
     print(x$stats)
     
@@ -28,7 +28,7 @@ print.lmeresamp <- function(x, ci = FALSE){
   else{
     cat(paste("Bootstrap type:", x$type, "\n"))
     cat(paste("\n"))
-    cat(paste("Number of resamples:", x$B, "\n"))
+    cat(paste("Number of resamples:", x$R, "\n"))
     cat(paste("\n"))
     print(x$stats)
     

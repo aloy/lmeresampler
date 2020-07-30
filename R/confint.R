@@ -261,11 +261,11 @@ confint.lmeresamp <- function(object, method, level) {
 .perc.t.completion <- function(object, level){
   
   perc.t.lower <- apply(object$replicates, 2, function(x) {
-    round(quantile(x, 1 - (level/2)), 8)
+    round(quantile(x, (1 - level)/2), 8)
   })
   
   perc.t.upper <- apply(object$replicates, 2, function(x) {
-    round(quantile(x, level + 1 - (level/2)), 8)
+    round(quantile(x, level + (1 - level)/2), 8)
   })
   
   perc.t <- data.frame(cbind(perc.t.lower, perc.t.upper))
@@ -288,18 +288,19 @@ confint.lmeresamp <- function(object, method, level) {
 #'
 #' @keywords internal
 #' @noRd
-.boot.t.completion(object, level, model.fits, model.sds){
+.boot.t.completion <- function(object, level, model.fits, model.sds){
   
   ### table of estimates and sds for boot_t calculation
   t.stats <- cbind(model.fits, model.sds)
+  
   row.names(t.stats) <- colnames(object$replicates)
   t.stats <- cbind(t.stats, object$stats$rep.mean)
   
   t.stats <- as.data.frame(t.stats)
   t.stats <- t.stats %>% # thank you for the formula, Andy!!!
-    mutate(boot_t  = (rep.mean - model.fits)/(model.sds/sqrt(B))) %>%
-    mutate(boot.t.lower = ((model.fits - quantile(boot_t, level + 1 - (level/2))) * model.sds/sqrt(object$B))) %>%
-    mutate(boot.t.upper = ((model.fits - quantile(boot_t, 1 - (level/2))) * model.sds/sqrt(object$B)))
+    mutate(boot_t  = (object$stats$rep.mean - model.fits)/(model.sds/sqrt(object$R))) %>%
+    mutate(boot.t.lower = ((model.fits - quantile(boot_t, level + (1 - level)/2)) * model.sds/sqrt(object$R))) %>%
+    mutate(boot.t.upper = ((model.fits - quantile(boot_t, (1 - level)/2)) * model.sds/sqrt(object$R)))
   
   boot.t <- t.stats %>%
     select(boot.t.lower, boot.t.upper)

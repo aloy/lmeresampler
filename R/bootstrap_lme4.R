@@ -285,7 +285,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   
   stats <- data.frame(observed, mean, se, bias)
   
-  RES <- structure(list(observed = observed, model = model@call, .f = .f, replicates = replicates,
+  RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model@frame,
                         seed = .Random.seed, reb_type = reb_type, call = match.call()),
                    class = "lmeresamp")
@@ -356,7 +356,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   
   stats <- data.frame(observed, rep.mean, se, bias)
   
-  RES <- structure(list(observed = observed, model = model@call, .f = .f, replicates = replicates,
+  RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model@frame,
                         seed = .Random.seed, type = type, call = match.call()), 
                    class = "lmeresamp")
