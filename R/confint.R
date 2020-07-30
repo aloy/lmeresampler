@@ -198,7 +198,8 @@ confint.lmeresamp <- function(object, method, level) {
     model.fits <- append(model.fits, con$reStruct[[1]][2]) # estimate for ranef
     model.fits <- append(model.fits, con$sigma[2]) # estimate for sigma
     model.fits <- unlist(model.fits)
-    names(model.fits) <- colnames(object$replicates) # something needs to be done about the names
+    names(model.fits)[(length(con$fixed[, 2]) + 1) : (length(con$fixed[, 2]) + length(con$reStruct[[1]][2]))] <- row.names(con$reStruct[[1]][2])
+    names(model.fits)[(length(con$fixed[, 2]) + length(con$reStruct[[1]][2]) + 1)] <- "sigma"
     
     ### sd of of estimates for boot_t calculation
     out <- summary(object$model)
