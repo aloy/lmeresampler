@@ -137,8 +137,7 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample, type){
       tstar
     }
     return(tstar)
-  }
-  else{
+  } else{
     stop("model class must be either 'lme' or 'lmerMod'")
   }
 }
@@ -499,8 +498,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
     
     ## .f() no mapping
     tstar <- .f(lme4::refit(object = model, newresp = y.star))
-  }
-  else{
+  } else{
     # linked
     model.mresid <- lme4::getME(model, "y") - predict(model, re.form = ~0)
     model.mresid.cent <- scale(model.mresid, scale = FALSE)

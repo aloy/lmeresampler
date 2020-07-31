@@ -78,8 +78,7 @@ parametric_bootstrap.lme <- function(model, .f, B, type){
     warning("some bootstrap runs failed (", numFail, "/", B, ")")
     fail.msgs <- purrr::map_chr(tstar[bad.runs], .f = function(x){
       attr(x)})
-  }
-  else fail.msgs <- NULL 
+  } else fail.msgs <- NULL 
   
   # prep for stats df
   replicates <- as.data.frame(t(tstar))
@@ -279,8 +278,7 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
     } else{
       tstar
     }
-  }
-  else {
+  } else {
     #linked
     model.mresid <- nlme::getResponse(model) - predict(model, re.form = ~0)
     model.mresid.cent <- scale(model.mresid, scale = FALSE)
