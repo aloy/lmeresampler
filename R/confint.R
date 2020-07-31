@@ -132,39 +132,41 @@ confint.lmeresamp <- function(object, method, level) {
       out <- summary(object$model)
       model.sds <- out$tTable[, 2] # fixef 
       
-      ## construct deviance function
-      devfun <- do.call(mkLmerDevfun, object$model)
+      # ## construct deviance function
+      # devfun <- do.call(mkLmerDevfun, object$model)
+      # 
+      # ### sd for variance components, thank you Ben Bolker!!
+      # getTheta <- function(phi,sigma,nmax) {
+      #   ## make corStruct: fake data sequence within a single block
+      #   cc <- nlme::Initialize(nlme::corAR1(phi),data=data.frame(t=seq(nmax)))
+      #   ## get inverse Cholesky factor
+      #   mm <- matrix(nlme::corFactor(cc),nrow=nmax) ## 
+      #   ## check backsolve() idiom: all.equal(solve(mm),backsolve(mm,diag(nmax),upper.tri=FALSE))
+      #   mm2 <- backsolve(mm,diag(nmax),upper.tri=FALSE) ## invert ...
+      #   return(sigma*mm2[lower.tri(mm2,diag=TRUE)])     ## take lower tri & scale by SD
+      # }
+      # 
+      # devfun2.2 <- function(theta,nmax) { # no idea what nmax is
+      #   new_theta <- getTheta(phi=theta[2],sigma=theta[3],nmax)
+      #   devfun(c(theta[1],new_theta))
+      # }
+      # 
+      # dd.ML <- devfun2.2(c(1,0.5,1),nmax=20)
+      # 
+      # vv <- VarCorr(object$model) ## need ML estimates!
+      # pars <- as.numeric(vv[,"StdDev"]) # not sure if losing the label names is bad
+      # ## will need to be careful about order if using this for
+      # ## a random-slopes model ...
+      # 
+      # hh1 <- hessian(dd.ML,pars)
+      # vv2 <- 2*solve(hh1)  ## 2* converts from log-likelihood to deviance scale
+      # ranef.sds <- sqrt(diag(vv2))  ## get standard errors
+      # 
+      # model.sds <- append(model.sds, ranef.sds)
+      # 
+      # .boot.t.completion(object, level, model.fits, model.sds)
       
-      ### sd for variance components, thank you Ben Bolker!!
-      getTheta <- function(phi,sigma,nmax) {
-        ## make corStruct: fake data sequence within a single block
-        cc <- nlme::Initialize(nlme::corAR1(phi),data=data.frame(t=seq(nmax)))
-        ## get inverse Cholesky factor
-        mm <- matrix(nlme::corFactor(cc),nrow=nmax) ## 
-        ## check backsolve() idiom: all.equal(solve(mm),backsolve(mm,diag(nmax),upper.tri=FALSE))
-        mm2 <- backsolve(mm,diag(nmax),upper.tri=FALSE) ## invert ...
-        return(sigma*mm2[lower.tri(mm2,diag=TRUE)])     ## take lower tri & scale by SD
-      }
-      
-      devfun2.2 <- function(theta,nmax) { # no idea what nmax is
-        new_theta <- getTheta(phi=theta[2],sigma=theta[3],nmax)
-        devfun(c(theta[1],new_theta))
-      }
-      
-      dd.ML <- devfun2.2(c(1,0.5,1),nmax=20)
-      
-      vv <- VarCorr(object$model) ## need ML estimates!
-      pars <- as.numeric(vv[,"StdDev"]) # not sure if losing the label names is bad
-      ## will need to be careful about order if using this for
-      ## a random-slopes model ...
-      
-      hh1 <- hessian(dd.ML,pars)
-      vv2 <- 2*solve(hh1)  ## 2* converts from log-likelihood to deviance scale
-      ranef.sds <- sqrt(diag(vv2))  ## get standard errors
-      
-      model.sds <- append(model.sds, ranef.sds)
-      
-      .boot.t.completion(object, level, model.fits, model.sds)
+      print("this function doesn't work yet")
       
     } else if(method == "perc"){ ## percentile t
       
@@ -204,36 +206,39 @@ confint.lmeresamp <- function(object, method, level) {
       out <- summary(object$model)
       model.sds <- out$tTable[,2] # fixef 
       
-      ### sd for variance components, thank you Ben Bolker!!
-      getTheta <- function(phi,sigma,nmax) {
-        ## make corStruct: fake data sequence within a single block
-        cc <- nlme::Initialize(nlme::corAR1(phi),data=data.frame(t=seq(nmax)))
-        ## get inverse Cholesky factor
-        mm <- matrix(nlme::corFactor(cc),nrow=nmax) ## 
-        ## check backsolve() idiom: all.equal(solve(mm),backsolve(mm,diag(nmax),upper.tri=FALSE))
-        mm2 <- backsolve(mm,diag(nmax),upper.tri=FALSE) ## invert ...
-        return(sigma*mm2[lower.tri(mm2,diag=TRUE)])     ## take lower tri & scale by SD
-      }
+      # ### sd for variance components, thank you Ben Bolker!!
+      # getTheta <- function(phi,sigma,nmax) {
+      #   ## make corStruct: fake data sequence within a single block
+      #   cc <- nlme::Initialize(nlme::corAR1(phi),data=data.frame(t=seq(nmax)))
+      #   ## get inverse Cholesky factor
+      #   mm <- matrix(nlme::corFactor(cc),nrow=nmax) ## 
+      #   ## check backsolve() idiom: all.equal(solve(mm),backsolve(mm,diag(nmax),upper.tri=FALSE))
+      #   mm2 <- backsolve(mm,diag(nmax),upper.tri=FALSE) ## invert ...
+      #   return(sigma*mm2[lower.tri(mm2,diag=TRUE)])     ## take lower tri & scale by SD
+      # }
+      # 
+      # devfun2.2 <- function(theta,nmax) { # no idea what nmax is
+      #   new_theta <- getTheta(phi=theta[2],sigma=theta[3],nmax)
+      #   devfun(c(theta[1],new_theta))
+      # }
+      # 
+      # dd.ML <- devfun2.2(object$model, useSc=TRUE, signames=FALSE)
       
-      devfun2.2 <- function(theta,nmax) { # no idea what nmax is
-        new_theta <- getTheta(phi=theta[2],sigma=theta[3],nmax)
-        devfun(c(theta[1],new_theta))
-      }
+      # vv <- VarCorr(object$model) ## need ML estimates!
+      # pars <- as.numeric(vv[,"StdDev"]) # not sure if losing the label names is bad
+      # ## will need to be careful about order if using this for
+      # ## a random-slopes model ...
+      # 
+      # hh1 <- hessian(dd.ML,pars)
+      # vv2 <- 2*solve(hh1)  ## 2* converts from log-likelihood to deviance scale
+      # ranef.sds <- sqrt(diag(vv2))  ## get standard errors
+      # 
+      # model.sds <- append(model.sds, ranef.sds)
+      # 
+      # .boot.t.completion(object, level, model.fits, model.sds)
+      # 
       
-      dd.ML <- devfun2.2(object$model, useSc=TRUE, signames=FALSE)
-      
-      vv <- VarCorr(object$model) ## need ML estimates!
-      pars <- as.numeric(vv[,"StdDev"]) # not sure if losing the label names is bad
-      ## will need to be careful about order if using this for
-      ## a random-slopes model ...
-      
-      hh1 <- hessian(dd.ML,pars)
-      vv2 <- 2*solve(hh1)  ## 2* converts from log-likelihood to deviance scale
-      ranef.sds <- sqrt(diag(vv2))  ## get standard errors
-      
-      model.sds <- append(model.sds, ranef.sds)
-      
-      .boot.t.completion(object, level, model.fits, model.sds)
+      print("this function doesn't work yet")
       
       ## percentile t
       .perc.t.completion(object, level)
@@ -333,3 +338,4 @@ confint.lmeresamp <- function(object, method, level) {
   print(norm.t)
   cat(paste("\n"))
 }
+
