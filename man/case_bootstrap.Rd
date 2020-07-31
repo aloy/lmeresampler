@@ -62,10 +62,10 @@ Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel
 }
 \seealso{
 \itemize{
-  \item \code{\linked{parametric_bootstrap}}, \code{\linked{resid_bootstrap}},
-     \code{\linked{case_bootstrap}}, \code{\linked{cgr_bootstrap}}, 
-     \code{\linked{reb_bootstrap}} for more details on a specific bootstrap.
-  \item \code{\linked[lme4]{bootMer}} in the \pkg{lme4} package for an 
+  \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
+     \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
+     \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
+  \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
      implementation of (semi-)parameteric bootstrap for mixed models.
 }
 }
