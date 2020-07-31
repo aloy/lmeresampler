@@ -7,22 +7,25 @@
 \alias{cgr_bootstrap}
 \title{CGR Bootstrap for Nested LMEs}
 \usage{
-\method{cgr_bootstrap}{lmerMod}(model, fn, B)
+\method{cgr_bootstrap}{lmerMod}(model, .f, B, type)
 
-\method{cgr_bootstrap}{lme}(model, fn, B)
+\method{cgr_bootstrap}{lme}(model, .f, B, type = type)
 
-cgr_bootstrap(model, fn, B)
+cgr_bootstrap(model, .f, B, type)
 }
 \arguments{
 \item{model}{The model object you wish to bootstrap.}
 
-\item{fn}{A function returning the statistic(s) of interest.}
+\item{.f}{A function returning the statistic(s) of interest.}
 
 \item{B}{The number of bootstrap resamples.}
+
+\item{type}{A character string indicating the type of bootstrap that is being
+requested. Possible values are \code{"parametric"}, \code{"residual"}, 
+\code{"case"}, \code{"cgr"}, or \code{"reb"} (random effect block bootstrap).}
 }
 \value{
-The returned value is an object of class "boot", compatible with the \pkg{boot}
-package's \code{\link[boot]{boot}} methods.
+The returned value is an object of class "lmeresamp".
 }
 \description{
 Generate semi-parametric bootstrap replicates of a statistic for a nested 
@@ -51,12 +54,10 @@ Carpenter, J. R., Goldstein, H. and Rasbash, J. (2003) A novel bootstrap
 }
 \seealso{
 \itemize{
-  \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-     \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
-     \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
-  \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
+  \item \code{\linked{parametric_bootstrap}}, \code{\linked{resid_bootstrap}},
+     \code{\linked{case_bootstrap}}, \code{\linked{cgr_bootstrap}}, 
+     \code{\linked{reb_bootstrap}} for more details on a specific bootstrap.
+  \item \code{\linked[lme4]{bootMer}} in the \pkg{lme4} package for an 
      implementation of (semi-)parameteric bootstrap for mixed models.
-  \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}} 
-     from the \pkg{boot} package.
 }
 }
