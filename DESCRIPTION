@@ -23,9 +23,12 @@ Suggests:
     lme4 (>= 1.1-7),
     nlme,
     testthat,
-    mlmRev
+    mlmRev,
+    knitr,
+    rmarkdown
 License: GPL-3
 LazyData: true
 URL: https://github.com/aloy/lmeresampler
 BugReports: https://github.com/aloy/lmeresampler/issues
 RoxygenNote: 7.1.0
+VignetteBuilder: knitr

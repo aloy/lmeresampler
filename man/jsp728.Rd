@@ -7,15 +7,15 @@
 \format{
 A data frame with 728 rows and 8 variables.
 \describe{
- \item {mathAge11}{score on math at age 11}
- \item {mathAge8}{score on math at age 8}
- \item {gender}{gender, a factor with 2 levels (F, M)}
- \item {class}{father's social class, a factor with 2 levels (manual, nonmanual)}
- \item {school}{school code (1-50)}
- \item {normAge11}{normalized score on math at age 11}
- \item {normAge8}{normalized score on math at age 8}
- \item {schoolMathAge8}{average school math score}
- \item {mathAge8c}{centered math score at age 8}
+ \item{mathAge11}{score on math at age 11}
+ \item{mathAge8}{score on math at age 8}
+ \item{gender}{gender, a factor with 2 levels (F, M)}
+ \item{class}{father's social class, a factor with 2 levels (manual, nonmanual)}
+ \item{school}{school code (1-50)}
+ \item{normAge11}{normalized score on math at age 11}
+ \item{normAge8}{normalized score on math at age 8}
+ \item{schoolMathAge8}{average school math score}
+ \item{mathAge8c}{centered math score at age 8}
 }
 }
 \source{

@@ -1,0 +1,198 @@
+---
+title: "lmeresampler-vignette"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{lmeresampler-vignette}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(lmeresampler)
+```
+
+# Description
+
+`lmeresampler` provides functionality to perofrm various bootstrap processes for nested linear mixed effects (LMEs) models including parametric, residual, cases, CGR, and REB bootstraps.
+
+# The Data
+
+Examples of `lmeresampler` functions will use hierarchical linear models fit using `jsp728`, a dataset containing 728 students (level-1) from 50 primary (elementary) schools in inner London (level-2) that were part of the Junior School Project (JSP). The data was collected by the University of Bristol Centre for Multilevel Modeling. For more information about the variables, see `?jsp728`.
+
+We will work with `vcmodA` for `lme4`, and `vcmodB` for `nlme`. The two-level models contain the same 3 fixed effects: `mathAge8`, `gender`, and `class`. They also both have a random intercept for the `school`. The models are as follows:
+
+```{r}
+library(lme4)
+vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
+
+library(nlme)
+vcmodB <- lme(mathAge11 ~ mathAge8 + gender + class, random = ~1|school, data = jsp728)
+```
+
+# 1. The Parametric Bootstrap
+
+The parametric bootstrap simulates bootstrap samples from the estimated distribution functions. That is, error terms and random effects are simulated from their estimated normal distributions and are combined into bootstrap samples via the fitted model equation.
+
+## Examples
+
+```{r}
+# let's use .f = fixef to specify that we want only the fixed effects bootstrapped
+
+# lme4
+lmer_par_boot <- bootstrap(vcmodA, .f = fixef, type = "parametric", B = 100)
+
+# nlme
+lme_par_boot  <- bootstrap(vcmodB, .f = fixef, type = "parametric", B = 100)
+```
+
+# 2. The Residual Bootstrap
+
+The residual bootstrap resamples the residual quantities from the fitted linear mixed-effects model in order to generate bootstrap resamples. That is, a random sample, drawn with replacement, is taken from the estimated error terms and the EBLUPS (at each level) and the random samples are combined into bootstrap
+samples via the fitted model equation.
+
+## Examples
+
+```{r}
+# lme4
+
+## linked error terms and random effects prior to resampling
+lmer_res_boot_linked <- bootstrap(vcmodA, .f = fixef, type = "residual", B = 100, linked = TRUE)
+
+## unlinked
+lmer_res_boot <- bootstrap(vcmodA, .f = fixef, type = "residual", B = 100, linked = FALSE)
+
+## linked error terms and random effects prior to resampling
+lme_res_boot_linked <- bootstrap(vcmodB, .f = fixef, type = "residual", B = 100, linked = TRUE)
+
+## unlinked
+lme_res_boot <- bootstrap(vcmodB, .f = fixef, type = "residual", B = 100, linked = FALSE)
+```
+
+# 3. The Cases Bootstrap
+
+# 4. The CGR (Semi-Parametric) Bootstrap
+
+# 5. The Random Effects Block (REB) Bootstrap
+
+# 6. Output Options
+
+## The `print` Function
+
+## The `confint` Function
+
+# 7. Parallelization 
+
+### The Idea
+
+Parallelization (also known as parallel computing, parallel processing, or executing "in parallel") is the idea of splitting a process into sub-processes that execute at the same time. This is of interest in the context of bootstrapping because bootstrapping is often both computation-heavy and time-consuming. 
+
+Using parallelization, the processes behind `bootstrap()` can be executed on multiple computer cores, depending on the makeup of the machine you are using. To check how many cores your machine has, run `parallel::detectCores()`. This will output the number of cores your CPU "logically" has, which is twice more than the number of cores it physically has. The number of logical cores is the number of cores you may actually use when working in parallel (the more cores we have available to us, the better!). We recommend using multiple cores when possible, without using all/most of your CPU's cores, which it needs to run everything, not just RStudio. However, if your machine only has one core, parallelization is neither useful nor possible.
+
+### Performance
+
+It is important to note that while the number of cores used with parallelization will be some scalar multiple of the default number of one core used for non-parallel processing, the runtime of parallel processes will not be increased by that same scalar. That is, running a process on two cores does not yield a runtime that is twice as fast as running the same process on one core. This is because parallelization takes some overhead to split the processes, so while runtime will substantially improve, it will not correspond exactly to the number of cores being used.
+
+There are two types of parallelization techniques: forking (also known as `multicore`) and clustering. While forking tends to be slightly faster, it cannot be executed on Windows operating systems. Thus we will spend our time documenting clustering, which is system-agnostic. For more information on how to use forking with parallelization, consult the `parallel` package.
+
+### Implementation
+
+We implement our parallel processing using Steve Weston and Rich Calaway's guide on jointly using `doParallel` and `foreach`, as the code is both concise and simple enough for those without much experience with parallelization. While `doParallel` and `foreach` default to `multicore` (forking) functionality when using parallel computing on UNIX operating systems and `snow` (clustering) functionality on Windows systems, in order to be as explicit as possible, we will outline our examples using clustering. For more information on forking, please see Weston and Calaways guide, "Getting Started with doParallel and foreach".
+
+The basic idea with clusters is that they execute tasks as a "cluster" of computers, which means that each cluster needs to be fed in information separately. For this reason, clustering has more overhead than forking. Both `doParallel` and `foreach` use what Weston and Calaway call "`snow`-like functionality", meaning that while the clustering is done using these two packages, it uses the syntax from `snow` (a now deprecated package). Clusters also need to be "made" and "stopped" with each call to a `foreach()` loop and `doParallel`, to explicitly tell the CPU when to begin and end the parallelization.
+
+### Examples
+
+With all of this in mind, let's explore an example using `lmeresampler`. Notice that we have the user implement a lot of the parallelization with the `bootstrap()` call itself, rather than doing it within `lmeresampler` itself. This is because the latter did not actually result in much better runtimes than just using a single core. Thus, a modified, parallelized, call to `bootstrap()` is as follows:
+
+```{r, eval = FALSE, message = FALSE}
+library(foreach)
+library(doParallel)
+set.seed(1234)
+numCores <- 2
+
+cl <- snow::makeSOCKcluster(numCores) # make a socket cluster
+doParallel::registerDoParallel(cl) # how the CPU knows to run in parallel
+
+combine <- function(...) {
+  boot_list <- list(...)
+  combo_stat <- purrr::map_dfr(boot_list, ~as.data.frame(.x$t))
+  combo_r <- sum(map_dbl(boot_list, ~.x$R))
+  RES <- boot_list[[1]]
+  RES$t <- combo_stat
+  RES$R <- combo_r
+  return(RES)
+}
+b_parallel2 <- foreach(B = rep(250, 2), .combine = combine, .packages = c("lmeresampler", "lme4")) %dopar%
+  bootstrap(vcmodA, .f = fixef, type = "parametric", B = B)
+
+stopCluster(cl)
+```
+
+Let's compare the runtime of the above `b_parallel2` with the same bootstrap run without parallelization.
+
+```{r, eval = FALSE}
+library(tictoc)
+
+tic()
+b_nopar  <- bootstrap(vcmodA, .f = fixef, type = "parametric", B = 100)
+toc() # about 1.2 seconds
+
+numCores <- 2
+cl <- parallel::makeCluster(numCores) 
+doParallel::registerDoParallel(cl) 
+
+tic()
+b_parallel2 <- foreach(B = rep(50, 2), .combine = combine, .packages = c("lmeresampler", "lme4", "purrr", "dplyr")) %dopar% {
+  bootstrap(vcmodA, .f = fixef, type = "parametric", B = B)
+}
+toc()
+
+stopCluster(cl) 
+```
+
+```{r, eval = FALSE}
+library(doParallel)
+registerDoParallel(cores = 2)
+
+# parallel parametric bootstrap, 2 workers
+tic()
+b_parallel2 <- foreach(B = rep(250, 2), .combine = combine, .packages = "lmeresampler") %dopar%
+  bootstrap(vcmodA, .f = fixef, type = "parametric", B = B)
+toc()
+```
+
+
+Pretty useful stuff! The above can be applied to all bootstrap types and both `lme4` and `nlme` models. 
+
+# 8. Future Directions
+
+Future updates to `lmeresampler` should explore adding functionality to allow bootstrapping of models with crossed effects. That is, when lower-level observations exist in multiple factors of a higher-level. For example, if patients (level-1) adhere strictly to one doctor (level-2), but the doctors work for multiple hospitals (level-3), levels two and three are crossed. Crossed relationships need to be evaluated differently than standard nested relationships to account for "FILL IN HERE". 
+
+Finally, future extensions of `lmeresampler` may focus on implementing the existing functions for generalized linear mixed-effects (GLMM) models for all of the bootstraps types. This has been requested by past users.
+
+# References
+
+Carpenter, J.R., Goldstein, H. and Rasbash, J. (2003), A novel bootstrap procedure for assessing the relationship between class size and achievement. Journal of the Royal Statistical Society: Series C (Applied Statistics), 52: 431-443. DOI: 10.1111/1467-9876.00415
+
+[JSP728 Data](http://www.bristol.ac.uk/cmm/team/hg/msm-3rd-ed/datasets.html)
+
+Leeden R.., Meijer E., Busing F.M. (2008) Resampling Multilevel Models. In: Leeuw J.., Meijer E. (eds) Handbook of Multilevel Analysis. Springer, New York, NY. DOI: 10.1007/978-0-387-73186-5_11
+
+Raymond Chambers & Hukum Chandra (2013) A Random Effect Block Bootstrap for Clustered Data, Journal of Computational and Graphical Statistics, 22:2, 452-470, DOI: 10.1080/10618600.2012.681216
+
+[Ben Bolker's lme4 Variance Component SE Tips](https://stackoverflow.com/questions/31694812/standard-error-of-variance-component-from-the-output-of-lmer)
+
+[Ben Bolker's nlme Variance Component SE Guide](https://bbolker.github.io/mixedmodels-misc/notes/corr_braindump.html)
+
+[Weston and Calaway's doParallel and foreach Guide](https://cran.r-project.org/web/packages/doParallel/vignettes/gettingstartedParallel.pdf)
+
+# Acknowledgements
