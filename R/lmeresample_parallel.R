@@ -17,6 +17,8 @@ mySumm <- function(.) {
 set.seed(1234)
 # run sequential parametric bootstrap
 
+b_resids  <- bootstrap(vcmodA, .f = residuals, type = "parametric", B = 100)
+
 ## lme4
 library(tictoc)
 tic()
@@ -112,7 +114,7 @@ doParallel::registerDoParallel(cl)
 
 tic()
 boo2_parallel <- foreach(B = rep(250, 2), .combine = combine, .packages = c("lmeresampler", "lme4")) %dopar%
-  bootstrap(model = vcmodA, .f = mySumm, type = "case", B = B, resample = c(TRUE, FALSE))
+  bootstrap(model = vcmodA, .f = .fixef, type = "case", B = B, resample = c(TRUE, FALSE))
 toc()
 snow::stopCluster(cl)
 

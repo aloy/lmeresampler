@@ -24,8 +24,7 @@ print.lmeresamp <- function(x, ci = FALSE){
     if(ci == TRUE){
       confint.lmeresamp(x)
     }
-  }
-  else{
+  } else{
     cat(paste("Bootstrap type:", x$type, "\n"))
     cat(paste("\n"))
     cat(paste("Number of resamples:", x$R, "\n"))
