@@ -103,7 +103,7 @@ doParallel::registerDoParallel(cl)
 # all packages being used need to explicitly specified in .packages
 tic()
 b_parallel2 <- foreach(B = rep(250, 2), .combine = combine, .packages = c("lmeresampler", "lme4")) %dopar%
-  bootstrap(vcmodA, .f = mySumm, type = "parametric", B = B)
+  bootstrap(vcmodA, .f = fixef, type = "parametric", B = B)
 toc()
 stopCluster(cl)
 
