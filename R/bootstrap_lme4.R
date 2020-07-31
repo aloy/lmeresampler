@@ -129,16 +129,13 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample, type){
     #   .f(lme4::lmer(formula = form, data = as.data.frame(x), REML = reml)) 
     # })
   } else if(class(model) == "lme"){
-    # is new.data res here?
-    tstar <- purrr::map(res, function(df) {
-      fit <- tryCatch(.f(updated.model(model = model, new.data = df)),  
+    tstar <- tryCatch(.f(updated.model(model = model, new.data = res)),  
                       error = function(e) e)
-      if(inherits(fit, "error")) {
-        structure(rep(NA, length(.f(model))), fail.msgs = fit$message)
-      } else{
-        fit
-      }
-    })
+    if(inherits(tstar, "error")) {
+      structure(rep(NA, length(.f(model))), fail.msgs = tstar$message)
+    } else{
+      tstar
+    }
     return(tstar)
   }
   else{
@@ -280,7 +277,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
     }
   }
   
-  replicates <- as.data.frame(tstar)
+  replicates <- as.data.frame(t(tstar))
   observed <- t0
   mean <- colMeans(replicates)
   se <- unlist(purrr::map(replicates, sd))
@@ -288,7 +285,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   
   stats <- data.frame(observed, mean, se, bias)
   
-  RES <- structure(list(observed = observed, model = model@call, .f = .f, replicates = replicates,
+  RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model@frame,
                         seed = .Random.seed, reb_type = reb_type, call = match.call()),
                    class = "lmeresamp")
@@ -307,7 +304,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
 #' Combine \code{bstar} and \code{zstar} to create {Zbstar}.
 #'
 #' @details
-#' This function combines \code{bstar} and \code{zstar} to create {Zbstar} using an map statement.
+#' This function combines \code{bstar} and \code{zstar} to create {Zbstar} using a map statement
 #'
 #' @param bstar A list of matrices bstar
 #' @param zstar A list of matrices zstar
@@ -347,7 +344,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   if((nfail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
     warning("some bootstrap runs failed (", nfail, "/", nsim, ")")
     fail.msgs <- purrr::map_chr(tstar[bad.runs], .f = attr, FUN.VALUE = character(1),
-                        "fail.msgs")
+                                "fail.msgs")
   } else fail.msgs <- NULL
   
   # prep for stats df
@@ -359,7 +356,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   
   stats <- data.frame(observed, rep.mean, se, bias)
   
-  RES <- structure(list(observed = observed, model = model@call, .f = .f, replicates = replicates,
+  RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model@frame,
                         seed = .Random.seed, type = type, call = match.call()), 
                    class = "lmeresamp")

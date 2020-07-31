@@ -1,11 +1,23 @@
+#' @title Print
+#'
+#' @description
+#' Prints the output of the bootstrap call
+#'
+#' @details
+#' This function is given \code{x, ci} and uses them to print the bootstrap result
+#' and confidence intervals if the user wishes to have them.
+#'
+#' @param x The lmeresamp object to print
+#' @param ci A logical value specifying whether confidence intervals should be printed
+#'
 #' @rdname print
-#' @export
+#' @export 
 print.lmeresamp <- function(x, ci = FALSE){
   
   if(x$type = "reb"){
     cat(paste("Bootstrap type: REB", x$reb_type, "\n"))
     cat(paste("\n"))
-    cat(paste("Number of resamples:", x$B, "\n"))
+    cat(paste("Number of resamples:", x$R, "\n"))
     cat(paste("\n"))
     print(x$stats)
     
@@ -16,7 +28,7 @@ print.lmeresamp <- function(x, ci = FALSE){
   else{
     cat(paste("Bootstrap type:", x$type, "\n"))
     cat(paste("\n"))
-    cat(paste("Number of resamples:", x$B, "\n"))
+    cat(paste("Number of resamples:", x$R, "\n"))
     cat(paste("\n"))
     print(x$stats)
     
