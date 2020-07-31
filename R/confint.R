@@ -242,94 +242,94 @@ confint.lmeresamp <- function(object, method, level) {
       stop("'method' must be either 'norm', 'boot-t', 'perc', or 'all'")
     }
   }
+}
+
+
+#' @title Percentile-t interval completion
+#'
+#' @description
+#' Execute the percentile-t interval process
+#'
+#' @details
+#' This function uses \code{object} and \code{level} to calculate a percentile-t
+#' interval for the fixed and random components
+#'
+#' @param object An lmeresamp object
+#' @param level A confidence level
+#'
+#' @keywords internal
+#' @noRd
+.perc.t.completion <- function(object, level){
   
+  perc.t.lower <- apply(object$replicates, 2, function(x) {
+    round(quantile(x, (1 - level)/2), 8)
+  })
   
-  #' @title Percentile-t interval completion
-  #'
-  #' @description
-  #' Execute the percentile-t interval process
-  #'
-  #' @details
-  #' This function uses \code{object} and \code{level} to calculate a percentile-t
-  #' interval for the fixed and random components
-  #'
-  #' @param object An lmeresamp object
-  #' @param level A confidence level
-  #'
-  #' @keywords internal
-  #' @noRd
-  .perc.t.completion <- function(object, level){
-    
-    perc.t.lower <- apply(object$replicates, 2, function(x) {
-      round(quantile(x, (1 - level)/2), 8)
-    })
-    
-    perc.t.upper <- apply(object$replicates, 2, function(x) {
-      round(quantile(x, level + (1 - level)/2), 8)
-    })
-    
-    perc.t <- data.frame(cbind(perc.t.lower, perc.t.upper))
-    cat(paste("95% percentile-t interval: \n"))
-    print(perc.t)
-    cat(paste("\n"))
-  }
+  perc.t.upper <- apply(object$replicates, 2, function(x) {
+    round(quantile(x, level + (1 - level)/2), 8)
+  })
   
-  #' @title Bootstrap-t interval completion
-  #'
-  #' @description
-  #' Finish the bootstrap-t interval process
-  #'
-  #' @details
-  #' This function uses \code{object} and \code{level} to calculate a bootstrap-t
-  #' interval for the fixed and random components
-  #'
-  #' @param object An lmeresamp object
-  #' @param level A confidence level
-  #'
-  #' @keywords internal
-  #' @noRd
-  .boot.t.completion <- function(object, level, model.fits, model.sds){
-    
-    ### table of estimates and sds for boot_t calculation
-    t.stats <- cbind(model.fits, model.sds)
-    
-    row.names(t.stats) <- colnames(object$replicates)
-    t.stats <- cbind(t.stats, object$stats$rep.mean)
-    
-    t.stats <- as.data.frame(t.stats)
-    t.stats <- t.stats %>% # thank you for the formula, Andy!!!
-      mutate(boot_t  = (object$stats$rep.mean - model.fits)/(model.sds/sqrt(object$R))) %>%
-      mutate(boot.t.lower = ((model.fits - quantile(boot_t, level + (1 - level)/2)) * model.sds/sqrt(object$R))) %>%
-      mutate(boot.t.upper = ((model.fits - quantile(boot_t, (1 - level)/2)) * model.sds/sqrt(object$R)))
-    
-    boot.t <- t.stats %>%
-      select(boot.t.lower, boot.t.upper)
-    
-    cat(paste("95% bootstrap-t interval: \n"))
-    print(boot.t)
-    cat(paste("\n"))
-  }
+  perc.t <- data.frame(cbind(perc.t.lower, perc.t.upper))
+  cat(paste("95% percentile-t interval: \n"))
+  print(perc.t)
+  cat(paste("\n"))
+}
+
+#' @title Bootstrap-t interval completion
+#'
+#' @description
+#' Finish the bootstrap-t interval process
+#'
+#' @details
+#' This function uses \code{object} and \code{level} to calculate a bootstrap-t
+#' interval for the fixed and random components
+#'
+#' @param object An lmeresamp object
+#' @param level A confidence level
+#'
+#' @keywords internal
+#' @noRd
+.boot.t.completion <- function(object, level, model.fits, model.sds){
   
-  #' @title Normal-t interval completion
-  #'
-  #' @description
-  #' Complete the normal-t interval process
-  #'
-  #' @details
-  #' This function uses \code{norm.t.lower} and \code{norm.t.upper} to make a normal-t
-  #' interval for the fixed and random components
-  #'
-  #' @param norm.t.lower The lower bound of the interval
-  #' @param norm.t.upper The upper bound of the interval
-  #'
-  #' @keywords internal
-  #' @noRd
-  .norm.t.completion <- function(norm.t.lower, norm.t.upper){
-    
-    norm.t <-  data.frame(cbind(norm.t.lower, norm.t.upper))
-    
-    cat(paste("95% normal-t interval: \n"))
-    print(norm.t)
-    cat(paste("\n"))
-  }
+  ### table of estimates and sds for boot_t calculation
+  t.stats <- cbind(model.fits, model.sds)
+  
+  row.names(t.stats) <- colnames(object$replicates)
+  t.stats <- cbind(t.stats, object$stats$rep.mean)
+  
+  t.stats <- as.data.frame(t.stats)
+  t.stats <- t.stats %>% # thank you for the formula, Andy!!!
+    mutate(boot_t  = (object$stats$rep.mean - model.fits)/(model.sds/sqrt(object$R))) %>%
+    mutate(boot.t.lower = ((model.fits - quantile(boot_t, level + (1 - level)/2)) * model.sds/sqrt(object$R))) %>%
+    mutate(boot.t.upper = ((model.fits - quantile(boot_t, (1 - level)/2)) * model.sds/sqrt(object$R)))
+  
+  boot.t <- t.stats %>%
+    select(boot.t.lower, boot.t.upper)
+  
+  cat(paste("95% bootstrap-t interval: \n"))
+  print(boot.t)
+  cat(paste("\n"))
+}
+
+#' @title Normal-t interval completion
+#'
+#' @description
+#' Complete the normal-t interval process
+#'
+#' @details
+#' This function uses \code{norm.t.lower} and \code{norm.t.upper} to make a normal-t
+#' interval for the fixed and random components
+#'
+#' @param norm.t.lower The lower bound of the interval
+#' @param norm.t.upper The upper bound of the interval
+#'
+#' @keywords internal
+#' @noRd
+.norm.t.completion <- function(norm.t.lower, norm.t.upper){
+  
+  norm.t <-  data.frame(cbind(norm.t.lower, norm.t.upper))
+  
+  cat(paste("95% normal-t interval: \n"))
+  print(norm.t)
+  cat(paste("\n"))
 }
