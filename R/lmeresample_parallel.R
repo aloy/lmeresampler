@@ -22,7 +22,7 @@ b_resids  <- bootstrap(vcmodA, .f = residuals, type = "parametric", B = 100)
 ## lme4
 library(tictoc)
 tic()
-b_nopar  <- bootstrap(vcmodA, .f = mySumm, type = "parametric", B = 100)
+b_nopar  <- bootstrap(vcmodA, .f = fixef, type = "parametric", B = 100)
 toc()
 
 ## nlme
@@ -34,7 +34,7 @@ toc()
 
 ## lme4
 tic()
-boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 500, resample = c(TRUE, FALSE))
+boo2 <- bootstrap(model = vcmodA, .f = fixef, type = "case", B = 500, resample = c(TRUE, FALSE))
 toc()
 
 ## nlme
@@ -46,7 +46,7 @@ toc()
 
 ## lme4
 tic()
-boo3 <- bootstrap(model = vcmodA, .f = mySumm, type = "cgr", B = 100)
+boo3 <- bootstrap(model = vcmodA, .f = fixef, type = "cgr", B = 100)
 toc()
 
 ## nlme
@@ -56,7 +56,7 @@ toc()
 
 # run sequential resid bootstrap
 tic()
-boo4 <- bootstrap(model = vcmodA, .f = mySumm, type = "residual", B = 100, linked = TRUE)
+boo4 <- bootstrap(model = vcmodA, .f = fixef, type = "residual", B = 100, linked = TRUE)
 toc()
 
 ## nlme
@@ -66,7 +66,7 @@ toc()
 
 # run sequential reb bootstrap
 tic()
-boo5 <- bootstrap(model = vcmodA, .f = mySumm, type = "reb", B = 100, reb_type = 0)
+boo5 <- bootstrap(model = vcmodA, .f = fixef, type = "reb", B = 100, reb_type = 0)
 toc()
 
 tic()
