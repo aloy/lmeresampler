@@ -2,7 +2,7 @@
 % Please edit documentation in R/print.R
 \name{print.lmeresamp}
 \alias{print.lmeresamp}
-\title{Print}
+\title{print}
 \usage{
 print.lmeresamp(x, ci = FALSE)
 }
