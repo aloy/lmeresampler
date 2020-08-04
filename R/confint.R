@@ -2,6 +2,7 @@
 #' @export
 # bootstrap CI method for object of class lmeresamp
 confint.lmeresamp <- function(object, method, level) {
+  library(numDeriv)
   
   if(missing(level)){
     level <- 0.95
@@ -40,14 +41,31 @@ confint.lmeresamp <- function(object, method, level) {
       ## will need to be careful about order if using this for
       ## a random-slopes model ...
       
-      library("numDeriv")
       hh1 <- hessian(dd.ML,pars)
       vv2 <- 2*solve(hh1)  ## 2* converts from log-likelihood to deviance scale
       ranef.sds <- sqrt(diag(vv2))  ## get standard errors
       
       model.sds <- append(model.sds, ranef.sds)
       
-      .boot.t.completion(object, level, model.fits, model.sds)
+      ### table of estimates and sds for boot_t calculation
+      t.stats <- cbind(model.fits, model.sds)
+      
+      ### names are in the wrong order in confint and in t.stats, need to switch them around
+      right.names <- rownames(con)
+      
+      #### where fixef start
+      final.names <- right.names[(length(right.names) - length(lme4::getME(object$model, "beta")) + 1) : length(right.names)]
+      
+      #### sigma
+      final.names <- append(final.names, right.names[length(right.names) - length(lme4::getME(object$model, "beta"))])
+      
+      #### random effects
+      final.names <- append(final.names, right.names[1 : (length(right.names) - length(lme4::getME(object$model, "beta")) - 1)])
+    
+      rownames(t.stats) <- final.names
+      t.stats <- cbind(t.stats, object$stats$rep.mean)
+      
+      .boot.t.completion(object, level, t.stats)
       
     } else if(method == "perc"){ ## percentile t
       
@@ -88,7 +106,25 @@ confint.lmeresamp <- function(object, method, level) {
       
       model.sds <- append(model.sds, ranef.sds)
       
-      .boot.t.completion(object, level, model.fits, model.sds)
+      ### table of estimates and sds for boot_t calculation
+      t.stats <- cbind(model.fits, model.sds)
+      
+      ### names are in the wrong order in confint and in t.stats, need to switch them around
+      right.names <- rownames(con)
+      
+      #### where fixef start
+      final.names <- right.names[(length(right.names) - length(lme4::getME(object$model, "beta")) + 1) : length(right.names)]
+      
+      #### sigma
+      final.names <- append(final.names, right.names[length(right.names) - length(lme4::getME(object$model, "beta"))])
+      
+      #### random effects
+      final.names <- append(final.names, right.names[1 : (length(right.names) - length(lme4::getME(object$model, "beta")) - 1)])
+      
+      rownames(t.stats) <- final.names
+      t.stats <- cbind(t.stats, object$stats$rep.mean)
+      
+      .boot.t.completion(object, level, t.stats)
       
       ## percentile-t
       .perc.t.completion(object, level)
@@ -163,8 +199,10 @@ confint.lmeresamp <- function(object, method, level) {
       # ranef.sds <- sqrt(diag(vv2))  ## get standard errors
       # 
       # model.sds <- append(model.sds, ranef.sds)
+      #
+      # t.stats <- cbind(model.fits, model.sds)
       # 
-      # .boot.t.completion(object, level, model.fits, model.sds)
+      # .boot.t.completion(object, level, t.stats)
       
       print("this function doesn't work yet")
       
@@ -234,9 +272,10 @@ confint.lmeresamp <- function(object, method, level) {
       # ranef.sds <- sqrt(diag(vv2))  ## get standard errors
       # 
       # model.sds <- append(model.sds, ranef.sds)
+      #
+      # t.stats <- cbind(model.fits, model.sds)
       # 
-      # .boot.t.completion(object, level, model.fits, model.sds)
-      # 
+      # .boot.t.completion(object, level, t.stats)
       
       print("this function doesn't work yet")
       
@@ -294,13 +333,7 @@ confint.lmeresamp <- function(object, method, level) {
 #'
 #' @keywords internal
 #' @noRd
-.boot.t.completion <- function(object, level, model.fits, model.sds){
-  
-  ### table of estimates and sds for boot_t calculation
-  t.stats <- cbind(model.fits, model.sds)
-  
-  row.names(t.stats) <- colnames(object$replicates)
-  t.stats <- cbind(t.stats, object$stats$rep.mean)
+.boot.t.completion <- function(object, level, t.stats){
   
   t.stats <- as.data.frame(t.stats)
   t.stats <- t.stats %>% # thank you for the formula, Andy!!!

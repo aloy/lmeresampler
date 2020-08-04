@@ -1,4 +1,4 @@
-#' @title Print
+#' @title print
 #'
 #' @description
 #' Prints the output of the bootstrap call
@@ -14,7 +14,7 @@
 #' @export 
 print.lmeresamp <- function(x, ci = FALSE){
   
-  if(x$type == "reb"){
+  if(is.null(x$type)){
     cat(paste("Bootstrap type: REB", x$reb_type, "\n"))
     cat(paste("\n"))
     cat(paste("Number of resamples:", x$R, "\n"))
@@ -22,7 +22,7 @@ print.lmeresamp <- function(x, ci = FALSE){
     print(x$stats)
     
     if(ci == TRUE){
-      confint.lmeresamp(x)
+      confint(x, method = "all")
     }
   } else{
     cat(paste("Bootstrap type:", x$type, "\n"))
@@ -32,7 +32,7 @@ print.lmeresamp <- function(x, ci = FALSE){
     print(x$stats)
     
     if(ci == TRUE){
-      confint.lmeresamp(x)
+      confint(x, method = "all")
     }
   }
 }

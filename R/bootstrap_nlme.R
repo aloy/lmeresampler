@@ -160,7 +160,7 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
   .f <- match.fun(.f)
   
   t0 <- .f(model)
-  tstar <- purrr::map(1:B, function(x) .resample.resids.lme(model, linked = linked))
+  tstar <- purrr::map(1:B, function(x) .resample.resids.lme(model, .f, linked = linked))
   
   tstar <- do.call('cbind', tstar)
   
@@ -194,7 +194,7 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
 
 #' @keywords internal
 #' @noRd
-.resample.resids.lme <- function(model, linked = linked){
+.resample.resids.lme <- function(model, .f, linked = linked){
   
   # Extract fixed part of the model
   Xbeta <- predict(model, level = 0) # This is X %*% fixef(model)
@@ -314,7 +314,7 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
   
   if(reb_type != 2) .f <- match.fun(.f)
   
-  ystar <- as.data.frame(replicate(n = B, .resample.reb.lme(model = model, reb_type = reb_type)))
+  ystar <- as.data.frame(replicate(n = B, .resample.reb.lme(model = model, .f, reb_type = reb_type)))
   
   if(reb_type == 2){
     fe.0 <- nlme::fixef(model)
@@ -404,7 +404,7 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
 #' @importFrom RLRsim extract.lmeDesign
 #' @keywords internal
 #' @noRd
-.resample.reb.lme <- function(model, reb_type){
+.resample.reb.lme <- function(model, .f, reb_type){
   
   dsgn <- RLRsim::extract.lmeDesign(model)
   
@@ -506,7 +506,7 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
 cgr_bootstrap.lme <- function(model, .f, B, type = type){
   .f <- match.fun(.f)
   
-  tstar <- as.data.frame(replicate(n = B, .resample.cgr.lme(model = model)))
+  tstar <- as.data.frame(replicate(n = B, .resample.cgr.lme(model = model, .f)))
   
   t0 <- .f(model)
   
@@ -541,7 +541,7 @@ cgr_bootstrap.lme <- function(model, .f, B, type = type){
 #' CGR resampling procedures
 #' @keywords internal
 #' @noRd
-.resample.cgr.lme <- function(model){
+.resample.cgr.lme <- function(model, .f){
   level.num <- ncol(model$groups)
   
   # Extract random effects

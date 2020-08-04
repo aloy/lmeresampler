@@ -22,15 +22,15 @@ library(lmeresampler)
 
 # Description
 
-`lmeresampler` provides functionality to perofrm various bootstrap processes for nested linear mixed effects (LMEs) models including parametric, residual, cases, CGR, and REB bootstraps.
+`lmeresampler` provides functionality to performm various bootstrap processes for nested linear mixed-effects (LMEs) models including parametric, residual, cases, CGR, and REB bootstraps.
 
 # The Data
 
 Examples of `lmeresampler` functions will use hierarchical linear models fit using `jsp728`, a dataset containing 728 students (level-1) from 50 primary (elementary) schools in inner London (level-2) that were part of the Junior School Project (JSP). The data was collected by the University of Bristol Centre for Multilevel Modeling. For more information about the variables, see `?jsp728`.
 
-We will work with `vcmodA` for `lme4`, and `vcmodB` for `nlme`. The two-level models contain the same 3 fixed effects: `mathAge8`, `gender`, and `class`. They also both have a random intercept for the `school`. The models are as follows:
+We will work with `vcmodA` for `lme4`, and `vcmodB` for `nlme`. The two-level models contain the same 3 fixed effects: `mathAge8`, `gender`, and `class`. They also both have a random intercept for `school`. The models are as follows:
 
-```{r}
+```{r, results = FALSE, message = FALSE}
 library(lme4)
 vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
 
@@ -45,7 +45,7 @@ The parametric bootstrap simulates bootstrap samples from the estimated distribu
 ## Examples
 
 ```{r}
-# let's use .f = fixef to specify that we want only the fixed effects bootstrapped
+# let's set .f = fixef to specify that we want only the fixed effects bootstrapped
 
 # lme4
 lmer_par_boot <- bootstrap(vcmodA, .f = fixef, type = "parametric", B = 100)
@@ -56,36 +56,116 @@ lme_par_boot  <- bootstrap(vcmodB, .f = fixef, type = "parametric", B = 100)
 
 # 2. The Residual Bootstrap
 
-The residual bootstrap resamples the residual quantities from the fitted linear mixed-effects model in order to generate bootstrap resamples. That is, a random sample, drawn with replacement, is taken from the estimated error terms and the EBLUPS (at each level) and the random samples are combined into bootstrap
-samples via the fitted model equation.
+The residual bootstrap resamples the residual quantities from the fitted linear mixed-effects model in order to generate bootstrap resamples. That is, a random sample, drawn with replacement, is taken from the estimated error terms and the EBLUPS (at each level) and the random samples are combined into bootstrap samples via the fitted model equation. As described in Van der Leeden et al. (2008), if an observation's level-1 and level-2 residuals potentially violate the assumption of independence, the error terms and random effects may be `linked` prior to resampling by setting `linked = TRUE`. 
 
 ## Examples
 
 ```{r}
 # lme4
-
 ## linked error terms and random effects prior to resampling
 lmer_res_boot_linked <- bootstrap(vcmodA, .f = fixef, type = "residual", B = 100, linked = TRUE)
 
-## unlinked
-lmer_res_boot <- bootstrap(vcmodA, .f = fixef, type = "residual", B = 100, linked = FALSE)
-
-## linked error terms and random effects prior to resampling
-lme_res_boot_linked <- bootstrap(vcmodB, .f = fixef, type = "residual", B = 100, linked = TRUE)
-
+# nlme
 ## unlinked
 lme_res_boot <- bootstrap(vcmodB, .f = fixef, type = "residual", B = 100, linked = FALSE)
 ```
 
 # 3. The Cases Bootstrap
 
+The cases bootstrap is a fully nonparametric bootstrap that resamples the data with respect to the clusters in order to generate bootstrap samples. Depending on the nature of the data, the resampling can be done only for the higher-level cluster(s), only at the observation-level within a cluster, or at all levels. See Van der Leeden et al. for a nice discussion of this decision. 
+
+## Examples
+
+```{r}
+# lme4
+lmer_cases_boot1 <- bootstrap(vcmodA, .f = fixef, type = "case", B = 100, resample = c(TRUE, FALSE))
+# lmer_cases_boot2 <- bootstrap(vcmodA, .f = fixef, type = "case", B = 100, resample = c(FALSE, TRUE))
+# lmer_cases_boot2 <- bootstrap(vcmodA, .f = fixef, type = "case", B = 100, resample = c(TRUE, TRUE))
+
+# nlme
+lme_cases_boot  <- bootstrap(vcmodB, .f = fixef, type = "case", B = 10, resample = c(TRUE, FALSE))
+# lme_cases_boot2 <- bootstrap(vcmodB, .f = fixef, type = "case", B = 100, resample = c(FALSE, TRUE))
+# lme_cases_boot2 <- bootstrap(vcmodB, .f = fixef, type = "case", B = 100, resample = c(TRUE, TRUE))
+```
+
 # 4. The CGR (Semi-Parametric) Bootstrap
+
+The semi-parametric bootstrap algorithm implemented was described by Carpenter, Goldstein and Rasbash (2003). The algorithm is outlined below:
+
+1. Obtain the parameter estimates from the fitted model and calculate the estimated error terms and EBLUPs. 
+
+2. Rescale the error terms and EBLUPs so that the empirical variance of these quantities is equal to estimated variance components from the model.
+
+3. Sample independently with replacement from the rescaled estimated error terms and rescaled EBLUPs.
+
+4. Obtain bootstrap samples by combining the samples via the fitted model equation.
+
+5. Refit the model and extract the statistic(s) of interest.
+
+6. Repeat steps 3-5 `B` times.
+
+## Examples
+
+```{r}
+# lme4
+lmer_cgr_boot <- bootstrap(vcmodA, .f = fixef, type = "cgr", B = 100)
+
+# nlme
+lme_cgr_boot  <- bootstrap(vcmodB, .f = fixef, type = "cgr", B = 100)
+```
 
 # 5. The Random Effects Block (REB) Bootstrap
 
+The random effects block (REB) bootstrap was outlined by Chambers and Chandra (2013) and has been developed for two-level nested linear mixed-effects (LME) models. 
+
+Consider a two-level LME of the form $y = X \beta + Z b + \epsilon$
+
+The REB bootstrap algorithm (`type = 0`) is as follows:
+
+1. Calculate the nonparametric residual quantities for the fitted model
+    + marginal residuals $r = y - X\beta$
+    + predicted random effects $\tilde{b} = (Z^\prime Z)^{-1} Z^\prime r$
+    + error terms $\tilde{e} = r - Z \tilde{b}$
+  
+2. Take a simple random sample with replacement of the groups and extract the corresponding elements of $\tilde{b}$ and $\tilde{e}$.
+
+3. Generate bootstrap samples via the fitted model equation $y = X \widehat{\beta} + Z \tilde{b} + \tilde{e}$.
+
+4. Refit the model and extract the statistic(s) of interest.
+
+5. Repeat steps 2-4 `B` times.
+
+Variation 1 (`type = 1`): The first variation of the REB bootstrap zero centers and rescales the residual quantities prior to resampling.
+
+Variation 2 (`type = 2`): The second variation of the REB bootstrap scales the estimates and centers the bootstrap distributions (i.e., adjusts for bias) after REB bootstrapping.
+
+## Examples
+
+```{r, message = FALSE, warning = FALSE}
+# lme4
+lmer_reb_boot0 <- bootstrap(vcmodA, .f = fixef, type = "reb", B = 100, reb_type = 0)
+lmer_reb_boot1 <- bootstrap(vcmodA, .f = fixef, type = "reb", B = 100, reb_type = 1)
+
+# nlme
+lme_reb_boot2  <- bootstrap(vcmodB, .f = fixef, type = "reb", B = 100, reb_type = 2)
+```
+
 # 6. Output Options
 
+Prior versions of `lmeresampler` did not have `print` or `confint` functions. The output of the `bootstrap` function has as such been updated to make it compatible and follow the syntax of a generic `print` and `confint` function. The output of `bootstrap` is now an object of class `lmeresamp` that can be printed and for which confidence intervals can be calculated. See below for examples.
+
 ## The `print` Function
+
+The syntax of the `lmeresampler` `print` function is the same for any default `print` function. The object to be printed must be the object returned by the `bootstrap` call. In addition, if the user would like to print confidence intervals for the object, setting `ci = TRUE` will call the `confint` function and set `method = "all"` and `level = 0.95`. If not all of the intervals are of interest or a different confidence level is required, the user should directly call `confint`.
+
+### Examples
+
+```{r, cache = FALSE}
+print(lmer_reb_boot0)
+
+print(lmer_reb_boot1, ci = TRUE)
+```
+
 
 ## The `confint` Function
 
@@ -169,7 +249,6 @@ b_parallel2 <- foreach(B = rep(250, 2), .combine = combine, .packages = "lmeresa
   bootstrap(vcmodA, .f = fixef, type = "parametric", B = B)
 toc()
 ```
-
 
 Pretty useful stuff! The above can be applied to all bootstrap types and both `lme4` and `nlme` models. 
 
