@@ -20,15 +20,23 @@ knitr::opts_chunk$set(
 library(lmeresampler)
 ```
 
-# Description
+# Overview
 
-`lmeresampler` provides functionality to performm various bootstrap processes for nested linear mixed-effects (LMEs) models including parametric, residual, cases, CGR, and REB bootstraps.
+The `lmeresampler` package provides functionality to perform various bootstrap processes for nested linear mixed-effects (LMEs) models including parametric, residual, cases, CGR, and REB bootstraps. This is particularly useful for models fit with relatively small datasets, where bootstrapping may yield more robust parameter estimates. This vignette seeks to inform users of:
 
-# The Data
+* how to bootstrap hierarchical linear models with `lmeresampler`,
+
+* what kinds of bootstraps are available and how they operate, 
+
+* how to use the bootstrap output, and 
+
+* xxtensions for both users and future developers of the package.
+
+## The Data
 
 Examples of `lmeresampler` functions will use hierarchical linear models fit using `jsp728`, a dataset containing 728 students (level-1) from 50 primary (elementary) schools in inner London (level-2) that were part of the Junior School Project (JSP). The data was collected by the University of Bristol Centre for Multilevel Modeling. For more information about the variables, see `?jsp728`.
 
-We will work with `vcmodA` for `lme4`, and `vcmodB` for `nlme`. The two-level models contain the same 3 fixed effects: `mathAge8`, `gender`, and `class`. They also both have a random intercept for `school`. The models are as follows:
+We will work with `vcmodA` for `lme4`, and `vcmodB` for `nlme`. Each of the two-level models predicts `mathAge11` (the student's math score at age 11) and contains the same 3 fixed effects: `mathAge8` (the student's math score at age 8), `gender` (the student's gender), and `class` (the student's father's social class, a factor with two levels: manual and nonmanual). They also both have a random intercept for `school`. The models are as follows:
 
 ```{r, results = FALSE, message = FALSE}
 library(lme4)
@@ -37,6 +45,24 @@ vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp7
 library(nlme)
 vcmodB <- lme(mathAge11 ~ mathAge8 + gender + class, random = ~1|school, data = jsp728)
 ```
+
+## The Call
+
+In order to perform the bootstrap, the user must call the aptly named `bootstrap()` function. The function contains several important parameters for the user to specify when making the call:
+
+* `model`: the HLM model to be bootstrapped.
+
+* `.f`: a function that will compute the statistics of interest (for example, to have the bootstrap return the fixed effects estimates, specify `.f = fixef`).
+
+* `type`: a character string specifying what type of bootstrap should be executed. Possible values are `"parametric"`, `"residual"`, `"case"`, `cgr`, or `reb`. More information about each bootstrap `type` may be found in the following sections.
+
+* `B`: the number of bootstrap resamples to be performed.
+
+* `resample`: a logical vector specifying whether each level of the model should be resampled in the cases bootstrap. The levels should be specified from the highest level (largest cluster) of the hierarchy to the lowest (observation-level). For example, for students within a school, specify the school level first, then the student level.
+
+* `reb_type`: an integer value specifying what kind of REB (random effects block) bootstrap should be performed. More on what the differences between the REB bootstrap types are may be found in section 5 of this vignette.
+
+* `linked`: a logical value specifying whether the residual bootstrap should be performed with linked error terms and random effects prior to resampling. The motivation behind is explained in seciton 2 of this vignette.
 
 # 1. The Parametric Bootstrap
 
@@ -118,7 +144,7 @@ lme_cgr_boot  <- bootstrap(vcmodB, .f = fixef, type = "cgr", B = 100)
 
 The random effects block (REB) bootstrap was outlined by Chambers and Chandra (2013) and has been developed for two-level nested linear mixed-effects (LME) models. 
 
-Consider a two-level LME of the form $y = X \beta + Z b + \epsilon$
+Consider a two-level LME of the form $y = X \beta + Z b + \epsilon$.
 
 The REB bootstrap algorithm (`type = 0`) is as follows:
 
@@ -152,55 +178,58 @@ lme_reb_boot2  <- bootstrap(vcmodB, .f = fixef, type = "reb", B = 100, reb_type 
 
 # 6. Output Options
 
-Prior versions of `lmeresampler` did not have `print` or `confint` functions. The output of the `bootstrap` function has as such been updated to make it compatible and follow the syntax of a generic `print` and `confint` function. The output of `bootstrap` is now an object of class `lmeresamp` that can be printed and for which confidence intervals can be calculated. See below for examples.
+The newest update of `lmeresampler` comes equipped with its own `print()` and `confint()` functions, both of which follow the syntax of a generic `print()` and `confint()` function. In order for these functions to operate as necessary, the output of the `bootstrap()` function has been updated to be an object of class `lmeresamp`. See the next sections for some examples.
 
-## The `print` Function
+## The `print()` Function
 
-The syntax of the `lmeresampler` `print` function is the same for any default `print` function. The object to be printed must be the object returned by the `bootstrap` call. In addition, if the user would like to print confidence intervals for the object, setting `ci = TRUE` will call the `confint` function and set `method = "all"` and `level = 0.95`. If not all of the intervals are of interest or a different confidence level is required, the user should directly call `confint`.
+The syntax of the `lmeresampler` `print()` function is similar to the default `print()` function. The object to be printed must be the object returned by the `bootstrap()` call, an `lmeresamp` object. In addition, if the user would like to print confidence intervals for the object, setting `ci = TRUE` will call the `confint()` function and set `method = "all"` and `level = 0.95`. If not all of the intervals are of interest or a different confidence level is required, it is recommended that the user directly call `confint()` on the bootstrap object.
 
 ### Examples
 
-```{r, cache = FALSE}
-print(lmer_reb_boot0)
+```{r}
+print.lmeresamp(lmer_reb_boot0)
 
-print(lmer_reb_boot1, ci = TRUE)
+# print.lmeresamp(lmer_reb_boot1, ci = TRUE)
 ```
 
+## The `confint()` Function
 
-## The `confint` Function
+Similarly, the syntax of the `lmeresampler` `confint()` function is similar to the default `confint()` function. The object for which confidence are calculated must be the `lmeresamp` object returned by the `bootstrap()` call. The type of confidence interval may be specified with `method`, which defaults to `"all"` if unspecified. The level at which the confidence interval is to be computer may be specified with `level`, which defaults to `0.95` if unspecified. 
 
-# 7. Parallelization 
+```{r, message = FALSE, warning = FALSE}
+confint(lmer_par_boot) # all ci types, 0.95 confidence level
+```
+
+# 7. Parallelization (User Extension)
 
 ### The Idea
 
 Parallelization (also known as parallel computing, parallel processing, or executing "in parallel") is the idea of splitting a process into sub-processes that execute at the same time. This is of interest in the context of bootstrapping because bootstrapping is often both computation-heavy and time-consuming. 
 
-Using parallelization, the processes behind `bootstrap()` can be executed on multiple computer cores, depending on the makeup of the machine you are using. To check how many cores your machine has, run `parallel::detectCores()`. This will output the number of cores your CPU "logically" has, which is twice more than the number of cores it physically has. The number of logical cores is the number of cores you may actually use when working in parallel (the more cores we have available to us, the better!). We recommend using multiple cores when possible, without using all/most of your CPU's cores, which it needs to run everything, not just RStudio. However, if your machine only has one core, parallelization is neither useful nor possible.
+Using parallelization, the processes behind `bootstrap()` can be executed on multiple computer cores, depending on the makeup of the machine you are using. To check how many cores your machine has, run `parallel::detectCores()`. This will output the number of cores your CPU "logically" has, which is twice more than the number of cores it physically has. The number of logical cores is the number of cores you may actually use when working in parallel (the more cores you have available to you, the better!). We recommend using multiple cores when possible, **without using all/most of your CPU's cores**, which it needs to run everything, not just RStudio. However, if your machine only has one core, parallelization is neither useful nor possible.
 
 ### Performance
 
 It is important to note that while the number of cores used with parallelization will be some scalar multiple of the default number of one core used for non-parallel processing, the runtime of parallel processes will not be increased by that same scalar. That is, running a process on two cores does not yield a runtime that is twice as fast as running the same process on one core. This is because parallelization takes some overhead to split the processes, so while runtime will substantially improve, it will not correspond exactly to the number of cores being used.
 
-There are two types of parallelization techniques: forking (also known as `multicore`) and clustering. While forking tends to be slightly faster, it cannot be executed on Windows operating systems. Thus we will spend our time documenting clustering, which is system-agnostic. For more information on how to use forking with parallelization, consult the `parallel` package.
+There are two types of parallelization techniques: forking (also known as `multicore`) and clustering. While forking tends to be slightly faster, it cannot be executed on Windows operating systems. Thus we will spend our time documenting clustering, which is system-agnostic. For more information on how to use forking with parallelization, check out the `parallel` package.
 
 ### Implementation
 
-We implement our parallel processing using Steve Weston and Rich Calaway's guide on jointly using `doParallel` and `foreach`, as the code is both concise and simple enough for those without much experience with parallelization. While `doParallel` and `foreach` default to `multicore` (forking) functionality when using parallel computing on UNIX operating systems and `snow` (clustering) functionality on Windows systems, in order to be as explicit as possible, we will outline our examples using clustering. For more information on forking, please see Weston and Calaways guide, "Getting Started with doParallel and foreach".
+We implement our parallel processing using Steve Weston and Rich Calaway's guide on jointly using `doParallel` and `foreach`, as the code is both concise and simple enough for those without much experience with parallelization. While `doParallel` and `foreach` default to `multicore` (forking) functionality when using parallel computing on UNIX operating systems and `snow` (clustering) functionality on Windows systems, in order to be as explicit as possible, we will outline our examples using clustering. For more information on forking, please see Weston and Calaway's guide, "Getting Started with doParallel and foreach" (link can be found in the References section).
 
 The basic idea with clusters is that they execute tasks as a "cluster" of computers, which means that each cluster needs to be fed in information separately. For this reason, clustering has more overhead than forking. Both `doParallel` and `foreach` use what Weston and Calaway call "`snow`-like functionality", meaning that while the clustering is done using these two packages, it uses the syntax from `snow` (a now deprecated package). Clusters also need to be "made" and "stopped" with each call to a `foreach()` loop and `doParallel`, to explicitly tell the CPU when to begin and end the parallelization.
 
 ### Examples
 
-With all of this in mind, let's explore an example using `lmeresampler`. Notice that we have the user implement a lot of the parallelization with the `bootstrap()` call itself, rather than doing it within `lmeresampler` itself. This is because the latter did not actually result in much better runtimes than just using a single core. Thus, a modified, parallelized, call to `bootstrap()` is as follows:
+With all of this in mind, let's explore an example using `lmeresampler`. Notice that we have the user implement the parallelization with the `bootstrap()` call itself, rather than doing it within `lmeresampler` itself. This is because the latter did not actually result in much better runtimes than just using a single core. Thus, a modified, parallelized, call to `bootstrap()` is as follows:
 
-```{r, eval = FALSE, message = FALSE}
+```{r, message = FALSE, warning = FALSE, cache = TRUE}
+library(purrr)
 library(foreach)
 library(doParallel)
 set.seed(1234)
 numCores <- 2
-
-cl <- snow::makeSOCKcluster(numCores) # make a socket cluster
-doParallel::registerDoParallel(cl) # how the CPU knows to run in parallel
 
 combine <- function(...) {
   boot_list <- list(...)
@@ -211,27 +240,31 @@ combine <- function(...) {
   RES$R <- combo_r
   return(RES)
 }
+
+cl <- snow::makeSOCKcluster(numCores) # make a socket cluster
+doParallel::registerDoParallel(cl) # how the CPU knows to run in parallel
+
 b_parallel2 <- foreach(B = rep(250, 2), .combine = combine, .packages = c("lmeresampler", "lme4")) %dopar%
   bootstrap(vcmodA, .f = fixef, type = "parametric", B = B)
 
 stopCluster(cl)
 ```
 
-Let's compare the runtime of the above `b_parallel2` with the same bootstrap run without parallelization.
+Let's compare the runtime of the above `b_parallel2` with the same bootstrap run without parallelization. Note that differences in runtime will be somewhat arbitrary for a small number of resamples (say, 100), and will become more pronounced as the number of resamples increases (to 1000, for example), in favor of the parallelized bootstrap.
 
-```{r, eval = FALSE}
+```{r, message = FALSE, warning = FALSE, cache = TRUE}
 library(tictoc)
 
 tic()
-b_nopar  <- bootstrap(vcmodA, .f = fixef, type = "parametric", B = 100)
-toc() # about 1.2 seconds
+b_nopar  <- bootstrap(vcmodA, .f = fixef, type = "parametric", B = 1000)
+toc()
 
 numCores <- 2
-cl <- parallel::makeCluster(numCores) 
+cl <- snow::makeSOCKcluster(numCores)
 doParallel::registerDoParallel(cl) 
 
 tic()
-b_parallel2 <- foreach(B = rep(50, 2), .combine = combine, .packages = c("lmeresampler", "lme4", "purrr", "dplyr")) %dopar% {
+b_parallel2 <- foreach(B = rep(500, 2), .combine = combine, .packages = c("lmeresampler", "lme4", "purrr", "dplyr")) %dopar% {
   bootstrap(vcmodA, .f = fixef, type = "parametric", B = B)
 }
 toc()
@@ -239,24 +272,13 @@ toc()
 stopCluster(cl) 
 ```
 
-```{r, eval = FALSE}
-library(doParallel)
-registerDoParallel(cores = 2)
-
-# parallel parametric bootstrap, 2 workers
-tic()
-b_parallel2 <- foreach(B = rep(250, 2), .combine = combine, .packages = "lmeresampler") %dopar%
-  bootstrap(vcmodA, .f = fixef, type = "parametric", B = B)
-toc()
-```
-
 Pretty useful stuff! The above can be applied to all bootstrap types and both `lme4` and `nlme` models. 
 
-# 8. Future Directions
+# 8. Future Directions (Developer Extensions)
 
-Future updates to `lmeresampler` should explore adding functionality to allow bootstrapping of models with crossed effects. That is, when lower-level observations exist in multiple factors of a higher-level. For example, if patients (level-1) adhere strictly to one doctor (level-2), but the doctors work for multiple hospitals (level-3), levels two and three are crossed. Crossed relationships need to be evaluated differently than standard nested relationships to account for "FILL IN HERE". 
+Future updates to `lmeresampler` should explore adding functionality to allow bootstrapping of models with crossed effects. That is, when lower-level observations exist in multiple factors of a higher-level. For example, if patients (level-1) adhere strictly to one doctor (level-2), but the doctors work for multiple hospitals (level-3), levels two and three are crossed. Crossed relationships need to be evaluated differently than standard nested relationships, thus the code will need significant modifications in its evaluation process.
 
-Finally, future extensions of `lmeresampler` may focus on implementing the existing functions for generalized linear mixed-effects (GLMM) models for all of the bootstraps types. This has been requested by past users.
+Furthermore, future extensions of `lmeresampler` may focus on implementing the existing functions for generalized linear mixed-effects (GLMM) models for all of the bootstraps types. This has been requested by past users.
 
 # References
 

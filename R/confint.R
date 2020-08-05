@@ -1,13 +1,33 @@
+#' @title confint
+#'
+#' @description
+#' Performs confidence intervals on an lmeresamp object.
+#'
+#' @details
+#' This function is given \code{object, method, level} and uses them to calculate the
+#' confidence interval(s).
+#'
+#' @param object The lmeresamp object for which confidence intervals should be computed.
+#' @param method The type of confidence intervals that should be executed.
+#' @param level The level at which the confidence interval should be calculated.
+#'
 #' @rdname confint
-#' @export
+#' @export 
 # bootstrap CI method for object of class lmeresamp
 confint.lmeresamp <- function(object, method, level) {
   library(numDeriv)
+  library(dplyr)
   
   if(missing(level)){
     level <- 0.95
   } else if(!level %in% (0:1)){
     stop("please specify a confidence level between 0 and 1")
+  }
+  
+  if(missing(method)){
+    method <- "all"
+  } else if(!method %in% c("norm", "boot-t", "perc", "all")) {
+    stop("'method' must be either 'norm', 'boot-t', 'perc', or 'all'")
   }
   
   if(class(object$model) == "lmerMod"){ ## normal t
@@ -129,9 +149,7 @@ confint.lmeresamp <- function(object, method, level) {
       ## percentile-t
       .perc.t.completion(object, level)
       
-    } else{
-      stop("'method' must be either 'norm', 'boot-t', 'perc', or 'all'")
-    }
+    } 
   } else if(class(model) == "lme"){
     
     if(method == "norm"){ ## normal t
@@ -282,8 +300,6 @@ confint.lmeresamp <- function(object, method, level) {
       ## percentile t
       .perc.t.completion(object, level)
       
-    } else{
-      stop("'method' must be either 'norm', 'boot-t', 'perc', or 'all'")
     }
   }
 }
@@ -337,9 +353,9 @@ confint.lmeresamp <- function(object, method, level) {
   
   t.stats <- as.data.frame(t.stats)
   t.stats <- t.stats %>% # thank you for the formula, Andy!!!
-    mutate(boot_t  = (object$stats$rep.mean - model.fits)/(model.sds/sqrt(object$R))) %>%
-    mutate(boot.t.lower = ((model.fits - quantile(boot_t, level + (1 - level)/2)) * model.sds/sqrt(object$R))) %>%
-    mutate(boot.t.upper = ((model.fits - quantile(boot_t, (1 - level)/2)) * model.sds/sqrt(object$R)))
+    mutate(boot_t  = (object$stats$rep.mean - t.stats[, 1])/(t.stats[, 2]/sqrt(object$R))) %>%
+    mutate(boot.t.lower = ((t.stats[, 1] - quantile(boot_t, level + (1 - level)/2)) * t.stats[, 2]/sqrt(object$R))) %>%
+    mutate(boot.t.upper = ((t.stats[, 1] - quantile(boot_t, (1 - level)/2)) * t.stats[, 2]/sqrt(object$R)))
   
   boot.t <- t.stats %>%
     select(boot.t.lower, boot.t.upper)

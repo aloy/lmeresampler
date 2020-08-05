@@ -7,12 +7,12 @@
 print.lmeresamp(x, ci = FALSE)
 }
 \arguments{
-\item{x}{The lmeresamp object to print}
+\item{x}{The lmeresamp object to print.}
 
-\item{ci}{A logical value specifying whether confidence intervals should be printed}
+\item{ci}{A logical value specifying whether confidence intervals should be printed.}
 }
 \description{
-Prints the output of the bootstrap call
+Prints the output of the bootstrap call.
 }
 \details{
 This function is given \code{x, ci} and uses them to print the bootstrap result
