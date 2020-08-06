@@ -4,7 +4,7 @@
 \alias{print.lmeresamp}
 \title{print}
 \usage{
-print.lmeresamp(x, ci = FALSE)
+\method{print}{lmeresamp}(x, ci = FALSE)
 }
 \arguments{
 \item{x}{The lmeresamp object to print.}
