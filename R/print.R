@@ -10,6 +10,7 @@
 #' @param x The lmeresamp object to print.
 #' @param ci A logical value specifying whether confidence intervals should be printed.
 #'
+#' @rdname print
 #' @export 
 #' @method print lmeresamp
 print.lmeresamp <- function(x, ci = FALSE){
