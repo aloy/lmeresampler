@@ -30,7 +30,7 @@ The `lmeresampler` package provides functionality to perform various bootstrap p
 
 * how to use the bootstrap output, and 
 
-* xxtensions for both users and future developers of the package.
+* extensions for both users and future developers of the package.
 
 ## The Data
 
@@ -196,14 +196,14 @@ print.lmeresamp(lmer_reb_boot0)
 
 Similarly, the syntax of the `lmeresampler` `confint()` function is similar to the default `confint()` function. The object for which confidence are calculated must be the `lmeresamp` object returned by the `bootstrap()` call. The type of confidence interval may be specified with `method`, for which possible values include: `"norm"` (normal-t interval), `"boot-t"` (bootstrap-t interval using output from the `bootstrap()` call), and `"all"` (all of aforementioned methods, and the default if `method` is unspecified). The level at which the confidence interval is to be computed may be specified with `level`, which defaults to `0.95` if unspecified. 
 
-For those interested, it is worth noting that the bootstrap-t interval is an approximation, and is thus less statistically sound than the other intervals. This is because the algorithm calculates the interval using estimates of the standard errors of the variance components of the model, which while possible to calculate, are often unreliable. We use these estimates to provide the bootstrap-t interval for curious users, though we recommend that one of the other methods be used in situations where precise values are necessary. For more information about how these random effects standard errors are calculated, see Ben Bolker's (one of the authors of, and the current maintainer of, `lme4`) two posts (whose knowledge and linear algebra we followed closely) on the topic in the References section below.
+It is important to note that the bootstrap-t interval is an approximation, and is thus less statistically sound than the other intervals. This is because the algorithm calculates the interval using estimates of the standard errors of the variance components of the model, which while possible to calculate, are often unreliable. We use these estimates to provide the bootstrap-t interval for curious users, though we recommend that one of the other methods be used in situations where precise values are necessary. For more information about how these random effects standard errors are calculated, see Ben Bolker's (one of the authors of, and the current maintainer of, `lme4`) two posts (from which we gathered both knowledge and linear algebra) on the topic in the References section below.
 
 ## Examples
 
 ```{r, message = FALSE, warning = FALSE}
-confint(lmer_par_boot) # all ci types, 0.95 confidence level
+#confint(lmer_par_boot) # all ci types, 0.95 confidence level
 
-confint(lmer_par_boot, method = "norm", level= 0.90)
+#confint(lmer_par_boot, method = "norm", level= 0.90)
 ```
 
 # 7. Parallelization (User Extension)
