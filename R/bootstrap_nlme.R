@@ -16,9 +16,9 @@ bootstrap.lme <- function(model, .f, type, B, resample, reb_type, linked){
 parametric_bootstrap.lme <- function(model, .f, B, type){
   # getVarCov.lme is the limiting factor...
   
-  if(ncol(model$groups) > 1){
-    stop("The REB bootstrap has not been adapted for 3+ level models.")
-  }
+  # if(ncol(model$groups) > 1){
+  #   stop("The REB bootstrap has not been adapted for 3+ level models.")
+  # }
   
   # Match function
   .f <- match.fun(.f)
@@ -89,7 +89,7 @@ parametric_bootstrap.lme <- function(model, .f, B, type){
   
   stats <- data.frame(observed, rep.mean, se, bias)
   
-  RES <- structure(list(observed = observed, model = model$call, .f = .f, replicates = replicates,
+  RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model$data,
                         seed = .Random.seed, type = type, call = match.call()), 
                    class = "lmeresamp")
@@ -144,7 +144,7 @@ case_bootstrap.lme <- function(model, .f, B, resample, type){
   
   stats <- data.frame(observed, rep.mean, se, bias)
   
-  RES <- structure(list(observed = observed, model = model$call, .f = .f, replicates = replicates,
+  RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model$data,
                         seed = .Random.seed, type = type, call = match.call()),
                    class = "lmeresamp")
@@ -182,7 +182,7 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
   
   stats <- data.frame(observed, rep.mean, se, bias)
   
-  RES <- structure(list(observed = observed, model = model$call, .f = .f, replicates = replicates,
+  RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model$data,
                         seed = .Random.seed, type = type, call = match.call()),
                    class = "lmeresamp")
@@ -392,7 +392,7 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
   
   stats <- data.frame(observed, rep.mean, se, bias)
   
-  RES <- structure(list(observed = observed, model = model$call, .f = .f, replicates = replicates,
+  RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model$data,
                         seed = .Random.seed, type = paste("reb", reb_type, sep = ""), call = match.call()),
                    class = "lmeresamp")
@@ -529,7 +529,7 @@ cgr_bootstrap.lme <- function(model, .f, B, type = type){
   
   stats <- data.frame(observed, rep.mean, se, bias)
   
-  RES <- structure(list(observed = observed, model = model$call, .f = .f, replicates = replicates,
+  RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model$data,
                         seed = .Random.seed, type = type, call = match.call()),
                    class = "lmeresamp")

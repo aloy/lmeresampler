@@ -23,7 +23,7 @@ print.lmeresamp <- function(x, ci = FALSE){
     print(x$stats)
     
     if(ci == TRUE){
-      confint(x, method = "all")
+      confint(x)
     }
   } else{
     cat(paste("Bootstrap type:", x$type, "\n"))
@@ -33,7 +33,7 @@ print.lmeresamp <- function(x, ci = FALSE){
     print(x$stats)
     
     if(ci == TRUE){
-      confint(x, method = "all")
+      confint(x)
     }
   }
 }
