@@ -25,7 +25,7 @@ requested. Possible values are \code{"parametric"}, \code{"residual"},
 \item{B}{The number of bootstrap resamples.}
 
 \item{resample}{A logical vector specifying whether each level of the model 
-should be resampled in the cases bootsrap. The levels should be specified 
+should be resampled in the cases bootstrap. The levels should be specified 
 from the highest level (largest cluster) of the hierarchy to the lowest 
 (observation-level); for example for students within a school, specify the 
 school level first, then the student level.}

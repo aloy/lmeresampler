@@ -20,7 +20,7 @@ confint.lmeresamp <- function(object, method, level) {
   
   if(missing(level)){
     level <- 0.95
-  } else if(!level %in% (0:1)){
+  } else if(!level > 0 && !level < 1){
     stop("please specify a confidence level between 0 and 1")
   }
   
@@ -330,7 +330,9 @@ confint.lmeresamp <- function(object, method, level) {
   })
   
   perc.t <- data.frame(cbind(perc.t.lower, perc.t.upper))
-  cat(paste("95% percentile-t interval: \n"))
+  
+  conf.lev <- level*100
+  cat(paste(conf.lev + "% percentile-t interval: \n"))
   print(perc.t)
   cat(paste("\n"))
 }
@@ -360,7 +362,8 @@ confint.lmeresamp <- function(object, method, level) {
   boot.t <- t.stats %>%
     select(boot.t.lower, boot.t.upper)
   
-  cat(paste("95% bootstrap-t interval: \n"))
+  conf.lev <- level*100
+  cat(paste(conf.lev + "% bootstrap-t interval: \n"))
   print(boot.t)
   cat(paste("\n"))
 }
@@ -379,11 +382,12 @@ confint.lmeresamp <- function(object, method, level) {
 #'
 #' @keywords internal
 #' @noRd
-.norm.t.completion <- function(norm.t.lower, norm.t.upper){
+.norm.t.completion <- function(norm.t.lower, norm.t.upper, level){
   
   norm.t <-  data.frame(cbind(norm.t.lower, norm.t.upper))
   
-  cat(paste("95% normal-t interval: \n"))
+  conf.lev <- level*100
+  cat(paste(conf.lev + "% normal-t interval: \n"))
   print(norm.t)
   cat(paste("\n"))
 }

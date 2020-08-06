@@ -104,12 +104,12 @@ The cases bootstrap is a fully nonparametric bootstrap that resamples the data w
 
 ```{r}
 # lme4
-lmer_cases_boot1 <- bootstrap(vcmodA, .f = fixef, type = "case", B = 100, resample = c(TRUE, FALSE))
+lmer_case_boot1 <- bootstrap(vcmodA, .f = fixef, type = "case", B = 100, resample = c(TRUE, FALSE))
 # lmer_cases_boot2 <- bootstrap(vcmodA, .f = fixef, type = "case", B = 100, resample = c(FALSE, TRUE))
 # lmer_cases_boot2 <- bootstrap(vcmodA, .f = fixef, type = "case", B = 100, resample = c(TRUE, TRUE))
 
 # nlme
-lme_cases_boot  <- bootstrap(vcmodB, .f = fixef, type = "case", B = 10, resample = c(TRUE, FALSE))
+lme_case_boot  <- bootstrap(vcmodB, .f = fixef, type = "case", B = 100, resample = c(TRUE, FALSE))
 # lme_cases_boot2 <- bootstrap(vcmodB, .f = fixef, type = "case", B = 100, resample = c(FALSE, TRUE))
 # lme_cases_boot2 <- bootstrap(vcmodB, .f = fixef, type = "case", B = 100, resample = c(TRUE, TRUE))
 ```
@@ -194,10 +194,16 @@ print.lmeresamp(lmer_reb_boot0)
 
 ## The `confint()` Function
 
-Similarly, the syntax of the `lmeresampler` `confint()` function is similar to the default `confint()` function. The object for which confidence are calculated must be the `lmeresamp` object returned by the `bootstrap()` call. The type of confidence interval may be specified with `method`, which defaults to `"all"` if unspecified. The level at which the confidence interval is to be computer may be specified with `level`, which defaults to `0.95` if unspecified. 
+Similarly, the syntax of the `lmeresampler` `confint()` function is similar to the default `confint()` function. The object for which confidence are calculated must be the `lmeresamp` object returned by the `bootstrap()` call. The type of confidence interval may be specified with `method`, for which possible values include: `"norm"` (normal-t interval), `"boot-t"` (bootstrap-t interval using output from the `bootstrap()` call), and `"all"` (all of aforementioned methods, and the default if `method` is unspecified). The level at which the confidence interval is to be computed may be specified with `level`, which defaults to `0.95` if unspecified. 
+
+For those interested, it is worth noting that the bootstrap-t interval is an approximation, and is thus less statistically sound than the other intervals. This is because the algorithm calculates the interval using estimates of the standard errors of the variance components of the model, which while possible to calculate, are often unreliable. We use these estimates to provide the bootstrap-t interval for curious users, though we recommend that one of the other methods be used in situations where precise values are necessary. For more information about how these random effects standard errors are calculated, see Ben Bolker's (one of the authors of, and the current maintainer of, `lme4`) two posts (whose knowledge and linear algebra we followed closely) on the topic in the References section below.
+
+## Examples
 
 ```{r, message = FALSE, warning = FALSE}
 confint(lmer_par_boot) # all ci types, 0.95 confidence level
+
+confint(lmer_par_boot, method = "norm", level= 0.90)
 ```
 
 # 7. Parallelization (User Extension)
