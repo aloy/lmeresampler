@@ -260,7 +260,7 @@ cl <- snow::makeSOCKcluster(numCores)
 doParallel::registerDoParallel(cl) 
 
 tic()
-b_parallel2 <- foreach(B = rep(500, 2), .combine = combine, .packages = c("lmeresampler", "lme4", "purrr", "dplyr")) %dopar% {
+b_parallel2 <- foreach(B, .combine = combine, .packages = c("lmeresampler", "lme4", "purrr", "dplyr")) %dopar% {
   bootstrap(vcmodA, .f = fixef, type = "parametric", B = B)
 }
 toc()
