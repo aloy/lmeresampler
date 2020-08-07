@@ -96,7 +96,6 @@ parametric_bootstrap.lme <- function(model, .f, B, type){
   
   attr(RES, "bootFail") <- numFail
   attr(RES, "boot.fail.msgs") <- fail.msgs
-  attr(RES,"boot_type") <- "boot"
   return(RES)
 }
 

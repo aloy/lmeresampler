@@ -362,7 +362,6 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   
   attr(RES,"bootFail") <- nfail
   attr(RES,"boot.fail.msgs") <- fail.msgs
-  attr(RES,"boot_type") <- "boot"
   return(RES)
 }
 

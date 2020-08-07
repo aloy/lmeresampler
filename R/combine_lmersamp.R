@@ -4,8 +4,8 @@
 #' Combines processes split for parallelization.
 #'
 #' @details
-#' This is a helper function that combines the different processes split for 
-#' parallelization for unified output and bootstrap statistics.
+#' This helper function combines the different processes split for 
+#' parallelization to yield unified output and bootstrap statistics.
 #'
 #' @rdname combine
 #' @export 
