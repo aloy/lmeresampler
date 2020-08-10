@@ -278,11 +278,11 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   
   replicates <- as.data.frame(t(tstar))
   observed <- t0
-  mean <- colMeans(replicates)
+  rep.mean <- colMeans(replicates)
   se <- unlist(purrr::map(replicates, sd))
-  bias <- mean - observed
+  bias <- rep.mean - observed
   
-  stats <- data.frame(observed, mean, se, bias)
+  stats <- data.frame(observed, rep.mean, se, bias)
   
   RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model@frame,

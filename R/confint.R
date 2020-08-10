@@ -229,10 +229,10 @@ confint.lmeresamp <- function(object, method, level) {
   numFixef <- length(rownames(t.stats))
   
   t.stats <- as.data.frame(t.stats)
-  t.vals <- t.stats %>% # thank you for the formula, Andy!!!
+  t.vals <- t.stats %>% 
     mutate(boot_t  = (object$stats$rep.mean[1:numFixef] - t.stats[, 1])/(object$stats$se[1:numFixef]/sqrt(object$R))) %>%
-    mutate(boot.t.lower = ((t.stats[, 1] - quantile(boot_t, level + (1 - level)/2)) * object$stats$se[1:numFixef]/sqrt(object$R))) %>%
-    mutate(boot.t.upper = ((t.stats[, 1] - quantile(boot_t, (1 - level)/2)) * object$stats$se[1:numFixef]/sqrt(object$R)))
+    mutate(boot.t.lower = (t.stats[, 1] - quantile(boot_t, level + (1 - level)/2) * t.stats[, 2]/sqrt(object$R))) %>%
+    mutate(boot.t.upper = (t.stats[, 1] - quantile(boot_t, (1 - level)/2) * t.stats[, 2]/sqrt(object$R)))
   
   boot.t <- t.vals %>%
     select(boot.t.lower, boot.t.upper)
