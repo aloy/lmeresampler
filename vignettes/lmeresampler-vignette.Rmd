@@ -34,9 +34,9 @@ The `lmeresampler` package provides functionality to perform various bootstrap p
 
 ## The Data
 
-Examples of `lmeresampler` functions will use hierarchical linear models fit using `jsp728`, a dataset containing 728 students (level-1) from 50 primary (elementary) schools in inner London (level-2) that were part of the Junior School Project (JSP). The data was collected by the University of Bristol Centre for Multilevel Modeling. For more information about the variables, see `?jsp728`.
+Examples of `lmeresampler` functions will use hierarchical linear models fit using `jsp728`, a dataset containing information about 728 students (level-1) from 50 primary (elementary) schools in inner London (level-2) that were part of the Junior School Project (JSP). The data was collected by the University of Bristol Centre for Multilevel Modeling. For more information about the variables, see `?jsp728`.
 
-We will work with `vcmodA` for `lme4`, and `vcmodB` for `nlme`. Each of the two-level models predicts `mathAge11` (the student's math score at age 11) and contains the same 3 fixed effects: `mathAge8` (the student's math score at age 8), `gender` (the student's gender), and `class` (the student's father's social class, a factor with two levels: manual and nonmanual). They also both have a random intercept for `school`. The models are as follows:
+We will work with `vcmodA` for `lme4`, and `vcmodB` for `nlme`. Each of these two-level models predicts `mathAge11` (the student's math score at age 11) and contains the same 3 fixed effects: `mathAge8` (the student's math score at age 8), `gender` (the student's gender), and `class` (the student's father's social class, a factor with two levels: manual and nonmanual). They also both have a random intercept for `school`. The models are as follows:
 
 ```{r, results = FALSE, message = FALSE}
 library(lme4)
@@ -48,9 +48,9 @@ vcmodB <- lme(mathAge11 ~ mathAge8 + gender + class, random = ~1|school, data = 
 
 ## The Call
 
-In order to perform the bootstrap, the user must call the aptly named `bootstrap()` function. The function contains several important parameters for the user to specify when making the call:
+In order to perform the bootstrap, the user must call the `bootstrap()` function. The function contains several important parameters for the user to specify when making the call:
 
-* `model`: the HLM model to be bootstrapped.
+* `model`: the LME model to be bootstrapped.
 
 * `.f`: a function that will compute the statistics of interest (for example, to have the bootstrap return the fixed effects estimates, specify `.f = fixef`).
 
@@ -58,11 +58,11 @@ In order to perform the bootstrap, the user must call the aptly named `bootstrap
 
 * `B`: the number of bootstrap resamples to be performed.
 
-* `resample`: a logical vector specifying whether each level of the model should be resampled in the cases bootstrap. The levels should be specified from the highest level (largest cluster) of the hierarchy to the lowest (observation-level). For example, for students within a school, specify the school level first, then the student level.
+* `resample`: a logical vector specifying whether each level of the dataset should be resampled in the cases bootstrap. The levels should be specified from the highest level (largest cluster) of the hierarchy to the lowest (observation-level). For example, for students within a school, specify the school level first, then the student level.
 
 * `reb_type`: an integer value specifying what kind of REB (random effects block) bootstrap should be performed. More on what the differences between the REB bootstrap types are may be found in section 5 of this vignette.
 
-* `linked`: a logical value specifying whether the residual bootstrap should be performed with linked error terms and random effects prior to resampling. The motivation behind is explained in seciton 2 of this vignette.
+* `linked`: a logical value specifying whether the error terms and random effects should be linked during resampling. The motivation behind this is explained in section 2 of this vignette.
 
 # 1. The Parametric Bootstrap
 
@@ -82,7 +82,7 @@ lme_par_boot  <- bootstrap(vcmodB, .f = fixef, type = "parametric", B = 100)
 
 # 2. The Residual Bootstrap
 
-The residual bootstrap resamples the residual quantities from the fitted linear mixed-effects model in order to generate bootstrap resamples. That is, a random sample, drawn with replacement, is taken from the estimated error terms and the EBLUPS (at each level) and the random samples are combined into bootstrap samples via the fitted model equation. As described in Van der Leeden et al. (2008), if an observation's level-1 and level-2 residuals potentially violate the assumption of independence, the error terms and random effects may be `linked` prior to resampling by setting `linked = TRUE`. 
+The residual bootstrap resamples the residual quantities from the fitted linear mixed-effects model in order to generate bootstrap resamples. That is, a random sample, drawn with replacement, is taken from the estimated error terms and the EBLUPS (at each level). Then the random samples are combined into bootstrap samples via the fitted model equation. As described in Van der Leeden et al. (2008), if an observation's level-1 and level-2 residuals potentially violate the assumption of independence, the error terms and random effects may be `linked` prior to resampling by setting `linked = TRUE`. 
 
 ## Examples
 
@@ -95,6 +95,8 @@ lmer_res_boot_linked <- bootstrap(vcmodA, .f = fixef, type = "residual", B = 100
 ## unlinked
 lme_res_boot <- bootstrap(vcmodB, .f = fixef, type = "residual", B = 100, linked = FALSE)
 ```
+
+Let's also take a look at the structure of the `lmeresamp` objects returned by a bootstrap call.
 
 # 3. The Cases Bootstrap
 
