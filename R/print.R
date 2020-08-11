@@ -9,11 +9,12 @@
 #'
 #' @param x The lmeresamp object to print.
 #' @param ci A logical value specifying whether confidence intervals should be printed.
+#' @param not used
 #'
 #' @rdname print
 #' @export 
 #' @method print lmeresamp
-print.lmeresamp <- function(x, ci = FALSE){
+print.lmeresamp <- function(x, ci = FALSE, ...){
   
   if(is.null(x$type)){
     cat(paste("Bootstrap type: REB", x$reb_type, "\n"))

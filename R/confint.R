@@ -10,16 +10,16 @@
 #' @param object The lmeresamp object for which confidence intervals should be computed.
 #' @param method The type of confidence intervals that should be executed.
 #' @param level The level at which the confidence interval should be calculated.
+#' @param parm not used
+#' @param ... not used
 #'
 #' @rdname confint
 #' @export 
 # bootstrap CI method for object of class lmeresamp
-confint.lmeresamp <- function(object, method, level) {
+confint.lmeresamp <- function(object, parm, level = 0.95, method, ...) {
   library(dplyr)
   
-  if(missing(level)){
-    level <- 0.95
-  } else if(!level > 0 && !level < 1){
+  if(!level > 0 && !level < 1){
     stop("please specify a confidence level between 0 and 1")
   }
   

@@ -4,14 +4,18 @@
 \alias{confint.lmeresamp}
 \title{confint}
 \usage{
-\method{confint}{lmeresamp}(object, method, level)
+\method{confint}{lmeresamp}(object, parm, level = 0.95, method, ...)
 }
 \arguments{
 \item{object}{The lmeresamp object for which confidence intervals should be computed.}
 
-\item{method}{The type of confidence intervals that should be executed.}
+\item{parm}{not used}
 
 \item{level}{The level at which the confidence interval should be calculated.}
+
+\item{method}{The type of confidence intervals that should be executed.}
+
+\item{...}{not used}
 }
 \description{
 Performs confidence intervals on an lmeresamp object.
