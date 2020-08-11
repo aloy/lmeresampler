@@ -224,6 +224,7 @@ confint.lmeresamp <- function(object, parm, level = 0.95, method, ...) {
 #'
 #' @keywords internal
 #' @noRd
+#' @importFrom dplyr mutate select %>%
 .boot.t.completion <- function(object, level, t.stats){
   
   numFixef <- length(rownames(t.stats))

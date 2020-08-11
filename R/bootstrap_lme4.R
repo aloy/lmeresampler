@@ -1,6 +1,7 @@
 #' @rdname bootstrap
 #' @export
-#' @importFrom stats as.formula cov formula model.matrix na.exclude na.omit predict resid simulate
+#' @importFrom stats as.formula cov formula model.matrix 
+#'   na.exclude na.omit predict resid simulate sd quantile confint
 bootstrap.lmerMod <- function(model, .f, type, B, resample, reb_type, linked){
   switch(type,
          parametric = parametric_bootstrap.lmerMod(model, .f, B, type = type),
@@ -198,6 +199,7 @@ cgr_bootstrap.lmerMod <- function(model, .f, B, type){
 
 #' @rdname reb_bootstrap
 #' @export
+#' @importFrom purrr map_dfc map_chr map_int
 reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   
   if(lme4::getME(object = model, name = "n_rfacs") > 1) {

@@ -10,7 +10,7 @@
 #' parallelization to yield unified output and bootstrap statistics.
 #'
 #' @rdname combine
-#' @export 
+#' @importFrom purrr  map_dfr map
 # bootstrap CI method for object of class lmeresamp
 combine_lmeresamp <- function(...) {
   boot_list <- list(...)
