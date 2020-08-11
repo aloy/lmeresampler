@@ -71,7 +71,7 @@
 #' }
 #' 
 #' ## to print results in a formatted way
-#' print(RES)
+#' print(boo1)
 #' 
 #'
 #' @references

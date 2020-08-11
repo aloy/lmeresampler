@@ -1,6 +1,7 @@
 #' @rdname bootstrap
 #' @export
-#' @importFrom stats as.formula cov formula model.matrix na.exclude na.omit predict resid simulate
+#' @importFrom stats as.formula cov formula model.matrix 
+#'   na.exclude na.omit predict resid simulate sd quantile confint
 bootstrap.lmerMod <- function(model, .f, type, B, resample, reb_type, linked){
   switch(type,
          parametric = parametric_bootstrap.lmerMod(model, .f, B, type = type),
@@ -42,7 +43,7 @@ resid_bootstrap.lmerMod <- function(model, .f, B, type, linked = FALSE){
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lmerMod <- function(model, .f, B, resample, type){
+case_bootstrap.lmerMod <- function(model, .f, B, type, resample){
   
   data <- model@frame
   # data$.id <- seq_len(nrow(data))
@@ -80,11 +81,6 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample, type){
 # }
 # 
 .cases.resamp <- function(model, .f, dat, cluster, resample) {
-  # exit early for trivial data
-  if(nrow(dat) == 1 || all(resample==FALSE))
-    return(dat)
-  
-  # ver <- as.numeric_version(packageVersion("dplyr"))
   res <- dat
   
   for(i in 1:length(cluster)) {
@@ -92,23 +88,21 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample, type){
       dots <- as.name(cluster[1])
       grouped <- dplyr::group_by(res, !!dots)
       g_rows <- dplyr::group_rows(grouped)
-      # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
       cls <- sample(seq_along(g_rows), replace = resample[i])
       idx <- unlist(g_rows[cls], recursive = FALSE)
       res <- res[idx, ]
     } else{
       if(i == length(cluster) & resample[i]) {
         dots <- as.name(cluster[-i])
-        grouped <- dplyr::group_by(res, .dots = !!dots) 
+        grouped <- dplyr::group_by(res, !!dots) 
         res <- dplyr::sample_frac(grouped, size = 1, replace = TRUE)
       } else{
         if(resample[i]) {
           dots <- as.name(cluster[i])
           res <- split(res, res[, cluster[1:(i-1)]], drop = TRUE)
           res <- purrr::map_dfr(res, function(df) { # ldply to purrr map from list to df
-            grouped <- dplyr::group_by(df, .dots = !!dots)
+            grouped <- dplyr::group_by(df, !!dots)
             g_rows <- dplyr::group_rows(grouped)
-            # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
             cls <- sample(seq_along(g_rows), replace = resample[i])
             idx <- unlist(g_rows[cls], recursive = FALSE)
             grouped[idx, ]
@@ -205,6 +199,7 @@ cgr_bootstrap.lmerMod <- function(model, .f, B, type){
 
 #' @rdname reb_bootstrap
 #' @export
+#' @importFrom purrr map_dfc map_chr map_int
 reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   
   if(lme4::getME(object = model, name = "n_rfacs") > 1) {

@@ -11,24 +11,28 @@ Description: Bootstrap routines for nested linear mixed effects models fit using
     Carpenter, Goldstein & Rasbash (2003) <doi: 10.1111/1467-9876.00415>,
     and Chambers & Chandra (2013) <doi: 10.1080/10618600.2012.681216>.
 Depends:
-    R (>= 3.1.2)
+    R (>= 3.5.0)
 Imports:
     boot,
     plyr,
     dplyr (>= 0.8.0),
     Matrix,
     nlmeU,
-    RLRsim
+    RLRsim,
+    purrr
 Suggests:
     lme4 (>= 1.1-7),
     nlme,
     testthat,
     mlmRev,
     knitr,
-    rmarkdown
+    rmarkdown,
+    doParallel,
+    foreach
 License: GPL-3
 LazyData: true
 URL: https://github.com/aloy/lmeresampler
 BugReports: https://github.com/aloy/lmeresampler/issues
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
+Encoding: UTF-8

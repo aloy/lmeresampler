@@ -101,7 +101,7 @@ parametric_bootstrap.lme <- function(model, .f, B, type){
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lme <- function(model, .f, B, resample, type){
+case_bootstrap.lme <- function(model, .f, B, type, resample){
   
   data <- model$data
   # data$.id <- seq_len(nrow(data))

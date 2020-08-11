@@ -2,13 +2,15 @@
 #'
 #' @description
 #' Combines processes split for parallelization.
+#' 
+#' @param ... two or more objects of class \code{lmeresamp}, to be combined into one.
 #'
 #' @details
 #' This helper function combines the different processes split for 
 #' parallelization to yield unified output and bootstrap statistics.
 #'
 #' @rdname combine
-#' @export 
+#' @importFrom purrr  map_dfr map
 # bootstrap CI method for object of class lmeresamp
 combine_lmeresamp <- function(...) {
   boot_list <- list(...)

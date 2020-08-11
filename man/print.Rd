@@ -4,12 +4,14 @@
 \alias{print.lmeresamp}
 \title{print}
 \usage{
-\method{print}{lmeresamp}(x, ci = FALSE)
+\method{print}{lmeresamp}(x, ci = FALSE, ...)
 }
 \arguments{
 \item{x}{The lmeresamp object to print.}
 
 \item{ci}{A logical value specifying whether confidence intervals should be printed.}
+
+\item{...}{not used}
 }
 \description{
 Prints the output of the bootstrap call.

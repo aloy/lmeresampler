@@ -81,7 +81,7 @@ boo5 <- bootstrap(model = vcmodA, .f = mySumm, type = "reb", B = 100, reb_typ = 
 }
 
 ## to print results in a formatted way
-print(RES)
+print(boo1)
 
 
 }
