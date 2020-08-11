@@ -6,6 +6,9 @@
 \usage{
 combine_lmeresamp(...)
 }
+\arguments{
+\item{...}{two or more objects of class \code{lmeresamp}, to be combined into one.}
+}
 \description{
 Combines processes split for parallelization.
 }

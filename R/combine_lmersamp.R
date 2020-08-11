@@ -2,6 +2,8 @@
 #'
 #' @description
 #' Combines processes split for parallelization.
+#' 
+#' @param ... two or more objects of class \code{lmeresamp}, to be combined into one.
 #'
 #' @details
 #' This helper function combines the different processes split for 
