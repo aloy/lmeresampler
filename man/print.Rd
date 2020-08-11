@@ -11,7 +11,7 @@
 
 \item{ci}{A logical value specifying whether confidence intervals should be printed.}
 
-\item{not}{used}
+\item{...}{not used}
 }
 \description{
 Prints the output of the bootstrap call.

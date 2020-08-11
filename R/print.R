@@ -9,7 +9,7 @@
 #'
 #' @param x The lmeresamp object to print.
 #' @param ci A logical value specifying whether confidence intervals should be printed.
-#' @param not used
+#' @param ... not used
 #'
 #' @rdname print
 #' @export 
