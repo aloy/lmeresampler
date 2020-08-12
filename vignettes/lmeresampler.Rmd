@@ -1,22 +1,19 @@
 ---
-title: "lmeresampler-vignette"
+title: "Bootstrapping nested mixed-effects models"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{lmeresampler-vignette}
+  %\VignetteIndexEntry{lmeresampler}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
   chunk_output_type: console
 ---
 
-```{r, include = FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-```
-
-```{r setup}
 library(lmeresampler)
 ```
 
@@ -38,7 +35,7 @@ Examples of `lmeresampler` functions will use hierarchical linear models fit usi
 
 We will work with `vcmodA` for `lme4`, and `vcmodB` for `nlme`. Each of these two-level models predicts `mathAge11` (the student's math score at age 11) and contains the same 3 fixed effects: `mathAge8` (the student's math score at age 8), `gender` (the student's gender), and `class` (the student's father's social class, a factor with two levels: manual and nonmanual). They also both have a random intercept for `school`. The models are as follows:
 
-```{r, results = FALSE, message = FALSE}
+```{r models, results = FALSE, message = FALSE}
 library(lme4)
 vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
 
@@ -70,7 +67,8 @@ The parametric bootstrap simulates bootstrap samples from the estimated distribu
 
 ## Examples
 
-```{r}
+```{r parametric}
+library(lmeresampler)
 # let's set .f = fixef to specify that we want only the fixed effects bootstrapped
 
 # lme4
@@ -86,7 +84,7 @@ The residual bootstrap resamples the residual quantities from the fitted linear 
 
 ## Examples
 
-```{r}
+```{r residual}
 # lme4
 ## linked error terms and random effects prior to resampling
 lmer_res_boot_linked <- bootstrap(vcmodA, .f = fixef, type = "residual", B = 100, linked = TRUE)
@@ -104,7 +102,7 @@ The cases bootstrap is a fully nonparametric bootstrap that resamples the data w
 
 ## Examples
 
-```{r}
+```{r cases}
 # lme4
 lmer_case_boot <- bootstrap(vcmodA, .f = fixef, type = "case", B = 100, resample = c(TRUE, FALSE))
 
@@ -131,7 +129,7 @@ The semi-parametric bootstrap algorithm implemented was described by Carpenter, 
 
 ## Examples
 
-```{r}
+```{r CGR}
 # lme4
 lmer_cgr_boot <- bootstrap(vcmodA, .f = fixef, type = "cgr", B = 100)
 
@@ -166,7 +164,7 @@ Variation 2 (`type = 2`): The second variation of the REB bootstrap scales the e
 
 ## Examples
 
-```{r, message = FALSE, warning = FALSE}
+```{r REB, message = FALSE, warning = FALSE}
 # lme4
 lmer_reb_boot0 <- bootstrap(vcmodA, .f = fixef, type = "reb", B = 100, reb_type = 0)
 lmer_reb_boot1 <- bootstrap(vcmodA, .f = fixef, type = "reb", B = 100, reb_type = 1)
@@ -185,7 +183,7 @@ The syntax of the `lmeresampler` `print()` function is similar to the default `p
 
 ### Examples
 
-```{r, warning = FALSE, message = FALSE}
+```{r print, warning = FALSE, message = FALSE}
 print(lmer_reb_boot0)
 
 print(lme_reb_boot2, ci = TRUE) 
@@ -199,7 +197,7 @@ Notice that the output of the three intervals differ slightly. The normal-t inte
 
 ## Examples
 
-```{r, message = FALSE, warning = FALSE}
+```{r confint, message = FALSE, warning = FALSE}
 confint(lme_reb_boot2) # all ci types, 0.95 confidence level
 
 confint(lmer_reb_boot0, method = "boot-t", level= 0.90)
@@ -229,7 +227,7 @@ The basic idea with clusters is that they execute tasks as a "cluster" of comput
 
 With all of this in mind, let's explore an example using `lmeresampler`. Notice that we have the user implement the parallelization with the `bootstrap()` call itself, rather than doing it within `lmeresampler` itself. This is because the latter did not actually result in much better runtimes than just using a single core. Thus, a modified, parallelized, call to `bootstrap()` is as follows:
 
-```{r, message = FALSE, warning = FALSE, cache = TRUE}
+```{r parallel, message = FALSE, warning = FALSE, cache = TRUE}
 library(purrr)
 library(foreach)
 library(doParallel)
@@ -247,7 +245,7 @@ stopCluster(cl)
 
 Let's compare the runtime of the above `b_parallel2` with the same bootstrap run without parallelization. Note that differences in runtime will be somewhat arbitrary for a small number of resamples (say, 100), and will become more pronounced as the number of resamples increases (to 1000, for example), in favor of the parallelized bootstrap.
 
-```{r, message = FALSE, warning = FALSE, cache = TRUE}
+```{r timings, message = FALSE, warning = FALSE, cache = TRUE}
 library(tictoc)
 
 tic()

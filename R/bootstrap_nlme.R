@@ -568,23 +568,23 @@ cgr_bootstrap.lme <- function(model, .f, B, type = type){
   re.struct <- model$modelStruct$reStruct
   sigma <- model$sigma
   
-  Uhat.list <- purrr::map(seq_along(model.ranef),
-                          .f = function(i) {
-                            u <- scale(model.ranef[[i]], scale = FALSE)
-                            S <- (t(u) %*% u) / length(u)
-                            
-                            re.name <- names(model.ranef)[i]
-                            R <- sigma^2 * as.matrix(re.struct[[re.name]])
-                            
-                            Ls <- chol(S, pivot = TRUE)
-                            Lr <- chol(R, pivot = TRUE)
-                            A <- t(Lr %*% solve(Ls))
-                            
-                            Uhat <- as.matrix(u %*% A)
-                            Uhat <- as.data.frame(Uhat)
-                            
-                            return(Uhat)
-                          })  
+  Uhat.list <- map(seq_along(model.ranef),
+                   .f = function(i) {
+                     u <- scale(model.ranef[[i]], scale = FALSE)
+                     S <- (t(u) %*% u) / length(u)
+                     
+                     re.name <- names(model.ranef)[i]
+                     R <- sigma^2 * as.matrix(re.struct[[re.name]])
+                     
+                     Ls <- chol(S, pivot = TRUE)
+                     Lr <- chol(R, pivot = TRUE)
+                     A <- t(Lr %*% solve(Ls))
+                     
+                     Uhat <- as.matrix(u %*% A)
+                     Uhat <- as.data.frame(Uhat)
+                     
+                     return(Uhat)
+                   })  
   names(Uhat.list) <- names(model.ranef)
   
   # Level 1
@@ -592,41 +592,41 @@ cgr_bootstrap.lme <- function(model, .f, B, type = type){
   ehat <- sigma * e * as.numeric((t(e) %*% e) / length(e))^(-1/2)
   
   # Resample Uhat
-  ustar <- purrr::map(Uhat.list,
-                      .f = function(df) {
-                        index <- sample(x = seq_len(nrow(df)), size = nrow(df), replace = TRUE)
-                        return(as.data.frame(df[index,]))
-                      })
+  ustar <- map(Uhat.list,
+               .f = function(df) {
+                 index <- sample(x = seq_len(nrow(df)), size = nrow(df), replace = TRUE)
+                 return(as.data.frame(df[index,]))
+               })
   
   # Extract Z design matrix
   # Extract Zt (like lme4) design matrix
   re.form <- formula(re.struct)
-  Z <- purrr::map(1:length(re.form), function(i) model.matrix(formula(model$modelStruct$reStr)[[i]], data=model$data))
+  Z <- map(1:length(re.form), function(i) model.matrix(formula(model$modelStruct$reStr)[[i]], data=model$data))
   names(Z) <- names(re.form)
   
   if(level.num == 1) {
     ustar <- ustar[[1]]
     
     Z <- as.data.frame(Z[[1]])
-    Zlist <- purrr::map(Z, function(col) split(col, model$group))
+    Zlist <- map(Z, function(col) split(col, model$group))
     
-    Zbstar <- purrr::map(1:length(Zlist), function(j) unlist(mapply("*", Zlist[[j]], ustar[,j], SIMPLIFY = FALSE) ))
+    Zbstar <- map(1:length(Zlist), function(j) unlist(mapply("*", Zlist[[j]], ustar[,j], SIMPLIFY = FALSE) ))
   } else{
     
-    Z <- purrr::map(Z, function(zi) as.data.frame(zi))
+    Z <- map(Z, function(zi) as.data.frame(zi))
     Z  <- Z [rev(names(Z))] # agree w/ order of model$group and bstar
     
-    Zlist <- purrr::map(1:length(Z), function(i) purrr:map(Z[[i]], function(col) split(col, model$group[,i])))
+    Zlist <- map(1:length(Z), function(i) map(Z[[i]], function(col) split(col, model$group[,i])))
     names(Zlist) <- names(Z)
     
     
-    Zbstar <- purrr::map(1:length(Zlist), function(e) {
+    Zbstar <- map(1:length(Zlist), function(e) {
       z.e <- Zlist[[e]]
       u.e <- ustar[[e]]
       if(is.numeric(u.e)){
-        unlist(purrr::map(1:length(e), function(j) unlist(mapply("*", z.e[[j]], u.e, SIMPLIFY = FALSE))), recursive = FALSE)
+        unlist(map(1:length(e), function(j) unlist(mapply("*", z.e[[j]], u.e, SIMPLIFY = FALSE))), recursive = FALSE)
       } else{
-        unlist(purrr::map(1:length(e), function(j) unlist(mapply("*", z.e[[j]], u.e[,j], SIMPLIFY = FALSE))), recursive = FALSE)
+        unlist(map(1:length(e), function(j) unlist(mapply("*", z.e[[j]], u.e[,j], SIMPLIFY = FALSE))), recursive = FALSE)
       }
     })
   }
