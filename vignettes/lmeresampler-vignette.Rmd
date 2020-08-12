@@ -106,14 +106,11 @@ The cases bootstrap is a fully nonparametric bootstrap that resamples the data w
 
 ```{r}
 # lme4
-lmer_case_boot1 <- bootstrap(vcmodA, .f = fixef, type = "case", B = 100, resample = c(TRUE, FALSE))
-# lmer_cases_boot2 <- bootstrap(vcmodA, .f = fixef, type = "case", B = 100, resample = c(FALSE, TRUE))
-# lmer_cases_boot2 <- bootstrap(vcmodA, .f = fixef, type = "case", B = 100, resample = c(TRUE, TRUE))
+lmer_case_boot <- bootstrap(vcmodA, .f = fixef, type = "case", B = 100, resample = c(TRUE, FALSE))
 
 # nlme
-lme_case_boot  <- bootstrap(vcmodB, .f = fixef, type = "case", B = 100, resample = c(TRUE, FALSE))
-# lme_cases_boot2 <- bootstrap(vcmodB, .f = fixef, type = "case", B = 100, resample = c(FALSE, TRUE))
-# lme_cases_boot2 <- bootstrap(vcmodB, .f = fixef, type = "case", B = 100, resample = c(TRUE, TRUE))
+lme_cases_boot1 <- bootstrap(vcmodB, .f = fixef, type = "case", B = 100, resample = c(FALSE, TRUE))
+lme_cases_boot2 <- bootstrap(vcmodB, .f = fixef, type = "case", B = 100, resample = c(TRUE, TRUE))
 ```
 
 # 4. The CGR (Semi-Parametric) Bootstrap

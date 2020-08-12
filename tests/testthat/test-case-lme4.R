@@ -50,7 +50,7 @@ test_that("two-level additive random intercept model",{
   
   orig.stats <- mySumm(vcmodA)
   
-  boo <- case_bootstrap(model = vcmodA, fn = mySumm, B = nsim, resample = c(TRUE, TRUE))
+  boo <- case_bootstrap(model = vcmodA, .f = mySumm, B = nsim, resample = c(TRUE, TRUE))
   
   
   expect_equal(class(boo), "lmeresamp")
@@ -74,7 +74,7 @@ test_that("two-level random intercept model without interaction",{
                   (1 | school), data = jsp728)
   
   orig.stats <- mySumm(rimod)
-  boo <- case_bootstrap(model = rimod, fn = mySumm, B = nsim, resample = c(TRUE, TRUE))
+  boo <- case_bootstrap(model = rimod, .f = mySumm, B = nsim, resample = c(TRUE, TRUE))
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$stats$observed, orig.stats)
@@ -92,7 +92,7 @@ test_that("two-level random intercept model with interaction",{
                    (1 | school), data = jsp728)
   
   orig.stats <- mySumm(vcmodC)
-  boo <- case_bootstrap(model = vcmodC, fn = mySumm, B = nsim, resample = c(TRUE, TRUE))
+  boo <- case_bootstrap(model = vcmodC, .f = mySumm, B = nsim, resample = c(TRUE, TRUE))
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$stats$observed, orig.stats)
@@ -111,7 +111,7 @@ test_that("two-level random coefficient model with interaction",{
                   (mathAge8c | school), data = jsp728)
   
   orig.stats <- mySumm(rcmod)
-  boo <- case_bootstrap(model = rcmod, fn = mySumm, B = nsim, resample = c(TRUE, TRUE))
+  boo <- case_bootstrap(model = rcmod, .f = mySumm, B = nsim, resample = c(TRUE, TRUE))
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$stats$observed, orig.stats)
@@ -129,7 +129,7 @@ test_that("three-level random intercept model",{
   rmA <- lme4::lmer(rv ~ religion + year  + (1 | respond) + (1 | district), data = Socatt)
   
   orig.stats <- mySumm(rmA)
-  boo <- case_bootstrap(model = rmA, fn = mySumm, B = nsim, resample = c(TRUE, TRUE, TRUE))
+  boo <- case_bootstrap(model = rmA, .f = mySumm, B = nsim, resample = c(TRUE, TRUE, TRUE))
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$stats$observed, orig.stats)

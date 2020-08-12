@@ -26,7 +26,7 @@ test_that("two-level additive random intercept model",{
   
   orig.stats <- mySumm(vcmodA)
   
-  boo <- cgr_bootstrap(model = vcmodA, fn = mySumm, B = nsim)
+  boo <- cgr_bootstrap(model = vcmodA, .f = mySumm, B = nsim)
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$stats$observed, orig.stats)
@@ -45,7 +45,7 @@ test_that("two-level random intercept model without interaction",{
                random = ~ 1 | school, data = jsp728)
   
   orig.stats <- mySumm(rimod)
-  boo <- cgr_bootstrap(model = rimod, fn = mySumm, B = nsim)
+  boo <- cgr_bootstrap(model = rimod, .f = mySumm, B = nsim)
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$stats$observed, orig.stats)
@@ -62,7 +62,7 @@ vcmodC <- lme(mathAge11 ~ mathAge8 * schoolMathAge8 + gender + class,
               random = ~ 1 | school, data = jsp728)
 
 orig.stats <- mySumm(vcmodC)
-boo <- cgr_bootstrap(model = vcmodC, fn = mySumm, B = nsim)
+boo <- cgr_bootstrap(model = vcmodC, .f = mySumm, B = nsim)
 
 test_that("two-level random intercept model with interaction",{
   skip_on_cran()
@@ -84,7 +84,7 @@ test_that("two-level random coefficient model with interaction",{
                random = ~ mathAge8c | school, data = jsp728)
   
   orig.stats <- mySumm(rcmod)
-  boo <- cgr_bootstrap(model = rcmod, fn = mySumm, B = nsim)
+  boo <- cgr_bootstrap(model = rcmod, .f = mySumm, B = nsim)
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$stats$observed, orig.stats)
@@ -108,8 +108,7 @@ test_that("three-level random intercept model",{
   
   orig.stats <- mySumm(rmA)
   
-  
-  boo <- cgr_bootstrap(model = rmA, fn = mySumm, B = nsim)
+  boo <- cgr_bootstrap(model = rmA, .f = mySumm, B = nsim)
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$stats$observed, orig.stats)
