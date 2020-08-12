@@ -1,14 +1,13 @@
 #' @rdname bootstrap
 #' @export
-#' @importFrom stats as.formula cov formula model.matrix 
-#'   na.exclude na.omit predict resid simulate sd quantile confint
+#' @importFrom stats as.formula cov formula model.matrix na.exclude na.omit predict resid simulate
 bootstrap.lmerMod <- function(model, .f, type, B, resample, reb_type, linked){
   switch(type,
          parametric = parametric_bootstrap.lmerMod(model, .f, B, type = type),
-         residual = resid_bootstrap.lmerMod(model, .f, B, type = type, linked = FALSE),
+         residual = resid_bootstrap.lmerMod(model, .f, B, type = type, linked),
          case = case_bootstrap.lmerMod(model, .f, B, resample, type = type),
          cgr = cgr_bootstrap.lmerMod(model, .f, B, type = type),
-         reb = reb_bootstrap.lmerMod(model, .f, B, reb_type = 0))
+         reb = reb_bootstrap.lmerMod(model, .f, B, reb_type))
   # TODO: need to be able to save results
 }
 
@@ -31,7 +30,12 @@ parametric_bootstrap.lmerMod <- function(model, .f, B, type){
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lmerMod <- function(model, .f, B, type, linked = FALSE){
+resid_bootstrap.lmerMod <- function(model, .f, B, type, linked){
+  
+  if(missing(linked)){
+    linked <- FALSE
+  }
+  
   .f <- match.fun(.f)
   
   tstar <- purrr::map(1:B, function(x) .resample.resids(model, .f, linked = linked))
@@ -43,7 +47,7 @@ resid_bootstrap.lmerMod <- function(model, .f, B, type, linked = FALSE){
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lmerMod <- function(model, .f, B, type, resample){
+case_bootstrap.lmerMod <- function(model, .f, B, resample, type){
   
   data <- model@frame
   # data$.id <- seq_len(nrow(data))
@@ -81,6 +85,11 @@ case_bootstrap.lmerMod <- function(model, .f, B, type, resample){
 # }
 # 
 .cases.resamp <- function(model, .f, dat, cluster, resample) {
+  # exit early for trivial data
+  if(nrow(dat) == 1 || all(resample==FALSE))
+    return(dat)
+  
+  # ver <- as.numeric_version(packageVersion("dplyr"))
   res <- dat
   
   for(i in 1:length(cluster)) {
@@ -88,21 +97,23 @@ case_bootstrap.lmerMod <- function(model, .f, B, type, resample){
       dots <- as.name(cluster[1])
       grouped <- dplyr::group_by(res, !!dots)
       g_rows <- dplyr::group_rows(grouped)
+      # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
       cls <- sample(seq_along(g_rows), replace = resample[i])
       idx <- unlist(g_rows[cls], recursive = FALSE)
       res <- res[idx, ]
     } else{
       if(i == length(cluster) & resample[i]) {
         dots <- as.name(cluster[-i])
-        grouped <- dplyr::group_by(res, !!dots) 
+        grouped <- dplyr::group_by(res, .dots = !!dots) 
         res <- dplyr::sample_frac(grouped, size = 1, replace = TRUE)
       } else{
         if(resample[i]) {
           dots <- as.name(cluster[i])
           res <- split(res, res[, cluster[1:(i-1)]], drop = TRUE)
           res <- purrr::map_dfr(res, function(df) { # ldply to purrr map from list to df
-            grouped <- dplyr::group_by(df, !!dots)
+            grouped <- dplyr::group_by(df, .dots = !!dots)
             g_rows <- dplyr::group_rows(grouped)
+            # g_rows <- ifelse(ver >= "0.8.0", dplyr::group_rows(grouped), attributes(grouped)$indices)
             cls <- sample(seq_along(g_rows), replace = resample[i])
             idx <- unlist(g_rows[cls], recursive = FALSE)
             grouped[idx, ]
@@ -199,8 +210,12 @@ cgr_bootstrap.lmerMod <- function(model, .f, B, type){
 
 #' @rdname reb_bootstrap
 #' @export
-#' @importFrom purrr map_dfc map_chr map_int
-reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
+reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
+  
+  if(missing(reb_type)){
+    reb_type <- 0
+    warning("'reb_type' unspecified, performing REB 0 bootstrap")
+  }
   
   if(lme4::getME(object = model, name = "n_rfacs") > 1) {
     stop("The REB bootstrap has not been adapted for 3+ level models.")
@@ -281,7 +296,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type = 0){
   
   RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = model@frame,
-                        seed = .Random.seed, reb_type = reb_type, call = match.call()),
+                        seed = .Random.seed, type = paste("reb", reb_type, sep = ""), call = match.call()),
                    class = "lmeresamp")
   
   return(RES)

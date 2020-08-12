@@ -3,10 +3,10 @@
 bootstrap.lme <- function(model, .f, type, B, resample, reb_type, linked){
   switch(type,
          parametric = parametric_bootstrap.lme(model, .f, B, type = type),
-         residual = resid_bootstrap.lme(model, .f, B, type = type, linked = FALSE),
+         residual = resid_bootstrap.lme(model, .f, B, type = type, linked),
          case = case_bootstrap.lme(model, .f, B, resample, type = type),
          cgr = cgr_bootstrap.lme(model, .f, B, type = type),
-         reb = reb_bootstrap.lme(model, .f, B, reb_type = 0))
+         reb = reb_bootstrap.lme(model, .f, B, reb_type))
 }
 
 
@@ -155,7 +155,12 @@ case_bootstrap.lme <- function(model, .f, B, type, resample){
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
+resid_bootstrap.lme <- function(model, .f, B, type, linked){
+  
+  if(missing(linked)){
+    linked <- FALSE
+  }
+  
   .f <- match.fun(.f)
   
   t0 <- .f(model)
@@ -305,10 +310,15 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked = FALSE){
 #' @rdname reb_bootstrap
 #' @inheritParams bootstrap
 #' @export
-reb_bootstrap.lme <- function(model, .f, B, reb_type = 0){
+reb_bootstrap.lme <- function(model, .f, B, reb_type){
   
   if(ncol(model$groups) > 1){
     stop("The REB bootstrap has not been adapted for 3+ level models.")
+  }
+  
+  if(missing(reb_type)){
+    reb_type <- 0
+    warning("'reb_type' unspecified, performing REB 0 bootstrap")
   }
   
   if(reb_type != 2) .f <- match.fun(.f)
