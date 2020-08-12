@@ -80,6 +80,41 @@ lmer_par_boot <- bootstrap(vcmodA, .f = fixef, type = "parametric", B = 100)
 lme_par_boot  <- bootstrap(vcmodB, .f = fixef, type = "parametric", B = 100)
 ```
 
+## `bootstrap()` output
+
+Regardless of the type of bootstrap performed, the output of `bootstrap()` will be an `lmeresamp` object that is formatted as a list of 10 objects. Notice that some of the objects come from the call itself, while others are calculated for the user using the bootstrapped values. The 10 list objects are as follows:
+
+* `observed`: the estimated values for the model parameters 
+
+* `model`: the fit model, formatted as the default list object
+
+* `.f`: the function call 
+
+* `replicates`: a `B` $\times \  p$ data frame of bootstrap values for each of the model parameters, $p$
+
+* `stats`: a data frame containing the `observed`, `rep.mean` (bootstrap mean), `se` (bootstrap standard error), and `bias` values for each model parameter 
+
+* `R`: the number of bootstrap resamples performed
+
+* `data`: the data with which the model was fit
+
+* `seed`: a vector of randomly generated seeds
+
+* `type`: the type of bootstrap executed
+
+* `call`: the call to `bootstrap()` that the user made
+
+Let's take a look at an example using the `lmer_par_boot` object we created in the above section.
+
+```{r}
+# everything the lmeresamp object (and each of its sub-objects) contains
+str(lmer_par_boot)
+
+# an overview of those 10 list items
+head(lmer_par_boot)
+```
+
+
 # 2. The Residual Bootstrap
 
 The residual bootstrap resamples the residual quantities from the fitted linear mixed-effects model in order to generate bootstrap resamples. That is, a random sample, drawn with replacement, is taken from the estimated error terms and the EBLUPS (at each level). Then the random samples are combined into bootstrap samples via the fitted model equation. As described in Van der Leeden et al. (2008), if an observation's level-1 and level-2 residuals potentially violate the assumption of independence, the error terms and random effects may be `linked` prior to resampling by setting `linked = TRUE`. 
@@ -100,16 +135,21 @@ Let's also take a look at the structure of the `lmeresamp` objects returned by a
 
 # 3. The Cases Bootstrap
 
-The cases bootstrap is a fully nonparametric bootstrap that resamples the data with respect to the clusters in order to generate bootstrap samples. Depending on the nature of the data, the resampling can be done only for the higher-level cluster(s), only at the observation-level within a cluster, or at all levels. See Van der Leeden et al. for a nice discussion of this decision. 
+The cases bootstrap is a fully nonparametric bootstrap that resamples the data with respect to the clusters in order to generate bootstrap samples. Depending on the nature of the data, the resampling can be done only for the higher-level cluster(s), only at the observation-level within a cluster, or at all levels. See Van der Leeden et al. for a nice discussion of this decision. To specify which level(s) the data should be resampled at, use the logical `resample` vector. The `resample` parameter should be specified from the highest level (largest cluster) of the hierarchy to the lowest (observation-level). For example, for students within a school, specify the school level first, then the student level.
 
 ## Examples
 
 ```{r}
 # lme4
+# resample the schools, but not the students
 lmer_case_boot <- bootstrap(vcmodA, .f = fixef, type = "case", B = 100, resample = c(TRUE, FALSE))
 
 # nlme
+# do not resample the schools, but resample the students
 lme_cases_boot1 <- bootstrap(vcmodB, .f = fixef, type = "case", B = 100, resample = c(FALSE, TRUE))
+
+# nlem
+# resample both the schools and the students
 lme_cases_boot2 <- bootstrap(vcmodB, .f = fixef, type = "case", B = 100, resample = c(TRUE, TRUE))
 ```
 

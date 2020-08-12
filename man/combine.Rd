@@ -4,7 +4,7 @@
 \alias{combine_lmeresamp}
 \title{combine}
 \usage{
-combine_lmeresamp(...)
+\method{combine}{lmeresamp}(...)
 }
 \arguments{
 \item{...}{two or more objects of class \code{lmeresamp}, to be combined into one.}

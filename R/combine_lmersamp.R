@@ -10,8 +10,9 @@
 #' parallelization to yield unified output and bootstrap statistics.
 #'
 #' @rdname combine
-#' @importFrom purrr  map_dfr map
-# bootstrap CI method for object of class lmeresamp
+#' @importFrom purrr map_dfr map
+#' @export
+#' @method combine lmeresamp
 combine_lmeresamp <- function(...) {
   boot_list <- list(...)
   combo_replicates <- purrr::map_dfr(boot_list, ~as.data.frame(.x$replicates))
