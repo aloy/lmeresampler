@@ -235,6 +235,7 @@ confint.lmeresamp <- function(object, parm, level = 0.95, method, ...) {
     mutate(boot.t.lower = (t.stats[, 1] - quantile(boot_t, level + (1 - level)/2) * t.stats[, 2]/sqrt(object$R))) %>%
     mutate(boot.t.upper = (t.stats[, 1] - quantile(boot_t, (1 - level)/2) * t.stats[, 2]/sqrt(object$R)))
   
+  boot.t.lower <- boot.t.upper <- boot_t <- NULL # Make checks happy
   boot.t <- t.vals %>%
     select(boot.t.lower, boot.t.upper)
   rownames(boot.t) <- rownames(t.stats)

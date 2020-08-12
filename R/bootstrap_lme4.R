@@ -1,6 +1,7 @@
 #' @rdname bootstrap
 #' @export
-#' @importFrom stats as.formula cov formula model.matrix na.exclude na.omit predict resid simulate
+#' @importFrom stats as.formula cov formula model.matrix na.exclude 
+#' na.omit predict resid simulate sd confint quantile
 bootstrap.lmerMod <- function(model, .f, type, B, resample, reb_type, linked){
   switch(type,
          parametric = parametric_bootstrap.lmerMod(model, .f, B, type = type),
@@ -47,7 +48,7 @@ resid_bootstrap.lmerMod <- function(model, .f, B, type, linked){
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lmerMod <- function(model, .f, B, resample, type){
+case_bootstrap.lmerMod <- function(model, .f, B, type, resample){
   
   data <- model@frame
   # data$.id <- seq_len(nrow(data))
