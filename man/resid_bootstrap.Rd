@@ -7,9 +7,9 @@
 \alias{resid_bootstrap}
 \title{Residual Bootstrap for Nested LMEs}
 \usage{
-\method{resid_bootstrap}{lmerMod}(model, .f, B, type, linked = FALSE)
+\method{resid_bootstrap}{lmerMod}(model, .f, B, type, linked)
 
-\method{resid_bootstrap}{lme}(model, .f, B, type, linked = FALSE)
+\method{resid_bootstrap}{lme}(model, .f, B, type, linked)
 
 resid_bootstrap(model, .f, B, type, linked = FALSE)
 }

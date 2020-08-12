@@ -7,11 +7,11 @@
 \alias{reb_bootstrap}
 \title{REB Bootstrap for Two-Level Nested LMEs}
 \usage{
-\method{reb_bootstrap}{lmerMod}(model, .f, B, reb_type = 0)
+\method{reb_bootstrap}{lmerMod}(model, .f, B, reb_type)
 
-\method{reb_bootstrap}{lme}(model, .f, B, reb_type = 0)
+\method{reb_bootstrap}{lme}(model, .f, B, reb_type)
 
-reb_bootstrap(model, .f, B, reb_type = 0)
+reb_bootstrap(model, .f, B, reb_type)
 }
 \arguments{
 \item{model}{The model object you wish to bootstrap.}
