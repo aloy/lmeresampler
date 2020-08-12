@@ -7,7 +7,7 @@
 \alias{case_bootstrap}
 \title{Cases Bootstrap for Nested LMEs}
 \usage{
-\method{case_bootstrap}{lmerMod}(model, .f, B, resample, type)
+\method{case_bootstrap}{lmerMod}(model, .f, B, type, resample)
 
 \method{case_bootstrap}{lme}(model, .f, B, type, resample)
 
@@ -20,15 +20,15 @@ case_bootstrap(model, .f, B, type, resample)
 
 \item{B}{The number of bootstrap resamples.}
 
+\item{type}{A character string indicating the type of bootstrap that is being
+requested. Possible values are \code{"parametric"}, \code{"residual"}, 
+\code{"case"}, \code{"cgr"}, or \code{"reb"} (random effect block bootstrap).}
+
 \item{resample}{A logical vector specifying whether each level of the model 
 should be resampled in the cases bootstrap. The levels should be specified 
 from the highest level (largest cluster) of the hierarchy to the lowest 
 (observation-level); for example for students within a school, specify the 
 school level first, then the student level.}
-
-\item{type}{A character string indicating the type of bootstrap that is being
-requested. Possible values are \code{"parametric"}, \code{"residual"}, 
-\code{"case"}, \code{"cgr"}, or \code{"reb"} (random effect block bootstrap).}
 }
 \value{
 The returned value is an object of class "lmeresamp".
