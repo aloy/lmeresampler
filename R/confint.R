@@ -25,13 +25,17 @@ confint.lmeresamp <- function(object, parm, level = 0.95, method, ...) {
   
   if(missing(method)){
     method <- "all"
-  } else if(!method %in% c("norm", "boot-t", "perc", "all")) {
-    stop("'method' must be either 'norm', 'boot-t', 'perc', or 'all'")
+  } else if(!method %in% c("basic", "norm", "boot-t", "perc", "all")) {
+    stop("'method' must be either 'basic', 'norm', 'boot-t', 'perc', or 'all'")
   }
   
   if(class(object$model) == "lmerMod"){ ## normal t
     
-    if(method == "norm") {
+    if(method == "basic"){
+      
+     .basic.completion(object, level)
+      
+    } else if(method == "norm"){
       
       con <- data.frame(lme4::confint.merMod(object$model, level = level))
       colnames(con)[1] <- "norm.t.lower"
@@ -63,6 +67,10 @@ confint.lmeresamp <- function(object, parm, level = 0.95, method, ...) {
       .perc.t.completion(object, level)
       
     } else if(method == "all"){
+      
+      ## basic
+      
+      .basic.completion(object, level)
       
       ## normal-t
       con <- data.frame(lme4::confint.merMod(object$model, level = level))
@@ -96,7 +104,11 @@ confint.lmeresamp <- function(object, parm, level = 0.95, method, ...) {
     } 
   } else if(class(object$model) == "lme"){
     
-    if(method == "norm"){ ## normal t
+    if(method == "basic"){
+      
+      .basic.completion(object, level)
+      
+    } else if(method == "norm"){ ## normal t
       
       ### intervals returns the same estimates as doing summary() so let's use it!
       con <- nlme::intervals(object$model, level = level, which = "all")
@@ -135,6 +147,10 @@ confint.lmeresamp <- function(object, parm, level = 0.95, method, ...) {
       .perc.t.completion(object, level)
       
     } else if(method == "all"){
+      
+      ## basic
+      
+      .basic.completion(object, level)
       
       ## normal-t
       ### intervals returns the same estimates as doing summary() so let's use it!
@@ -177,6 +193,41 @@ confint.lmeresamp <- function(object, parm, level = 0.95, method, ...) {
 }
 
 
+#' @title Basic interval completion
+#'
+#' @description
+#' Execute the basic interval process
+#'
+#' @details
+#' This function uses \code{object} and \code{level} to calculate a basic
+#' interval for the components specified by .f
+#'
+#' @param object An lmeresamp object
+#' @param level A confidence level
+#'
+#' @keywords internal
+#' @noRd
+.basic.completion <- function(object, level){
+  
+  # 2 * t0 - quantile(stats, (1 + c(conf, -conf))/2)
+  
+  basic.lower <- apply(object$replicates, 2, function(x) {
+    2 * object$stats$observed - round(quantile(x, (1 + level)/2), 8)
+  })
+  
+  basic.upper <- apply(object$replicates, 2, function(x) {
+    2 * object$stats$observed - round(quantile(x, (1 - level)/2), 8)
+  })
+  
+  basic <- data.frame(cbind(basic.lower, basic.upper))
+  rownames(basic) <- rownames(object$stats)
+  
+  conf.lev <- level*100
+  cat(paste(conf.lev, "basic interval: \n"))
+  print(perc.t)
+  cat(paste("\n"))
+}
+
 #' @title Percentile-t interval completion
 #'
 #' @description
@@ -184,7 +235,7 @@ confint.lmeresamp <- function(object, parm, level = 0.95, method, ...) {
 #'
 #' @details
 #' This function uses \code{object} and \code{level} to calculate a percentile-t
-#' interval for the fixed and random components
+#' interval for the components specified by .f
 #'
 #' @param object An lmeresamp object
 #' @param level A confidence level
@@ -217,7 +268,7 @@ confint.lmeresamp <- function(object, parm, level = 0.95, method, ...) {
 #'
 #' @details
 #' This function uses \code{object} and \code{level} to calculate a bootstrap-t
-#' interval for the fixed and random components
+#' interval for the fixed components
 #'
 #' @param object An lmeresamp object
 #' @param level A confidence level

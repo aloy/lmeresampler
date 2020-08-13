@@ -30,8 +30,6 @@ parametric_bootstrap.lme <- function(model, .f, B, type){
   row.names(ystar) <- 1:model$dims$N
   ystar <- data.frame(ystar)
   
-  t0 <- .f(model)
-  
   # t.res <- list()
   # length(t.res) <- B
   #    t.res <- matrix(0, ncol = 2, nrow = B)
@@ -65,38 +63,14 @@ parametric_bootstrap.lme <- function(model, .f, B, type){
   # tmp.mod <- updated.model(model = model, new.y = ystar[,i])
   # t.res[[i]] <- .f(try.fit)
   # }
-  tstar <- do.call('cbind', tstar)
   # tstar <- data.frame(tstar)
   
   #   tstar <- split(t.res, rep(1:ncol(t.res), each = nrow(t.res)))
   #   
   #   tstar <- do.call("cbind", tstar) # Can these be nested?
-  row.names(tstar) <- names(t0)
   # colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
   
-  if((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
-    warning("some bootstrap runs failed (", numFail, "/", B, ")")
-    fail.msgs <- purrr::map_chr(tstar[bad.runs], .f = function(x){
-      attr(x)})
-  } else fail.msgs <- NULL 
-  
-  # prep for stats df
-  replicates <- as.data.frame(t(tstar))
-  observed <- t0
-  rep.mean <- colMeans(replicates)
-  se <- unlist(purrr::map(replicates, sd))
-  bias <- rep.mean - observed
-  
-  stats <- data.frame(observed, rep.mean, se, bias)
-  
-  RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
-                        stats = stats, R = B, data = model$data,
-                        seed = .Random.seed, type = type, call = match.call()), 
-                   class = "lmeresamp")
-  
-  attr(RES, "bootFail") <- numFail
-  attr(RES, "boot.fail.msgs") <- fail.msgs
-  return(RES)
+  return(.bootstrap.completion(model, tstar, B, .f, type))
 }
 
 #' @rdname case_bootstrap
