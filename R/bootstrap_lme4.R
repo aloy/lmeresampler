@@ -360,8 +360,14 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
   
   stats <- data.frame(observed, rep.mean, se, bias)
   
+  if(class(model) == "lmerMod") {
+    data = model@frame
+  } else if (class(model) == "lme") {
+    data = model$data
+  }
+  
   RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
-                        stats = stats, R = B, data = model@frame,
+                        stats = stats, R = B, data = data,
                         seed = .Random.seed, type = type, call = match.call()), 
                    class = "lmeresamp")
   

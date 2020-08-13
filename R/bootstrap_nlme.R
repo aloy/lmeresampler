@@ -97,34 +97,7 @@ case_bootstrap.lme <- function(model, .f, B, type, resample){
   #   }
   # })
   
-  t0 <- .f(model)
-  tstar <- do.call("cbind", tstar)
-  row.names(tstar) <- names(t0)
-  # colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
-  
-  if((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
-    warning("some bootstrap runs failed (", numFail, "/", B, ")")
-    fail.msgs <- purrr::map_chr(tstar[bad.runs], .f = attr,  FUN.VALUE = character(1),
-                                "fail.msgs")
-  } else fail.msgs <- NULL
-  
-  # prep for stats df
-  replicates <- as.data.frame(t(tstar))
-  observed <- t0
-  rep.mean <- colMeans(replicates)
-  se <- unlist(purrr::map(replicates, sd))
-  bias <- rep.mean - observed
-  
-  stats <- data.frame(observed, rep.mean, se, bias)
-  
-  RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
-                        stats = stats, R = B, data = model$data,
-                        seed = .Random.seed, type = type, call = match.call()),
-                   class = "lmeresamp")
-  
-  attr(RES, "bootFail") <- numFail
-  attr(RES, "boot.fail.msgs") <- fail.msgs
-  return(RES)
+  return(.bootstrap.completion(model, tstar, B, .f, type))
 }
 
 #' @rdname resid_bootstrap
@@ -137,37 +110,12 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked){
   
   .f <- match.fun(.f)
   
-  t0 <- .f(model)
   tstar <- purrr::map(1:B, function(x) .resample.resids.lme(model, .f, linked = linked))
-  
-  tstar <- do.call('cbind', tstar)
   
   #   rownames(tstar) <- names(t0)
   # colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
   
-  if ((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
-    warning("some bootstrap runs failed (", numFail, "/", B, ")")
-    fail.msgs <- purrr::map_chr(res[bad.runs], .f = attr,  FUN.VALUE = character(1),
-                                "fail.msgs")
-  } else fail.msgs <- NULL
-  
-  # prep for stats df
-  replicates <- as.data.frame(t(tstar))
-  observed <- t0
-  rep.mean <- colMeans(replicates)
-  se <- unlist(purrr::map(replicates, sd))
-  bias <- rep.mean - observed
-  
-  stats <- data.frame(observed, rep.mean, se, bias)
-  
-  RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
-                        stats = stats, R = B, data = model$data,
-                        seed = .Random.seed, type = type, call = match.call()),
-                   class = "lmeresamp")
-  
-  attr(RES, "bootFail") <- numFail
-  attr(RES, "boot.fail.msgs") <- fail.msgs
-  return(RES)
+  return(.bootstrap.completion(model, tstar, B , .f, type))
 }
 
 #' @keywords internal
@@ -491,34 +439,7 @@ cgr_bootstrap.lme <- function(model, .f, B, type = type){
   
   tstar <- as.data.frame(replicate(n = B, .resample.cgr.lme(model = model, .f)))
   
-  t0 <- .f(model)
-  
-  tstar <- do.call("cbind", tstar) # Can these be nested?
-  # colnames(tstar) <- paste("sim", 1:ncol(tstar), sep = "_")
-  
-  
-  if((numFail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
-    warning("some bootstrap runs failed (", numFail, "/", B, ")")
-    fail.msgs <- purrr::map_chr(res[bad.runs], .f = attr,  FUN.VALUE = character(1),
-                                "fail.msgs")
-  } else fail.msgs <- NULL
-  
-  # prep for stats df
-  replicates <- as.data.frame(t(tstar))
-  observed <- t0
-  rep.mean <- colMeans(replicates)
-  se <- unlist(purrr::map(replicates, sd))
-  bias <- rep.mean - observed
-  
-  stats <- data.frame(observed, rep.mean, se, bias)
-  
-  RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
-                        stats = stats, R = B, data = model$data,
-                        seed = .Random.seed, type = type, call = match.call()),
-                   class = "lmeresamp")
-  attr(RES, "bootFail") <- numFail
-  attr(RES, "boot.fail.msgs") <- fail.msgs
-  return(RES)
+  return(.bootstrap.completion(model, tstar, B, .f, type))
 }
 
 #' CGR resampling procedures
