@@ -1,9 +1,9 @@
 #' @rdname bootstrap
 #' @export
-bootstrap.lme <- function(model, .f, type, B, resample, reb_type, linked){
+bootstrap.lme <- function(model, .f, type, B, resample, reb_type){
   switch(type,
          parametric = parametric_bootstrap.lme(model, .f, B, type = type),
-         residual = resid_bootstrap.lme(model, .f, B, type = type, linked),
+         residual = resid_bootstrap.lme(model, .f, B, type = type),
          case = case_bootstrap.lme(model, .f, B, resample, type = type),
          cgr = cgr_bootstrap.lme(model, .f, B, type = type),
          reb = reb_bootstrap.lme(model, .f, B, reb_type))
@@ -102,15 +102,11 @@ case_bootstrap.lme <- function(model, .f, B, type, resample){
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lme <- function(model, .f, B, type, linked){
-  
-  if(missing(linked)){
-    linked <- FALSE
-  }
+resid_bootstrap.lme <- function(model, .f, B, type){
   
   .f <- match.fun(.f)
   
-  tstar <- purrr::map(1:B, function(x) .resample.resids.lme(model, .f, linked = linked))
+  tstar <- purrr::map(1:B, function(x) .resample.resids.lme(model, .f))
   
   #   rownames(tstar) <- names(t0)
   # colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
@@ -120,7 +116,7 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked){
 
 #' @keywords internal
 #' @noRd
-.resample.resids.lme <- function(model, .f, linked = linked){
+.resample.resids.lme <- function(model, .f){
   
   # Extract fixed part of the model
   Xbeta <- predict(model, level = 0) # This is X %*% fixef(model)
@@ -189,42 +185,21 @@ resid_bootstrap.lme <- function(model, .f, B, type, linked){
     
   }
   
-  if(linked == FALSE){
-    # Resample residuals
-    estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
-    
-    # Combine function
-    y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
-    
-    # .f(model) is t0
-    tstar <- tryCatch(.f(updated.model(model = model, new.y = y.star)),  
-                      error = function(e) e)
-    if(inherits(tstar, "error")) {
-      structure(rep(NA, length(.f(model))), fail.msgs = tstar$message)
-    } else{
-      tstar
-    }
-  } else {
-    #linked
-    model.mresid <- nlme::getResponse(model) - predict(model, re.form = ~0)
-    model.mresid.cent <- scale(model.mresid, scale = FALSE)
-    
-    # Resample residuals
-    mresid.star <- sample(x = model.mresid.cent, size = length(model.mresid.cent), replace = TRUE)
-    
-    # Combine function
-    y.star <- as.numeric(Xbeta + mresid.star)
-    
-    # .f(model) is t0
-    # Refit
-      tstar <- tryCatch(.f(updated.model(model = model, new.y = y.star)),  
-                      error = function(e) e)
-      if(inherits(tstar, "error")) {
-        structure(rep(NA, length(.f(model))), fail.msgs = tstar$message)
-      } else{
-        tstar
-      }
+  # Resample residuals
+  estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
+  
+  # Combine function
+  y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
+  
+  # .f(model) is t0
+  tstar <- tryCatch(.f(updated.model(model = model, new.y = y.star)),  
+                    error = function(e) e)
+  if(inherits(tstar, "error")) {
+    structure(rep(NA, length(.f(model))), fail.msgs = tstar$message)
+  } else{
+    tstar
   }
+  
   return(tstar)
 }
 

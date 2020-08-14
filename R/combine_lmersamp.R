@@ -2,15 +2,15 @@
 #'
 #' @description
 #' Combines processes split for parallelization.
-#' 
+#'
 #' @details
-#' This helper function combines the different processes split for 
+#' This helper function combines the different processes split for
 #' parallelization to yield unified output and bootstrap statistics.
 #'
 #' @param ... two or more objects of class \code{lmeresamp}, to be combined into one.
 #'
 #' @rdname combine
-#' @export
+#' @export 
 #' @importFrom purrr map_dfr map map_dbl
 #' @method combine lmeresamp
 combine_lmeresamp <- function(...) {
@@ -25,4 +25,5 @@ combine_lmeresamp <- function(...) {
   RES$stats$bias <- RES$stats$rep.mean - RES$stats$observed # recalculated bias
   return(RES)
 }
+
 

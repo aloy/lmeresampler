@@ -62,8 +62,6 @@ In order to perform the bootstrap, the user must call the `bootstrap()` function
 
 * `reb_type`: an integer value specifying what kind of REB (random effects block) bootstrap should be performed. More on what the differences between the REB bootstrap types are may be found in section 5 of this vignette.
 
-* `linked`: a logical value specifying whether the error terms and random effects should be linked during resampling. The motivation behind this is explained in section 2 of this vignette.
-
 # 1. The Parametric Bootstrap
 
 The parametric bootstrap simulates bootstrap samples from the estimated distribution functions. That is, error terms and random effects are simulated from their estimated normal distributions and are combined into bootstrap samples via the fitted model equation.
@@ -79,6 +77,8 @@ lmer_par_boot <- bootstrap(vcmodA, .f = fixef, type = "parametric", B = 100)
 # nlme
 lme_par_boot  <- bootstrap(vcmodB, .f = fixef, type = "parametric", B = 100)
 ```
+
+Let's also take a look at the structure of the `lmeresamp` objects returned by a bootstrap call.
 
 ## `bootstrap()` output
 
@@ -114,24 +114,16 @@ str(lmer_par_boot)
 head(lmer_par_boot)
 ```
 
-
 # 2. The Residual Bootstrap
 
-The residual bootstrap resamples the residual quantities from the fitted linear mixed-effects model in order to generate bootstrap resamples. That is, a random sample, drawn with replacement, is taken from the estimated error terms and the EBLUPS (at each level). Then the random samples are combined into bootstrap samples via the fitted model equation. As described in Van der Leeden et al. (2008), if an observation's level-1 and level-2 residuals potentially violate the assumption of independence, the error terms and random effects may be `linked` prior to resampling by setting `linked = TRUE`. 
+The residual bootstrap resamples the residual quantities from the fitted linear mixed-effects model in order to generate bootstrap resamples. That is, a random sample, drawn with replacement, is taken from the estimated error terms and the EBLUPS (at each level). Then the random samples are combined into bootstrap samples via the fitted model equation.
 
 ## Examples
 
 ```{r}
-# lme4
-## linked error terms and random effects prior to resampling
-lmer_res_boot_linked <- bootstrap(vcmodA, .f = fixef, type = "residual", B = 100, linked = TRUE)
-
 # nlme
-## unlinked
-lme_res_boot <- bootstrap(vcmodB, .f = fixef, type = "residual", B = 100, linked = FALSE)
+lme_res_boot <- bootstrap(vcmodB, .f = fixef, type = "residual", B = 100)
 ```
-
-Let's also take a look at the structure of the `lmeresamp` objects returned by a bootstrap call.
 
 # 3. The Cases Bootstrap
 
@@ -247,25 +239,25 @@ confint(lmer_reb_boot0, method = "boot-t", level= 0.90)
 
 # 7. Parallelization (User Extension)
 
-### The Idea
+## The Idea
 
 Parallelization (also known as parallel computing, parallel processing, or executing "in parallel") is the idea of splitting a process into sub-processes that execute at the same time. This is of interest in the context of bootstrapping because bootstrapping is often both computation-heavy and time-consuming. 
 
 Using parallelization, the processes behind `bootstrap()` can be executed on multiple computer cores, depending on the makeup of the machine you are using. To check how many cores your machine has, run `parallel::detectCores()`. This will output the number of cores your CPU "logically" has, which is twice more than the number of cores it physically has. The number of logical cores is the number of cores you may actually use when working in parallel (the more cores you have available to you, the better!). We recommend using multiple cores when possible, **without using all/most of your CPU's cores**, which it needs to run everything, not just RStudio. However, if your machine only has one core, parallelization is neither useful nor possible.
 
-### Performance
+## Performance
 
 It is important to note that while the number of cores used with parallelization will be some scalar multiple of the default number of one core used for non-parallel processing, the runtime of parallel processes will not be increased by that same scalar. That is, running a process on two cores does not yield a runtime that is twice as fast as running the same process on one core. This is because parallelization takes some overhead to split the processes, so while runtime will substantially improve, it will not correspond exactly to the number of cores being used.
 
 There are two types of parallelization techniques: forking (also known as `multicore`) and clustering. While forking tends to be slightly faster, it cannot be executed on Windows operating systems; thus, we will spend our time documenting clustering, which is system-agnostic. For more information on how to use forking with parallelization, check out the `parallel` package.
 
-### Implementation
+## Implementation
 
 We implement our parallel processing using Steve Weston and Rich Calaway's guide on jointly using `doParallel` and `foreach`, as the code is both concise and simple enough for those without much experience with parallelization. While `doParallel` and `foreach` default to `multicore` (forking) functionality when using parallel computing on UNIX operating systems and `snow` (clustering) functionality on Windows systems, in order to be as explicit as possible, we will outline our examples using clustering. For more information on forking, please see Weston and Calaway's guide, "Getting Started with doParallel and foreach" (the link can be found in the References section).
 
 The basic idea with clusters is that they execute tasks as a "cluster" of computers, which means that each cluster needs to be fed in information separately. For this reason, clustering has more overhead than forking. Both `doParallel` and `foreach` use what Weston and Calaway call "`snow`-like functionality", meaning that while the clustering is done using these two packages, it uses the syntax from `snow` (a now deprecated package). Clusters also need to be "made" and "stopped" with each call to a `foreach()` loop and `doParallel`, to explicitly tell the CPU when to begin and end the parallelization.
 
-### Examples
+## Examples
 
 With all of this in mind, let's explore an example using `lmeresampler`. Notice that we have the user implement the parallelization with the `bootstrap()` call itself, rather than doing it within `lmeresampler` itself. Thus, a modified, parallelized, call to `bootstrap()` is as follows:
 
@@ -316,7 +308,7 @@ Pretty useful stuff! The above can be applied to all bootstrap types and models 
 
 # 8. Future Directions (Developer Extensions)
 
-Future updates to `lmeresampler` should explore adding functionality to allow bootstrapping of models with crossed effects. That is, when lower-level observations exist in multiple factors of a higher-level. For example, if patients (level-1) adhere strictly to one doctor (level-2), but the doctors work for multiple hospitals (level-3), levels two and three are crossed. Crossed relationships need to be evaluated differently than standard nested relationships, thus the code will need significant modifications in its evaluation process.
+When fitting linear mixed effects models, it is common that users need to use data with crossed effects, that is, when lower-level observations exist in multiple factors of a higher-level. For example, if patients (level-1) adhere strictly to one doctor (level-2), but the doctors work for multiple hospitals (level-3), levels two and three are crossed. While it is currently possible to use `lmeresampler` to bootstrap a model with crossed effects with the parametric bootstrap, future updates should explore adding functionality to allow bootstrapping of crossed models for the cases, residual, CGR, and REB bootstraps. Crossed relationships need to be evaluated differently than standard nested relationships, thus the code will need significant modifications in its evaluation process.
 
 Furthermore, future extensions of `lmeresampler` may focus on implementing the existing functions for generalized linear mixed-effects (GLMM) models for all of the bootstraps types. This has been requested by past users.
 

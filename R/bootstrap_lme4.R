@@ -2,10 +2,10 @@
 #' @export
 #' @importFrom stats as.formula cov formula model.matrix na.exclude 
 #' na.omit predict resid simulate sd confint quantile
-bootstrap.lmerMod <- function(model, .f, type, B, resample, reb_type, linked){
+bootstrap.lmerMod <- function(model, .f, type, B, resample, reb_type){
   switch(type,
          parametric = parametric_bootstrap.lmerMod(model, .f, B, type = type),
-         residual = resid_bootstrap.lmerMod(model, .f, B, type = type, linked),
+         residual = resid_bootstrap.lmerMod(model, .f, B, type = type),
          case = case_bootstrap.lmerMod(model, .f, B, resample, type = type),
          cgr = cgr_bootstrap.lmerMod(model, .f, B, type = type),
          reb = reb_bootstrap.lmerMod(model, .f, B, reb_type))
@@ -31,15 +31,11 @@ parametric_bootstrap.lmerMod <- function(model, .f, B, type){
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lmerMod <- function(model, .f, B, type, linked){
-  
-  if(missing(linked)){
-    linked <- FALSE
-  }
+resid_bootstrap.lmerMod <- function(model, .f, B, type){
   
   .f <- match.fun(.f)
   
-  tstar <- purrr::map(1:B, function(x) .resample.resids(model, .f, linked = linked))
+  tstar <- purrr::map(1:B, function(x) .resample.resids(model, .f))
   
   RES <- .bootstrap.completion(model, tstar, B, .f, type)
   return(RES)
@@ -453,10 +449,9 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
 }
 
 #' Resampling residuals from mixed models
-#' @param linkeded Specifies the use of marginal residual linkeding
 #' @keywords internal
 #' @noRd
-.resample.resids <- function(model, .f, linked = linked) {
+.resample.resids <- function(model, .f) {
   
   # Extract fixed part of the model
   Xbeta <- predict(model, re.form = NA) # This is X %*% fixef(model)
@@ -497,33 +492,16 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
   Zbstar <- .Zbstar.combine(bstar = bstar, zstar = Z)
   Zbstar.sum <- Reduce("+", Zbstar)
   
-  if(linked == FALSE){
-    # Resample residuals
-    estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
-    
-    # Combine function
-    y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
-    
-    # Refit the model and apply '.f' to it using map
-    
-    ## .f() no mapping
-    tstar <- .f(lme4::refit(object = model, newresp = y.star))
-  } else{
-    # linked
-    model.mresid <- lme4::getME(model, "y") - predict(model, re.form = ~0)
-    model.mresid.cent <- scale(model.mresid, scale = FALSE)
-    
-    # Resample residuals
-    mresid.star <- sample(x = model.mresid.cent, size = length(model.mresid.cent), replace = TRUE)
-    
-    # Combine function
-    y.star <- as.numeric(Xbeta + mresid.star)
-    
-    # Refit the model and apply '.f' to it using map
-    
-    ## .f() no mapping
-    tstar <- .f(lme4::refit(object = model, newresp = y.star))
-  }
+  # Resample residuals
+  estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
+  
+  # Combine function
+  y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
+  
+  # Refit the model and apply '.f' to it using map
+  
+  ## .f() no mapping
+  tstar <- .f(lme4::refit(object = model, newresp = y.star))
 }
 
 #' REB resampling procedures 

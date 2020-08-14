@@ -224,7 +224,7 @@ confint.lmeresamp <- function(object, parm, level = 0.95, method, ...) {
   
   conf.lev <- level*100
   cat(paste(conf.lev, "basic interval: \n"))
-  print(perc.t)
+  print(basic)
   cat(paste("\n"))
 }
 
