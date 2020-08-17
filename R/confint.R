@@ -79,7 +79,6 @@ confint.lmeresamp <- function(object, parm, level = 0.95, method, ...) {
       colnames(con)[2] <- "norm.t.upper"
       norm.t.upper <- con[2]
       
-      cat(paste("\n"))
       .norm.t.completion(norm.t.lower, norm.t.upper, level)
       
       ## boot-t
@@ -169,7 +168,6 @@ confint.lmeresamp <- function(object, parm, level = 0.95, method, ...) {
       names(norm.t.upper)[(length(con$fixed[, 3]) + 1) : (length(con$fixed[, 3]) + length(con$reStruct[[1]][3]))] <- row.names(con$reStruct[[1]][3])
       names(norm.t.upper)[(length(con$fixed[, 3]) + length(con$reStruct[[1]][3]) + 1)] <- "sigma"
       
-      cat(paste("\n"))
       .norm.t.completion(norm.t.lower, norm.t.upper, level)
       
       ## boot-t
@@ -209,20 +207,34 @@ confint.lmeresamp <- function(object, parm, level = 0.95, method, ...) {
 #' @noRd
 .basic.completion <- function(object, level){
   
-  # 2 * t0 - quantile(stats, (1 + c(conf, -conf))/2)
-  
-  basic.lower <- apply(object$replicates, 2, function(x) {
-    2 * object$stats$observed - quantile(x, (1 + level)/2)
+  lower.quants <- apply(object$replicates, 2, function(x) {
+    quantile(x, (1 + level)/2)
   })
   
-  basic.upper <- apply(object$replicates, 2, function(x) {
-    2 * object$stats$observed - quantile(x, (1 - level)/2)
+  upper.quants <- apply(object$replicates, 2, function(x) {
+    quantile(x, (1 - level)/2)
   })
   
-  basic <- data.frame(cbind(basic.lower, basic.upper))
+  working_stats <- object$stats # doing this so we don't manipulate the stats df 
+  
+  working_stats <- working_stats %>%
+    mutate(basic.lower = 2 * working_stats$observed - lower.quants) %>%
+    mutate(basic.upper = 2 * working_stats$observed - upper.quants)
+  
+  # basic.lower <- apply(object$replicates, 2, function(x) {
+  #   2 * object$stats$observed - quantile(x, (1 + level)/2)
+  # })
+  # 
+  # basic.upper <- apply(object$replicates, 2, function(x) {
+  #   2 * object$stats$observed - quantile(x, (1 - level)/2)
+  # })
+  
+  basic <- working_stats %>%
+    select(basic.lower, basic.upper)
   rownames(basic) <- rownames(object$stats)
   
   conf.lev <- level*100
+  cat(paste("\n"))
   cat(paste(conf.lev, "basic interval: \n"))
   print(basic)
   cat(paste("\n"))

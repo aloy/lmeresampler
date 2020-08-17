@@ -120,7 +120,6 @@ case_bootstrap.lmerMod <- function(model, .f, B, type, resample){
     reml <- lme4::isREML(model)
     
     tstar <- .f(lme4::lmer(formula = form, data = res, REML = reml)) 
-    return(tstar)
     # tstar <- purrr::map(res, function(x) {
     #   .f(lme4::lmer(formula = form, data = as.data.frame(x), REML = reml)) 
     # })
