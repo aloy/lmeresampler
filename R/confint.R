@@ -212,11 +212,11 @@ confint.lmeresamp <- function(object, parm, level = 0.95, method, ...) {
   # 2 * t0 - quantile(stats, (1 + c(conf, -conf))/2)
   
   basic.lower <- apply(object$replicates, 2, function(x) {
-    2 * object$stats$observed - round(quantile(x, (1 + level)/2), 8)
+    2 * object$stats$observed - quantile(x, (1 + level)/2)
   })
   
   basic.upper <- apply(object$replicates, 2, function(x) {
-    2 * object$stats$observed - round(quantile(x, (1 - level)/2), 8)
+    2 * object$stats$observed - quantile(x, (1 - level)/2)
   })
   
   basic <- data.frame(cbind(basic.lower, basic.upper))
@@ -245,11 +245,11 @@ confint.lmeresamp <- function(object, parm, level = 0.95, method, ...) {
 .perc.t.completion <- function(object, level){
   
   perc.t.lower <- apply(object$replicates, 2, function(x) {
-    round(quantile(x, (1 - level)/2), 8)
+    quantile(x, (1 - level)/2)
   })
   
   perc.t.upper <- apply(object$replicates, 2, function(x) {
-    round(quantile(x, level + (1 - level)/2), 8)
+    quantile(x, level + (1 - level)/2)
   })
   
   perc.t <- data.frame(cbind(perc.t.lower, perc.t.upper))
