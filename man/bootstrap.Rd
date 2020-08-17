@@ -7,11 +7,11 @@
 \alias{bootstrap}
 \title{Bootstrap Nested Linear Mixed-Effects Models}
 \usage{
-\method{bootstrap}{lmerMod}(model, .f, type, B, resample, reb_type, linked)
+\method{bootstrap}{lmerMod}(model, .f, type, B, resample, reb_type)
 
-\method{bootstrap}{lme}(model, .f, type, B, resample, reb_type, linked)
+\method{bootstrap}{lme}(model, .f, type, B, resample, reb_type)
 
-bootstrap(model, .f, type, B, resample = NULL, reb_type = NULL, linked = FALSE)
+bootstrap(model, .f, type, B, resample = NULL, reb_type = NULL)
 }
 \arguments{
 \item{model}{The model object you wish to bootstrap.}

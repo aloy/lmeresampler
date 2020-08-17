@@ -12,7 +12,6 @@
 #' @rdname combine
 #' @export 
 #' @importFrom purrr map_dfr map map_dbl
-#' @method combine lmeresamp
 combine_lmeresamp <- function(...) {
   boot_list <- list(...)
   combo_replicates <- purrr::map_dfr(boot_list, ~as.data.frame(.x$replicates))

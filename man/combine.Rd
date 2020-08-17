@@ -4,7 +4,7 @@
 \alias{combine_lmeresamp}
 \title{combine}
 \usage{
-\method{combine}{lmeresamp}(...)
+combine_lmeresamp(...)
 }
 \arguments{
 \item{...}{two or more objects of class \code{lmeresamp}, to be combined into one.}
@@ -13,6 +13,6 @@
 Combines processes split for parallelization.
 }
 \details{
-This helper function combines the different processes split for 
+This helper function combines the different processes split for
 parallelization to yield unified output and bootstrap statistics.
 }

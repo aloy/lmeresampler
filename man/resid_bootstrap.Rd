@@ -7,11 +7,11 @@
 \alias{resid_bootstrap}
 \title{Residual Bootstrap for Nested LMEs}
 \usage{
-\method{resid_bootstrap}{lmerMod}(model, .f, B, type, linked)
+\method{resid_bootstrap}{lmerMod}(model, .f, B, type)
 
-\method{resid_bootstrap}{lme}(model, .f, B, type, linked)
+\method{resid_bootstrap}{lme}(model, .f, B, type)
 
-resid_bootstrap(model, .f, B, type, linked = FALSE)
+resid_bootstrap(model, .f, B, type)
 }
 \arguments{
 \item{model}{The model object you wish to bootstrap.}
@@ -23,9 +23,6 @@ resid_bootstrap(model, .f, B, type, linked = FALSE)
 \item{type}{A character string indicating the type of bootstrap that is being
 requested. Possible values are \code{"parametric"}, \code{"residual"}, 
 \code{"case"}, \code{"cgr"}, or \code{"reb"} (random effect block bootstrap).}
-
-\item{linked}{A logical value specifying whether the residual bootstrap should
-be performed with linked error terms and random effects prior to resampling.}
 }
 \value{
 The returned value is an object of class "lmersamp".
