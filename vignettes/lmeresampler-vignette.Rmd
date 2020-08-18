@@ -22,7 +22,7 @@ library(lmeresampler)
 
 # Overview
 
-The `lmeresampler` package provides functionality to perform various bootstrap processes for nested linear mixed-effects (LMEs) models including parametric, residual, cases, CGR, and REB bootstraps. This is particularly useful for models fit with relatively small datasets, where bootstrapping may yield more robust parameter estimates. This vignette seeks to inform users of:
+The `lmeresampler` package provides functionality to perform various bootstrap processes for nested linear mixed-effects (LMEs) models including parametric, residual, cases, CGR, and REB bootstraps. This is particularly useful for models fit with relatively small data sets, where bootstrapping may yield more robust parameter estimates. This vignette seeks to inform users of:
 
 * how to bootstrap hierarchical linear models with `lmeresampler`,
 
@@ -34,7 +34,7 @@ The `lmeresampler` package provides functionality to perform various bootstrap p
 
 ## The Data
 
-Examples of `lmeresampler` functions will use hierarchical linear models fit using `jsp728`, a dataset containing information about 728 students (level-1) from 50 primary (elementary) schools in inner London (level-2) that were part of the Junior School Project (JSP). The data was collected by the University of Bristol Centre for Multilevel Modeling. For more information about the variables, see `?jsp728`.
+Examples of `lmeresampler` functions will use hierarchical linear models fit using `jsp728`, a data set containing information about 728 students (level-1) from 50 primary (elementary) schools in inner London (level-2) that were part of the Junior School Project (JSP). The data was collected by the University of Bristol Centre for Multilevel Modeling. For more information about the variables, see `?jsp728`.
 
 We will work with `vcmodA` for `lme4`, and `vcmodB` for `nlme`. Each of these two-level models predicts `mathAge11` (the student's math score at age 11) and contains the same 3 fixed effects: `mathAge8` (the student's math score at age 8), `gender` (the student's gender), and `class` (the student's father's social class, a factor with two levels: manual and nonmanual). They also both have a random intercept for `school`. The models are as follows:
 
@@ -58,7 +58,7 @@ In order to perform the bootstrap, the user must call the `bootstrap()` function
 
 * `B`: the number of bootstrap resamples to be performed.
 
-* `resample`: a logical vector specifying whether each level of the dataset should be resampled in the cases bootstrap. The levels should be specified from the highest level (largest cluster) of the hierarchy to the lowest (observation-level). For example, for students within a school, specify the school level first, then the student level.
+* `resample`: a logical vector specifying whether each level of the data set should be resampled in the cases bootstrap. The levels should be specified from the highest level (largest cluster) of the hierarchy to the lowest (observation-level). For example, for students within a school, specify the school level first, then the student level.
 
 * `reb_type`: an integer value specifying what kind of REB (random effects block) bootstrap should be performed. More on what the differences between the REB bootstrap types are may be found in section 5 of this vignette.
 
@@ -140,7 +140,7 @@ lmer_case_boot <- bootstrap(vcmodA, .f = fixef, type = "case", B = 100, resample
 # do not resample the schools, but resample the students
 lme_cases_boot1 <- bootstrap(vcmodB, .f = fixef, type = "case", B = 100, resample = c(FALSE, TRUE))
 
-# nlem
+# nlme
 # resample both the schools and the students
 lme_cases_boot2 <- bootstrap(vcmodB, .f = fixef, type = "case", B = 100, resample = c(TRUE, TRUE))
 ```

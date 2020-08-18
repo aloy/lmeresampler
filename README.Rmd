@@ -17,7 +17,8 @@ lmeresampler [![Build Status](https://travis-ci.org/aloy/lmeresampler.svg?branch
 ============
 
 ## Overview
-The `lme4` and `nlme` packages have made fitting nested linear mixed-effects models quite easy. Using the functionality of these packages we can easily use maximum likelihood or restricted maximum likelihood to fit our model and conduct inference using our parametric toolkit. In practice, the assumptions of our model are often violated to such a degree that leads to biased estimators and incorrect standard errors. In these situations, resampling methods such as the bootstrap can be used to obtain consistent estimators of the bias and standard errors for inference. `lmeresampler` provides an easy way to bootstrap nested linear-mixed effects models using either the parametric, residual, cases, CGR (semi-parametric), or random effects block (REB) bootstrap fit using either `lme4` or `nlme`. The output from `lmeresampler` is compatible with the `boot` package.
+
+The `lme4` and `nlme` packages have made fitting nested linear mixed-effects models quite easy. Using the functionality of these packages we can easily use maximum likelihood or restricted maximum likelihood to fit our model and conduct inference using our parametric toolkit. In practice, the assumptions of our model are often violated to such a degree that leads to biased estimators and incorrect standard errors. In these situations, resampling methods such as the bootstrap can be used to obtain consistent estimators of the bias and standard errors for inference. `lmeresampler` provides an easy way to bootstrap nested linear-mixed effects models using either the parametric, residual, cases, CGR (semi-parametric), or random effects block (REB) bootstrap fit using either `lme4` or `nlme`. The output from `lmeresampler` is an `lmeresamp` object. Moreover, the `lmeresampler` package has its own `print()` and `confint()` functions, both of which follow the syntax of a generic `print()` and `confint()` function; thus, the two commands may be used with `lmeresamp` objects. 
 
 ## Installation
 
@@ -27,7 +28,7 @@ You can install the latest released version from CRAN with
 install.packages("lmeresampler")
 ```
 
-or the latest development version from github
+or the latest development version from GitHub
 
 ```{r eval=FALSE}
 if(!require(devtools)) install.packages("devtools")
