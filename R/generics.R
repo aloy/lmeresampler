@@ -18,8 +18,6 @@
 #'    school level first, then the student level.
 #' @param reb_type Specification of what random effect block bootstrap version to
 #' implement. Possible values are \code{0}, \code{1} or \code{2}.
-#' @param linked A logical value specifying whether the residual bootstrap should
-#' be performed with linked error terms and random effects prior to resampling.
 #' 
 #' @details
 #' All of the below methods have been implemented for nested linear mixed-effects
