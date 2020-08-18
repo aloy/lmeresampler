@@ -22,6 +22,7 @@ parametric_bootstrap.lme <- function(model, .f, B, type){
   
   # Match function
   .f <- match.fun(.f)
+  t0 <- .f(model)
   
   # Extract fixed effects
   model.fixef <- nlme::fixef(model)
