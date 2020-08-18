@@ -32,9 +32,6 @@ school level first, then the student level.}
 
 \item{reb_type}{Specification of what random effect block bootstrap version to
 implement. Possible values are \code{0}, \code{1} or \code{2}.}
-
-\item{linked}{A logical value specifying whether the residual bootstrap should
-be performed with linked error terms and random effects prior to resampling.}
 }
 \value{
 The returned value is an object of class "lmeresamp".
