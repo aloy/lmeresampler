@@ -17,7 +17,6 @@
 #' @export 
 # bootstrap CI method for object of class lmeresamp
 confint.lmeresamp <- function(object, parm, level = 0.95, method, ...) {
-  library(dplyr)
   
   if(!level > 0 && !level < 1){
     stop("please specify a confidence level between 0 and 1")
