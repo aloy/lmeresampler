@@ -2,10 +2,10 @@
 #' @export
 bootstrap.lme <- function(model, .f, type, B, resample, reb_type){
   switch(type,
-         parametric = parametric_bootstrap.lme(model, .f, B, type = type),
-         residual = resid_bootstrap.lme(model, .f, B, type = type),
-         case = case_bootstrap.lme(model, .f, B, resample, type = type),
-         cgr = cgr_bootstrap.lme(model, .f, B, type = type),
+         parametric = parametric_bootstrap.lme(model, .f, B),
+         residual = resid_bootstrap.lme(model, .f, B),
+         case = case_bootstrap.lme(model, .f, B, resample),
+         cgr = cgr_bootstrap.lme(model, .f, B),
          reb = reb_bootstrap.lme(model, .f, B, reb_type))
 }
 
@@ -13,7 +13,7 @@ bootstrap.lme <- function(model, .f, type, B, resample, reb_type){
 #' @rdname parametric_bootstrap
 #' @export
 #' @importFrom nlmeU simulateY
-parametric_bootstrap.lme <- function(model, .f, B, type){
+parametric_bootstrap.lme <- function(model, .f, B){
   # getVarCov.lme is the limiting factor...
   
   # if(ncol(model$groups) > 1){
@@ -71,12 +71,12 @@ parametric_bootstrap.lme <- function(model, .f, B, type){
   #   tstar <- do.call("cbind", tstar) # Can these be nested?
   # colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
   
-  return(.bootstrap.completion(model, tstar, B, .f, type))
+  return(.bootstrap.completion(model, tstar, B, .f, type = "parametric"))
 }
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lme <- function(model, .f, B, type, resample){
+case_bootstrap.lme <- function(model, .f, B, resample){
   
   data <- model$data
   # data$.id <- seq_len(nrow(data))
@@ -98,12 +98,12 @@ case_bootstrap.lme <- function(model, .f, B, type, resample){
   #   }
   # })
   
-  return(.bootstrap.completion(model, tstar, B, .f, type))
+  return(.bootstrap.completion(model, tstar, B, .f, type = "case"))
 }
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lme <- function(model, .f, B, type){
+resid_bootstrap.lme <- function(model, .f, B){
   
   .f <- match.fun(.f)
   
@@ -112,7 +112,7 @@ resid_bootstrap.lme <- function(model, .f, B, type){
   #   rownames(tstar) <- names(t0)
   # colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
   
-  return(.bootstrap.completion(model, tstar, B , .f, type))
+  return(.bootstrap.completion(model, tstar, B , .f, type = "residual"))
 }
 
 #' @keywords internal
@@ -410,12 +410,12 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type){
 #' @rdname cgr_bootstrap
 #' @inheritParams bootstrap
 #' @export
-cgr_bootstrap.lme <- function(model, .f, B, type = type){
+cgr_bootstrap.lme <- function(model, .f, B){
   .f <- match.fun(.f)
   
   tstar <- as.data.frame(replicate(n = B, .resample.cgr.lme(model = model, .f)))
   
-  return(.bootstrap.completion(model, tstar, B, .f, type))
+  return(.bootstrap.completion(model, tstar, B, .f, type = "cgr"))
 }
 
 #' CGR resampling procedures

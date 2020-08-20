@@ -7,11 +7,11 @@
 \alias{parametric_bootstrap}
 \title{Parametric Bootstrap for Nested LMEs}
 \usage{
-\method{parametric_bootstrap}{lmerMod}(model, .f, B, type)
+\method{parametric_bootstrap}{lmerMod}(model, .f, B)
 
-\method{parametric_bootstrap}{lme}(model, .f, B, type)
+\method{parametric_bootstrap}{lme}(model, .f, B)
 
-parametric_bootstrap(model, .f, B, type)
+parametric_bootstrap(model, .f, B)
 }
 \arguments{
 \item{model}{The model object you wish to bootstrap.}
@@ -19,10 +19,6 @@ parametric_bootstrap(model, .f, B, type)
 \item{.f}{A function returning the statistic(s) of interest.}
 
 \item{B}{The number of bootstrap resamples.}
-
-\item{type}{A character string indicating the type of bootstrap that is being
-requested. Possible values are \code{"parametric"}, \code{"residual"}, 
-\code{"case"}, \code{"cgr"}, or \code{"reb"} (random effect block bootstrap).}
 }
 \value{
 The returned value is an object of class "lmeresamp".
