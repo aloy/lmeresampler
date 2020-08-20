@@ -7,16 +7,16 @@
 \alias{bootstrap}
 \title{Bootstrap Nested Linear Mixed-Effects Models}
 \usage{
-\method{bootstrap}{lmerMod}(model, fn, type, B, resample, reb_type)
+\method{bootstrap}{lmerMod}(model, .f, type, B, resample, reb_type)
 
-\method{bootstrap}{lme}(model, fn, type, B, resample, reb_type)
+\method{bootstrap}{lme}(model, .f, type, B, resample, reb_type)
 
-bootstrap(model, fn, type, B, resample = NULL, reb_type = NULL)
+bootstrap(model, .f, type, B, resample = NULL, reb_type = NULL)
 }
 \arguments{
 \item{model}{The model object you wish to bootstrap.}
 
-\item{fn}{A function returning the statistic(s) of interest.}
+\item{.f}{A function returning the statistic(s) of interest.}
 
 \item{type}{A character string indicating the type of bootstrap that is being
 requested. Possible values are \code{"parametric"}, \code{"residual"}, 
@@ -25,7 +25,7 @@ requested. Possible values are \code{"parametric"}, \code{"residual"},
 \item{B}{The number of bootstrap resamples.}
 
 \item{resample}{A logical vector specifying whether each level of the model 
-should be resampled in the cases bootsrap. The levels should be specified 
+should be resampled in the cases bootstrap. The levels should be specified 
 from the highest level (largest cluster) of the hierarchy to the lowest 
 (observation-level); for example for students within a school, specify the 
 school level first, then the student level.}
@@ -34,8 +34,7 @@ school level first, then the student level.}
 implement. Possible values are \code{0}, \code{1} or \code{2}.}
 }
 \value{
-The returned value is an object of class "boot", compatible with the \pkg{boot}
-package's \code{\link[boot]{boot}} methods.
+The returned value is an object of class "lmeresamp".
 }
 \description{
 Perform various bootstrap process for nested linear mixed effects (LMEs) models including:
@@ -59,40 +58,28 @@ mySumm <- function(.) {
 
 ## running a parametric bootstrap 
 set.seed(1234)
-boo1 <- bootstrap(model = vcmodA, fn = mySumm, type = "parametric", B = 100)
+boo1 <- bootstrap(model = vcmodA, .f = mySumm, type = "parametric", B = 100)
 
 \dontrun{
 ## running a cases bootstrap - only resampling the schools
-boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
+boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
 
 ## running a cases bootstrap - resampling the schools and students within the school
-boo2 <- bootstrap(model = vcmodA, fn = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
+boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
 
 ## running a semi-parametric bootstrap
-boo3 <- bootstrap(model = vcmodA, fn = mySumm, type = "cgr", B = 100)
+boo3 <- bootstrap(model = vcmodA, .f = mySumm, type = "cgr", B = 100)
 
 ## running a residual bootstrap
-boo4 <- bootstrap(model = vcmodA, fn = mySumm, type = "residual", B = 100)
+boo4 <- bootstrap(model = vcmodA, .f = mySumm, type = "residual", B = 100)
 
 ## running an REB0 bootstrap
-boo5 <- bootstrap(model = vcmodA, fn = mySumm, type = "reb", B = 100, reb_typ = 0)
+boo5 <- bootstrap(model = vcmodA, .f = mySumm, type = "reb", B = 100, reb_typ = 0)
 }
 
 ## to print results in a formatted way
-requireNamespace("boot") 
-boo1
+print(boo1)
 
-## you can extract the boostrapped values as a data frame
-as.data.frame(boo1$t)
-
-## bootstrap confidence intervals are easily found using 'boot.ci'
-##   warnings about "Some ... intervals may be unstable" go away
-##   for larger bootstrap samples
-boot::boot.ci(boo1, index = 1, type=c("norm", "basic", "perc"))
-boot::boot.ci(boo1, index = 6, type=c("norm", "basic", "perc"))
-
-## you can also examine the bootstrap samples graphically
-plot(boo1, index = 1)
 
 }
 \references{
@@ -123,7 +110,5 @@ Carpenter, J. R., Goldstein, H. and Rasbash, J. (2003) A novel bootstrap
      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
      implementation of (semi-)parameteric bootstrap for mixed models.
-  \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}} 
-     from the \pkg{boot} package.
 }
 }

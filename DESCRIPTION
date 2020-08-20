@@ -1,8 +1,9 @@
 Package: lmeresampler
 Title: Bootstrap Methods for Nested Linear Mixed-Effects Models
-Version: 0.1.1.9000
+Version: 0.2.0.0000
 Authors@R: c(person("Adam", "Loy", email = "loyad01@gmail.com",
-    role = c("aut", "cre")), person("Spenser", "steele", role = "aut"))
+    role = c("aut", "cre")), person("Spenser", "Steele", role = "aut"), 
+    person("Jenna", "Korobova", role = "aut"))
 Description: Bootstrap routines for nested linear mixed effects models fit using
     either 'lme4' or 'nlme'. The provided 'bootstrap()' function implements the
     parametric, residual, cases, semi-parametric (i.e., CGR),  and random effect
@@ -11,21 +12,27 @@ Description: Bootstrap routines for nested linear mixed effects models fit using
     Carpenter, Goldstein & Rasbash (2003) <doi: 10.1111/1467-9876.00415>,
     and Chambers & Chandra (2013) <doi: 10.1080/10618600.2012.681216>.
 Depends:
-    R (>= 3.1.2)
+    R (>= 3.5.0)
 Imports:
-    boot,
-    plyr,
     dplyr (>= 0.8.0),
     Matrix,
     nlmeU,
-    RLRsim
+    RLRsim,
+    purrr
 Suggests:
     lme4 (>= 1.1-7),
     nlme,
     testthat,
-    mlmRev
+    mlmRev,
+    knitr,
+    rmarkdown,
+    doParallel,
+    foreach,
+    snow
 License: GPL-3
 LazyData: true
 URL: https://github.com/aloy/lmeresampler
 BugReports: https://github.com/aloy/lmeresampler/issues
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1
+VignetteBuilder: knitr
+Encoding: UTF-8

@@ -7,22 +7,21 @@
 \alias{cgr_bootstrap}
 \title{CGR Bootstrap for Nested LMEs}
 \usage{
-\method{cgr_bootstrap}{lmerMod}(model, fn, B)
+\method{cgr_bootstrap}{lmerMod}(model, .f, B)
 
-\method{cgr_bootstrap}{lme}(model, fn, B)
+\method{cgr_bootstrap}{lme}(model, .f, B)
 
-cgr_bootstrap(model, fn, B)
+cgr_bootstrap(model, .f, B)
 }
 \arguments{
 \item{model}{The model object you wish to bootstrap.}
 
-\item{fn}{A function returning the statistic(s) of interest.}
+\item{.f}{A function returning the statistic(s) of interest.}
 
 \item{B}{The number of bootstrap resamples.}
 }
 \value{
-The returned value is an object of class "boot", compatible with the \pkg{boot}
-package's \code{\link[boot]{boot}} methods.
+The returned value is an object of class "lmeresamp".
 }
 \description{
 Generate semi-parametric bootstrap replicates of a statistic for a nested 
@@ -56,7 +55,5 @@ Carpenter, J. R., Goldstein, H. and Rasbash, J. (2003) A novel bootstrap
      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
      implementation of (semi-)parameteric bootstrap for mixed models.
-  \item \code{\link[boot]{boot}}, \code{\link[boot]{boot.ci}}, and \code{\link[boot]{plot.boot}} 
-     from the \pkg{boot} package.
 }
 }

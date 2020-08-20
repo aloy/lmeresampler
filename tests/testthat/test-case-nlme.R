@@ -1,5 +1,4 @@
 library(nlme, quietly = TRUE)
-library(boot)
 library(RLRsim)
 
 data(Socatt, package = "mlmRev")
@@ -26,35 +25,35 @@ test_that("two-level additive random intercept model",{
   
   orig.stats <- mySumm(vcmodA)
   
-  boo <- case_bootstrap(model = vcmodA, fn = mySumm, B = nsim, resample = c(TRUE, TRUE))
+  boo <- case_bootstrap(model = vcmodA, .f = mySumm, B = nsim, resample = c(TRUE, TRUE))
   
-  expect_equal(class(boo), "boot")
-  expect_equal(boo$t0, orig.stats)
-  expect_equal(nrow(boo$t), nsim)
-  expect_equal(ncol(boo$t), length(orig.stats))
+  expect_equal(class(boo), "lmeresamp")
+  expect_equal(boo$stats$observed, orig.stats)
+  expect_equal(nrow(boo$replicates), nsim)
+  expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "case")
-  expect_equal(boo$statistic, mySumm)
+  expect_equal(boo$type, "case")
+  expect_equal(boo$.f, mySumm)
   
-  boo <- case_bootstrap(model = vcmodA, fn = mySumm, B = nsim, resample = c(FALSE, TRUE))
+  boo <- case_bootstrap(model = vcmodA, .f = mySumm, B = nsim, resample = c(FALSE, TRUE))
   
-  expect_equal(class(boo), "boot")
-  expect_equal(boo$t0, orig.stats)
-  expect_equal(nrow(boo$t), nsim)
-  expect_equal(ncol(boo$t), length(orig.stats))
+  expect_equal(class(boo), "lmeresamp")
+  expect_equal(boo$stats$observed, orig.stats)
+  expect_equal(nrow(boo$replicates), nsim)
+  expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "case")
-  expect_equal(boo$statistic, mySumm)
+  expect_equal(boo$type, "case")
+  expect_equal(boo$.f, mySumm)
   
-  boo <- case_bootstrap(model = vcmodA, fn = mySumm, B = nsim, resample = c(TRUE, FALSE))
+  boo <- case_bootstrap(model = vcmodA, .f = mySumm, B = nsim, resample = c(TRUE, FALSE))
   
-  expect_equal(class(boo), "boot")
-  expect_equal(boo$t0, orig.stats)
-  expect_equal(nrow(boo$t), nsim)
-  expect_equal(ncol(boo$t), length(orig.stats))
+  expect_equal(class(boo), "lmeresamp")
+  expect_equal(boo$stats$observed, orig.stats)
+  expect_equal(nrow(boo$replicates), nsim)
+  expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "case")
-  expect_equal(boo$statistic, mySumm)
+  expect_equal(boo$type, "case")
+  expect_equal(boo$.f, mySumm)
 })
 
 
@@ -67,25 +66,25 @@ test_that("two-level random intercept model with interaction",{
                 random = ~ 1 | school, data = jsp728)
   
   orig.stats <- mySumm(vcmodC)
-  boo <- case_bootstrap(model = vcmodC, fn = mySumm, B = nsim, resample = c(TRUE, TRUE))
+  boo <- case_bootstrap(model = vcmodC, .f = mySumm, B = nsim, resample = c(TRUE, TRUE))
   
-  expect_equal(class(boo), "boot")
-  expect_equal(boo$t0, orig.stats)
-  expect_equal(nrow(boo$t), nsim)
-  expect_equal(ncol(boo$t), length(orig.stats))
+  expect_equal(class(boo), "lmeresamp")
+  expect_equal(boo$stats$observed, orig.stats)
+  expect_equal(nrow(boo$replicates), nsim)
+  expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "case")
-  expect_equal(boo$statistic, mySumm)
+  expect_equal(boo$type, "case")
+  expect_equal(boo$.f, mySumm)
 
-  boo <- case_bootstrap(model = vcmodC, fn = mySumm, B = nsim, resample = c(FALSE, TRUE))
+  boo <- case_bootstrap(model = vcmodC, .f = mySumm, B = nsim, resample = c(FALSE, TRUE))
   
-  expect_equal(class(boo), "boot")
-  expect_equal(boo$t0, orig.stats)
-  expect_equal(nrow(boo$t), nsim)
-  expect_equal(ncol(boo$t), length(orig.stats))
+  expect_equal(class(boo), "lmeresamp")
+  expect_equal(boo$stats$observed, orig.stats)
+  expect_equal(nrow(boo$replicates), nsim)
+  expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "case")
-  expect_equal(boo$statistic, mySumm)
+  expect_equal(boo$type, "case")
+  expect_equal(boo$.f, mySumm)
 })
 
 
@@ -98,15 +97,15 @@ test_that("two-level random coefficient model with interaction",{
                random = ~ mathAge8c | school, data = jsp728)
   
   orig.stats <- mySumm(rcmod)
-  boo <- case_bootstrap(model = rcmod, fn = mySumm, B = nsim, resample = c(TRUE, TRUE))
+  boo <- case_bootstrap(model = rcmod, .f = mySumm, B = nsim, resample = c(TRUE, TRUE))
   
-  expect_equal(class(boo), "boot")
-  expect_equal(boo$t0, orig.stats)
-  expect_equal(nrow(boo$t), nsim)
-  expect_equal(ncol(boo$t), length(orig.stats))
+  expect_equal(class(boo), "lmeresamp")
+  expect_equal(boo$stats$observed, orig.stats)
+  expect_equal(nrow(boo$replicates), nsim)
+  expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "case")
-  expect_equal(boo$statistic, mySumm)
+  expect_equal(boo$type, "case")
+  expect_equal(boo$.f, mySumm)
 })
 
 # ------------------------------------------------------------------------------
@@ -124,35 +123,36 @@ test_that("three-level random coefficient model with interaction",{
   
   orig.stats <- mySumm(rmA)
   
-  boo <- case_bootstrap(model = rmA, fn = mySumm, B = nsim, 
+  boo <- case_bootstrap(model = rmA, .f = mySumm, B = nsim, 
                         resample = c(TRUE, TRUE, TRUE))
   
-  expect_equal(class(boo), "boot")
-  expect_equal(boo$t0, orig.stats)
-  expect_equal(nrow(boo$t), nsim)
-  expect_equal(ncol(boo$t), length(orig.stats))
+  expect_equal(class(boo), "lmeresamp")
+  expect_equal(boo$stats$observed, orig.stats)
+  expect_equal(nrow(boo$replicates), nsim)
+  expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "case")
-  expect_equal(boo$statistic, mySumm)
+  expect_equal(boo$type, "case")
+  expect_equal(boo$.f, mySumm)
   
-  boo <- case_bootstrap(model = rmA, fn = mySumm, B = nsim, 
+  boo <- case_bootstrap(model = rmA, .f = mySumm, B = nsim, 
                         resample = c(FALSE, FALSE, TRUE))
   
-  expect_equal(class(boo), "boot")
-  expect_equal(boo$t0, orig.stats)
-  expect_equal(nrow(boo$t), nsim)
-  expect_equal(ncol(boo$t), length(orig.stats))
+  expect_equal(class(boo), "lmeresamp")
+  expect_equal(boo$stats$observed, orig.stats)
+  expect_equal(nrow(boo$replicates), nsim)
+  expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "case")
-  expect_equal(boo$statistic, mySumm)
+  expect_equal(boo$type, "case")
+  expect_equal(boo$.f, mySumm)
   
-  boo <- case_bootstrap(model = rmA, fn = mySumm, B = nsim, 
+  boo <- case_bootstrap(model = rmA, .f = mySumm, B = nsim, 
                         resample = c(TRUE, TRUE, FALSE))
-  expect_equal(class(boo), "boot")
-  expect_equal(boo$t0, orig.stats)
-  expect_equal(nrow(boo$t), nsim)
-  expect_equal(ncol(boo$t), length(orig.stats))
+  
+  expect_equal(class(boo), "lmeresamp")
+  expect_equal(boo$stats$observed, orig.stats)
+  expect_equal(nrow(boo$replicates), nsim)
+  expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$sim, "case")
-  expect_equal(boo$statistic, mySumm)
+  expect_equal(boo$type, "case")
+  expect_equal(boo$.f, mySumm)
 })
