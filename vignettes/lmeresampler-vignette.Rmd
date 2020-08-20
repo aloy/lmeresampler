@@ -282,10 +282,9 @@ stopCluster(cl)
 
 Let's compare the runtime of the above `b_parallel2` with the same bootstrap run without parallelization. Note that differences in runtime will be somewhat arbitrary for a small number of resamples (say, 100), and will become more pronounced as the number of resamples increases (to 1000, for example), in favor of the parallelized bootstrap.
 
+
 ```{r timings, message = FALSE, warning = FALSE, cache = TRUE}
-system.time({
-  b_nopar  <- bootstrap(vcmodA, .f = fixef, type = "parametric", B = 1000)
-})
+system.time(b_nopar  <- bootstrap(vcmodA, .f = fixef, type = "parametric", B = 1000))
 
 numCores <- 2
 cl <- snow::makeSOCKcluster(numCores)
