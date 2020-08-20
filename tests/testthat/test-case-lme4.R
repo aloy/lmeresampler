@@ -1,5 +1,4 @@
 library(lme4, quietly = TRUE)
-library(boot, quietly = TRUE)
 library(mlmRev, quietly = TRUE)
 library(dplyr, quietly = TRUE)
 
