@@ -18,8 +18,6 @@
 #'    school level first, then the student level.
 #' @param reb_type Specification of what random effect block bootstrap version to
 #' implement. Possible values are \code{0}, \code{1} or \code{2}.
-#' @param linked A logical value specifying whether the residual bootstrap should
-#' be performed with linked error terms and random effects prior to resampling.
 #' 
 #' @details
 #' All of the below methods have been implemented for nested linear mixed-effects
@@ -139,7 +137,7 @@ bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL) {
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-parametric_bootstrap <- function(model, .f, B, type) {
+parametric_bootstrap <- function(model, .f, B) {
   UseMethod("parametric_bootstrap", model)
 }
 
@@ -176,7 +174,7 @@ parametric_bootstrap <- function(model, .f, B, type) {
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-resid_bootstrap <- function(model, .f, B, type) {
+resid_bootstrap <- function(model, .f, B) {
   UseMethod("resid_bootstrap", model)
 }
 
@@ -224,7 +222,7 @@ resid_bootstrap <- function(model, .f, B, type) {
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-case_bootstrap <- function(model, .f, B, type, resample) {
+case_bootstrap <- function(model, .f, B, resample) {
   UseMethod("case_bootstrap", model)
 }
 
@@ -269,7 +267,7 @@ case_bootstrap <- function(model, .f, B, type, resample) {
 #'    procedure for assessing the relationship between class size and achievement. 
 #'    \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, 
 #'    \bold{52}, 431--443.
-cgr_bootstrap <- function(model, .f, B, type) {
+cgr_bootstrap <- function(model, .f, B) {
   UseMethod("cgr_bootstrap", model)
 }
 

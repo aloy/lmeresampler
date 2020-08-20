@@ -27,7 +27,7 @@ Suggests:
     knitr,
     rmarkdown,
     doParallel,
-    foreach, 
+    foreach,
     snow
 License: GPL-3
 LazyData: true

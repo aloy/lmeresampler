@@ -4,10 +4,10 @@
 #' na.omit predict resid simulate sd confint quantile
 bootstrap.lmerMod <- function(model, .f, type, B, resample, reb_type){
   switch(type,
-         parametric = parametric_bootstrap.lmerMod(model, .f, B, type = type),
-         residual = resid_bootstrap.lmerMod(model, .f, B, type = type),
-         case = case_bootstrap.lmerMod(model, .f, B, resample, type = type),
-         cgr = cgr_bootstrap.lmerMod(model, .f, B, type = type),
+         parametric = parametric_bootstrap.lmerMod(model, .f, B),
+         residual = resid_bootstrap.lmerMod(model, .f, B),
+         case = case_bootstrap.lmerMod(model, .f, B, resample),
+         cgr = cgr_bootstrap.lmerMod(model, .f, B),
          reb = reb_bootstrap.lmerMod(model, .f, B, reb_type))
   # TODO: need to be able to save results
 }
@@ -15,7 +15,7 @@ bootstrap.lmerMod <- function(model, .f, type, B, resample, reb_type){
 
 #' @rdname parametric_bootstrap
 #' @export
-parametric_bootstrap.lmerMod <- function(model, .f, B, type){
+parametric_bootstrap.lmerMod <- function(model, .f, B){
   .f <- match.fun(.f)
   
   model.fixef <- lme4::fixef(model) # Extract fixed effects
@@ -25,26 +25,26 @@ parametric_bootstrap.lmerMod <- function(model, .f, B, type){
   tstar <- purrr::map_dfc(ystar, function(x) {
     .f(lme4::refit(object = model, newresp = x))
   })
-  return(.bootstrap.completion(model, tstar, B, .f, type))
+  return(.bootstrap.completion(model, tstar, B, .f, type = "parametric"))
 }
 
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lmerMod <- function(model, .f, B, type){
+resid_bootstrap.lmerMod <- function(model, .f, B){
   
   .f <- match.fun(.f)
   
   tstar <- purrr::map(1:B, function(x) .resample.resids(model, .f))
   
-  RES <- .bootstrap.completion(model, tstar, B, .f, type)
+  RES <- .bootstrap.completion(model, tstar, B, .f, type = "residual")
   return(RES)
 }
 
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lmerMod <- function(model, .f, B, type, resample){
+case_bootstrap.lmerMod <- function(model, .f, B, resample){
   
   data <- model@frame
   # data$.id <- seq_len(nrow(data))
@@ -56,7 +56,7 @@ case_bootstrap.lmerMod <- function(model, .f, B, type, resample){
   # rep.data <- purrr::map(integer(B), function(x) .cases.resamp(model = model, dat = data, cluster = clusters, resample = resample))
   tstar <- purrr::map(integer(B), function(x) .cases.resamp(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
   
-  RES <- .bootstrap.completion(model, tstar, B, .f, type)
+  RES <- .bootstrap.completion(model, tstar, B, .f, type = "case")
   return(RES)
 }
 
@@ -188,12 +188,12 @@ case_bootstrap.lmerMod <- function(model, .f, B, type, resample){
 
 #' @rdname cgr_bootstrap
 #' @export
-cgr_bootstrap.lmerMod <- function(model, .f, B, type){
+cgr_bootstrap.lmerMod <- function(model, .f, B){
   .f <- match.fun(.f)
   
   tstar <- as.data.frame(replicate(n = B, .resample.cgr(model = model, .f)))
   
-  RES <- .bootstrap.completion(model, tstar, B, .f, type)
+  RES <- .bootstrap.completion(model, tstar, B, .f, type = "cgr")
   return(RES)
 }
 

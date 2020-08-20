@@ -1,5 +1,4 @@
 library(lme4, quietly = TRUE)
-library(boot, quietly = TRUE)
 library(mlmRev, quietly = TRUE)
 library(dplyr, quietly = TRUE)
 
@@ -19,11 +18,6 @@ test_that("two-level additive random intercept model",{
   cr2 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), resample = c(FALSE, TRUE))
   cr3 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), resample = c(TRUE, FALSE))
   cr4 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), resample = c(FALSE, FALSE))
-  
-  # cr1b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), resample = c(TRUE, TRUE))
-  # cr2b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), resample = c(FALSE, TRUE))
-  # cr3b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), resample = c(TRUE, FALSE))
-  # cr4b <- .cases.resamp2(dat = jjsp728, cluster = c("school", ".id"), resample = c(FALSE, FALSE))
   
   expect_equal(nrow(cr2), nrow(jjsp728))
   expect_identical(cr4, jjsp728)
@@ -139,5 +133,3 @@ test_that("three-level random intercept model",{
   expect_equal(boo$type, "case")
   expect_equal(boo$.f, mySumm)
 })
-
-cr3lev <- .cases.resamp(dat = Socatt, cluster = c("district", "respond", ".id"), resample = c(TRUE, TRUE, TRUE))

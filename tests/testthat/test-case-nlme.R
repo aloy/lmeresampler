@@ -1,5 +1,4 @@
 library(nlme, quietly = TRUE)
-library(boot)
 library(RLRsim)
 
 data(Socatt, package = "mlmRev")

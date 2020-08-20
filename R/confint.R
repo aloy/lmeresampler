@@ -17,7 +17,6 @@
 #' @export 
 # bootstrap CI method for object of class lmeresamp
 confint.lmeresamp <- function(object, parm, level = 0.95, method, ...) {
-  library(dplyr)
   
   if(!level > 0 && !level < 1){
     stop("please specify a confidence level between 0 and 1")
@@ -217,9 +216,10 @@ confint.lmeresamp <- function(object, parm, level = 0.95, method, ...) {
   
   working_stats <- object$stats # doing this so we don't manipulate the stats df 
   
+  basic.lower <- basic.upper <- NULL
   working_stats <- working_stats %>%
-    mutate(basic.lower = 2 * working_stats$observed - lower.quants) %>%
-    mutate(basic.upper = 2 * working_stats$observed - upper.quants)
+    mutate(basic.lower = 2 * working_stats$observed - lower.quants,
+           basic.upper = 2 * working_stats$observed - upper.quants)
   
   # basic.lower <- apply(object$replicates, 2, function(x) {
   #   2 * object$stats$observed - quantile(x, (1 + level)/2)

@@ -1,5 +1,4 @@
 library(lme4)
-library(boot)
 library(mlmRev)
 
 Socatt$religion <- relevel(Socatt$religion, ref = "none")
