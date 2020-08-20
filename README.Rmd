@@ -39,7 +39,7 @@ devtools::install_github("aloy/lmeresampler")
 
 ## Usage
 
-Below is a short example of how to execute a parametric bootstrap for models fit either by `lme4` or by `nlme`. For a complete guide outlining the purpose of `lmeresampler`, the structure of `lmeresamp` objects, each of the bootstrap types, how to implement parallelization with `bootstrap()` calls, directions for future developers, and examples, please see the package vignette, available on the `lmersampler` website. 
+Below is a short example of how to execute a parametric bootstrap for models fit either by `lme4` or by `nlme`. For a complete guide outlining the purpose of `lmeresampler`, the structure of `lmeresamp` objects, each of the bootstrap types, how to implement parallelization with `bootstrap()` calls, directions for future developers, and examples, please see the package vignette, available on the `lmeresampler` website. 
 
 First, fit the necessary model(s) with the LME package of your choice. Here we show the same model fit first with `lme4`, then with `nlme`:
 
