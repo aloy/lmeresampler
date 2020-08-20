@@ -27,8 +27,7 @@ Suggests:
     knitr,
     rmarkdown,
     doParallel,
-    foreach,
-    tictoc
+    foreach
 License: GPL-3
 LazyData: true
 URL: https://github.com/aloy/lmeresampler
