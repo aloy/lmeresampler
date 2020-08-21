@@ -324,5 +324,3 @@ Raymond Chambers & Hukum Chandra (2013) A Random Effect Block Bootstrap for Clus
 [Ben Bolker's nlme Variance Component SE Ideas](https://bbolker.github.io/mixedmodels-misc/notes/corr_braindump.html)
 
 [Weston and Calaway's doParallel and foreach Guide](https://cran.r-project.org/web/packages/doParallel/vignettes/gettingstartedParallel.pdf)
-
-# Acknowledgements
