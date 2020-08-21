@@ -89,7 +89,7 @@
 <a href="#lmeresampler" class="anchor"></a>lmeresampler</h1></div>
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-<p><img src="inst/image/FINAL_HEX_nobackground.png" width="200"></p>
+<p><img src="image/FINAL_HEX_nobackground.png" width="200"></p>
 <p>The <code>lme4</code> and <code>nlme</code> packages have made fitting nested linear mixed-effects models quite easy. Using the functionality of these packages we can easily use maximum likelihood or restricted maximum likelihood to fit our model and conduct inference using our parametric toolkit. In practice, the assumptions of our model are often violated to such a degree that leads to biased estimators and incorrect standard errors. In these situations, resampling methods such as the bootstrap can be used to obtain consistent estimators of the bias and standard errors for inference. <code>lmeresampler</code> provides an easy way to bootstrap nested linear-mixed effects models using either the parametric, residual, cases, CGR (semi-parametric), or random effects block (REB) bootstrap fit using either <code>lme4</code> or <code>nlme</code>. The output from <code>lmeresampler</code> is an <code>lmeresamp</code> object. Moreover, the <code>lmeresampler</code> package has its own <code><a href="https://rdrr.io/r/base/print.html">print()</a></code> and <code><a href="https://rdrr.io/r/stats/confint.html">confint()</a></code> functions, both of which follow the syntax of a generic <code><a href="https://rdrr.io/r/base/print.html">print()</a></code> and <code><a href="https://rdrr.io/r/stats/confint.html">confint()</a></code> function; thus, the two commands may be used with <code>lmeresamp</code> objects.</p>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
