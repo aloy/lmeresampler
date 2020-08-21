@@ -1,9 +1,0 @@
-base
-lmeresampler
-Matrix
-lme4
-nlme
-purrr
-foreach
-iterators
-doParallel
