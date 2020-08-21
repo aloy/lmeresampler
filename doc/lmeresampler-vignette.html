@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>lmeresampler-vignette</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">lmeresampler-vignette</h1>
+
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(lmeresampler)</span></code></pre></div>
+<div id="overview" class="section level1">
+<h1>Overview</h1>
+<p>The <code>lmeresampler</code> package provides functionality to perform various bootstrap processes for nested linear mixed-effects (LMEs) models including parametric, residual, cases, CGR, and REB bootstraps. This is particularly useful for models fit with relatively small data sets, where bootstrapping may yield more robust parameter estimates. This vignette seeks to inform users of:</p>
+<ul>
+<li><p>how to bootstrap hierarchical linear models with <code>lmeresampler</code>,</p></li>
+<li><p>what kinds of bootstraps are available and how they operate,</p></li>
+<li><p>how to use the bootstrap output, and</p></li>
+<li><p>extensions for both users and future developers of the package.</p></li>
+</ul>
+<div id="the-data" class="section level2">
+<h2>The Data</h2>
+<p>Examples of <code>lmeresampler</code> functions will use hierarchical linear models fit using <code>jsp728</code>, a data set containing information about 728 students (level-1) from 50 primary (elementary) schools in inner London (level-2) that were part of the Junior School Project (JSP). The data was collected by the University of Bristol Centre for Multilevel Modeling. For more information about the variables, see <code>?jsp728</code>.</p>
+<p>We will work with <code>vcmodA</code> for <code>lme4</code>, and <code>vcmodB</code> for <code>nlme</code>. Each of these two-level models predicts <code>mathAge11</code> (the student’s math score at age 11) and contains the same 3 fixed effects: <code>mathAge8</code> (the student’s math score at age 8), <code>gender</code> (the student’s gender), and <code>class</code> (the student’s father’s social class, a factor with two levels: manual and nonmanual). They also both have a random intercept for <code>school</code>. The models are as follows:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">library</span>(lme4)</span>
+<span id="cb2-2"><a href="#cb2-2"></a>vcmodA &lt;-<span class="st"> </span><span class="kw">lmer</span>(mathAge11 <span class="op">~</span><span class="st"> </span>mathAge8 <span class="op">+</span><span class="st"> </span>gender <span class="op">+</span><span class="st"> </span>class <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span> <span class="op">|</span><span class="st"> </span>school), <span class="dt">data =</span> jsp728)</span>
+<span id="cb2-3"><a href="#cb2-3"></a></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="kw">library</span>(nlme)</span>
+<span id="cb2-5"><a href="#cb2-5"></a>vcmodB &lt;-<span class="st"> </span><span class="kw">lme</span>(mathAge11 <span class="op">~</span><span class="st"> </span>mathAge8 <span class="op">+</span><span class="st"> </span>gender <span class="op">+</span><span class="st"> </span>class, <span class="dt">random =</span> <span class="op">~</span><span class="dv">1</span><span class="op">|</span>school, <span class="dt">data =</span> jsp728)</span></code></pre></div>
+</div>
+<div id="the-call" class="section level2">
+<h2>The Call</h2>
+<p>In order to perform the bootstrap, the user must call the <code>bootstrap()</code> function. The function contains several important parameters for the user to specify when making the call:</p>
+<ul>
+<li><p><code>model</code>: the LME model to be bootstrapped.</p></li>
+<li><p><code>.f</code>: a function that will compute the statistics of interest (for example, to have the bootstrap return the fixed effects estimates, specify <code>.f = fixef</code>).</p></li>
+<li><p><code>type</code>: a character string specifying what type of bootstrap should be executed. Possible values are <code>&quot;parametric&quot;</code>, <code>&quot;residual&quot;</code>, <code>&quot;case&quot;</code>, <code>cgr</code>, or <code>reb</code>. More information about each bootstrap <code>type</code> may be found in the following sections.</p></li>
+<li><p><code>B</code>: the number of bootstrap resamples to be performed.</p></li>
+<li><p><code>resample</code>: a logical vector specifying whether each level of the data set should be resampled in the cases bootstrap. The levels should be specified from the highest level (largest cluster) of the hierarchy to the lowest (observation-level). For example, for students within a school, specify the school level first, then the student level.</p></li>
+<li><p><code>reb_type</code>: an integer value specifying what kind of REB (random effects block) bootstrap should be performed. More on what the differences between the REB bootstrap types are may be found in section 5 of this vignette.</p></li>
+</ul>
+</div>
+</div>
+<div id="the-parametric-bootstrap" class="section level1">
+<h1>1. The Parametric Bootstrap</h1>
+<p>The parametric bootstrap simulates bootstrap samples from the estimated distribution functions. That is, error terms and random effects are simulated from their estimated normal distributions and are combined into bootstrap samples via the fitted model equation.</p>
+<div id="examples" class="section level2">
+<h2>Examples</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># let&#39;s set .f = fixef to specify that we want only the fixed effects bootstrapped</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a></span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="co"># lme4</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>lmer_par_boot &lt;-<span class="st"> </span><span class="kw">bootstrap</span>(vcmodA, <span class="dt">.f =</span> fixef, <span class="dt">type =</span> <span class="st">&quot;parametric&quot;</span>, <span class="dt">B =</span> <span class="dv">100</span>)</span>
+<span id="cb3-5"><a href="#cb3-5"></a></span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="co"># nlme</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a>lme_par_boot  &lt;-<span class="st"> </span><span class="kw">bootstrap</span>(vcmodB, <span class="dt">.f =</span> fixef, <span class="dt">type =</span> <span class="st">&quot;parametric&quot;</span>, <span class="dt">B =</span> <span class="dv">100</span>)</span></code></pre></div>
+<p>Let’s also take a look at the structure of the <code>lmeresamp</code> objects returned by a bootstrap call.</p>
+</div>
+<div id="bootstrap-output" class="section level2">
+<h2><code>bootstrap()</code> output</h2>
+<p>Regardless of the type of bootstrap performed, the output of <code>bootstrap()</code> will be an <code>lmeresamp</code> object that is formatted as a list of 10 objects. Notice that some of the objects come from the call itself, while others are calculated for the user using the bootstrapped values. The 10 list objects are as follows:</p>
+<ul>
+<li><p><code>observed</code>: the estimated values for the model parameters,</p></li>
+<li><p><code>model</code>: the fit model, formatted as the default list object,</p></li>
+<li><p><code>.f</code>: the function call,</p></li>
+<li><p><code>replicates</code>: a <code>B</code> <span class="math inline">\(\times \  p\)</span> data frame of bootstrap values for each of the model parameters, <span class="math inline">\(p\)</span>,</p></li>
+<li><p><code>stats</code>: a data frame containing the <code>observed</code>, <code>rep.mean</code> (bootstrap mean), <code>se</code> (bootstrap standard error), and <code>bias</code> values for each model parameter,</p></li>
+<li><p><code>R</code>: the number of bootstrap resamples performed,</p></li>
+<li><p><code>data</code>: the data with which the model was fit,</p></li>
+<li><p><code>seed</code>: a vector of randomly generated seeds that are used by the bootstrap,</p></li>
+<li><p><code>type</code>: the type of bootstrap executed, and</p></li>
+<li><p><code>call</code>: the call to <code>bootstrap()</code> that the user made.</p></li>
+</ul>
+<p>Let’s take a look at an example using the <code>lmer_par_boot</code> object we created in the above section.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="co"># everything the lmeresamp object (and each of its sub-objects) contains</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="kw">str</span>(lmer_par_boot)</span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="co">#&gt; List of 10</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="co">#&gt;  $ observed  : Named num [1:4] 14.158 0.639 -0.357 0.72</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="co">#&gt;   ..- attr(*, &quot;names&quot;)= chr [1:4] &quot;(Intercept)&quot; &quot;mathAge8&quot; &quot;genderM&quot; &quot;classnonmanual&quot;</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="co">#&gt;  $ model     :Formal class &#39;lmerMod&#39; [package &quot;lme4&quot;] with 13 slots</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a><span class="co">#&gt;   .. ..@ resp   :Reference class &#39;lmerResp&#39; [package &quot;lme4&quot;] with 9 fields</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a><span class="co">#&gt;   .. .. ..$ Ptr    :&lt;externalptr&gt; </span></span>
+<span id="cb4-9"><a href="#cb4-9"></a><span class="co">#&gt;   .. .. ..$ mu     : num [1:728] 35 23.8 31.5 27.1 37.3 ...</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a><span class="co">#&gt;   .. .. ..$ offset : num [1:728] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
+<span id="cb4-11"><a href="#cb4-11"></a><span class="co">#&gt;   .. .. ..$ sqrtXwt: num [1:728] 1 1 1 1 1 1 1 1 1 1 ...</span></span>
+<span id="cb4-12"><a href="#cb4-12"></a><span class="co">#&gt;   .. .. ..$ sqrtrwt: num [1:728] 1 1 1 1 1 1 1 1 1 1 ...</span></span>
+<span id="cb4-13"><a href="#cb4-13"></a><span class="co">#&gt;   .. .. ..$ weights: num [1:728] 1 1 1 1 1 1 1 1 1 1 ...</span></span>
+<span id="cb4-14"><a href="#cb4-14"></a><span class="co">#&gt;   .. .. ..$ wtres  : num [1:728] 3.972 -12.804 0.529 -0.08 -1.302 ...</span></span>
+<span id="cb4-15"><a href="#cb4-15"></a><span class="co">#&gt;   .. .. ..$ y      : num [1:728] 39 11 32 27 36 33 30 17 33 20 ...</span></span>
+<span id="cb4-16"><a href="#cb4-16"></a><span class="co">#&gt;   .. .. ..$ REML   : int 4</span></span>
+<span id="cb4-17"><a href="#cb4-17"></a><span class="co">#&gt;   .. .. ..and 28 methods, of which 14 are  possibly relevant:</span></span>
+<span id="cb4-18"><a href="#cb4-18"></a><span class="co">#&gt;   .. .. ..  allInfo, copy#envRefClass, initialize, initialize#lmResp,</span></span>
+<span id="cb4-19"><a href="#cb4-19"></a><span class="co">#&gt;   .. .. ..  initializePtr, initializePtr#lmResp, objective, ptr, ptr#lmResp,</span></span>
+<span id="cb4-20"><a href="#cb4-20"></a><span class="co">#&gt;   .. .. ..  setOffset, setResp, setWeights, updateMu, wrss</span></span>
+<span id="cb4-21"><a href="#cb4-21"></a><span class="co">#&gt;   .. ..@ Gp     : int [1:2] 0 48</span></span>
+<span id="cb4-22"><a href="#cb4-22"></a><span class="co">#&gt;   .. ..@ call   : language lmer(formula = mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)</span></span>
+<span id="cb4-23"><a href="#cb4-23"></a><span class="co">#&gt;   .. ..@ frame  :&#39;data.frame&#39;:   728 obs. of  5 variables:</span></span>
+<span id="cb4-24"><a href="#cb4-24"></a><span class="co">#&gt;   .. .. ..$ mathAge11: num [1:728] 39 11 32 27 36 33 30 17 33 20 ...</span></span>
+<span id="cb4-25"><a href="#cb4-25"></a><span class="co">#&gt;   .. .. ..$ mathAge8 : num [1:728] 36 19 31 23 39 25 27 14 30 19 ...</span></span>
+<span id="cb4-26"><a href="#cb4-26"></a><span class="co">#&gt;   .. .. ..$ gender   : Factor w/ 2 levels &quot;F&quot;,&quot;M&quot;: 2 1 1 1 1 2 2 2 2 2 ...</span></span>
+<span id="cb4-27"><a href="#cb4-27"></a><span class="co">#&gt;   .. .. ..$ class    : Factor w/ 2 levels &quot;manual&quot;,&quot;nonmanual&quot;: 2 1 1 2 2 1 1 1 1 1 ...</span></span>
+<span id="cb4-28"><a href="#cb4-28"></a><span class="co">#&gt;   .. .. ..$ school   : Factor w/ 48 levels &quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...</span></span>
+<span id="cb4-29"><a href="#cb4-29"></a><span class="co">#&gt;   .. .. ..- attr(*, &quot;terms&quot;)=Classes &#39;terms&#39;, &#39;formula&#39;  language mathAge11 ~ mathAge8 + gender + class + (1 + school)</span></span>
+<span id="cb4-30"><a href="#cb4-30"></a><span class="co">#&gt;   .. .. .. .. ..- attr(*, &quot;variables&quot;)= language list(mathAge11, mathAge8, gender, class, school)</span></span>
+<span id="cb4-31"><a href="#cb4-31"></a><span class="co">#&gt;   .. .. .. .. ..- attr(*, &quot;factors&quot;)= int [1:5, 1:4] 0 1 0 0 0 0 0 1 0 0 ...</span></span>
+<span id="cb4-32"><a href="#cb4-32"></a><span class="co">#&gt;   .. .. .. .. .. ..- attr(*, &quot;dimnames&quot;)=List of 2</span></span>
+<span id="cb4-33"><a href="#cb4-33"></a><span class="co">#&gt;   .. .. .. .. .. .. ..$ : chr [1:5] &quot;mathAge11&quot; &quot;mathAge8&quot; &quot;gender&quot; &quot;class&quot; ...</span></span>
+<span id="cb4-34"><a href="#cb4-34"></a><span class="co">#&gt;   .. .. .. .. .. .. ..$ : chr [1:4] &quot;mathAge8&quot; &quot;gender&quot; &quot;class&quot; &quot;school&quot;</span></span>
+<span id="cb4-35"><a href="#cb4-35"></a><span class="co">#&gt;   .. .. .. .. ..- attr(*, &quot;term.labels&quot;)= chr [1:4] &quot;mathAge8&quot; &quot;gender&quot; &quot;class&quot; &quot;school&quot;</span></span>
+<span id="cb4-36"><a href="#cb4-36"></a><span class="co">#&gt;   .. .. .. .. ..- attr(*, &quot;order&quot;)= int [1:4] 1 1 1 1</span></span>
+<span id="cb4-37"><a href="#cb4-37"></a><span class="co">#&gt;   .. .. .. .. ..- attr(*, &quot;intercept&quot;)= int 1</span></span>
+<span id="cb4-38"><a href="#cb4-38"></a><span class="co">#&gt;   .. .. .. .. ..- attr(*, &quot;response&quot;)= int 1</span></span>
+<span id="cb4-39"><a href="#cb4-39"></a><span class="co">#&gt;   .. .. .. .. ..- attr(*, &quot;.Environment&quot;)=&lt;environment: R_GlobalEnv&gt; </span></span>
+<span id="cb4-40"><a href="#cb4-40"></a><span class="co">#&gt;   .. .. .. .. ..- attr(*, &quot;predvars&quot;)= language list(mathAge11, mathAge8, gender, class, school)</span></span>
+<span id="cb4-41"><a href="#cb4-41"></a><span class="co">#&gt;   .. .. .. .. ..- attr(*, &quot;dataClasses&quot;)= Named chr [1:5] &quot;numeric&quot; &quot;numeric&quot; &quot;factor&quot; &quot;factor&quot; ...</span></span>
+<span id="cb4-42"><a href="#cb4-42"></a><span class="co">#&gt;   .. .. .. .. .. ..- attr(*, &quot;names&quot;)= chr [1:5] &quot;mathAge11&quot; &quot;mathAge8&quot; &quot;gender&quot; &quot;class&quot; ...</span></span>
+<span id="cb4-43"><a href="#cb4-43"></a><span class="co">#&gt;   .. .. .. .. ..- attr(*, &quot;predvars.fixed&quot;)= language list(mathAge11, mathAge8, gender, class)</span></span>
+<span id="cb4-44"><a href="#cb4-44"></a><span class="co">#&gt;   .. .. .. .. ..- attr(*, &quot;varnames.fixed&quot;)= chr [1:4] &quot;mathAge11&quot; &quot;mathAge8&quot; &quot;gender&quot; &quot;class&quot;</span></span>
+<span id="cb4-45"><a href="#cb4-45"></a><span class="co">#&gt;   .. .. .. .. ..- attr(*, &quot;predvars.random&quot;)= language list(mathAge11, school)</span></span>
+<span id="cb4-46"><a href="#cb4-46"></a><span class="co">#&gt;   .. .. ..- attr(*, &quot;formula&quot;)=Class &#39;formula&#39;  language mathAge11 ~ mathAge8 + gender + class + (1 | school)</span></span>
+<span id="cb4-47"><a href="#cb4-47"></a><span class="co">#&gt;   .. .. .. .. ..- attr(*, &quot;.Environment&quot;)=&lt;environment: R_GlobalEnv&gt; </span></span>
+<span id="cb4-48"><a href="#cb4-48"></a><span class="co">#&gt;   .. ..@ flist  :List of 1</span></span>
+<span id="cb4-49"><a href="#cb4-49"></a><span class="co">#&gt;   .. .. ..$ school: Factor w/ 48 levels &quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...</span></span>
+<span id="cb4-50"><a href="#cb4-50"></a><span class="co">#&gt;   .. .. ..- attr(*, &quot;assign&quot;)= int 1</span></span>
+<span id="cb4-51"><a href="#cb4-51"></a><span class="co">#&gt;   .. ..@ cnms   :List of 1</span></span>
+<span id="cb4-52"><a href="#cb4-52"></a><span class="co">#&gt;   .. .. ..$ school: chr &quot;(Intercept)&quot;</span></span>
+<span id="cb4-53"><a href="#cb4-53"></a><span class="co">#&gt;   .. ..@ lower  : num 0</span></span>
+<span id="cb4-54"><a href="#cb4-54"></a><span class="co">#&gt;   .. ..@ theta  : num 0.41</span></span>
+<span id="cb4-55"><a href="#cb4-55"></a><span class="co">#&gt;   .. ..@ beta   : num [1:4] 14.158 0.639 -0.357 0.72</span></span>
+<span id="cb4-56"><a href="#cb4-56"></a><span class="co">#&gt;   .. ..@ u      : num [1:48] -6.083 -0.343 0.717 -1.071 -1.409 ...</span></span>
+<span id="cb4-57"><a href="#cb4-57"></a><span class="co">#&gt;   .. ..@ devcomp:List of 2</span></span>
+<span id="cb4-58"><a href="#cb4-58"></a><span class="co">#&gt;   .. .. ..$ cmp : Named num [1:10] 56.9 25.7 13664.4 618.7 14283.1 ...</span></span>
+<span id="cb4-59"><a href="#cb4-59"></a><span class="co">#&gt;   .. .. .. ..- attr(*, &quot;names&quot;)= chr [1:10] &quot;ldL2&quot; &quot;ldRX2&quot; &quot;wrss&quot; &quot;ussq&quot; ...</span></span>
+<span id="cb4-60"><a href="#cb4-60"></a><span class="co">#&gt;   .. .. ..$ dims: Named int [1:12] 728 728 4 724 48 1 1 1 0 4 ...</span></span>
+<span id="cb4-61"><a href="#cb4-61"></a><span class="co">#&gt;   .. .. .. ..- attr(*, &quot;names&quot;)= chr [1:12] &quot;N&quot; &quot;n&quot; &quot;p&quot; &quot;nmp&quot; ...</span></span>
+<span id="cb4-62"><a href="#cb4-62"></a><span class="co">#&gt;   .. ..@ pp     :Reference class &#39;merPredD&#39; [package &quot;lme4&quot;] with 18 fields</span></span>
+<span id="cb4-63"><a href="#cb4-63"></a><span class="co">#&gt;   .. .. ..$ Lambdat:Formal class &#39;dgCMatrix&#39; [package &quot;Matrix&quot;] with 6 slots</span></span>
+<span id="cb4-64"><a href="#cb4-64"></a><span class="co">#&gt;   .. .. .. .. ..@ i       : int [1:48] 0 1 2 3 4 5 6 7 8 9 ...</span></span>
+<span id="cb4-65"><a href="#cb4-65"></a><span class="co">#&gt;   .. .. .. .. ..@ p       : int [1:49] 0 1 2 3 4 5 6 7 8 9 ...</span></span>
+<span id="cb4-66"><a href="#cb4-66"></a><span class="co">#&gt;   .. .. .. .. ..@ Dim     : int [1:2] 48 48</span></span>
+<span id="cb4-67"><a href="#cb4-67"></a><span class="co">#&gt;   .. .. .. .. ..@ Dimnames:List of 2</span></span>
+<span id="cb4-68"><a href="#cb4-68"></a><span class="co">#&gt;   .. .. .. .. .. ..$ : NULL</span></span>
+<span id="cb4-69"><a href="#cb4-69"></a><span class="co">#&gt;   .. .. .. .. .. ..$ : NULL</span></span>
+<span id="cb4-70"><a href="#cb4-70"></a><span class="co">#&gt;   .. .. .. .. ..@ x       : num [1:48] 0.41 0.41 0.41 0.41 0.41 ...</span></span>
+<span id="cb4-71"><a href="#cb4-71"></a><span class="co">#&gt;   .. .. .. .. ..@ factors : list()</span></span>
+<span id="cb4-72"><a href="#cb4-72"></a><span class="co">#&gt;   .. .. ..$ LamtUt :Formal class &#39;dgCMatrix&#39; [package &quot;Matrix&quot;] with 6 slots</span></span>
+<span id="cb4-73"><a href="#cb4-73"></a><span class="co">#&gt;   .. .. .. .. ..@ i       : int [1:728] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
+<span id="cb4-74"><a href="#cb4-74"></a><span class="co">#&gt;   .. .. .. .. ..@ p       : int [1:729] 0 1 2 3 4 5 6 7 8 9 ...</span></span>
+<span id="cb4-75"><a href="#cb4-75"></a><span class="co">#&gt;   .. .. .. .. ..@ Dim     : int [1:2] 48 728</span></span>
+<span id="cb4-76"><a href="#cb4-76"></a><span class="co">#&gt;   .. .. .. .. ..@ Dimnames:List of 2</span></span>
+<span id="cb4-77"><a href="#cb4-77"></a><span class="co">#&gt;   .. .. .. .. .. ..$ : NULL</span></span>
+<span id="cb4-78"><a href="#cb4-78"></a><span class="co">#&gt;   .. .. .. .. .. ..$ : chr [1:728] &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...</span></span>
+<span id="cb4-79"><a href="#cb4-79"></a><span class="co">#&gt;   .. .. .. .. ..@ x       : num [1:728] 0.41 0.41 0.41 0.41 0.41 ...</span></span>
+<span id="cb4-80"><a href="#cb4-80"></a><span class="co">#&gt;   .. .. .. .. ..@ factors : list()</span></span>
+<span id="cb4-81"><a href="#cb4-81"></a><span class="co">#&gt;   .. .. ..$ Lind   : int [1:48] 1 1 1 1 1 1 1 1 1 1 ...</span></span>
+<span id="cb4-82"><a href="#cb4-82"></a><span class="co">#&gt;   .. .. ..$ Ptr    :&lt;externalptr&gt; </span></span>
+<span id="cb4-83"><a href="#cb4-83"></a><span class="co">#&gt;   .. .. ..$ RZX    : num [1:48, 1:4] 3.8 1.51 2.83 3.13 4.27 ...</span></span>
+<span id="cb4-84"><a href="#cb4-84"></a><span class="co">#&gt;   .. .. ..$ Ut     :Formal class &#39;dgCMatrix&#39; [package &quot;Matrix&quot;] with 6 slots</span></span>
+<span id="cb4-85"><a href="#cb4-85"></a><span class="co">#&gt;   .. .. .. .. ..@ i       : int [1:728] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
+<span id="cb4-86"><a href="#cb4-86"></a><span class="co">#&gt;   .. .. .. .. ..@ p       : int [1:729] 0 1 2 3 4 5 6 7 8 9 ...</span></span>
+<span id="cb4-87"><a href="#cb4-87"></a><span class="co">#&gt;   .. .. .. .. ..@ Dim     : int [1:2] 48 728</span></span>
+<span id="cb4-88"><a href="#cb4-88"></a><span class="co">#&gt;   .. .. .. .. ..@ Dimnames:List of 2</span></span>
+<span id="cb4-89"><a href="#cb4-89"></a><span class="co">#&gt;   .. .. .. .. .. ..$ : chr [1:48] &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...</span></span>
+<span id="cb4-90"><a href="#cb4-90"></a><span class="co">#&gt;   .. .. .. .. .. ..$ : chr [1:728] &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...</span></span>
+<span id="cb4-91"><a href="#cb4-91"></a><span class="co">#&gt;   .. .. .. .. ..@ x       : num [1:728] 1 1 1 1 1 1 1 1 1 1 ...</span></span>
+<span id="cb4-92"><a href="#cb4-92"></a><span class="co">#&gt;   .. .. .. .. ..@ factors : list()</span></span>
+<span id="cb4-93"><a href="#cb4-93"></a><span class="co">#&gt;   .. .. ..$ Utr    : num [1:48] 196.3 60.6 162.7 158.2 304 ...</span></span>
+<span id="cb4-94"><a href="#cb4-94"></a><span class="co">#&gt;   .. .. ..$ V      : num [1:728, 1:4] 1 1 1 1 1 1 1 1 1 1 ...</span></span>
+<span id="cb4-95"><a href="#cb4-95"></a><span class="co">#&gt;   .. .. ..$ VtV    : num [1:4, 1:4] 728 0 0 0 18911 ...</span></span>
+<span id="cb4-96"><a href="#cb4-96"></a><span class="co">#&gt;   .. .. ..$ Vtr    : num [1:4] 22364 603862 10413 7542</span></span>
+<span id="cb4-97"><a href="#cb4-97"></a><span class="co">#&gt;   .. .. ..$ X      : num [1:728, 1:4] 1 1 1 1 1 1 1 1 1 1 ...</span></span>
+<span id="cb4-98"><a href="#cb4-98"></a><span class="co">#&gt;   .. .. .. ..- attr(*, &quot;dimnames&quot;)=List of 2</span></span>
+<span id="cb4-99"><a href="#cb4-99"></a><span class="co">#&gt;   .. .. .. .. ..$ : chr [1:728] &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...</span></span>
+<span id="cb4-100"><a href="#cb4-100"></a><span class="co">#&gt;   .. .. .. .. ..$ : chr [1:4] &quot;(Intercept)&quot; &quot;mathAge8&quot; &quot;genderM&quot; &quot;classnonmanual&quot;</span></span>
+<span id="cb4-101"><a href="#cb4-101"></a><span class="co">#&gt;   .. .. .. ..- attr(*, &quot;assign&quot;)= int [1:4] 0 1 2 3</span></span>
+<span id="cb4-102"><a href="#cb4-102"></a><span class="co">#&gt;   .. .. .. ..- attr(*, &quot;contrasts&quot;)=List of 2</span></span>
+<span id="cb4-103"><a href="#cb4-103"></a><span class="co">#&gt;   .. .. .. .. ..$ gender: chr &quot;contr.treatment&quot;</span></span>
+<span id="cb4-104"><a href="#cb4-104"></a><span class="co">#&gt;   .. .. .. .. ..$ class : chr &quot;contr.treatment&quot;</span></span>
+<span id="cb4-105"><a href="#cb4-105"></a><span class="co">#&gt;   .. .. .. ..- attr(*, &quot;msgScaleX&quot;)= chr(0) </span></span>
+<span id="cb4-106"><a href="#cb4-106"></a><span class="co">#&gt;   .. .. ..$ Xwts   : num [1:728] 1 1 1 1 1 1 1 1 1 1 ...</span></span>
+<span id="cb4-107"><a href="#cb4-107"></a><span class="co">#&gt;   .. .. ..$ Zt     :Formal class &#39;dgCMatrix&#39; [package &quot;Matrix&quot;] with 6 slots</span></span>
+<span id="cb4-108"><a href="#cb4-108"></a><span class="co">#&gt;   .. .. .. .. ..@ i       : int [1:728] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
+<span id="cb4-109"><a href="#cb4-109"></a><span class="co">#&gt;   .. .. .. .. ..@ p       : int [1:729] 0 1 2 3 4 5 6 7 8 9 ...</span></span>
+<span id="cb4-110"><a href="#cb4-110"></a><span class="co">#&gt;   .. .. .. .. ..@ Dim     : int [1:2] 48 728</span></span>
+<span id="cb4-111"><a href="#cb4-111"></a><span class="co">#&gt;   .. .. .. .. ..@ Dimnames:List of 2</span></span>
+<span id="cb4-112"><a href="#cb4-112"></a><span class="co">#&gt;   .. .. .. .. .. ..$ : chr [1:48] &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...</span></span>
+<span id="cb4-113"><a href="#cb4-113"></a><span class="co">#&gt;   .. .. .. .. .. ..$ : chr [1:728] &quot;1&quot; &quot;2&quot; &quot;3&quot; &quot;4&quot; ...</span></span>
+<span id="cb4-114"><a href="#cb4-114"></a><span class="co">#&gt;   .. .. .. .. ..@ x       : num [1:728] 1 1 1 1 1 1 1 1 1 1 ...</span></span>
+<span id="cb4-115"><a href="#cb4-115"></a><span class="co">#&gt;   .. .. .. .. ..@ factors : list()</span></span>
+<span id="cb4-116"><a href="#cb4-116"></a><span class="co">#&gt;   .. .. ..$ beta0  : num [1:4] 0 0 0 0</span></span>
+<span id="cb4-117"><a href="#cb4-117"></a><span class="co">#&gt;   .. .. ..$ delb   : num [1:4] 14.158 0.639 -0.357 0.72</span></span>
+<span id="cb4-118"><a href="#cb4-118"></a><span class="co">#&gt;   .. .. ..$ delu   : num [1:48] -6.083 -0.343 0.717 -1.071 -1.409 ...</span></span>
+<span id="cb4-119"><a href="#cb4-119"></a><span class="co">#&gt;   .. .. ..$ theta  : num 0.41</span></span>
+<span id="cb4-120"><a href="#cb4-120"></a><span class="co">#&gt;   .. .. ..$ u0     : num [1:48] 0 0 0 0 0 0 0 0 0 0 ...</span></span>
+<span id="cb4-121"><a href="#cb4-121"></a><span class="co">#&gt;   .. .. ..and 45 methods, of which 31 are  possibly relevant:</span></span>
+<span id="cb4-122"><a href="#cb4-122"></a><span class="co">#&gt;   .. .. ..  b, beta, CcNumer, copy#envRefClass, initialize, initializePtr,</span></span>
+<span id="cb4-123"><a href="#cb4-123"></a><span class="co">#&gt;   .. .. ..  installPars, L, ldL2, ldRX2, linPred, P, ptr, RX, RXdiag, RXi,</span></span>
+<span id="cb4-124"><a href="#cb4-124"></a><span class="co">#&gt;   .. .. ..  setBeta0, setDelb, setDelu, setTheta, setZt, solve, solveU, sqrL,</span></span>
+<span id="cb4-125"><a href="#cb4-125"></a><span class="co">#&gt;   .. .. ..  u, unsc, updateDecomp, updateL, updateLamtUt, updateRes, updateXwts</span></span>
+<span id="cb4-126"><a href="#cb4-126"></a><span class="co">#&gt;   .. ..@ optinfo:List of 7</span></span>
+<span id="cb4-127"><a href="#cb4-127"></a><span class="co">#&gt;   .. .. ..$ optimizer: chr &quot;nloptwrap&quot;</span></span>
+<span id="cb4-128"><a href="#cb4-128"></a><span class="co">#&gt;   .. .. ..$ control  :List of 1</span></span>
+<span id="cb4-129"><a href="#cb4-129"></a><span class="co">#&gt;   .. .. .. ..$ print_level: num 0</span></span>
+<span id="cb4-130"><a href="#cb4-130"></a><span class="co">#&gt;   .. .. ..$ derivs   :List of 2</span></span>
+<span id="cb4-131"><a href="#cb4-131"></a><span class="co">#&gt;   .. .. .. ..$ gradient: num -4.8e-06</span></span>
+<span id="cb4-132"><a href="#cb4-132"></a><span class="co">#&gt;   .. .. .. ..$ Hessian : num [1, 1] 513</span></span>
+<span id="cb4-133"><a href="#cb4-133"></a><span class="co">#&gt;   .. .. ..$ conv     :List of 2</span></span>
+<span id="cb4-134"><a href="#cb4-134"></a><span class="co">#&gt;   .. .. .. ..$ opt : num 0</span></span>
+<span id="cb4-135"><a href="#cb4-135"></a><span class="co">#&gt;   .. .. .. ..$ lme4: list()</span></span>
+<span id="cb4-136"><a href="#cb4-136"></a><span class="co">#&gt;   .. .. ..$ feval    : int 15</span></span>
+<span id="cb4-137"><a href="#cb4-137"></a><span class="co">#&gt;   .. .. ..$ warnings : list()</span></span>
+<span id="cb4-138"><a href="#cb4-138"></a><span class="co">#&gt;   .. .. ..$ val      : num 0.41</span></span>
+<span id="cb4-139"><a href="#cb4-139"></a><span class="co">#&gt;  $ .f        :function (object, ...)  </span></span>
+<span id="cb4-140"><a href="#cb4-140"></a><span class="co">#&gt;  $ replicates:&#39;data.frame&#39;:  100 obs. of  4 variables:</span></span>
+<span id="cb4-141"><a href="#cb4-141"></a><span class="co">#&gt;   ..$ (Intercept)   : num [1:100] 12.5 13.4 14.4 13.4 13.1 ...</span></span>
+<span id="cb4-142"><a href="#cb4-142"></a><span class="co">#&gt;   ..$ mathAge8      : num [1:100] 0.691 0.648 0.629 0.66 0.693 ...</span></span>
+<span id="cb4-143"><a href="#cb4-143"></a><span class="co">#&gt;   ..$ genderM       : num [1:100] -0.594 -0.477 -0.524 -0.376 -0.462 ...</span></span>
+<span id="cb4-144"><a href="#cb4-144"></a><span class="co">#&gt;   ..$ classnonmanual: num [1:100] 0.409 1.265 1.007 0.714 0.349 ...</span></span>
+<span id="cb4-145"><a href="#cb4-145"></a><span class="co">#&gt;  $ stats     :&#39;data.frame&#39;:  4 obs. of  4 variables:</span></span>
+<span id="cb4-146"><a href="#cb4-146"></a><span class="co">#&gt;   ..$ observed: num [1:4] 14.158 0.639 -0.357 0.72</span></span>
+<span id="cb4-147"><a href="#cb4-147"></a><span class="co">#&gt;   ..$ rep.mean: num [1:4] 14.1 0.638 -0.366 0.73</span></span>
+<span id="cb4-148"><a href="#cb4-148"></a><span class="co">#&gt;   ..$ se      : num [1:4] 0.6852 0.0242 0.348 0.4279</span></span>
+<span id="cb4-149"><a href="#cb4-149"></a><span class="co">#&gt;   ..$ bias    : num [1:4] -0.057331 -0.000689 -0.008354 0.010195</span></span>
+<span id="cb4-150"><a href="#cb4-150"></a><span class="co">#&gt;  $ R         : num 100</span></span>
+<span id="cb4-151"><a href="#cb4-151"></a><span class="co">#&gt;  $ data      :&#39;data.frame&#39;:  728 obs. of  5 variables:</span></span>
+<span id="cb4-152"><a href="#cb4-152"></a><span class="co">#&gt;   ..$ mathAge11: num [1:728] 39 11 32 27 36 33 30 17 33 20 ...</span></span>
+<span id="cb4-153"><a href="#cb4-153"></a><span class="co">#&gt;   ..$ mathAge8 : num [1:728] 36 19 31 23 39 25 27 14 30 19 ...</span></span>
+<span id="cb4-154"><a href="#cb4-154"></a><span class="co">#&gt;   ..$ gender   : Factor w/ 2 levels &quot;F&quot;,&quot;M&quot;: 2 1 1 1 1 2 2 2 2 2 ...</span></span>
+<span id="cb4-155"><a href="#cb4-155"></a><span class="co">#&gt;   ..$ class    : Factor w/ 2 levels &quot;manual&quot;,&quot;nonmanual&quot;: 2 1 1 2 2 1 1 1 1 1 ...</span></span>
+<span id="cb4-156"><a href="#cb4-156"></a><span class="co">#&gt;   ..$ school   : Factor w/ 48 levels &quot;1&quot;,&quot;2&quot;,&quot;3&quot;,&quot;4&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...</span></span>
+<span id="cb4-157"><a href="#cb4-157"></a><span class="co">#&gt;   ..- attr(*, &quot;terms&quot;)=Classes &#39;terms&#39;, &#39;formula&#39;  language mathAge11 ~ mathAge8 + gender + class + (1 + school)</span></span>
+<span id="cb4-158"><a href="#cb4-158"></a><span class="co">#&gt;   .. .. ..- attr(*, &quot;variables&quot;)= language list(mathAge11, mathAge8, gender, class, school)</span></span>
+<span id="cb4-159"><a href="#cb4-159"></a><span class="co">#&gt;   .. .. ..- attr(*, &quot;factors&quot;)= int [1:5, 1:4] 0 1 0 0 0 0 0 1 0 0 ...</span></span>
+<span id="cb4-160"><a href="#cb4-160"></a><span class="co">#&gt;   .. .. .. ..- attr(*, &quot;dimnames&quot;)=List of 2</span></span>
+<span id="cb4-161"><a href="#cb4-161"></a><span class="co">#&gt;   .. .. .. .. ..$ : chr [1:5] &quot;mathAge11&quot; &quot;mathAge8&quot; &quot;gender&quot; &quot;class&quot; ...</span></span>
+<span id="cb4-162"><a href="#cb4-162"></a><span class="co">#&gt;   .. .. .. .. ..$ : chr [1:4] &quot;mathAge8&quot; &quot;gender&quot; &quot;class&quot; &quot;school&quot;</span></span>
+<span id="cb4-163"><a href="#cb4-163"></a><span class="co">#&gt;   .. .. ..- attr(*, &quot;term.labels&quot;)= chr [1:4] &quot;mathAge8&quot; &quot;gender&quot; &quot;class&quot; &quot;school&quot;</span></span>
+<span id="cb4-164"><a href="#cb4-164"></a><span class="co">#&gt;   .. .. ..- attr(*, &quot;order&quot;)= int [1:4] 1 1 1 1</span></span>
+<span id="cb4-165"><a href="#cb4-165"></a><span class="co">#&gt;   .. .. ..- attr(*, &quot;intercept&quot;)= int 1</span></span>
+<span id="cb4-166"><a href="#cb4-166"></a><span class="co">#&gt;   .. .. ..- attr(*, &quot;response&quot;)= int 1</span></span>
+<span id="cb4-167"><a href="#cb4-167"></a><span class="co">#&gt;   .. .. ..- attr(*, &quot;.Environment&quot;)=&lt;environment: R_GlobalEnv&gt; </span></span>
+<span id="cb4-168"><a href="#cb4-168"></a><span class="co">#&gt;   .. .. ..- attr(*, &quot;predvars&quot;)= language list(mathAge11, mathAge8, gender, class, school)</span></span>
+<span id="cb4-169"><a href="#cb4-169"></a><span class="co">#&gt;   .. .. ..- attr(*, &quot;dataClasses&quot;)= Named chr [1:5] &quot;numeric&quot; &quot;numeric&quot; &quot;factor&quot; &quot;factor&quot; ...</span></span>
+<span id="cb4-170"><a href="#cb4-170"></a><span class="co">#&gt;   .. .. .. ..- attr(*, &quot;names&quot;)= chr [1:5] &quot;mathAge11&quot; &quot;mathAge8&quot; &quot;gender&quot; &quot;class&quot; ...</span></span>
+<span id="cb4-171"><a href="#cb4-171"></a><span class="co">#&gt;   .. .. ..- attr(*, &quot;predvars.fixed&quot;)= language list(mathAge11, mathAge8, gender, class)</span></span>
+<span id="cb4-172"><a href="#cb4-172"></a><span class="co">#&gt;   .. .. ..- attr(*, &quot;varnames.fixed&quot;)= chr [1:4] &quot;mathAge11&quot; &quot;mathAge8&quot; &quot;gender&quot; &quot;class&quot;</span></span>
+<span id="cb4-173"><a href="#cb4-173"></a><span class="co">#&gt;   .. .. ..- attr(*, &quot;predvars.random&quot;)= language list(mathAge11, school)</span></span>
+<span id="cb4-174"><a href="#cb4-174"></a><span class="co">#&gt;   ..- attr(*, &quot;formula&quot;)=Class &#39;formula&#39;  language mathAge11 ~ mathAge8 + gender + class + (1 | school)</span></span>
+<span id="cb4-175"><a href="#cb4-175"></a><span class="co">#&gt;   .. .. ..- attr(*, &quot;.Environment&quot;)=&lt;environment: R_GlobalEnv&gt; </span></span>
+<span id="cb4-176"><a href="#cb4-176"></a><span class="co">#&gt;  $ seed      : int [1:626] 10403 487 553124054 526531609 2055325541 1642382730 1838449060 359132730 -27668587 149957814 ...</span></span>
+<span id="cb4-177"><a href="#cb4-177"></a><span class="co">#&gt;  $ type      : chr &quot;parametric&quot;</span></span>
+<span id="cb4-178"><a href="#cb4-178"></a><span class="co">#&gt;  $ call      : language .bootstrap.completion(model = model, tstar = tstar, B = B, .f = .f, type = type)</span></span>
+<span id="cb4-179"><a href="#cb4-179"></a><span class="co">#&gt;  - attr(*, &quot;class&quot;)= chr &quot;lmeresamp&quot;</span></span>
+<span id="cb4-180"><a href="#cb4-180"></a><span class="co">#&gt;  - attr(*, &quot;bootFail&quot;)= int 0</span></span>
+<span id="cb4-181"><a href="#cb4-181"></a></span>
+<span id="cb4-182"><a href="#cb4-182"></a><span class="co"># an overview of those 10 list items</span></span>
+<span id="cb4-183"><a href="#cb4-183"></a><span class="kw">head</span>(lmer_par_boot)</span>
+<span id="cb4-184"><a href="#cb4-184"></a><span class="co">#&gt; $observed</span></span>
+<span id="cb4-185"><a href="#cb4-185"></a><span class="co">#&gt;    (Intercept)       mathAge8        genderM classnonmanual </span></span>
+<span id="cb4-186"><a href="#cb4-186"></a><span class="co">#&gt;     14.1577509      0.6388895     -0.3571922      0.7200815 </span></span>
+<span id="cb4-187"><a href="#cb4-187"></a><span class="co">#&gt; </span></span>
+<span id="cb4-188"><a href="#cb4-188"></a><span class="co">#&gt; $model</span></span>
+<span id="cb4-189"><a href="#cb4-189"></a><span class="co">#&gt; Linear mixed model fit by REML [&#39;lmerMod&#39;]</span></span>
+<span id="cb4-190"><a href="#cb4-190"></a><span class="co">#&gt; Formula: mathAge11 ~ mathAge8 + gender + class + (1 | school)</span></span>
+<span id="cb4-191"><a href="#cb4-191"></a><span class="co">#&gt;    Data: jsp728</span></span>
+<span id="cb4-192"><a href="#cb4-192"></a><span class="co">#&gt; REML criterion at convergence: 4296.135</span></span>
+<span id="cb4-193"><a href="#cb4-193"></a><span class="co">#&gt; Random effects:</span></span>
+<span id="cb4-194"><a href="#cb4-194"></a><span class="co">#&gt;  Groups   Name        Std.Dev.</span></span>
+<span id="cb4-195"><a href="#cb4-195"></a><span class="co">#&gt;  school   (Intercept) 1.820   </span></span>
+<span id="cb4-196"><a href="#cb4-196"></a><span class="co">#&gt;  Residual             4.442   </span></span>
+<span id="cb4-197"><a href="#cb4-197"></a><span class="co">#&gt; Number of obs: 728, groups:  school, 48</span></span>
+<span id="cb4-198"><a href="#cb4-198"></a><span class="co">#&gt; Fixed Effects:</span></span>
+<span id="cb4-199"><a href="#cb4-199"></a><span class="co">#&gt;    (Intercept)        mathAge8         genderM  classnonmanual  </span></span>
+<span id="cb4-200"><a href="#cb4-200"></a><span class="co">#&gt;        14.1578          0.6389         -0.3572          0.7201  </span></span>
+<span id="cb4-201"><a href="#cb4-201"></a><span class="co">#&gt; </span></span>
+<span id="cb4-202"><a href="#cb4-202"></a><span class="co">#&gt; $.f</span></span>
+<span id="cb4-203"><a href="#cb4-203"></a><span class="co">#&gt; function (object, ...) </span></span>
+<span id="cb4-204"><a href="#cb4-204"></a><span class="co">#&gt; UseMethod(&quot;fixef&quot;)</span></span>
+<span id="cb4-205"><a href="#cb4-205"></a><span class="co">#&gt; &lt;bytecode: 0x7fea2e8bde78&gt;</span></span>
+<span id="cb4-206"><a href="#cb4-206"></a><span class="co">#&gt; &lt;environment: namespace:nlme&gt;</span></span>
+<span id="cb4-207"><a href="#cb4-207"></a><span class="co">#&gt; </span></span>
+<span id="cb4-208"><a href="#cb4-208"></a><span class="co">#&gt; $replicates</span></span>
+<span id="cb4-209"><a href="#cb4-209"></a><span class="co">#&gt;         (Intercept)  mathAge8     genderM classnonmanual</span></span>
+<span id="cb4-210"><a href="#cb4-210"></a><span class="co">#&gt; sim_1      12.51746 0.6910240 -0.59413898     0.40882408</span></span>
+<span id="cb4-211"><a href="#cb4-211"></a><span class="co">#&gt; sim_2      13.38590 0.6477871 -0.47652843     1.26499554</span></span>
+<span id="cb4-212"><a href="#cb4-212"></a><span class="co">#&gt; sim_3      14.43692 0.6286576 -0.52417402     1.00690330</span></span>
+<span id="cb4-213"><a href="#cb4-213"></a><span class="co">#&gt; sim_4      13.44611 0.6596211 -0.37596264     0.71357357</span></span>
+<span id="cb4-214"><a href="#cb4-214"></a><span class="co">#&gt; sim_5      13.09439 0.6933931 -0.46154936     0.34860599</span></span>
+<span id="cb4-215"><a href="#cb4-215"></a><span class="co">#&gt; sim_6      12.84107 0.6701765 -0.49594809     0.76786590</span></span>
+<span id="cb4-216"><a href="#cb4-216"></a><span class="co">#&gt; sim_7      14.69067 0.6240758 -0.40919764     0.99244184</span></span>
+<span id="cb4-217"><a href="#cb4-217"></a><span class="co">#&gt; sim_8      12.59182 0.7071828  0.11243874     0.08928725</span></span>
+<span id="cb4-218"><a href="#cb4-218"></a><span class="co">#&gt; sim_9      13.05783 0.6725606 -0.21961806     1.11316069</span></span>
+<span id="cb4-219"><a href="#cb4-219"></a><span class="co">#&gt; sim_10     13.69619 0.6425234 -0.67192829     1.02291069</span></span>
+<span id="cb4-220"><a href="#cb4-220"></a><span class="co">#&gt; sim_11     14.08853 0.6493672 -0.56424121     0.10893736</span></span>
+<span id="cb4-221"><a href="#cb4-221"></a><span class="co">#&gt; sim_12     14.13061 0.6444641 -0.29754726     0.72712930</span></span>
+<span id="cb4-222"><a href="#cb4-222"></a><span class="co">#&gt; sim_13     14.34316 0.6173876  0.23673865     0.83057062</span></span>
+<span id="cb4-223"><a href="#cb4-223"></a><span class="co">#&gt; sim_14     13.60563 0.6516332 -0.25563182     1.64617533</span></span>
+<span id="cb4-224"><a href="#cb4-224"></a><span class="co">#&gt; sim_15     14.26638 0.6377119 -0.60047035     0.03145753</span></span>
+<span id="cb4-225"><a href="#cb4-225"></a><span class="co">#&gt; sim_16     13.51656 0.6454035  0.01788466     0.23714949</span></span>
+<span id="cb4-226"><a href="#cb4-226"></a><span class="co">#&gt; sim_17     14.33544 0.6670029 -1.11376099    -0.20270493</span></span>
+<span id="cb4-227"><a href="#cb4-227"></a><span class="co">#&gt; sim_18     14.66047 0.6301652 -0.61499062     0.53259036</span></span>
+<span id="cb4-228"><a href="#cb4-228"></a><span class="co">#&gt; sim_19     13.54844 0.6516833 -0.05591168     0.80318809</span></span>
+<span id="cb4-229"><a href="#cb4-229"></a><span class="co">#&gt; sim_20     13.12929 0.6672086 -0.06251515     0.18156776</span></span>
+<span id="cb4-230"><a href="#cb4-230"></a><span class="co">#&gt; sim_21     14.48110 0.6300343 -0.22963345     0.93711613</span></span>
+<span id="cb4-231"><a href="#cb4-231"></a><span class="co">#&gt; sim_22     13.77995 0.6604597 -0.66746107     0.23544483</span></span>
+<span id="cb4-232"><a href="#cb4-232"></a><span class="co">#&gt; sim_23     14.69626 0.6144972 -0.85019524     0.72644548</span></span>
+<span id="cb4-233"><a href="#cb4-233"></a><span class="co">#&gt; sim_24     14.21319 0.6302220 -0.48713685     0.30747457</span></span>
+<span id="cb4-234"><a href="#cb4-234"></a><span class="co">#&gt; sim_25     14.13037 0.6222068 -0.33366519     0.36630653</span></span>
+<span id="cb4-235"><a href="#cb4-235"></a><span class="co">#&gt; sim_26     14.26783 0.6412926 -0.22110888     0.56261390</span></span>
+<span id="cb4-236"><a href="#cb4-236"></a><span class="co">#&gt; sim_27     14.61731 0.5962281 -0.31111588     1.63238495</span></span>
+<span id="cb4-237"><a href="#cb4-237"></a><span class="co">#&gt; sim_28     13.52530 0.6254102  0.35034700     0.52419101</span></span>
+<span id="cb4-238"><a href="#cb4-238"></a><span class="co">#&gt; sim_29     13.35261 0.6693444 -1.20643904     1.64968281</span></span>
+<span id="cb4-239"><a href="#cb4-239"></a><span class="co">#&gt; sim_30     14.13372 0.6366681 -0.68219685     0.97834384</span></span>
+<span id="cb4-240"><a href="#cb4-240"></a><span class="co">#&gt; sim_31     13.97256 0.6439933 -0.19034868     0.77839181</span></span>
+<span id="cb4-241"><a href="#cb4-241"></a><span class="co">#&gt; sim_32     14.03319 0.6387055 -0.28998555     1.19612278</span></span>
+<span id="cb4-242"><a href="#cb4-242"></a><span class="co">#&gt; sim_33     14.21909 0.6150117  0.45053859     0.87032569</span></span>
+<span id="cb4-243"><a href="#cb4-243"></a><span class="co">#&gt; sim_34     13.76540 0.6238251 -0.25988414     1.24667167</span></span>
+<span id="cb4-244"><a href="#cb4-244"></a><span class="co">#&gt; sim_35     13.07184 0.6814229 -0.70942400    -0.04155419</span></span>
+<span id="cb4-245"><a href="#cb4-245"></a><span class="co">#&gt; sim_36     12.95652 0.6792164 -0.46126923     0.18641143</span></span>
+<span id="cb4-246"><a href="#cb4-246"></a><span class="co">#&gt; sim_37     14.15903 0.6287528 -0.54118580     0.77800117</span></span>
+<span id="cb4-247"><a href="#cb4-247"></a><span class="co">#&gt; sim_38     13.95197 0.6431835  0.08093771     0.72619090</span></span>
+<span id="cb4-248"><a href="#cb4-248"></a><span class="co">#&gt; sim_39     14.46428 0.6379580 -0.45182735     0.48216301</span></span>
+<span id="cb4-249"><a href="#cb4-249"></a><span class="co">#&gt; sim_40     13.29318 0.6625444 -0.31068463     0.72951604</span></span>
+<span id="cb4-250"><a href="#cb4-250"></a><span class="co">#&gt; sim_41     16.41794 0.5729268 -0.94536891     0.56442000</span></span>
+<span id="cb4-251"><a href="#cb4-251"></a><span class="co">#&gt; sim_42     13.71926 0.6516848 -0.27589960     0.88365200</span></span>
+<span id="cb4-252"><a href="#cb4-252"></a><span class="co">#&gt; sim_43     13.99302 0.6484033 -0.49680330     0.79228842</span></span>
+<span id="cb4-253"><a href="#cb4-253"></a><span class="co">#&gt; sim_44     13.55283 0.6357069  0.53749179     0.62828944</span></span>
+<span id="cb4-254"><a href="#cb4-254"></a><span class="co">#&gt; sim_45     13.97728 0.6430674 -0.41335267     0.74849454</span></span>
+<span id="cb4-255"><a href="#cb4-255"></a><span class="co">#&gt; sim_46     14.61712 0.6068683 -0.30052276     0.44987639</span></span>
+<span id="cb4-256"><a href="#cb4-256"></a><span class="co">#&gt; sim_47     13.48994 0.6734093 -0.95462542     0.96823766</span></span>
+<span id="cb4-257"><a href="#cb4-257"></a><span class="co">#&gt; sim_48     14.56888 0.6120593 -0.29359297     1.30671378</span></span>
+<span id="cb4-258"><a href="#cb4-258"></a><span class="co">#&gt; sim_49     14.62257 0.6407828 -0.46352159     1.06012492</span></span>
+<span id="cb4-259"><a href="#cb4-259"></a><span class="co">#&gt; sim_50     14.95125 0.5912173 -0.03533328     1.08179271</span></span>
+<span id="cb4-260"><a href="#cb4-260"></a><span class="co">#&gt; sim_51     14.13434 0.6638358 -0.46585185    -0.21435990</span></span>
+<span id="cb4-261"><a href="#cb4-261"></a><span class="co">#&gt; sim_52     13.91648 0.6634119 -0.42555567     0.44843935</span></span>
+<span id="cb4-262"><a href="#cb4-262"></a><span class="co">#&gt; sim_53     13.24406 0.6518558 -0.12280944     1.20069763</span></span>
+<span id="cb4-263"><a href="#cb4-263"></a><span class="co">#&gt; sim_54     14.98023 0.6021556 -0.29530508     0.88199498</span></span>
+<span id="cb4-264"><a href="#cb4-264"></a><span class="co">#&gt; sim_55     14.17834 0.6585291 -0.91130911    -0.09294087</span></span>
+<span id="cb4-265"><a href="#cb4-265"></a><span class="co">#&gt; sim_56     14.34313 0.6550188 -0.68348212     1.15764517</span></span>
+<span id="cb4-266"><a href="#cb4-266"></a><span class="co">#&gt; sim_57     14.03582 0.6610037 -0.26982759     0.46805735</span></span>
+<span id="cb4-267"><a href="#cb4-267"></a><span class="co">#&gt; sim_58     13.69823 0.6289570  0.01336817     1.18573815</span></span>
+<span id="cb4-268"><a href="#cb4-268"></a><span class="co">#&gt; sim_59     14.08058 0.6244449  0.01307200     1.05957222</span></span>
+<span id="cb4-269"><a href="#cb4-269"></a><span class="co">#&gt; sim_60     14.04755 0.6464899  0.18687422     0.99932790</span></span>
+<span id="cb4-270"><a href="#cb4-270"></a><span class="co">#&gt; sim_61     13.71850 0.6334090  0.09500605     0.36657048</span></span>
+<span id="cb4-271"><a href="#cb4-271"></a><span class="co">#&gt; sim_62     14.15082 0.6327629 -0.10408435     1.08045367</span></span>
+<span id="cb4-272"><a href="#cb4-272"></a><span class="co">#&gt; sim_63     14.34322 0.6253907 -0.37366080     0.73385340</span></span>
+<span id="cb4-273"><a href="#cb4-273"></a><span class="co">#&gt; sim_64     14.41993 0.6501149 -0.46711242     0.66654948</span></span>
+<span id="cb4-274"><a href="#cb4-274"></a><span class="co">#&gt; sim_65     15.36141 0.6048851 -0.57919050     0.61483348</span></span>
+<span id="cb4-275"><a href="#cb4-275"></a><span class="co">#&gt; sim_66     13.24380 0.6621430 -1.02154439     0.76936789</span></span>
+<span id="cb4-276"><a href="#cb4-276"></a><span class="co">#&gt; sim_67     13.49360 0.6439739 -0.16168133     0.94196989</span></span>
+<span id="cb4-277"><a href="#cb4-277"></a><span class="co">#&gt; sim_68     14.63210 0.6186138  0.15347982     0.24840584</span></span>
+<span id="cb4-278"><a href="#cb4-278"></a><span class="co">#&gt; sim_69     14.87784 0.6104301 -0.45884275     0.83583009</span></span>
+<span id="cb4-279"><a href="#cb4-279"></a><span class="co">#&gt; sim_70     14.56504 0.6254873  0.14665309     0.93773645</span></span>
+<span id="cb4-280"><a href="#cb4-280"></a><span class="co">#&gt; sim_71     14.43918 0.6193589 -0.69563239     0.70402233</span></span>
+<span id="cb4-281"><a href="#cb4-281"></a><span class="co">#&gt; sim_72     15.03511 0.6085308 -0.87958479     0.65543554</span></span>
+<span id="cb4-282"><a href="#cb4-282"></a><span class="co">#&gt; sim_73     14.60518 0.6139984 -0.45952947     1.25057852</span></span>
+<span id="cb4-283"><a href="#cb4-283"></a><span class="co">#&gt; sim_74     13.77288 0.6428231 -0.58710088     0.98756671</span></span>
+<span id="cb4-284"><a href="#cb4-284"></a><span class="co">#&gt; sim_75     13.24567 0.6330622  0.02908081     0.75644305</span></span>
+<span id="cb4-285"><a href="#cb4-285"></a><span class="co">#&gt; sim_76     14.70825 0.6347265 -0.88377055     0.59455287</span></span>
+<span id="cb4-286"><a href="#cb4-286"></a><span class="co">#&gt; sim_77     12.68217 0.6900173 -0.63326844     0.01622666</span></span>
+<span id="cb4-287"><a href="#cb4-287"></a><span class="co">#&gt; sim_78     14.82084 0.6244153 -0.89071851     0.79899780</span></span>
+<span id="cb4-288"><a href="#cb4-288"></a><span class="co">#&gt; sim_79     14.23549 0.6347422 -0.39230254     0.15677662</span></span>
+<span id="cb4-289"><a href="#cb4-289"></a><span class="co">#&gt; sim_80     14.03868 0.6666629 -0.35321665    -0.50276849</span></span>
+<span id="cb4-290"><a href="#cb4-290"></a><span class="co">#&gt; sim_81     15.42993 0.6105262 -0.67985687     0.81764069</span></span>
+<span id="cb4-291"><a href="#cb4-291"></a><span class="co">#&gt; sim_82     15.01361 0.6086910 -0.62918372     1.40717789</span></span>
+<span id="cb4-292"><a href="#cb4-292"></a><span class="co">#&gt; sim_83     13.85396 0.6342941 -0.42205924     0.69870292</span></span>
+<span id="cb4-293"><a href="#cb4-293"></a><span class="co">#&gt; sim_84     13.44785 0.6364354 -0.39146041     1.68911842</span></span>
+<span id="cb4-294"><a href="#cb4-294"></a><span class="co">#&gt; sim_85     14.16997 0.6252232 -0.09878610     0.86674298</span></span>
+<span id="cb4-295"><a href="#cb4-295"></a><span class="co">#&gt; sim_86     13.85721 0.6352090 -0.55899120     0.58956671</span></span>
+<span id="cb4-296"><a href="#cb4-296"></a><span class="co">#&gt; sim_87     14.77419 0.6210110 -0.51559110     1.35477820</span></span>
+<span id="cb4-297"><a href="#cb4-297"></a><span class="co">#&gt; sim_88     14.64846 0.6145623 -0.13788348     1.09186356</span></span>
+<span id="cb4-298"><a href="#cb4-298"></a><span class="co">#&gt; sim_89     14.13040 0.6215584 -0.19973959     1.00270108</span></span>
+<span id="cb4-299"><a href="#cb4-299"></a><span class="co">#&gt; sim_90     14.59604 0.6333504 -0.05914785     0.56651877</span></span>
+<span id="cb4-300"><a href="#cb4-300"></a><span class="co">#&gt; sim_91     13.72039 0.6491177 -0.41983388     1.06451875</span></span>
+<span id="cb4-301"><a href="#cb4-301"></a><span class="co">#&gt; sim_92     15.48798 0.5941561  0.33364862     0.33372053</span></span>
+<span id="cb4-302"><a href="#cb4-302"></a><span class="co">#&gt; sim_93     13.61524 0.6471725  0.16144557     0.27602599</span></span>
+<span id="cb4-303"><a href="#cb4-303"></a><span class="co">#&gt; sim_94     14.98774 0.6244987 -0.16382857     0.86484158</span></span>
+<span id="cb4-304"><a href="#cb4-304"></a><span class="co">#&gt; sim_95     14.44278 0.6192891  0.11955029     0.89779183</span></span>
+<span id="cb4-305"><a href="#cb4-305"></a><span class="co">#&gt; sim_96     15.47366 0.5929157 -0.56509219     0.43180308</span></span>
+<span id="cb4-306"><a href="#cb4-306"></a><span class="co">#&gt; sim_97     14.58211 0.6398712 -0.81620845     0.65707634</span></span>
+<span id="cb4-307"><a href="#cb4-307"></a><span class="co">#&gt; sim_98     14.32623 0.6473222 -0.87510025     0.42769120</span></span>
+<span id="cb4-308"><a href="#cb4-308"></a><span class="co">#&gt; sim_99     13.35671 0.6637139 -0.41253969     1.27286682</span></span>
+<span id="cb4-309"><a href="#cb4-309"></a><span class="co">#&gt; sim_100    14.70141 0.6137236 -0.35581134     1.02814724</span></span>
+<span id="cb4-310"><a href="#cb4-310"></a><span class="co">#&gt; </span></span>
+<span id="cb4-311"><a href="#cb4-311"></a><span class="co">#&gt; $stats</span></span>
+<span id="cb4-312"><a href="#cb4-312"></a><span class="co">#&gt;                  observed   rep.mean        se          bias</span></span>
+<span id="cb4-313"><a href="#cb4-313"></a><span class="co">#&gt; (Intercept)    14.1577509 14.1004198 0.6851539 -0.0573310966</span></span>
+<span id="cb4-314"><a href="#cb4-314"></a><span class="co">#&gt; mathAge8        0.6388895  0.6382003 0.0241738 -0.0006892401</span></span>
+<span id="cb4-315"><a href="#cb4-315"></a><span class="co">#&gt; genderM        -0.3571922 -0.3655464 0.3480041 -0.0083541479</span></span>
+<span id="cb4-316"><a href="#cb4-316"></a><span class="co">#&gt; classnonmanual  0.7200815  0.7302763 0.4278880  0.0101948447</span></span>
+<span id="cb4-317"><a href="#cb4-317"></a><span class="co">#&gt; </span></span>
+<span id="cb4-318"><a href="#cb4-318"></a><span class="co">#&gt; $R</span></span>
+<span id="cb4-319"><a href="#cb4-319"></a><span class="co">#&gt; [1] 100</span></span></code></pre></div>
+</div>
+</div>
+<div id="the-residual-bootstrap" class="section level1">
+<h1>2. The Residual Bootstrap</h1>
+<p>The residual bootstrap resamples the residual quantities from the fitted linear mixed-effects model in order to generate bootstrap resamples. That is, a random sample, drawn with replacement, is taken from the estimated error terms and the EBLUPS (at each level). Then the random samples are combined into bootstrap samples via the fitted model equation.</p>
+<div id="examples-1" class="section level2">
+<h2>Examples</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># nlme</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>lme_res_boot &lt;-<span class="st"> </span><span class="kw">bootstrap</span>(vcmodB, <span class="dt">.f =</span> fixef, <span class="dt">type =</span> <span class="st">&quot;residual&quot;</span>, <span class="dt">B =</span> <span class="dv">100</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="the-cases-bootstrap" class="section level1">
+<h1>3. The Cases Bootstrap</h1>
+<p>The cases bootstrap is a fully nonparametric bootstrap that resamples the data with respect to the clusters in order to generate bootstrap samples. Depending on the nature of the data, the resampling can be done only for the higher-level cluster(s), only at the observation-level within a cluster, or at all levels. See Van der Leeden et al. for a nice discussion of this decision. The level(s) of the data that should be resampled may be specified using the <code>resample</code> parameter, which is a logical vector. When setting <code>resample</code> values, the user should make sure to first specify the highest level (largest cluster) of the hierarchy, then the lowest (observation-level). For example, for students within a school, the school level should be specified first, then the student level.</p>
+<div id="examples-2" class="section level2">
+<h2>Examples</h2>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># lme4</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="co"># resample the schools, but not the students</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a>lmer_case_boot &lt;-<span class="st"> </span><span class="kw">bootstrap</span>(vcmodA, <span class="dt">.f =</span> fixef, <span class="dt">type =</span> <span class="st">&quot;case&quot;</span>, <span class="dt">B =</span> <span class="dv">100</span>, <span class="dt">resample =</span> <span class="kw">c</span>(<span class="ot">TRUE</span>, <span class="ot">FALSE</span>))</span>
+<span id="cb6-4"><a href="#cb6-4"></a></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="co"># nlme</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="co"># do not resample the schools, but resample the students</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a>lme_cases_boot1 &lt;-<span class="st"> </span><span class="kw">bootstrap</span>(vcmodB, <span class="dt">.f =</span> fixef, <span class="dt">type =</span> <span class="st">&quot;case&quot;</span>, <span class="dt">B =</span> <span class="dv">100</span>, <span class="dt">resample =</span> <span class="kw">c</span>(<span class="ot">FALSE</span>, <span class="ot">TRUE</span>))</span>
+<span id="cb6-8"><a href="#cb6-8"></a></span>
+<span id="cb6-9"><a href="#cb6-9"></a><span class="co"># nlme</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="co"># resample both the schools and the students</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a>lme_cases_boot2 &lt;-<span class="st"> </span><span class="kw">bootstrap</span>(vcmodB, <span class="dt">.f =</span> fixef, <span class="dt">type =</span> <span class="st">&quot;case&quot;</span>, <span class="dt">B =</span> <span class="dv">100</span>, <span class="dt">resample =</span> <span class="kw">c</span>(<span class="ot">TRUE</span>, <span class="ot">TRUE</span>))</span></code></pre></div>
+</div>
+</div>
+<div id="the-cgr-semi-parametric-bootstrap" class="section level1">
+<h1>4. The CGR (Semi-Parametric) Bootstrap</h1>
+<p>The semi-parametric bootstrap algorithm implemented was described by Carpenter, Goldstein and Rasbash (2003). The algorithm is outlined below:</p>
+<ol style="list-style-type: decimal">
+<li><p>Obtain the parameter estimates from the fitted model and calculate the estimated error terms and EBLUPs.</p></li>
+<li><p>Rescale the error terms and EBLUPs so that the empirical variance of these quantities is equal to estimated variance components from the model.</p></li>
+<li><p>Sample independently with replacement from the rescaled estimated error terms and rescaled EBLUPs.</p></li>
+<li><p>Obtain bootstrap samples by combining the samples via the fitted model equation.</p></li>
+<li><p>Refit the model and extract the statistic(s) of interest.</p></li>
+<li><p>Repeat steps 3-5 <code>B</code> times.</p></li>
+</ol>
+<div id="examples-3" class="section level2">
+<h2>Examples</h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># lme4</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>lmer_cgr_boot &lt;-<span class="st"> </span><span class="kw">bootstrap</span>(vcmodA, <span class="dt">.f =</span> fixef, <span class="dt">type =</span> <span class="st">&quot;cgr&quot;</span>, <span class="dt">B =</span> <span class="dv">100</span>)</span>
+<span id="cb7-3"><a href="#cb7-3"></a></span>
+<span id="cb7-4"><a href="#cb7-4"></a><span class="co"># nlme</span></span>
+<span id="cb7-5"><a href="#cb7-5"></a>lme_cgr_boot  &lt;-<span class="st"> </span><span class="kw">bootstrap</span>(vcmodB, <span class="dt">.f =</span> fixef, <span class="dt">type =</span> <span class="st">&quot;cgr&quot;</span>, <span class="dt">B =</span> <span class="dv">100</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="the-random-effects-block-reb-bootstrap" class="section level1">
+<h1>5. The Random Effects Block (REB) Bootstrap</h1>
+<p>The random effects block (REB) bootstrap was outlined by Chambers and Chandra (2013) and has been developed for two-level nested linear mixed-effects (LME) models.</p>
+<p>Consider a two-level LME of the form <span class="math inline">\(y = X \beta + Z b + \epsilon\)</span>.</p>
+<p>The REB bootstrap algorithm (<code>type = 0</code>) is as follows:</p>
+<ol style="list-style-type: decimal">
+<li><p>Calculate the nonparametric residual quantities for the fitted model</p>
+<ul>
+<li>marginal residuals <span class="math inline">\(r = y - X\beta\)</span></li>
+<li>predicted random effects <span class="math inline">\(\tilde{b} = (Z^\prime Z)^{-1} Z^\prime r\)</span></li>
+<li>error terms <span class="math inline">\(\tilde{e} = r - Z \tilde{b}\)</span></li>
+</ul></li>
+<li><p>Take a simple random sample with replacement of the groups and extract the corresponding elements of <span class="math inline">\(\tilde{b}\)</span> and <span class="math inline">\(\tilde{e}\)</span>.</p></li>
+<li><p>Generate bootstrap samples via the fitted model equation <span class="math inline">\(y = X \widehat{\beta} + Z \tilde{b} + \tilde{e}\)</span>.</p></li>
+<li><p>Refit the model and extract the statistic(s) of interest.</p></li>
+<li><p>Repeat steps 2-4 <code>B</code> times.</p></li>
+</ol>
+<p>Variation 1 (<code>type = 1</code>): The first variation of the REB bootstrap zero centers and rescales the residual quantities prior to resampling.</p>
+<p>Variation 2 (<code>type = 2</code>): The second variation of the REB bootstrap scales the estimates and centers the bootstrap distributions (i.e., adjusts for bias) after REB bootstrapping.</p>
+<div id="examples-4" class="section level2">
+<h2>Examples</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># lme4</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>lmer_reb_boot0 &lt;-<span class="st"> </span><span class="kw">bootstrap</span>(vcmodA, <span class="dt">.f =</span> fixef, <span class="dt">type =</span> <span class="st">&quot;reb&quot;</span>, <span class="dt">B =</span> <span class="dv">100</span>, <span class="dt">reb_type =</span> <span class="dv">0</span>)</span>
+<span id="cb8-3"><a href="#cb8-3"></a>lmer_reb_boot1 &lt;-<span class="st"> </span><span class="kw">bootstrap</span>(vcmodA, <span class="dt">.f =</span> fixef, <span class="dt">type =</span> <span class="st">&quot;reb&quot;</span>, <span class="dt">B =</span> <span class="dv">100</span>, <span class="dt">reb_type =</span> <span class="dv">1</span>)</span>
+<span id="cb8-4"><a href="#cb8-4"></a></span>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="co"># nlme</span></span>
+<span id="cb8-6"><a href="#cb8-6"></a>lme_reb_boot2  &lt;-<span class="st"> </span><span class="kw">bootstrap</span>(vcmodB, <span class="dt">.f =</span> fixef, <span class="dt">type =</span> <span class="st">&quot;reb&quot;</span>, <span class="dt">B =</span> <span class="dv">100</span>, <span class="dt">reb_type =</span> <span class="dv">2</span>)</span></code></pre></div>
+</div>
+</div>
+<div id="output-options" class="section level1">
+<h1>6. Output Options</h1>
+<p>The newest version of <code>lmeresampler</code> comes equipped with its own <code>print()</code> and <code>confint()</code> functions, both of which follow the syntax of a generic <code>print()</code> and <code>confint()</code> function. In order for these functions to operate as necessary, the output of the <code>bootstrap()</code> function has been updated to be an object of class <code>lmeresamp</code>. See the next sections for some examples.</p>
+<div id="the-print-function" class="section level2">
+<h2>The <code>print()</code> Function</h2>
+<p>The syntax of the <code>lmeresampler</code> <code>print()</code> function is similar to the default <code>print()</code> function. The object to be printed must be the object returned by the <code>bootstrap()</code> call, an <code>lmeresamp</code> object. In addition, if the user would like to print confidence intervals for the object, setting <code>ci = TRUE</code> will call the <code>confint()</code> function and set <code>method = &quot;all&quot;</code> and <code>level = 0.95</code>. If not all of the intervals are of interest or a different confidence level is required, it is recommended that the user directly call <code>confint()</code> on the bootstrap object.</p>
+<div id="examples-5" class="section level3">
+<h3>Examples</h3>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">print</span>(lmer_reb_boot0)</span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="co">#&gt; Bootstrap type: reb0 </span></span>
+<span id="cb9-3"><a href="#cb9-3"></a><span class="co">#&gt; </span></span>
+<span id="cb9-4"><a href="#cb9-4"></a><span class="co">#&gt; Number of resamples: 100 </span></span>
+<span id="cb9-5"><a href="#cb9-5"></a><span class="co">#&gt; </span></span>
+<span id="cb9-6"><a href="#cb9-6"></a><span class="co">#&gt;                  observed   rep.mean         se         bias</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a><span class="co">#&gt; (Intercept)    14.1577509 14.1674224 0.86781856  0.009671521</span></span>
+<span id="cb9-8"><a href="#cb9-8"></a><span class="co">#&gt; mathAge8        0.6388895  0.6355423 0.02898046 -0.003347182</span></span>
+<span id="cb9-9"><a href="#cb9-9"></a><span class="co">#&gt; genderM        -0.3571922 -0.3588167 0.34622399 -0.001624522</span></span>
+<span id="cb9-10"><a href="#cb9-10"></a><span class="co">#&gt; classnonmanual  0.7200815  0.6865614 0.39436779 -0.033520101</span></span>
+<span id="cb9-11"><a href="#cb9-11"></a></span>
+<span id="cb9-12"><a href="#cb9-12"></a><span class="kw">print</span>(lme_reb_boot2, <span class="dt">ci =</span> <span class="ot">TRUE</span>) </span>
+<span id="cb9-13"><a href="#cb9-13"></a><span class="co">#&gt; Bootstrap type: reb2 </span></span>
+<span id="cb9-14"><a href="#cb9-14"></a><span class="co">#&gt; </span></span>
+<span id="cb9-15"><a href="#cb9-15"></a><span class="co">#&gt; Number of resamples: 100 </span></span>
+<span id="cb9-16"><a href="#cb9-16"></a><span class="co">#&gt; </span></span>
+<span id="cb9-17"><a href="#cb9-17"></a><span class="co">#&gt;                       observed   rep.mean         se          bias</span></span>
+<span id="cb9-18"><a href="#cb9-18"></a><span class="co">#&gt; beta.(Intercept)    14.1577509 14.1577509 0.75030881  0.000000e+00</span></span>
+<span id="cb9-19"><a href="#cb9-19"></a><span class="co">#&gt; beta.mathAge8        0.6388895  0.6388895 0.02912117  0.000000e+00</span></span>
+<span id="cb9-20"><a href="#cb9-20"></a><span class="co">#&gt; beta.genderM        -0.3571922 -0.3571922 0.32666200  0.000000e+00</span></span>
+<span id="cb9-21"><a href="#cb9-21"></a><span class="co">#&gt; beta.classnonmanual  0.7200815  0.7200815 0.39205491  0.000000e+00</span></span>
+<span id="cb9-22"><a href="#cb9-22"></a><span class="co">#&gt; sigma.(Intercept)    3.3122380  3.3122380 0.61354916 -4.440892e-16</span></span>
+<span id="cb9-23"><a href="#cb9-23"></a><span class="co">#&gt; sigma2              19.7280582 19.7280582 1.47085921  0.000000e+00</span></span>
+<span id="cb9-24"><a href="#cb9-24"></a><span class="co">#&gt; </span></span>
+<span id="cb9-25"><a href="#cb9-25"></a><span class="co">#&gt; 95 basic interval: </span></span>
+<span id="cb9-26"><a href="#cb9-26"></a><span class="co">#&gt;                     basic.lower basic.upper</span></span>
+<span id="cb9-27"><a href="#cb9-27"></a><span class="co">#&gt; beta.(Intercept)    12.85619195  15.6287234</span></span>
+<span id="cb9-28"><a href="#cb9-28"></a><span class="co">#&gt; beta.mathAge8        0.58896628   0.6904596</span></span>
+<span id="cb9-29"><a href="#cb9-29"></a><span class="co">#&gt; beta.genderM        -1.02117237   0.3014679</span></span>
+<span id="cb9-30"><a href="#cb9-30"></a><span class="co">#&gt; beta.classnonmanual -0.03895278   1.4830529</span></span>
+<span id="cb9-31"><a href="#cb9-31"></a><span class="co">#&gt; sigma.(Intercept)    2.19959563   4.4609567</span></span>
+<span id="cb9-32"><a href="#cb9-32"></a><span class="co">#&gt; sigma2              16.83617163  22.1865836</span></span>
+<span id="cb9-33"><a href="#cb9-33"></a><span class="co">#&gt; </span></span>
+<span id="cb9-34"><a href="#cb9-34"></a><span class="co">#&gt; 95 percent normal-t interval: </span></span>
+<span id="cb9-35"><a href="#cb9-35"></a><span class="co">#&gt;                 norm.t.lower norm.t.upper</span></span>
+<span id="cb9-36"><a href="#cb9-36"></a><span class="co">#&gt; (Intercept)      12.71765712   15.5978447</span></span>
+<span id="cb9-37"><a href="#cb9-37"></a><span class="co">#&gt; mathAge8          0.58892933    0.6888497</span></span>
+<span id="cb9-38"><a href="#cb9-38"></a><span class="co">#&gt; genderM          -1.02495574    0.3105713</span></span>
+<span id="cb9-39"><a href="#cb9-39"></a><span class="co">#&gt; classnonmanual   -0.03972045    1.4798834</span></span>
+<span id="cb9-40"><a href="#cb9-40"></a><span class="co">#&gt; sd((Intercept))   1.36162176    2.4325683</span></span>
+<span id="cb9-41"><a href="#cb9-41"></a><span class="co">#&gt; sigma             4.21190797    4.6838768</span></span>
+<span id="cb9-42"><a href="#cb9-42"></a><span class="co">#&gt; </span></span>
+<span id="cb9-43"><a href="#cb9-43"></a><span class="co">#&gt; 95 percent bootstrap-t interval: </span></span>
+<span id="cb9-44"><a href="#cb9-44"></a><span class="co">#&gt;                boot.t.lower boot.t.upper</span></span>
+<span id="cb9-45"><a href="#cb9-45"></a><span class="co">#&gt; (Intercept)      14.1577509   14.1577509</span></span>
+<span id="cb9-46"><a href="#cb9-46"></a><span class="co">#&gt; mathAge8          0.6388895    0.6388895</span></span>
+<span id="cb9-47"><a href="#cb9-47"></a><span class="co">#&gt; genderM          -0.3571922   -0.3571922</span></span>
+<span id="cb9-48"><a href="#cb9-48"></a><span class="co">#&gt; classnonmanual    0.7200815    0.7200815</span></span>
+<span id="cb9-49"><a href="#cb9-49"></a><span class="co">#&gt; </span></span>
+<span id="cb9-50"><a href="#cb9-50"></a><span class="co">#&gt; 95 percent percentile-t interval: </span></span>
+<span id="cb9-51"><a href="#cb9-51"></a><span class="co">#&gt;                     perc.t.lower perc.t.upper</span></span>
+<span id="cb9-52"><a href="#cb9-52"></a><span class="co">#&gt; beta.(Intercept)     12.68677842   15.4593099</span></span>
+<span id="cb9-53"><a href="#cb9-53"></a><span class="co">#&gt; beta.mathAge8         0.58731937    0.6888127</span></span>
+<span id="cb9-54"><a href="#cb9-54"></a><span class="co">#&gt; beta.genderM         -1.01585231    0.3067879</span></span>
+<span id="cb9-55"><a href="#cb9-55"></a><span class="co">#&gt; beta.classnonmanual  -0.04288992    1.4791158</span></span>
+<span id="cb9-56"><a href="#cb9-56"></a><span class="co">#&gt; sigma.(Intercept)     2.16351924    4.4248803</span></span>
+<span id="cb9-57"><a href="#cb9-57"></a><span class="co">#&gt; sigma2               17.26953272   22.6199447</span></span></code></pre></div>
+</div>
+</div>
+<div id="the-confint-function" class="section level2">
+<h2>The <code>confint()</code> Function</h2>
+<p>Similarly, the syntax of the <code>lmeresampler</code> <code>confint()</code> function resembles the default <code>confint()</code> function. The object for which confidence are calculated must be the <code>lmeresamp</code> object returned by the <code>bootstrap()</code> call. The type of confidence interval may be specified with <code>method</code>, for which possible values include: <code>&quot;basic&quot;</code> (basic interval), <code>&quot;norm&quot;</code> (normal-t interval), <code>&quot;boot-t&quot;</code> (bootstrap-t interval using output from the <code>bootstrap()</code> call), <code>&quot;perc&quot;</code> (percentile interval), and <code>&quot;all&quot;</code> (all of aforementioned methods, and the default if <code>method</code> is unspecified). The level at which the confidence interval is to be computed may be specified with <code>level</code>, which defaults to <code>0.95</code> if unspecified.</p>
+<p>Notice that the output of the three intervals differ slightly. The normal-t interval returns intervals for all of the fixed effects, all of the random effects, and sigma, the bootstrap-t interval returns intervals for only the fixed effects, and both the basic and percentile-t intervals return intervals for parameters specified by <code>.f</code>. This has to do with the nature of the interval calculations and the functions available to pull the necessary information out of the models. The bootstrap-t interval, on the other hand, is more complicated. The way that bootstrap-t intervals are calculated necessitates that we use the standard errors of the random component estimates. While there is a way to calculate these standard errors, they are often unreliable. Thus we only provide functionality for bootstrap-t intervals for fixed effects. For the curious, the math behind the variance component standard error calculations may be found in Ben Bolker’s (one of the authors of, and the current maintainer of, <code>lme4</code>) two posts in the References section below.</p>
+</div>
+<div id="examples-6" class="section level2">
+<h2>Examples</h2>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">confint</span>(lme_reb_boot2) <span class="co"># all ci types, 0.95 confidence level</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="co">#&gt; </span></span>
+<span id="cb10-3"><a href="#cb10-3"></a><span class="co">#&gt; 95 basic interval: </span></span>
+<span id="cb10-4"><a href="#cb10-4"></a><span class="co">#&gt;                     basic.lower basic.upper</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a><span class="co">#&gt; beta.(Intercept)    12.85619195  15.6287234</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a><span class="co">#&gt; beta.mathAge8        0.58896628   0.6904596</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a><span class="co">#&gt; beta.genderM        -1.02117237   0.3014679</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a><span class="co">#&gt; beta.classnonmanual -0.03895278   1.4830529</span></span>
+<span id="cb10-9"><a href="#cb10-9"></a><span class="co">#&gt; sigma.(Intercept)    2.19959563   4.4609567</span></span>
+<span id="cb10-10"><a href="#cb10-10"></a><span class="co">#&gt; sigma2              16.83617163  22.1865836</span></span>
+<span id="cb10-11"><a href="#cb10-11"></a><span class="co">#&gt; </span></span>
+<span id="cb10-12"><a href="#cb10-12"></a><span class="co">#&gt; 95 percent normal-t interval: </span></span>
+<span id="cb10-13"><a href="#cb10-13"></a><span class="co">#&gt;                 norm.t.lower norm.t.upper</span></span>
+<span id="cb10-14"><a href="#cb10-14"></a><span class="co">#&gt; (Intercept)      12.71765712   15.5978447</span></span>
+<span id="cb10-15"><a href="#cb10-15"></a><span class="co">#&gt; mathAge8          0.58892933    0.6888497</span></span>
+<span id="cb10-16"><a href="#cb10-16"></a><span class="co">#&gt; genderM          -1.02495574    0.3105713</span></span>
+<span id="cb10-17"><a href="#cb10-17"></a><span class="co">#&gt; classnonmanual   -0.03972045    1.4798834</span></span>
+<span id="cb10-18"><a href="#cb10-18"></a><span class="co">#&gt; sd((Intercept))   1.36162176    2.4325683</span></span>
+<span id="cb10-19"><a href="#cb10-19"></a><span class="co">#&gt; sigma             4.21190797    4.6838768</span></span>
+<span id="cb10-20"><a href="#cb10-20"></a><span class="co">#&gt; </span></span>
+<span id="cb10-21"><a href="#cb10-21"></a><span class="co">#&gt; 95 percent bootstrap-t interval: </span></span>
+<span id="cb10-22"><a href="#cb10-22"></a><span class="co">#&gt;                boot.t.lower boot.t.upper</span></span>
+<span id="cb10-23"><a href="#cb10-23"></a><span class="co">#&gt; (Intercept)      14.1577509   14.1577509</span></span>
+<span id="cb10-24"><a href="#cb10-24"></a><span class="co">#&gt; mathAge8          0.6388895    0.6388895</span></span>
+<span id="cb10-25"><a href="#cb10-25"></a><span class="co">#&gt; genderM          -0.3571922   -0.3571922</span></span>
+<span id="cb10-26"><a href="#cb10-26"></a><span class="co">#&gt; classnonmanual    0.7200815    0.7200815</span></span>
+<span id="cb10-27"><a href="#cb10-27"></a><span class="co">#&gt; </span></span>
+<span id="cb10-28"><a href="#cb10-28"></a><span class="co">#&gt; 95 percent percentile-t interval: </span></span>
+<span id="cb10-29"><a href="#cb10-29"></a><span class="co">#&gt;                     perc.t.lower perc.t.upper</span></span>
+<span id="cb10-30"><a href="#cb10-30"></a><span class="co">#&gt; beta.(Intercept)     12.68677842   15.4593099</span></span>
+<span id="cb10-31"><a href="#cb10-31"></a><span class="co">#&gt; beta.mathAge8         0.58731937    0.6888127</span></span>
+<span id="cb10-32"><a href="#cb10-32"></a><span class="co">#&gt; beta.genderM         -1.01585231    0.3067879</span></span>
+<span id="cb10-33"><a href="#cb10-33"></a><span class="co">#&gt; beta.classnonmanual  -0.04288992    1.4791158</span></span>
+<span id="cb10-34"><a href="#cb10-34"></a><span class="co">#&gt; sigma.(Intercept)     2.16351924    4.4248803</span></span>
+<span id="cb10-35"><a href="#cb10-35"></a><span class="co">#&gt; sigma2               17.26953272   22.6199447</span></span>
+<span id="cb10-36"><a href="#cb10-36"></a></span>
+<span id="cb10-37"><a href="#cb10-37"></a><span class="kw">confint</span>(lmer_reb_boot0, <span class="dt">method =</span> <span class="st">&quot;boot-t&quot;</span>, <span class="dt">level=</span> <span class="fl">0.90</span>)</span>
+<span id="cb10-38"><a href="#cb10-38"></a><span class="co">#&gt; 90 percent bootstrap-t interval: </span></span>
+<span id="cb10-39"><a href="#cb10-39"></a><span class="co">#&gt;                boot.t.lower boot.t.upper</span></span>
+<span id="cb10-40"><a href="#cb10-40"></a><span class="co">#&gt; (Intercept)      14.1513193   14.2391063</span></span>
+<span id="cb10-41"><a href="#cb10-41"></a><span class="co">#&gt; mathAge8          0.6386664    0.6417119</span></span>
+<span id="cb10-42"><a href="#cb10-42"></a><span class="co">#&gt; genderM          -0.3601745   -0.3194682</span></span>
+<span id="cb10-43"><a href="#cb10-43"></a><span class="co">#&gt; classnonmanual    0.7166881    0.7630051</span></span></code></pre></div>
+</div>
+</div>
+<div id="parallelization-user-extension" class="section level1">
+<h1>7. Parallelization (User Extension)</h1>
+<div id="the-idea" class="section level2">
+<h2>The Idea</h2>
+<p>Parallelization (also known as parallel computing, parallel processing, or executing “in parallel”) is the idea of splitting a process into sub-processes that execute at the same time. This is of interest in the context of bootstrapping because bootstrapping is often both computation-heavy and time-consuming.</p>
+<p>Using parallelization, the processes behind <code>bootstrap()</code> can be executed on multiple computer cores, depending on the makeup of the machine you are using. To check how many cores your machine has, run <code>parallel::detectCores()</code>. This will output the number of cores your CPU “logically” has, which is twice more than the number of cores it physically has. The number of logical cores is the number of cores you may actually use when working in parallel (the more cores you have available to you, the better!). We recommend using multiple cores when possible, <strong>without using all/most of your CPU’s cores</strong>, which it needs to run everything, not just RStudio. However, if your machine only has one core, parallelization is neither useful nor possible.</p>
+</div>
+<div id="performance" class="section level2">
+<h2>Performance</h2>
+<p>It is important to note that while the number of cores used with parallelization will be some scalar multiple of the default number of one core used for non-parallel processing, the runtime of parallel processes will not be increased by that same scalar. That is, running a process on two cores does not yield a runtime that is twice as fast as running the same process on one core. This is because parallelization takes some overhead to split the processes, so while runtime will substantially improve, it will not correspond exactly to the number of cores being used.</p>
+<p>There are two types of parallelization techniques: forking (also known as <code>multicore</code>) and clustering. While forking tends to be slightly faster, it cannot be executed on Windows operating systems; thus, we will spend our time documenting clustering, which is system-agnostic. For more information on how to use forking with parallelization, check out the <code>parallel</code> package.</p>
+</div>
+<div id="implementation" class="section level2">
+<h2>Implementation</h2>
+<p>We implement our parallel processing using Steve Weston and Rich Calaway’s guide on jointly using <code>doParallel</code> and <code>foreach</code>, as the code is both concise and simple enough for those without much experience with parallelization. While <code>doParallel</code> and <code>foreach</code> default to <code>multicore</code> (forking) functionality when using parallel computing on UNIX operating systems and <code>snow</code> (clustering) functionality on Windows systems, in order to be as explicit as possible, we will outline our examples using clustering. For more information on forking, please see Weston and Calaway’s guide, “Getting Started with doParallel and foreach” (the link can be found in the References section).</p>
+<p>The basic idea with clusters is that they execute tasks as a “cluster” of computers, which means that each cluster needs to be fed in information separately. For this reason, clustering has more overhead than forking. Both <code>doParallel</code> and <code>foreach</code> use what Weston and Calaway call “<code>snow</code>-like functionality”, meaning that while the clustering is done using these two packages, it uses the syntax from <code>snow</code> (a now deprecated package). Clusters also need to be “made” and “stopped” with each call to a <code>foreach()</code> loop and <code>doParallel</code>, to explicitly tell the CPU when to begin and end the parallelization.</p>
+</div>
+<div id="examples-7" class="section level2">
+<h2>Examples</h2>
+<p>With all of this in mind, let’s explore an example using <code>lmeresampler</code>. Notice that we have the user implement the parallelization with the <code>bootstrap()</code> call itself, rather than doing it within <code>lmeresampler</code> itself. Thus, a modified, parallelized, call to <code>bootstrap()</code> is as follows:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">library</span>(purrr)</span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="kw">library</span>(foreach)</span>
+<span id="cb11-3"><a href="#cb11-3"></a><span class="kw">library</span>(doParallel)</span>
+<span id="cb11-4"><a href="#cb11-4"></a><span class="kw">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb11-5"><a href="#cb11-5"></a>numCores &lt;-<span class="st"> </span><span class="dv">2</span></span>
+<span id="cb11-6"><a href="#cb11-6"></a></span>
+<span id="cb11-7"><a href="#cb11-7"></a>cl &lt;-<span class="st"> </span>snow<span class="op">::</span><span class="kw">makeSOCKcluster</span>(numCores) <span class="co"># make a socket cluster</span></span>
+<span id="cb11-8"><a href="#cb11-8"></a>doParallel<span class="op">::</span><span class="kw">registerDoParallel</span>(cl) <span class="co"># how the CPU knows to run in parallel</span></span>
+<span id="cb11-9"><a href="#cb11-9"></a></span>
+<span id="cb11-10"><a href="#cb11-10"></a>b_parallel2 &lt;-<span class="st"> </span><span class="kw">foreach</span>(<span class="dt">B =</span> <span class="kw">rep</span>(<span class="dv">250</span>, <span class="dv">2</span>), </span>
+<span id="cb11-11"><a href="#cb11-11"></a>                       <span class="dt">.combine =</span> combine_lmeresamp,</span>
+<span id="cb11-12"><a href="#cb11-12"></a>                       <span class="dt">.packages =</span> <span class="kw">c</span>(<span class="st">&quot;lmeresampler&quot;</span>, <span class="st">&quot;lme4&quot;</span>)) <span class="op">%dopar%</span><span class="st"> </span>{</span>
+<span id="cb11-13"><a href="#cb11-13"></a>  <span class="kw">bootstrap</span>(vcmodA, <span class="dt">.f =</span> fixef, <span class="dt">type =</span> <span class="st">&quot;parametric&quot;</span>, <span class="dt">B =</span> B)</span>
+<span id="cb11-14"><a href="#cb11-14"></a>}</span>
+<span id="cb11-15"><a href="#cb11-15"></a></span>
+<span id="cb11-16"><a href="#cb11-16"></a><span class="kw">stopCluster</span>(cl)</span></code></pre></div>
+<p>Let’s compare the runtime of the above <code>b_parallel2</code> with the same bootstrap run without parallelization. Note that differences in runtime will be somewhat arbitrary for a small number of resamples (say, 100), and will become more pronounced as the number of resamples increases (to 1000, for example), in favor of the parallelized bootstrap.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="kw">library</span>(tictoc)</span>
+<span id="cb12-2"><a href="#cb12-2"></a></span>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="kw">tic</span>()</span>
+<span id="cb12-4"><a href="#cb12-4"></a>b_nopar  &lt;-<span class="st"> </span><span class="kw">bootstrap</span>(vcmodA, <span class="dt">.f =</span> fixef, <span class="dt">type =</span> <span class="st">&quot;parametric&quot;</span>, <span class="dt">B =</span> <span class="dv">1000</span>)</span>
+<span id="cb12-5"><a href="#cb12-5"></a><span class="kw">toc</span>()</span>
+<span id="cb12-6"><a href="#cb12-6"></a><span class="co">#&gt; 10.989 sec elapsed</span></span>
+<span id="cb12-7"><a href="#cb12-7"></a></span>
+<span id="cb12-8"><a href="#cb12-8"></a>numCores &lt;-<span class="st"> </span><span class="dv">2</span></span>
+<span id="cb12-9"><a href="#cb12-9"></a>cl &lt;-<span class="st"> </span>snow<span class="op">::</span><span class="kw">makeSOCKcluster</span>(numCores)</span>
+<span id="cb12-10"><a href="#cb12-10"></a>doParallel<span class="op">::</span><span class="kw">registerDoParallel</span>(cl) </span>
+<span id="cb12-11"><a href="#cb12-11"></a></span>
+<span id="cb12-12"><a href="#cb12-12"></a><span class="kw">tic</span>()</span>
+<span id="cb12-13"><a href="#cb12-13"></a>b_parallel2 &lt;-<span class="st"> </span><span class="kw">foreach</span>(<span class="dt">B =</span> <span class="kw">rep</span>(<span class="dv">500</span>, <span class="dv">2</span>), </span>
+<span id="cb12-14"><a href="#cb12-14"></a>                       <span class="dt">.combine =</span> combine_lmeresamp,</span>
+<span id="cb12-15"><a href="#cb12-15"></a>                       <span class="dt">.packages =</span> <span class="kw">c</span>(<span class="st">&quot;lmeresampler&quot;</span>, <span class="st">&quot;lme4&quot;</span>, <span class="st">&quot;purrr&quot;</span>, <span class="st">&quot;dplyr&quot;</span>)) <span class="op">%dopar%</span><span class="st"> </span>{</span>
+<span id="cb12-16"><a href="#cb12-16"></a>  <span class="kw">bootstrap</span>(vcmodA, <span class="dt">.f =</span> fixef, <span class="dt">type =</span> <span class="st">&quot;parametric&quot;</span>, <span class="dt">B =</span> B)</span>
+<span id="cb12-17"><a href="#cb12-17"></a>}</span>
+<span id="cb12-18"><a href="#cb12-18"></a><span class="kw">toc</span>()</span>
+<span id="cb12-19"><a href="#cb12-19"></a><span class="co">#&gt; 8.206 sec elapsed</span></span>
+<span id="cb12-20"><a href="#cb12-20"></a></span>
+<span id="cb12-21"><a href="#cb12-21"></a><span class="kw">stopCluster</span>(cl) </span></code></pre></div>
+<p>Pretty useful stuff! The above can be applied to all bootstrap types and models fit using both <code>lme4</code> and <code>nlme</code>.</p>
+</div>
+</div>
+<div id="future-directions-developer-extensions" class="section level1">
+<h1>8. Future Directions (Developer Extensions)</h1>
+<p>When fitting linear mixed effects models, it is common that users need to use data with crossed effects, that is, when lower-level observations exist in multiple factors of a higher-level. For example, if patients (level-1) adhere strictly to one doctor (level-2), but the doctors work for multiple hospitals (level-3), levels two and three are crossed. While it is currently possible to use <code>lmeresampler</code> to bootstrap a model with crossed effects with the parametric bootstrap, future updates should explore adding functionality to allow bootstrapping of crossed models for the cases, residual, CGR, and REB bootstraps. Crossed relationships need to be evaluated differently than standard nested relationships, thus the code will need significant modifications in its evaluation process.</p>
+<p>Furthermore, future extensions of <code>lmeresampler</code> may focus on implementing the existing functions for generalized linear mixed-effects (GLMM) models for all of the bootstraps types. This has been requested by past users.</p>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<p>Carpenter, J.R., Goldstein, H. and Rasbash, J. (2003), A novel bootstrap procedure for assessing the relationship between class size and achievement. Journal of the Royal Statistical Society: Series C (Applied Statistics), 52: 431-443. DOI: 10.1111/1467-9876.00415</p>
+<p><a href="http://www.bristol.ac.uk/cmm/team/hg/msm-3rd-ed/datasets.html">JSP728 Data</a></p>
+<p>Leeden R.., Meijer E., Busing F.M. (2008) Resampling Multilevel Models. In: Leeuw J.., Meijer E. (eds) Handbook of Multilevel Analysis. Springer, New York, NY. DOI: 10.1007/978-0-387-73186-5_11</p>
+<p>Raymond Chambers &amp; Hukum Chandra (2013) A Random Effect Block Bootstrap for Clustered Data, Journal of Computational and Graphical Statistics, 22:2, 452-470, DOI: 10.1080/10618600.2012.681216</p>
+<p><a href="https://stackoverflow.com/questions/31694812/standard-error-of-variance-component-from-the-output-of-lmer">Ben Bolker’s lme4 Variance Component SE Tips</a></p>
+<p><a href="https://bbolker.github.io/mixedmodels-misc/notes/corr_braindump.html">Ben Bolker’s nlme Variance Component SE Ideas</a></p>
+<p><a href="https://cran.r-project.org/web/packages/doParallel/vignettes/gettingstartedParallel.pdf">Weston and Calaway’s doParallel and foreach Guide</a></p>
+</div>
+<div id="acknowledgements" class="section level1">
+<h1>Acknowledgements</h1>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
