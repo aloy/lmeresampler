@@ -1,5 +1,5 @@
 
-# `lmeresampler`
+# lmeresampler
 
 [![Build
 Status](https://travis-ci.org/aloy/lmeresampler.svg?branch=master)](https://travis-ci.org/aloy/lmeresampler)
