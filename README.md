@@ -8,8 +8,6 @@ status](https://github.com/aloy/lmeresampler/workflows/R-CMD-check/badge.svg)](h
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-<img src="inst/image/FINAL_HEX_nobackground.png" width="200">
-
 The `lme4` and `nlme` packages have made fitting nested linear
 mixed-effects models quite easy. Using the functionality of these
 packages we can easily use maximum likelihood or restricted maximum
