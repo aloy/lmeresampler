@@ -8,6 +8,13 @@
 
 <title>CGR Bootstrap for Nested LMEs — cgr_bootstrap.lmerMod • lmeresampler</title>
 
+<!-- favicons -->
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png" />
+<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png" />
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -42,6 +49,7 @@
 <meta property="og:title" content="CGR Bootstrap for Nested LMEs — cgr_bootstrap.lmerMod" />
 <meta property="og:description" content="Generate semi-parametric bootstrap replicates of a statistic for a nested 
 linear mixed-effects model." />
+<meta property="og:image" content="/logo.png" />
 
 
 
@@ -132,12 +140,12 @@ linear mixed-effects model.</p>
     </div>
 
     <pre class="usage"><span class='co'># S3 method for lmerMod</span>
-<span class='fu'>cgr_bootstrap</span>(<span class='no'>model</span>, <span class='no'>.f</span>, <span class='no'>B</span>)
+<span class='fu'>cgr_bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>B</span><span class='op'>)</span>
 
 <span class='co'># S3 method for lme</span>
-<span class='fu'>cgr_bootstrap</span>(<span class='no'>model</span>, <span class='no'>.f</span>, <span class='no'>B</span>)
+<span class='fu'>cgr_bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>B</span><span class='op'>)</span>
 
-<span class='fu'>cgr_bootstrap</span>(<span class='no'>model</span>, <span class='no'>.f</span>, <span class='no'>B</span>)</pre>
+<span class='fu'>cgr_bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>B</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -184,9 +192,9 @@ Goldstein and Rasbash (2003). The algorithm is outlined below:</p><ol>
 
     <div class='dont-index'>
 <ul>
-<li><p><code><a href='parametric_bootstrap.html'>parametric_bootstrap</a></code>, <code><a href='resid_bootstrap.html'>resid_bootstrap</a></code>,
-     <code><a href='case_bootstrap.html'>case_bootstrap</a></code>, <code>cgr_bootstrap</code>, 
-     <code><a href='reb_bootstrap.html'>reb_bootstrap</a></code> for more details on a specific bootstrap.</p></li>
+<li><p><code><a href='parametric_bootstrap.lmerMod.html'>parametric_bootstrap</a></code>, <code><a href='resid_bootstrap.lmerMod.html'>resid_bootstrap</a></code>,
+     <code><a href='case_bootstrap.lmerMod.html'>case_bootstrap</a></code>, <code>cgr_bootstrap</code>, 
+     <code><a href='reb_bootstrap.lmerMod.html'>reb_bootstrap</a></code> for more details on a specific bootstrap.</p></li>
 <li><p><code><a href='https://rdrr.io/pkg/lme4/man/bootMer.html'>bootMer</a></code> in the <span class="pkg">lme4</span> package for an 
      implementation of (semi-)parameteric bootstrap for mixed models.</p></li>
 </ul>
@@ -207,7 +215,7 @@ Goldstein and Rasbash (2003). The algorithm is outlined below:</p><ol>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

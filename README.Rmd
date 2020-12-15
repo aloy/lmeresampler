@@ -2,9 +2,9 @@
 output: github_document
 ---
 
-# lmeresampler
+# lmeresampler <img src='man/figures/logo.png' align="right" height="131.5" />
 
-[![Build Status](https://travis-ci.org/aloy/lmeresampler.svg?branch=master)](https://travis-ci.org/aloy/lmeresampler)
+[![R build status](https://github.com/aloy/lmeresampler/workflows/R-CMD-check/badge.svg)](https://github.com/aloy/lmeresampler/actions)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/lmeresampler)](https://cran.r-project.org/package=lmeresampler)
 ![CRAN_Downloads_Badge](http://cranlogs.r-pkg.org/badges/lmersesampler)
 

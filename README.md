@@ -1,8 +1,6 @@
 
 # lmeresampler
 
-[![Build
-Status](https://travis-ci.org/aloy/lmeresampler.svg?branch=master)](https://travis-ci.org/aloy/lmeresampler)
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/lmeresampler)](https://cran.r-project.org/package=lmeresampler)
 ![CRAN\_Downloads\_Badge](http://cranlogs.r-pkg.org/badges/lmersesampler)
 
@@ -49,7 +47,8 @@ models fit either by `lme4` or by `nlme`. For a complete guide outlining
 the purpose of `lmeresampler`, the structure of `lmeresamp` objects,
 each of the bootstrap types, how to implement parallelization with
 `bootstrap()` calls, directions for future developers, and examples,
-please see the package vignette, available on the `lmersampler` website.
+please see the package vignette, available on the `lmeresampler`
+website.
 
 First, fit the necessary model(s) with the LME package of your choice.
 Here we show the same model fit first with `lme4`, then with `nlme`:
