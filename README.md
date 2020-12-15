@@ -1,6 +1,8 @@
 
-# lmeresampler
+# lmeresampler <img src='man/figures/logo.png' align="right" height="131.5" />
 
+[![R build
+status](https://github.com/aloy/lmeresampler/workflows/R-CMD-check/badge.svg)](https://github.com/aloy/lmeresampler/actions)
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/lmeresampler)](https://cran.r-project.org/package=lmeresampler)
 ![CRAN\_Downloads\_Badge](http://cranlogs.r-pkg.org/badges/lmersesampler)
 
