@@ -48,7 +48,8 @@ test_that("two-level additive random intercept model",{
   
   
   expect_equal(class(boo), "lmeresamp")
-  expect_equal(boo$stats$observed, orig.stats)
+  expect_equal(boo$observed, orig.stats)
+  expect_equal(boo$stats$observed, unname(orig.stats))
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
@@ -71,7 +72,8 @@ test_that("two-level random intercept model without interaction",{
   boo <- case_bootstrap(model = rimod, .f = mySumm, B = nsim, resample = c(TRUE, TRUE))
   
   expect_equal(class(boo), "lmeresamp")
-  expect_equal(boo$stats$observed, orig.stats)
+  expect_equal(boo$observed, orig.stats)
+  expect_equal(boo$stats$observed, unname(orig.stats))
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
@@ -89,7 +91,8 @@ test_that("two-level random intercept model with interaction",{
   boo <- case_bootstrap(model = vcmodC, .f = mySumm, B = nsim, resample = c(TRUE, TRUE))
   
   expect_equal(class(boo), "lmeresamp")
-  expect_equal(boo$stats$observed, orig.stats)
+  expect_equal(boo$observed, orig.stats)
+  expect_equal(boo$stats$observed, unname(orig.stats))
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
@@ -108,7 +111,8 @@ test_that("two-level random coefficient model with interaction",{
   boo <- case_bootstrap(model = rcmod, .f = mySumm, B = nsim, resample = c(TRUE, TRUE))
   
   expect_equal(class(boo), "lmeresamp")
-  expect_equal(boo$stats$observed, orig.stats)
+  expect_equal(boo$observed, orig.stats)
+  expect_equal(boo$stats$observed, unname(orig.stats))
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
@@ -126,7 +130,8 @@ test_that("three-level random intercept model",{
   boo <- case_bootstrap(model = rmA, .f = mySumm, B = nsim, resample = c(TRUE, TRUE, TRUE))
   
   expect_equal(class(boo), "lmeresamp")
-  expect_equal(boo$stats$observed, orig.stats)
+  expect_equal(boo$observed, orig.stats)
+  expect_equal(boo$stats$observed, unname(orig.stats))
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
