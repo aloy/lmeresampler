@@ -14,10 +14,10 @@ test_that("two-level additive random intercept model",{
   grouped <- group_by(jjsp728, school) %>%
     summarise(count = n())
   
-  cr1 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), resample = c(TRUE, TRUE))
-  cr2 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), resample = c(FALSE, TRUE))
-  cr3 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), resample = c(TRUE, FALSE))
-  cr4 <- .cases.resamp(dat = jjsp728, cluster = c("school", ".id"), resample = c(FALSE, FALSE))
+  cr1 <- .resamp.cases(dat = jjsp728, cluster = c("school", ".id"), resample = c(TRUE, TRUE))
+  cr2 <- .resamp.cases(dat = jjsp728, cluster = c("school", ".id"), resample = c(FALSE, TRUE))
+  cr3 <- .resamp.cases(dat = jjsp728, cluster = c("school", ".id"), resample = c(TRUE, FALSE))
+  cr4 <- .resamp.cases(dat = jjsp728, cluster = c("school", ".id"), resample = c(FALSE, FALSE))
   
   expect_equal(nrow(cr2), nrow(jjsp728))
   expect_identical(cr4, jjsp728)
