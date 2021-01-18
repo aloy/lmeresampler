@@ -54,7 +54,7 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample){
     stop("'resample' is not the same length as the number of grouping variables. Please specify whether to resample the data at each level of grouping.")
   
   # rep.data <- purrr::map(integer(B), function(x) .cases.resamp(model = model, dat = data, cluster = clusters, resample = resample))
-  tstar <- purrr::map(integer(B), function(x) .cases.resamp(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
+  tstar <- purrr::map(integer(B), function(x) resamp.cases(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
   
   RES <- .bootstrap.completion(model, tstar, B, .f, type = "case")
   return(RES)
@@ -81,7 +81,7 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample){
 #   do.call(rbind, sub)
 # }
 # 
-.cases.resamp <- function(model, .f, dat, cluster, resample) {
+.resamp.cases <- function(model, .f, dat, cluster, resample) {
   
   res <- dat
   
