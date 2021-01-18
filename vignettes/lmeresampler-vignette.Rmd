@@ -274,8 +274,8 @@ doParallel::registerDoParallel(cl)    # how the CPU knows to run in parallel
 b_parallel2 <- foreach(B = rep(250, 2), 
                        .combine = combine_lmeresamp,
                        .packages = c("lmeresampler", "lme4")) %dopar% {
-  bootstrap(vcmodA, .f = fixef, type = "parametric", B = B)
-}
+                         bootstrap(vcmodA, .f = fixef, type = "parametric", B = B)
+                       }
 
 stopCluster(cl)
 ```
