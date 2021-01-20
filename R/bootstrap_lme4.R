@@ -18,7 +18,7 @@ bootstrap.lmerMod <- function(model, .f, type, B, resample, reb_type){
 parametric_bootstrap.lmerMod <- function(model, .f, B){
   .f <- match.fun(.f)
   
-  model.fixef <- lme4::fixef(model) # Extract fixed effects
+  # model.fixef <- lme4::fixef(model) # Extract fixed effects
   ystar <- simulate(model, nsim = B, na.action = na.exclude)
   
   # refit here
@@ -213,83 +213,34 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
   
   .f <- match.fun(.f)
   
-  # changed this from ystar to tstar
-  tstar <- as.data.frame(replicate(n = B, .resample.reb(model = model, .f = .f, reb_type = reb_type)))
+  # Set up for bootstrapping
+  setup <- .setup.reb(model, reb_type)
   
-  if(reb_type != 2) t0 <- .f(model)
+  # Generate bootstrap responses
+  y.star <- replicate(
+    n = B, 
+    .resample.reb(Xbeta = setup$Xbeta, Ztlist = setup$Ztlist, Uhat = setup$Uhat, 
+                  estar.vec = as.numeric(setup$estar), flist = setup$flist, levs = setup$levs)
+  )
+
+  y.star <- as.data.frame(y.star)
   
-  # Refit the model and apply '.f' to it using map
-  #   tstar <- lapply(ystar[1,], function(x) {
-  #     .f(refit(object = model, newresp = x))
-  #   })
+  # Extract bootstrap statistics
+  if(reb_type == 2) .f <- extract_parameters.lmerMod
   
-  if(reb_type == 2){
-    fe.0 <- lme4::fixef(model)
-    vc.0 <- bdiag(lme4::VarCorr(model))
-    t0 <- c(beta = fe.0, sigma = c(diag(vc.0), lme4::getME(model, "sigma")^2))
-    tstar <- purrr::map(tstar, function(x) { # changed ystar map to tstar map
-      m <- lme4::refit(object = model, newresp = x)
-      vc <- as.data.frame(lme4::VarCorr(m))
-      list(fixef = lme4::fixef(m), varcomp = vc$vcov[is.na(vc$var2)])
+  tstar <- purrr::map_dfc(y.star, function(x) {
+    .f(lme4::refit(object = model, newresp = x))
     })
-    
-    vcs <- purrr::map(tstar, function(x) x$varcomp)
-    Sb <- log( do.call("rbind", vcs) )
-    #     fes <- lapply(tstar, function(x) x$fixef)
-    
-    Mb <- matrix(rep(colMeans(Sb), times = B), nrow = B, byrow = TRUE)
-    CovSb <- cov(Sb)
-    SdSb <- sqrt(diag(CovSb))
-    
-    Db <- matrix(rep(SdSb, times = B), nrow = B, byrow = TRUE)
-    
-    EW <- eigen(solve(CovSb), symmetric = T)
-    Whalf <- EW$vectors %*% diag(sqrt(EW$values))
-    
-    Sbmod <- (Sb - Mb) %*% Whalf
-    Sbmod <- Sbmod * Db # elementwise not a type 
-    Lb <- exp(Mb + Sbmod)
-    
-    # tstar <- purrr::map(tstar, unlist)
-  } else{
-    Lb <- NULL
-    # tstar <- purrr::map(ystar, function(x) {
-    #   .f(lme4::refit(object = model, newresp = x))
-    # })
-  }
   
-  # tstar <- do.call("cbind", tstar) # Can these be nested?
-  #   rownames(tstar) <- names(.f(model))
+  # Extract original statistics
+  t0 <- .f(model)
   
-  if(reb_type == 2) {
-    idx <- 1:length(fe.0)
-    fe.star <- tstar[idx,] 
-    fe.adj <- sweep(fe.star, MARGIN = 1, STATS = fe.0 - rowMeans(fe.star, na.rm = TRUE), .f = "+")
-    
-    vc.star <- tstar[-idx,] 
-    vc.adj <- sweep(vc.star, MARGIN = 1, STATS = t0[-idx] / rowMeans(vc.star, na.rm = TRUE), .f = "*")
-    
-    tstar <- rbind(fe.adj, vc.adj)
-    
-    .f <- function(.) {
-      c(beta = lme4::fixef(.), sigma =c(diag(bdiag(lme4::VarCorr(.))), lme4::getME(., "sigma")^2))
-    }
-  }
+  # Postprocessing for REB/2
+  if(reb_type == 2) 
+    tstar <- .postprocess.reb2(t0, tstar, nbeta = length(getME(model, "beta")))
   
-  replicates <- as.data.frame(t(tstar))
-  observed <- t0
-  rep.mean <- colMeans(replicates)
-  se <- unlist(purrr::map(replicates, sd))
-  bias <- rep.mean - observed
-  
-  stats <- data.frame(observed, rep.mean, se, bias)
-  
-  RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
-                        stats = stats, R = B, data = model@frame,
-                        seed = .Random.seed, type = paste("reb", reb_type, sep = ""), call = match.call()),
-                   class = "lmeresamp")
-  
-  return(RES)
+  # Format for return
+  .bootstrap.completion(model, tstar, B, .f, type = paste("reb", reb_type, sep = ""))
 }
 
 
@@ -503,19 +454,26 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
   tstar <- .f(lme4::refit(object = model, newresp = y.star))
 }
 
-#' REB resampling procedures 
+
+#' Setting up for REB resampling
 #' 
 #' @param reb_type Specifies the inclusion of REB/1
 #' @inheritParams bootstrap
 #' @import Matrix
 #' @keywords internal
 #' @noRd
-.resample.reb <- function(model, .f, reb_type){
+.setup.reb <- function(model, reb_type) {
+  # marginal fitted values
+  Xbeta <- predict(model, re.form = NA)
+  
   # extract marginal residuals
-  model.mresid <- lme4::getME(model, "y") - predict(model, re.form = NA)
+  model.mresid <- lme4::getME(model, "y") - Xbeta
   
   # Extract Z design matrix
   Z <- lme4::getME(object = model, name = "Z")
+  
+  # Extract Z design matrix separated by variance
+  Ztlist <- lme4::getME(object = model, name = "Ztlist")
   
   # level 2 resid
   u <- solve(t(Z) %*% Z) %*% t(Z) %*% model.mresid # a single vector
@@ -544,83 +502,101 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
   
   if(reb_type == 1){
     if(level.num > 1) stop("reb_type = 1 is not yet implemented for higher order models")
-    # Calculations
-    Uhat <- purrr::map(u, function(x){
-      S <- (t(x) %*% x) / nrow(x)
-      R <- bdiag(lme4::VarCorr(model))
-      Ls <- chol(S, pivot = TRUE)
-      Lr <- chol(R, pivot = TRUE)
-      A <- t(Lr %*% solve(Ls))
-      
-      Uhat <- x%*%A
-      
-      # center
-      Uhat <- data.frame(scale(Uhat, scale = FALSE))
-      
-      return(Uhat)
-    })
+    
+    # Rescale u the residuals *prior* to resampling
+    # so empirical variance is equal to estimated variance
+    Uhat <- purrr::map(u, scale_center_uhat)
     
     sigma <- lme4::getME(model, "sigma")
-    estar <- sigma * e %*% ((t(e) %*% e) / length(e))^(-1/2)
-    estar <- data.frame(scale(estar, scale = FALSE))
+    estar <- scale_center_e(e, sigma)
     
   } else{
     Uhat <- u
     estar <- e
   }
   
-  Xbeta <- predict(model, re.form = NA)
+  list(Xbeta = Xbeta, Ztlist = Ztlist, Uhat = Uhat, 
+       estar = estar, flist = fl, levs = levs)
+}
+
+#' REB resampling procedure 
+#' 
+#' @param Xbeta marginal fitted values
+#' @param Ztlist design matrix separated by variance
+#' @param Uhat ranefs organized as Ztlist
+#' @param estar.vec vector of level-1 residuals
+#' @param flist a list of the grouping variables (factors) involved in the random effect terms
+#' @param levs a list of levels of the grouping variables in flist
+#' @inheritParams bootstrap
+#' @import Matrix
+#' @keywords internal
+#' @noRd
+.resample.reb <- function(Xbeta, Ztlist, Uhat, estar.vec, flist, levs){
+  # For now, assume only a two-level model
+  grps <- levs[[1]]
+  units <- flist[[1]]
+  resamp_u_ids <- sample(seq_along(grps), size = length(grps), replace = TRUE)
+  resamp_e_grps <- sample(grps, size = length(grps), replace = TRUE)
   
   # resample uhats
-  ustar <- purrr::map(Uhat,
-                      .f = function(x) {
-                        J <- nrow(x)
-                        
-                        # Sample of b*
-                        ustar.index <- sample(x = seq_len(J), size = J, replace = TRUE)
-                        ustar <- data.frame(x[ustar.index,])
-                        return(ustar)
-                      })
+  ustar <- purrr::map(Uhat, ~data.frame(.x[resamp_u_ids, ]))
   
-  #   Uhat <- as.data.frame(as.matrix(Uhat))
-  #   Uhat.list <- list(Uhat)
-  
-  ## TODO: fix this issue with the levels... Need to resample from here...
-  
-  # Extract Z design matrix separated by variance
-  Ztlist <- lme4::getME(object = model, name = "Ztlist")
-  
-  if(level.num == 1){
-    ustar <- purrr::map(ustar, .f = function(x) as.list(x))[[1]]
-  } else {
-    ustar <- purrr::map_dfr(ustar, .f = function(x) as.data.frame(x))
-    ustar <- do.call(c, ustar)
+  # Resample residuals, e
+  estar <- numeric(length = length(units))
+  for(i in seq_along(resamp_e_grps)) {
+    target_units <- which(units == grps[i])
+    donor_units <- which(units == resamp_e_grps[i])
+    estar[target_units] <- sample(estar.vec, size = length(target_units), replace = TRUE)
   }
+
+  # since only working with 2-levels models now
+  ustar <- ustar[[1]]
   
   names(ustar) <- names(Ztlist) 
   ustar.df <- as.data.frame(ustar)
-  
-  #   if(level.num == 1){
-  #     Uhat.list <- lapply(Uhat.list, .f = function(x) as.list(x))[[1]]
-  #     names(Uhat.list) <- names(Ztlist)
-  #   } else {
-  #     Uhat.list <- sapply(Uhat.list, .f = function(x) as.list(x))
-  #   }
-  
-  #   # Resample Uhat
-  #   ustar <- sample(x = Uhat.list[[1]], size = length(Uhat.list[[1]]), replace = TRUE)
   
   # Get Zb*
   Zbstar <- .Zbstar.combine(bstar = ustar.df, zstar = Ztlist)
   Zbstar.sum <- Reduce("+", Zbstar)
   
-  # Resample residuals
-  estar <- sample(x = model.mresid, size = length(model.mresid), replace = TRUE)
-  
-  # Combine function
-  y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
-  
-  # Refit the model and apply '.f' to it using map
-  tstar <- .f(lme4::refit(object = model, newresp = y.star))
+  # ystar
+  as.numeric(Xbeta + Zbstar.sum + estar)
 }
 
+
+#' REB resampling procedure 
+#' 
+#' @param t0 stats extracted from original model
+#' @param tstar bootstrap statistics
+#' @param nbeta number of fixed effects parameters, \code{length(getME(model, "beta"))}
+#' @keywords internal
+#' @noRd
+.postprocess.reb2 <- function(t0, tstar, nbeta){
+  nparams <- length(t0)
+  fe0 <- t0[1:nbeta]
+  vc0 <- t0[(nbeta+1):nparams]
+  
+  fe.star <- t(tstar[1:nbeta,])
+  vc.star <- t(tstar[(nbeta+1):nparams,])
+  
+  # Rescaling
+  Sb <- log(vc.star)
+  CovSb <- cov(Sb)
+  SdSb <- sqrt(diag(CovSb))
+  
+  EW <- eigen(solve(CovSb), symmetric = T)
+  Whalf <- EW$vectors %*% diag(sqrt(EW$values))
+  
+  Db <- matrix(rep(SdSb, times = B), nrow = B, byrow = TRUE)
+  Mb <- matrix(rep(colMeans(Sb), times = B), nrow = B, byrow = TRUE)
+  
+  Sbmod <- (Sb - Mb) %*% Whalf
+  Sbmod <- Sbmod * Db # elementwise not a type 
+  Lb <- exp(Mb + Sbmod)
+  
+  # Bias corrections
+  fe.adj <- sweep(fe.star, MARGIN = 2, STATS = fe0 - colMeans(fe.star, na.rm = TRUE), FUN = "+")
+  vc.adj <- sweep(vc.star, MARGIN = 2, STATS = vc0 / colMeans(vc.star, na.rm = TRUE), FUN = "*")
+  
+  as.data.frame(t(cbind(fe.adj, vc.adj)))
+}
