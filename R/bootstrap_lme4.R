@@ -54,7 +54,7 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample){
     stop("'resample' is not the same length as the number of grouping variables. Please specify whether to resample the data at each level of grouping.")
   
   # rep.data <- purrr::map(integer(B), function(x) .cases.resamp(model = model, dat = data, cluster = clusters, resample = resample))
-  tstar <- purrr::map(integer(B), function(x) resamp.cases(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
+  tstar <- purrr::map(integer(B), function(x) .resamp.cases(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
   
   RES <- .bootstrap.completion(model, tstar, B, .f, type = "case")
   return(RES)
@@ -189,12 +189,31 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample){
 #' @rdname cgr_bootstrap
 #' @export
 cgr_bootstrap.lmerMod <- function(model, .f, B){
+  
   .f <- match.fun(.f)
   
-  tstar <- as.data.frame(replicate(n = B, .resample.cgr(model = model, .f)))
+  setup <- .setup.cgr(model)
   
-  RES <- .bootstrap.completion(model, tstar, B, .f, type = "cgr")
-  return(RES)
+  ystar <- as.data.frame(
+    replicate(
+      n = B, 
+      .resample.cgr(
+        b = setup$b, 
+        e = setup$e, 
+        level.num = setup$level.num, 
+        Ztlist = setup$Ztlist, 
+        Xbeta = setup$Xbeta,
+        vclist = setup$vclist,
+        sig0 = setup$sig0
+      )
+    )
+  )
+  
+  tstar <- purrr::map_dfc(ystar, function(x) {
+    .f(lme4::refit(object = model, newresp = x))
+  })
+  
+  .bootstrap.completion(model, tstar, B, .f, type = "cgr")
 }
 
 
@@ -322,80 +341,66 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
   return(RES)
 }
 
-#' CGR resampling procedures
+#' CGR setup to resampling
 #' @keywords internal
 #' @noRd
-.resample.cgr <- function(model, .f){
-  model.ranef <- lme4::ranef(model)
+.setup.cgr <- function(model){
+  # Extract marginal fitted values
+  Xbeta <- predict(model, re.form = NA) # This is X %*% fixef(model)
   
-  # Extract residuals
-  model.resid <- resid(model)
+  # Extract and center random effects
+  b <- purrr::map(lme4::ranef(model), .f = scale, scale = FALSE)
+  b <- purrr::map(b, as.data.frame)
   
-  # Higher levels
-  Uhat.list <- purrr::map(seq_along(model.ranef),
-                          .f = function(i) {
-                            u <- scale(model.ranef[[i]], scale = FALSE)
-                            S <- (t(u) %*% u) / length(u)
-                            
-                            re.name <- names(model.ranef)[i]
-                            R <- bdiag(lme4::VarCorr(model)[[names(model.ranef)[i]]])
-                            
-                            Ls <- chol(S, pivot = TRUE)
-                            Lr <- chol(R, pivot = TRUE)
-                            A <- t(Lr %*% solve(Ls))
-                            
-                            Uhat <- as.matrix(u %*% A)
-                            Uhat <- as.data.frame(Uhat)
-                            
-                            return(Uhat)
-                          })  
-  names(Uhat.list) <- names(model.ranef)
+  # Extract and center error terms
+  e <- as.numeric(scale(resid(model), scale = FALSE))
   
-  # Level 1
-  e <- as.numeric(scale(model.resid, scale = FALSE))
-  sigma <- lme4::getME(model, "sigma")
-  ehat <- sigma * e * as.numeric((t(e)%*%e) / length(e))^(-1/2)
-  
-  # Extract Z design matrix
-  Z <- lme4::getME(object = model, name = "Ztlist")
-  
-  
-  Xbeta <- predict(model, re.form = NA)
+  sig0 <- sigma(model)
+  Ztlist <- lme4::getME(object = model, name = "Ztlist")
   
   level.num <- lme4::getME(object = model, name = "n_rfacs")
   
+  vclist <- purrr::map(
+    seq_along(b), 
+    .f = ~bdiag(lme4::VarCorr(model)[[names(b)[.x]]])
+  )
+  names(vclist) <- names(b)
+  
+  list(Xbeta = Xbeta, b = b, e = e, Ztlist = Ztlist, level.num = level.num,
+       sig0 = sig0, vclist = vclist)
+}
+
+#' CGR resampling procedures
+#' @keywords internal
+#' @noRd
+.resample.cgr <- function(b, e, level.num, Ztlist, Xbeta, vclist, sig0){
+  
+  # Resample resids
+  estar <- sample(x = e, size = length(e), replace = TRUE)
+  ehat <- scale_center_e(estar, sigma = sig0)
+  
   # Resample Uhat
-  ustar <- purrr::map(Uhat.list,
-                      .f = function(df) {
-                        index <- sample(x = seq_len(nrow(df)), size = nrow(df), replace = TRUE)
-                        return(df[index,])
-                      })
+  ustar <- purrr::map(b, .f = dplyr::slice_sample, prop = 1, replace = TRUE)
+  ustar <- purrr::map2(ustar, vclist, reflate_ranef)
   
   # Structure u*
   if(level.num == 1){
     if(is.data.frame(ustar[[1]])){
-      ustar <- purrr::map(ustar, .f = function(x) as.list(x))[[1]] 
+      ustar <- purrr::map(ustar, .f = as.list)[[1]]
     }
-    names(ustar) <- names(Z)
+    names(ustar) <- names(Ztlist)
   } else {
-    ustar <- purrr::map(ustar, .f = function(x) as.data.frame(x))
+    ustar <- purrr::map(ustar, .f = as.data.frame)
     ustar <- do.call(c, ustar)
-    names(ustar) <- names(Z)
+    names(ustar) <- names(Ztlist)
   }
   
   # Get Zb*
-  Zbstar <- .Zbstar.combine(bstar = ustar, zstar = Z)
+  Zbstar <- .Zbstar.combine(bstar = ustar, zstar = Ztlist)
   Zbstar.sum <- Reduce("+", Zbstar)
   
-  # Get e*
-  estar <- sample(x = ehat, size = length(ehat), replace = TRUE)
-  
-  # Combine
-  y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
-  
-  # Refit the model and apply '.f' to it using map
-  # changed x to y.star for function and newresp
-  tstar <- .f(lme4::refit(object = model, newresp = y.star))
+  # Calc. bootstrap y
+  as.numeric(Xbeta + Zbstar.sum + estar)
 }
 
 #' Resampling residuals from mixed models
@@ -417,15 +422,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
   # Extract Z design matrix
   Z <- lme4::getME(object = model, name = "Ztlist")
   
-  bstar <- purrr::map(model.ranef,
-                      .f = function(x) {
-                        J <- nrow(x)
-                        
-                        # Sample of b*
-                        bstar.index <- sample(x = seq_len(J), size = J, replace = TRUE)
-                        bstar <- x[bstar.index,]
-                        return(bstar)
-                      })
+  bstar <- purrr::map(b, .f = dplyr::slice_sample, prop = 1, replace = TRUE)
   
   level.num <- lme4::getME(object = model, name = "n_rfacs")
   
