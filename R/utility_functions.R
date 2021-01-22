@@ -1,18 +1,14 @@
-scale_center_uhat <- function(x){
-  # Calculate the scaling factor for the ranefs
-  S <- (t(x) %*% x) / nrow(x)
-  R <- bdiag(lme4::VarCorr(model))
+scale_center_ranef <- function(b, vc){
+  u <- scale(b, scale = FALSE)
+  S <- (t(u) %*% u) / nrow(u)
+  R <- vc
+  
   Ls <- t(chol(S, pivot = TRUE))
   Lr <- t(chol(R, pivot = TRUE))
   A <- t(Lr %*% solve(Ls))
   
-  # Rescale ranefs so empirical variance is equal to estimated variance
-  Uhat <- x %*% A
-  
-  # zero center
-  Uhat <- data.frame(scale(Uhat, scale = FALSE))
-  
-  return(Uhat)
+  Uhat <- as.matrix(u %*% A)
+  data.frame(Uhat)
 }
 
 scale_center_e <- function(x, sigma) {
@@ -31,15 +27,26 @@ extract_parameters.lmerMod <- function(model) {
   )
 }
 
-reflate_ranef <- function(b, vc){
-  u <- scale(b, scale = FALSE)
-  S <- (t(u) %*% u) / nrow(u)
-  R <- vc
-  
-  Ls <- t(chol(S, pivot = TRUE))
-  Lr <- t(chol(R, pivot = TRUE))
-  A <- t(Lr %*% solve(Ls))
-  
-  Uhat <- as.matrix(u %*% A)
-  data.frame(Uhat)
+
+#' Organize ranef vector into lists
+#' 
+#' @param b ranef estimates
+#' @param fl flist from lmerMod object, a list of the grouping 
+#'   variables (factors) involved in the random effect terms
+#' @param levs unique levels of each factor in fl
+#' @param cnms a list component names for each ranef
+#' @keywords internal
+#' @noRd
+arrange_ranefs.lmerMod <- function(b, fl, levs, cnms){
+  asgn <- attr(fl, "assign")
+  nc <- vapply(cnms, length, 1L)
+  nb <- nc * (nl <- vapply(levs, length, 1L)[asgn])
+  nbseq <- rep.int(seq_along(nb), nb)
+  u <- split(b, nbseq)
+  for (i in seq_along(u)){
+    u[[i]] <- matrix(u[[i]], ncol = nc[i], byrow = TRUE,
+                     dimnames = list(NULL, cnms[[i]]))
+  }
+  names(u) <- names(cnms)
+  u
 }
