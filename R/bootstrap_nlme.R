@@ -14,12 +14,6 @@ bootstrap.lme <- function(model, .f, type, B, resample, reb_type){
 #' @export
 #' @importFrom nlmeU simulateY
 parametric_bootstrap.lme <- function(model, .f, B){
-  # getVarCov.lme is the limiting factor...
-  
-  # if(ncol(model$groups) > 1){
-  #   stop("The REB bootstrap has not been adapted for 3+ level models.")
-  # }
-  
   # Match function
   .f <- match.fun(.f)
   t0 <- .f(model)
@@ -31,15 +25,6 @@ parametric_bootstrap.lme <- function(model, .f, B){
   row.names(ystar) <- 1:model$dims$N
   ystar <- data.frame(ystar)
   
-  # t.res <- list()
-  # length(t.res) <- B
-  #    t.res <- matrix(0, ncol = 2, nrow = B)
-  #   for(i in 1:B){
-  #     myin <- ystar[,i]
-  #     model.update <- update(object = model, fixed = myin ~ .)
-  #     t.res[i,] <- .f(model.update)
-  #   }
-  
   tstar <- purrr::map(ystar, function(y) {
     fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
                     error = function(e) e)
@@ -50,29 +35,10 @@ parametric_bootstrap.lme <- function(model, .f, B){
     }
   })
   
-  #   for(i in 1:B){
-  #     #     myin <- ystar[,i]
-  #     #     model.update <- nlme:::update.lme(object = model, fixed = myin ~ .)
-  #     #     t.res[i,] <- .f(model.update)
-  #     fit <- tryCatch(.f(updated.model(model = model, new.y = ystar[,i])),  error = function(e) e)
-  #     if (inherits(fit, "error")) {
-  #       structure(rep(NA, length(t0)), fail.msgs = fit$message)
-  #     } else{
-  #       t.res[[i]] <- fit
-  #     }
-  ### NOTE: Need to check if there was an error in try, and then use .f()
-  # tmp.mod <- updated.model(model = model, new.y = ystar[,i])
-  # t.res[[i]] <- .f(try.fit)
-  # }
-  # tstar <- data.frame(tstar)
-  
-  #   tstar <- split(t.res, rep(1:ncol(t.res), each = nrow(t.res)))
-  #   
-  #   tstar <- do.call("cbind", tstar) # Can these be nested?
-  # colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
-  
   return(.bootstrap.completion(model, tstar, B, .f, type = "parametric"))
 }
+
+
 
 #' @rdname case_bootstrap
 #' @export
@@ -83,20 +49,10 @@ case_bootstrap.lme <- function(model, .f, B, resample){
   clusters <- c(names(model$groups), ".id")
   
   if(length(clusters) != length(resample))
-    stop("'resample' is not the same length as the number of grouping variables. Please specify whether to resample the data at each level of grouping.")
+    stop("'resample' is not the same length as the number of grouping variables. 
+         Please specify whether to resample the data at each level of grouping.")
   
-  # rep.data <- lapply(integer(B), eval.parent(substitute(function(...) .cases.resamp(dat = data, cluster = clusters, resample = resample))))
   tstar <- purrr::map(integer(B), function(x) .resamp.cases(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
-  
-  # res <- purrr::map(rep.data, function(df) {
-  #   fit <- tryCatch(.f(updated.model(model = model, new.data = df)),  
-  #                   error = function(e) e)
-  #   if (inherits(fit, "error")) {
-  #     structure(rep(NA, length(t0)), fail.msgs = fit$message)
-  #   } else{
-  #     fit
-  #   }
-  # })
   
   return(.bootstrap.completion(model, tstar, B, .f, type = "case"))
 }
