@@ -35,10 +35,26 @@ resid_bootstrap.lmerMod <- function(model, .f, B){
   
   .f <- match.fun(.f)
   
-  tstar <- purrr::map(1:B, function(x) .resample.resids(model, .f))
+  setup <- .setup.resids(model)
   
-  RES <- .bootstrap.completion(model, tstar, B, .f, type = "residual")
-  return(RES)
+  ystar <- as.data.frame(
+    replicate(
+      n = B, 
+      .resample.resids(
+        b = setup$b, 
+        e = setup$e, 
+        level.num = setup$level.num, 
+        Ztlist = setup$Ztlist, 
+        Xbeta = setup$Xbeta
+      )
+    )
+  )
+  
+  tstar <- purrr::map_dfc(ystar, function(x) {
+    .f(lme4::refit(object = model, newresp = x))
+  })
+  
+  .bootstrap.completion(model, tstar, B, .f, type = "residual")
 }
 
 
@@ -406,49 +422,27 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
 #' Resampling residuals from mixed models
 #' @keywords internal
 #' @noRd
-.resample.resids <- function(model, .f) {
-  
-  # Extract fixed part of the model
-  Xbeta <- predict(model, re.form = NA) # This is X %*% fixef(model)
-  
-  # Extract random effects
-  # centered
-  model.ranef <- purrr::map(lme4::ranef(model), .f = scale, scale = FALSE)
-  
-  # Extract residuals
-  # centered
-  model.resid <- scale(resid(model), scale = FALSE)
-  
-  # Extract Z design matrix
-  Z <- lme4::getME(object = model, name = "Ztlist")
-  
+.resample.resids <- function(b, e, level.num, Ztlist, Xbeta) {
   bstar <- purrr::map(b, .f = dplyr::slice_sample, prop = 1, replace = TRUE)
   
-  level.num <- lme4::getME(object = model, name = "n_rfacs")
-  
   if(level.num == 1){
-    if(!is.numeric(bstar[[1]])) bstar <- purrr::map(bstar, .f = function(x) as.list(x))[[1]]
-    names(bstar) <- names(Z)
+    if(!is.numeric(bstar[[1]])) bstar <- purrr::map(bstar, .f = as.list)[[1]]
+    names(bstar) <- names(Ztlist)
   } else {
-    bstar <- purrr::map_dfr(bstar, .f = function(x) as.data.frame(x))
+    bstar <- purrr::map_dfr(bstar, .f = as.data.frame)
     bstar <- do.call(c, bstar)
-    names(bstar) <- names(Z)
+    names(bstar) <- names(Ztlist)
   }
   
   # Get Zb*
-  Zbstar <- .Zbstar.combine(bstar = bstar, zstar = Z)
+  Zbstar <- .Zbstar.combine(bstar = bstar, zstar = Ztlist)
   Zbstar.sum <- Reduce("+", Zbstar)
   
   # Resample residuals
-  estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
+  estar <- sample(x = e, size = length(e), replace = TRUE)
   
-  # Combine function
-  y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
-  
-  # Refit the model and apply '.f' to it using map
-  
-  ## .f() no mapping
-  tstar <- .f(lme4::refit(object = model, newresp = y.star))
+  # Calculate boostrap responses
+  as.numeric(Xbeta + Zbstar.sum + estar)
 }
 
 
@@ -596,4 +590,26 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
   vc.adj <- sweep(vc.star, MARGIN = 2, STATS = vc0 / colMeans(vc.star, na.rm = TRUE), FUN = "*")
   
   as.data.frame(t(cbind(fe.adj, vc.adj)))
+}
+
+#' Setup for residual resamplling
+#' 
+#' @keywords internal
+#' @noRd
+.setup.resids <- function(model){
+  # Extract fixed part of the model
+  Xbeta <- predict(model, re.form = NA) # This is X %*% fixef(model)
+  
+  # Extract and center random effects
+  b <- purrr::map(lme4::ranef(model), .f = scale, scale = FALSE)
+  b <- purrr::map(b, as.data.frame)
+  
+  # Extract and center error terms
+  e <- scale(resid(model), scale = FALSE)
+  
+  Ztlist <- lme4::getME(object = model, name = "Ztlist")
+  
+  level.num <- lme4::getME(object = model, name = "n_rfacs")
+  
+  list(Xbeta = Xbeta, b = b, e = e, Ztlist = Ztlist, level.num = level.num)
 }
