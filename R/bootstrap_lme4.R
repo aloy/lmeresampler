@@ -254,10 +254,16 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
   # Generate bootstrap responses
   y.star <- replicate(
     n = B, 
-    .resample.reb(Xbeta = setup$Xbeta, Ztlist = setup$Ztlist, Uhat = setup$Uhat, 
-                  estar.vec = as.numeric(setup$estar), flist = setup$flist, levs = setup$levs)
+    .resample.reb(
+      Xbeta = setup$Xbeta, 
+      Ztlist = setup$Ztlist, 
+      Uhat = setup$b, 
+      estar.vec = as.numeric(setup$e), 
+      flist = setup$flist, 
+      levs = setup$levs
+    )
   )
-
+  
   y.star <- as.data.frame(y.star)
   
   # Extract bootstrap statistics
@@ -272,7 +278,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
   
   # Postprocessing for REB/2
   if(reb_type == 2) 
-    tstar <- .postprocess.reb2(t0, tstar, nbeta = length(getME(model, "beta")))
+    tstar <- .postprocess.reb2(t0, tstar, nbeta = length(getME(model, "beta")), B = B)
   
   # Format for return
   .bootstrap.completion(model, tstar, B, .f, type = paste("reb", reb_type, sep = ""))
@@ -473,7 +479,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
 #' @param nbeta number of fixed effects parameters, \code{length(getME(model, "beta"))}
 #' @keywords internal
 #' @noRd
-.postprocess.reb2 <- function(t0, tstar, nbeta){
+.postprocess.reb2 <- function(t0, tstar, nbeta, B){
   nparams <- length(t0)
   fe0 <- t0[1:nbeta]
   vc0 <- t0[(nbeta+1):nparams]
