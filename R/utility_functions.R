@@ -52,6 +52,21 @@ arrange_ranefs.lmerMod <- function(b, fl, levs, cnms){
 }
 
 
+arrange_ranefs.lme <- function(b, fl, levs, cnms){
+  asgn <- seq_along(fl)
+  nc <- purrr::map_int(cnms, length) #map_int()
+  nb <- nc * (nl <- purrr::map_int(levs, length))
+  nbseq <- rep.int(seq_along(nb), nb)
+  u <- split(b, nbseq)
+  for (i in seq_along(u)){
+    u[[i]] <- matrix(u[[i]], ncol = nc[i], byrow = TRUE,
+                     dimnames = list(NULL, cnms[[i]]))
+  }
+  names(u) <- names(cnms)
+  u
+}
+
+
 #' @title Zbstar combine
 #'
 #' @description
