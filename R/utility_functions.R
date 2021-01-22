@@ -50,3 +50,24 @@ arrange_ranefs.lmerMod <- function(b, fl, levs, cnms){
   names(u) <- names(cnms)
   u
 }
+
+
+#' @title Zbstar combine
+#'
+#' @description
+#' Combine \code{bstar} and \code{zstar} to create {Zbstar}.
+#'
+#' @details
+#' This function combines \code{bstar} and \code{zstar} to create {Zbstar} using a map statement
+#'
+#' @param bstar A list of matrices bstar
+#' @param zstar A list of matrices zstar
+#'
+#' @return matrix
+#' @keywords internal
+#' @noRd
+.Zbstar.combine <- function(bstar, zstar){
+  purrr::map(1:length(bstar), function(i){
+    Matrix::t(zstar[[i]]) %*% bstar[[i]]
+  })
+}
