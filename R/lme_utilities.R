@@ -62,8 +62,42 @@ updated.model<- function(model, new.y = NULL, new.data = NULL){
   }
   
   # create new lme
-  ctrl <- nlme::lmeControl(opt = 'optim')
+  ctrl <- nlme::lmeControl(opt = 'optim', returnObject = TRUE)
   out.lme <- nlme::lme(fixed = mod.fixd, data = mod.data, random = mod.rand, control = ctrl)
   return(out.lme)
 }
 
+
+# Create list of Z matrices, similar to Ztlist in lme4
+extract_zlist.lme <- function(model){
+  level.num <- ncol(model$groups)
+  re.form <- formula(model$modelStruct$reStr)
+  Z <- purrr::map(1:length(re.form), function(i) model.matrix(formula(model$modelStruct$reStr)[[i]], data=model$data))
+  names(Z) <- names(re.form)
+  
+  grp <- purrr::map(model$groups, forcats::fct_inorder)
+  
+  # if(level.num == 1) {
+  #   Z <- as.data.frame(Z[[1]])
+  #   Zlist <- purrr::map(Z, function(col) split(col, grp[[1]]))
+  #   
+  # } else{
+    
+    Z <- purrr::map(Z, as.data.frame)
+    Z  <- Z[rev(names(Z))] # agree w/ order of model$group and bstar
+    
+    Zlist <- purrr::map(1:length(Z), function(i) purrr::map(Z[[i]], function(col) split(col, model$group[,i])))
+    names(Zlist) <- names(Z)
+  # }
+  Zlist
+}
+
+
+.Zbstar.combine.lme <- function(bstar, Zlist){
+  zbstar_list <- purrr::map(1:length(Zlist), function(e) {
+    z.e <- Zlist[[e]]
+    b.e <- bstar[[e]]
+    purrr::map(1:length(z.e), function(j) unlist(mapply("*", z.e[[j]], b.e[,j], SIMPLIFY = FALSE)))
+  })
+  Reduce("+", unlist(Zbstar, recursive = FALSE))
+}
