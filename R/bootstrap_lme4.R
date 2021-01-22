@@ -357,34 +357,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
   return(RES)
 }
 
-#' CGR setup to resampling
-#' @keywords internal
-#' @noRd
-.setup.cgr <- function(model){
-  # Extract marginal fitted values
-  Xbeta <- predict(model, re.form = NA) # This is X %*% fixef(model)
-  
-  # Extract and center random effects
-  b <- purrr::map(lme4::ranef(model), .f = scale, scale = FALSE)
-  b <- purrr::map(b, as.data.frame)
-  
-  # Extract and center error terms
-  e <- as.numeric(scale(resid(model), scale = FALSE))
-  
-  sig0 <- sigma(model)
-  Ztlist <- lme4::getME(object = model, name = "Ztlist")
-  
-  level.num <- lme4::getME(object = model, name = "n_rfacs")
-  
-  vclist <- purrr::map(
-    seq_along(b), 
-    .f = ~bdiag(lme4::VarCorr(model)[[names(b)[.x]]])
-  )
-  names(vclist) <- names(b)
-  
-  list(Xbeta = Xbeta, b = b, e = e, Ztlist = Ztlist, level.num = level.num,
-       sig0 = sig0, vclist = vclist)
-}
+
 
 #' CGR resampling procedures
 #' @keywords internal
@@ -397,7 +370,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
   
   # Resample Uhat
   ustar <- purrr::map(b, .f = dplyr::slice_sample, prop = 1, replace = TRUE)
-  ustar <- purrr::map2(ustar, vclist, reflate_ranef)
+  ustar <- purrr::map2(ustar, vclist, scale_center_ranef)
   
   # Structure u*
   if(level.num == 1){
@@ -446,69 +419,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
 }
 
 
-#' Setting up for REB resampling
-#' 
-#' @param reb_type Specifies the inclusion of REB/1
-#' @inheritParams bootstrap
-#' @import Matrix
-#' @keywords internal
-#' @noRd
-.setup.reb <- function(model, reb_type) {
-  # marginal fitted values
-  Xbeta <- predict(model, re.form = NA)
-  
-  # extract marginal residuals
-  model.mresid <- lme4::getME(model, "y") - Xbeta
-  
-  # Extract Z design matrix
-  Z <- lme4::getME(object = model, name = "Z")
-  
-  # Extract Z design matrix separated by variance
-  Ztlist <- lme4::getME(object = model, name = "Ztlist")
-  
-  # level 2 resid
-  u <- solve(t(Z) %*% Z) %*% t(Z) %*% model.mresid # a single vector
-  
-  # level 1 resid
-  e <- model.mresid - Z %*% u
-  
-  # The current way u is organized is inspired by the 
-  # ranef.merMod function in lme4.
-  # TODO: think about 3+ level models...
-  #   ans <- model@pp$b(1)
-  levs <- purrr::map(fl <- model@flist, levels)
-  asgn <- attr(fl, "assign")
-  cnms <- model@cnms
-  nc <- vapply(cnms, length, 1L)
-  nb <- nc * (nl <- vapply(levs, length, 1L)[asgn])
-  nbseq <- rep.int(seq_along(nb), nb)
-  u <- split(u, nbseq)
-  for (i in seq_along(u)){
-    u[[i]] <- matrix(u[[i]], ncol = nc[i], byrow = TRUE,
-                     dimnames = list(NULL, cnms[[i]]))
-  }
-  names(u) <- names(cnms)
-  
-  level.num <- lme4::getME(object = model, name = "n_rfacs")
-  
-  if(reb_type == 1){
-    if(level.num > 1) stop("reb_type = 1 is not yet implemented for higher order models")
-    
-    # Rescale u the residuals *prior* to resampling
-    # so empirical variance is equal to estimated variance
-    Uhat <- purrr::map(u, scale_center_uhat)
-    
-    sigma <- lme4::getME(model, "sigma")
-    estar <- scale_center_e(e, sigma)
-    
-  } else{
-    Uhat <- u
-    estar <- e
-  }
-  
-  list(Xbeta = Xbeta, Ztlist = Ztlist, Uhat = Uhat, 
-       estar = estar, flist = fl, levs = levs)
-}
+
 
 #' REB resampling procedure 
 #' 
@@ -592,24 +503,3 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
   as.data.frame(t(cbind(fe.adj, vc.adj)))
 }
 
-#' Setup for residual resamplling
-#' 
-#' @keywords internal
-#' @noRd
-.setup.resids <- function(model){
-  # Extract fixed part of the model
-  Xbeta <- predict(model, re.form = NA) # This is X %*% fixef(model)
-  
-  # Extract and center random effects
-  b <- purrr::map(lme4::ranef(model), .f = scale, scale = FALSE)
-  b <- purrr::map(b, as.data.frame)
-  
-  # Extract and center error terms
-  e <- scale(resid(model), scale = FALSE)
-  
-  Ztlist <- lme4::getME(object = model, name = "Ztlist")
-  
-  level.num <- lme4::getME(object = model, name = "n_rfacs")
-  
-  list(Xbeta = Xbeta, b = b, e = e, Ztlist = Ztlist, level.num = level.num)
-}
