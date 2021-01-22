@@ -35,7 +35,7 @@ resid_bootstrap.lmerMod <- function(model, .f, B){
   
   .f <- match.fun(.f)
   
-  setup <- .setup.resids(model)
+  setup <- .setup(model, type = "resids")
   
   ystar <- as.data.frame(
     replicate(
@@ -208,7 +208,7 @@ cgr_bootstrap.lmerMod <- function(model, .f, B){
   
   .f <- match.fun(.f)
   
-  setup <- .setup.cgr(model)
+  setup <- .setup(model, type = "cgr")
   
   ystar <- as.data.frame(
     replicate(
@@ -249,7 +249,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
   .f <- match.fun(.f)
   
   # Set up for bootstrapping
-  setup <- .setup.reb(model, reb_type)
+  setup <- .setup(model, type = "reb", reb_type = reb_type)
   
   # Generate bootstrap responses
   y.star <- replicate(
