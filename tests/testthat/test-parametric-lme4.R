@@ -117,3 +117,7 @@ test_that("three-level random intercept model",{
   expect_equal(boo$type, "parametric")
   expect_equal(boo$.f, mySumm)
 })
+
+
+# model <- lme(mathgain ~ mathkind + sex + minority + ses, random = list( schoolid = ~mathkind, classid = ~1), 
+# classroom, na.action = "na.omit")
