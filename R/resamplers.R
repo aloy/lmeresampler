@@ -1,4 +1,4 @@
-#' Case resampler
+#' Case resampler for mixed models
 #' @keywords internal
 #' @noRd
 .resamp.cases <- function(model, .f, dat, cluster, resample) {
@@ -58,7 +58,7 @@
 
 
 
-#' CGR resampling procedures
+#' CGR resampling from lmerMod objects
 #' @keywords internal
 #' @noRd
 .resample.cgr <- function(b, e, level.num, Ztlist, Xbeta, vclist, sig0){
@@ -91,7 +91,7 @@
   as.numeric(Xbeta + Zbstar.sum + estar)
 }
 
-#' Resampling residuals from mixed models
+#' Resampling residuals from lmerMod objects
 #' @keywords internal
 #' @noRd
 .resample.resids <- function(b, e, level.num, Ztlist, Xbeta) {
@@ -118,7 +118,7 @@
 }
 
 
-#' REB resampling procedure 
+#' REB resampling procedure for lmerMod objects
 #' 
 #' @param Xbeta marginal fitted values
 #' @param Ztlist design matrix separated by variance
@@ -160,4 +160,72 @@
   
   # ystar
   as.numeric(Xbeta + Zbstar.sum + estar)
+}
+
+
+#' Resampling residuals from lme objects
+#' @keywords internal
+#' @noRd
+.resample.resids.lme <- function(b, e, Xbeta, Zlist){
+  bstar <- purrr::map(b, .f = dplyr::slice_sample, prop = 1, replace = TRUE)
+  estar <- sample(e, size = length(e), replace = TRUE)
+  
+  Zbstar.sum <- .Zbstar.combine.lme(bstar, Zlist)
+  
+  # Combine function
+  as.numeric(Xbeta + Zbstar.sum + estar)
+}
+
+#' CGR resampler for lme objects
+#' @keywords internal
+#' @noRd
+.resample.cgr.lme <- function(b, e, Xbeta, Zlist, vclist, sig0){
+  # Resample resids
+  estar <- sample(x = e, size = length(e), replace = TRUE)
+  ehat <- scale_center_e(estar, sigma = sig0)
+  
+  # Resample Uhat
+  ustar <- purrr::map(b, .f = dplyr::slice_sample, prop = 1, replace = TRUE)
+  ustar <- purrr::map2(ustar, vclist, scale_center_ranef)
+  
+  Zbstar.sum <- .Zbstar.combine.lme(ustar, Zlist)
+  
+  # Combine function
+  as.numeric(Xbeta + Zbstar.sum + estar)
+}
+
+
+#' REB resampler for lme objects
+#' @keywords internal
+#' @noRd
+.resample.reb.lme <- function(Xbeta, Zlist, Uhat, estar.vec, flist, levs){
+  # For now, assume only a two-level model
+  grps <- levs[[1]]
+  units <- flist[[1]]
+  resamp_u_ids <- sample(seq_along(grps), size = length(grps), replace = TRUE)
+  resamp_e_grps <- sample(grps, size = length(grps), replace = TRUE)
+  
+  # resample uhats
+  ustar <- purrr::map(Uhat, ~data.frame(.x[resamp_u_ids, ]))
+  
+  # Resample residuals, e
+  estar <- numeric(length = length(units))
+  for(i in seq_along(resamp_e_grps)) {
+    target_units <- which(units == grps[i])
+    donor_units <- which(units == resamp_e_grps[i])
+    estar[target_units] <- sample(estar.vec, size = length(target_units), replace = TRUE)
+  }
+  
+  # since only working with 2-levels models now
+  # ustar <- ustar[[1]]
+  # 
+  # names(ustar) <- names(Zlist) 
+  # ustar.df <- as.data.frame(ustar)
+  
+  # Get Zb*
+  Zbstar <- .Zbstar.combine.lme(bstar = ustar, Zlist = Zlist)
+  # Zbstar.sum <- Reduce("+", Zbstar)
+  
+  # ystar
+  as.numeric(Xbeta + Zbstar + estar)
 }
