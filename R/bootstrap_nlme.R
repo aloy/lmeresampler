@@ -19,7 +19,7 @@ parametric_bootstrap.lme <- function(model, .f, B){
   t0 <- .f(model)
   
   # Extract fixed effects
-  model.fixef <- nlme::fixef(model)
+  # model.fixef <- nlme::fixef(model)
   
   ystar <- nlmeU::simulateY(model, nsim = B)
   row.names(ystar) <- 1:model$dims$N
@@ -63,102 +63,29 @@ resid_bootstrap.lme <- function(model, .f, B){
   
   .f <- match.fun(.f)
   
-  tstar <- purrr::map(1:B, function(x) .resample.resids.lme(model, .f))
+  setup <- .setup.lme(model, type = "residual")
   
-  #   rownames(tstar) <- names(t0)
-  # colnames(tstar) <- names(res) <- paste("sim", 1:ncol(tstar), sep = "_")
+  ystar <- as.data.frame(
+    replicate(
+      n = B, 
+      .resample.resids.lme(
+        b = setup$b, 
+        e = setup$e, 
+        Xbeta = setup$Xbeta,
+        Zlist = setup$Zlist
+      )
+    )
+  )
   
-  return(.bootstrap.completion(model, tstar, B , .f, type = "residual"))
+  tstar <- purrr::map_dfc(ystar, function(x) {
+    .f(updated.model(model = model, new.y = x))
+  })
+  
+  
+  lmeresampler:::.bootstrap.completion(model, tstar, B, .f, type = "residual")
 }
 
-#' @keywords internal
-#' @noRd
-.resample.resids.lme <- function(model, .f){
-  
-  # Extract fixed part of the model
-  Xbeta <- predict(model, level = 0) # This is X %*% fixef(model)
-  
-  # Extract random effects
-  model.ranef <- nlme::ranef(model)
-  
-  # Extract residuals
-  model.resid <- resid(model)
-  
-  level.num <- ncol(model$groups)
-  
-  # Extract Zt (like lme4) design matrix
-  re.form <- formula(model$modelStruct$reStr)
-  Z <- purrr::map(1:length(re.form), function(i) model.matrix(formula(model$modelStruct$reStr)[[i]], data=model$data))
-  names(Z) <- names(re.form)
-  
-  if(level.num == 1) {
-    bstar <- sample(model.ranef, replace = TRUE)
-    
-    Z <- as.data.frame(Z[[1]])
-    Zlist <- purrr::map(Z, function(col) split(col, model$group))
-    
-    # purrr::map2, check output and see what each apply does
-    Zbstar <- purrr::map(1:length(Zlist), function(j) unlist(mapply("*", Zlist[[j]], bstar[,j], SIMPLIFY = FALSE)))
-    Zbstar.sum <- Reduce("+", Zbstar)
-  } else{
-    bstar <- purrr::map(model.ranef,
-                        .f = function(x) {
-                          J <- nrow(x)
-                          
-                          # Sample of b*
-                          bstar.index <- sample(x = seq_len(J), size = J, replace = TRUE)
-                          bstar <- x[bstar.index,]
-                          return(bstar)
-                        })
-    
-    Z <- purrr::map(Z, function(zi) as.data.frame(zi))
-    Z  <- Z [rev(names(Z))] # agree w/ order of model$group and bstar
-    
-    Zlist <- purrr::map(1:length(Z), function(i) purrr::map(Z[[i]], function(col) split(col, model$group[,i])))
-    names(Zlist) <- names(Z)
-    
-    Zbstar <- purrr::map(1:length(Zlist), function(e) {
-      z.e <- Zlist[[e]]
-      b.e <- bstar[[e]]
-      if(is.numeric(b.e)){
-        unlist(purrr::map(1:length(e), function(j) unlist(mapply("*", z.e[[j]], b.e, SIMPLIFY = FALSE) )), recursive = FALSE)
-      } else{
-        unlist(purrr::map(1:length(e), function(j) unlist(mapply("*", z.e[[j]], b.e[,j], SIMPLIFY = FALSE) )), recursive = FALSE)
-      }
-    })
-    
-    Zbstar.sum <- Reduce("+", Zbstar)
-    
-    #     Zlist <- lapply(Zlist, function(e) lapply(e, function(x) Matrix::bdiag(x)))
-    #     names(Zlist) <- names(Z)
-    #     
-    #     Zlist  <- unlist(Zlist, recursive = FALSE) 
-    #     
-    #     bstar <- bstar[rev(names(bstar))] # agree w/ order of Zlist
-    #     names(bstar) <- names(Zlist)
-    #     
-    #     Zbstar <- .Zbstar.combine(bstar = bstar, zstar = Z)
-    #     Zbstar.sum <- Reduce("+", Zbstar)
-    
-  }
-  
-  # Resample residuals
-  estar <- sample(x = model.resid, size = length(model.resid), replace = TRUE)
-  
-  # Combine function
-  y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
-  
-  # .f(model) is t0
-  tstar <- tryCatch(.f(updated.model(model = model, new.y = y.star)),  
-                    error = function(e) e)
-  if(inherits(tstar, "error")) {
-    structure(rep(NA, length(.f(model))), fail.msgs = tstar$message)
-  } else{
-    tstar
-  }
-  
-  return(tstar)
-}
+
 
 
 #' @rdname reb_bootstrap
@@ -166,317 +93,87 @@ resid_bootstrap.lme <- function(model, .f, B){
 #' @export
 reb_bootstrap.lme <- function(model, .f, B, reb_type){
   
-  if(ncol(model$groups) > 1){
-    stop("The REB bootstrap has not been adapted for 3+ level models.")
-  }
-  
   if(missing(reb_type)){
     reb_type <- 0
     warning("'reb_type' unspecified, performing REB 0 bootstrap")
   }
   
-  if(reb_type != 2) .f <- match.fun(.f)
-  
-  ystar <- as.data.frame(replicate(n = B, .resample.reb.lme(model = model, .f, reb_type = reb_type)))
-  
-  if(reb_type == 2){
-    fe.0 <- nlme::fixef(model)
-    vc.0 <- nlme::getVarCov(model)
-    t0 <- c(beta = fe.0, sigma = c(diag(vc.0), model$sigma^2))
-    tstar <- purrr::map(ystar, function(y) {
-      fit <- tryCatch(updated.model(model = model, new.y = y),  
-                      error = function(e) e)
-      if (inherits(fit, "error")) {
-        structure(list(poi = rep(NA, length(nlme::fixef(model))), varcomp = rep(NA, length(diag(vc.0)) + 1)), 
-                  fail.msgs = fit$message)
-      } else{
-        vc <- nlme::getVarCov(fit)
-        list(fixef = nlme::fixef(fit), varcomp = unname(c(diag(vc), fit$sigma^2)))
-      }
-    })
-    
-    vcs <- purrr::map(tstar, function(x) x$varcomp)
-    Sb <- log(do.call("rbind", vcs))
-    #     fes <- lapply(tstar, function(x) x$fixef)
-    
-    Mb <- matrix(rep(colMeans(Sb, na.rm = TRUE), times = B), nrow = B, byrow = TRUE)
-    CovSb <- cov(na.omit(Sb))
-    SdSb <- sqrt(diag(CovSb))
-    
-    Db <- matrix(rep(SdSb, times = B), nrow = B, byrow = TRUE)
-    
-    EW <- eigen(solve(CovSb), symmetric = T)
-    Whalf <- EW$vectors %*% diag(sqrt(EW$values))
-    
-    Sbmod <- (Sb - Mb) %*% Whalf
-    Sbmod <- Sbmod * Db # elementwise not a type 
-    Lb <- exp(Mb + Sbmod)
-    
-    tstar <- purrr::map(tstar, unlist)
-  } else{
-    t0 <- .f(model)
-    #     Lb <- NULL
-    tstar <- purrr::map(ystar, function(y) {
-      fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
-                      error = function(e) e)
-      if (inherits(fit, "error")) {
-        structure(rep(NA, length(t0)), fail.msgs = fit$message)
-      } else{
-        fit
-      }
-    })
+  if(ncol(model$groups) > 1) {
+    stop("The REB bootstrap has not been adapted for 3+ level models.")
   }
   
-  tstar <- do.call("cbind", tstar) # Can these be nested?
-  # colnames(tstar) <- paste("sim", 1:ncol(tstar), sep = "_")
-  #   rownames(tstar) <- names(.f(model))
+  .f <- match.fun(.f)
   
-  if(reb_type == 2) {
-    idx <- 1:length(fe.0)
-    fe.star <- tstar[idx,] 
-    fe.adj <- sweep(fe.star, MARGIN = 1, STATS = fe.0 - rowMeans(fe.star, na.rm = TRUE), FUN = "+")
-    
-    vc.star <- tstar[-idx,] 
-    vc.adj <- sweep(vc.star, MARGIN = 1, STATS = t0[-idx] / rowMeans(vc.star, na.rm = TRUE), FUN = "*")
-    
-    tstar <- rbind(fe.adj, vc.adj)
-    
-    .f <- function(.) {
-      c(beta = nlme::fixef(.), sigma = c(diag(nlme::getVarCov(.)), .$sigma^2))
-    }
-  }
+  # Set up for bootstrapping
+  setup <- .setup.lme(model, type = "reb", reb_type = reb_type)
   
-  # prep for stats df
-  replicates <- as.data.frame(t(tstar))
-  observed <- t0
-  rep.mean <- colMeans(replicates)
-  se <- unlist(purrr::map(replicates, sd))
-  bias <- rep.mean - observed
+  # Generate bootstrap responses
+  y.star <- replicate(
+    n = B, 
+    .resample.reb.lme(
+      Xbeta = setup$Xbeta, 
+      Zlist = setup$Zlist, 
+      Uhat = setup$b, 
+      estar.vec = as.numeric(setup$e), 
+      flist = setup$flist, 
+      levs = setup$levs
+    )
+  )
   
-  stats <- data.frame(observed, rep.mean, se, bias)
+  y.star <- as.data.frame(y.star)
   
-  RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
-                        stats = stats, R = B, data = model$data,
-                        seed = .Random.seed, type = paste("reb", reb_type, sep = ""), call = match.call()),
-                   class = "lmeresamp")
-  return(RES)
+  # Extract bootstrap statistics
+  if(reb_type == 2) .f <- extract_parameters.lme
+  
+  tstar <- purrr::map_dfc(y.star, function(x) {
+    .f(updated.model(model = model, new.y = x))
+  })
+  
+  # Extract original statistics
+  t0 <- .f(model)
+  
+  # Postprocessing for REB/2
+  if(reb_type == 2) 
+    tstar <- lmeresampler:::.postprocess.reb2(t0, tstar, nbeta = length(fixef(model)), B = B)
+  
+  # Format for return
+  lmeresampler:::.bootstrap.completion(model, tstar, B, .f, type = paste("reb", reb_type, sep = ""))
 }
 
 
-#' REB resampling procedures
-#' @importFrom RLRsim extract.lmeDesign
-#' @keywords internal
-#' @noRd
-.resample.reb.lme <- function(model, .f, reb_type){
-  
-  dsgn <- RLRsim::extract.lmeDesign(model)
-  
-  # extract marginal residuals
-  model.mresid <- dsgn$y - predict(model, level = 0)
-  
-  # Extract Z design matrix
-  Z <- Matrix::Matrix(dsgn$Z)
-  
-  # level 2 resid
-  u <- solve(t(Z) %*% Z) %*% t(Z) %*% model.mresid # a single vector
-  
-  # level 1 resid
-  e <- model.mresid - Z %*% u
-  
-  # The current way u is organized is inspired by the 
-  # ranef.merMod function in lme4.
-  # TODO: think about 3+ level models...
-  #   ans <- model@pp$b(1)
-  levs <- purrr::map(fl <- model$groups, levels)
-  asgn <- seq_along(fl)
-  re <- model$coefficients$random
-  cnms <- purrr::map(re, colnames)
-  nc <- purrr::map_int(cnms, length) #map_int()
-  nb <- nc * (nl <- purrr::map_int(levs, length))
-  nbseq <- rep.int(seq_along(nb), nb)
-  u <- split(u, nbseq)
-  for (i in seq_along(u))
-    u[[i]] <- matrix(u[[i]], ncol = nc[i], byrow = TRUE,
-                     dimnames = list(NULL, cnms[[i]]))
-  names(u) <- names(cnms)
-  
-  if(reb_type == 1){
-    # Calculations
-    Uhat <- purrr::map(u, function(x){
-      S <- (t(x) %*% x) / nrow(x)
-      R <- nlme::getVarCov(model)
-      Ls <- chol(S, pivot = TRUE)
-      Lr <- chol(R, pivot = TRUE)
-      A <- t(Lr %*% solve(Ls))
-      
-      Uhat <- x%*%A
-      
-      # center
-      Uhat <- data.frame(scale(Uhat, scale = FALSE))
-      
-      return(Uhat)
-    })
-    
-    sigma <- model$sigma
-    estar <- sigma * e %*% ((t(e) %*% e) / length(e))^(-1/2)
-    estar <- data.frame(scale(estar, scale = FALSE))
-    
-  } else{
-    Uhat <- u
-    estar <- e
-  }
-  
-  Xbeta <- predict(model, level = 0)
-  
-  # resample uhats
-  ustar <- purrr::map(Uhat,
-                      .f = function(x) {
-                        J <- nrow(x)
-                        x <- as.data.frame(x)
-                        # Sample of b*
-                        ustar <- sample(x, replace = TRUE)
-                        return(ustar)
-                      })
-  
-  ## TODO: fix this issue with the levels... Need to resample from here...
-  
-  # Extract Z design matrix separated by variance
-  re.form <- formula(model$modelStruct$reStr)
-  Z <- purrr::map(1:length(re.form), function(i) model.matrix(formula(model$modelStruct$reStr)[[i]], data=model$data))
-  names(Z) <- names(re.form)
-  Z <- as.data.frame(Z[[1]])
-  Zlist <- purrr::map(Z, function(col) split(col, model$group))
-  
-  ustar <- ustar[[1]] # since only working with 2-levels models now
-  
-  # Get Zb*
-  Zbstar <- purrr::map(1:length(Zlist), function(j) unlist(mapply("*", Zlist[[j]], ustar[,j], SIMPLIFY = FALSE)))
-  Zbstar.sum <- Reduce("+", Zbstar)
-  
-  # Resample residuals
-  estar <- sample(x = model.mresid, size = length(model.mresid), replace = TRUE)
-  
-  # Combine function
-  y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
-  
-  return(y.star)
-}
+
 
 
 #' @rdname cgr_bootstrap
 #' @inheritParams bootstrap
 #' @export
 cgr_bootstrap.lme <- function(model, .f, B){
+  
   .f <- match.fun(.f)
   
-  tstar <- as.data.frame(replicate(n = B, .resample.cgr.lme(model = model, .f)))
+  setup <- .setup.lme(model, type = "cgr")
   
-  return(.bootstrap.completion(model, tstar, B, .f, type = "cgr"))
+  ystar <- as.data.frame(
+    replicate(
+      n = B, 
+      .resample.cgr.lme(
+        b = setup$b, 
+        e = setup$e, 
+        Xbeta = setup$Xbeta,
+        Zlist = setup$Zlist,
+        vclist = setup$vclist, 
+        sig0 = setup$sig0
+      )
+    )
+  )
+  
+  tstar <- purrr::map_dfc(ystar, function(x) {
+    .f(updated.model(model = model, new.y = x))
+  })
+  
+  
+  lmeresampler:::.bootstrap.completion(model, tstar, B, .f, type = "cgr")
 }
 
-#' CGR resampling procedures
-#' @keywords internal
-#' @noRd
-.resample.cgr.lme <- function(model, .f){
-  level.num <- ncol(model$groups)
-  
-  # Extract random effects
-  model.ranef <- nlme::ranef(model)
-  
-  # Extract residuals
-  model.resid <- resid(model)
-  
-  # Higher levels
-  if(level.num == 1) {
-    model.ranef <- list(model.ranef)
-    names(model.ranef) <- colnames(model$groups)
-  }
-  
-  re.struct <- model$modelStruct$reStruct
-  sigma <- model$sigma
-  
-  Uhat.list <- map(seq_along(model.ranef),
-                   .f = function(i) {
-                     u <- scale(model.ranef[[i]], scale = FALSE)
-                     S <- (t(u) %*% u) / length(u)
-                     
-                     re.name <- names(model.ranef)[i]
-                     R <- sigma^2 * as.matrix(re.struct[[re.name]])
-                     
-                     Ls <- chol(S, pivot = TRUE)
-                     Lr <- chol(R, pivot = TRUE)
-                     A <- t(Lr %*% solve(Ls))
-                     
-                     Uhat <- as.matrix(u %*% A)
-                     Uhat <- as.data.frame(Uhat)
-                     
-                     return(Uhat)
-                   })  
-  names(Uhat.list) <- names(model.ranef)
-  
-  # Level 1
-  e <- as.numeric(scale(model.resid, scale = FALSE))
-  ehat <- sigma * e * as.numeric((t(e) %*% e) / length(e))^(-1/2)
-  
-  # Resample Uhat
-  ustar <- map(Uhat.list,
-               .f = function(df) {
-                 index <- sample(x = seq_len(nrow(df)), size = nrow(df), replace = TRUE)
-                 return(as.data.frame(df[index,]))
-               })
-  
-  # Extract Z design matrix
-  # Extract Zt (like lme4) design matrix
-  re.form <- formula(re.struct)
-  Z <- map(1:length(re.form), function(i) model.matrix(formula(model$modelStruct$reStr)[[i]], data=model$data))
-  names(Z) <- names(re.form)
-  
-  if(level.num == 1) {
-    ustar <- ustar[[1]]
-    
-    Z <- as.data.frame(Z[[1]])
-    Zlist <- map(Z, function(col) split(col, model$group))
-    
-    Zbstar <- map(1:length(Zlist), function(j) unlist(mapply("*", Zlist[[j]], ustar[,j], SIMPLIFY = FALSE) ))
-  } else{
-    
-    Z <- map(Z, function(zi) as.data.frame(zi))
-    Z  <- Z [rev(names(Z))] # agree w/ order of model$group and bstar
-    
-    Zlist <- map(1:length(Z), function(i) map(Z[[i]], function(col) split(col, model$group[,i])))
-    names(Zlist) <- names(Z)
-    
-    
-    Zbstar <- map(1:length(Zlist), function(e) {
-      z.e <- Zlist[[e]]
-      u.e <- ustar[[e]]
-      if(is.numeric(u.e)){
-        unlist(map(1:length(e), function(j) unlist(mapply("*", z.e[[j]], u.e, SIMPLIFY = FALSE))), recursive = FALSE)
-      } else{
-        unlist(map(1:length(e), function(j) unlist(mapply("*", z.e[[j]], u.e[,j], SIMPLIFY = FALSE))), recursive = FALSE)
-      }
-    })
-  }
-  
-  Zbstar.sum <- Reduce("+", Zbstar)  
-  
-  # Extract fixed part of the model
-  Xbeta <- predict(model, level = 0)
-  
-  # Get e*
-  estar <- sample(x = ehat, size = length(ehat), replace = TRUE)
-  
-  # Combine
-  y.star <- as.numeric(Xbeta + Zbstar.sum + estar)
-  
-  # Refit
-  tstar <- tryCatch(.f(updated.model(model = model, new.y = y.star)),  
-                    error = function(e) e)
-  if (inherits(tstar, "error")) {
-    structure(rep(NA, length(.f(model))), fail.msgs = tstar$message)
-  } else{
-    tstar
-  }
-  return(tstar)
-}
+
 
