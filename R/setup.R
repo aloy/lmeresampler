@@ -76,9 +76,9 @@
   design <- HLMdiag::extract_design(model)
   
   # Extract marginal means
-  Xbeta <- predict(model, level = 0) # This is X %*% fixef(model)
+  Xbeta <- predict(model, level = 0)
   
-  # Extract ranef design matrix list - TODO figure out how to generalize Ztlist!!
+  # Extract ranef design matrix list
   re.struct <- model$modelStruct$reStruct
   re.form <- formula(re.struct)
 
