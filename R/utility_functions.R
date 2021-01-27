@@ -18,11 +18,11 @@ scale_center_e <- function(x, sigma) {
 
 
 extract_parameters.lmerMod <- function(model) {
-  sig.e <- sigma(model)
+  sig.e <- lme4::sigma(model)
   vc <- as.data.frame(lme4::VarCorr(model))
   
   c(
-    beta = getME(model, "beta"), 
+    beta = lme4::getME(model, "beta"), 
     vc = vc$vcov[is.na(vc$var2)]
   )
 }

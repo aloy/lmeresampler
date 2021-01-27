@@ -134,7 +134,7 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type){
   
   # Postprocessing for REB/2
   if(reb_type == 2) 
-    tstar <- .postprocess.reb2(t0, tstar, nbeta = length(fixef(model)), B = B)
+    tstar <- .postprocess.reb2(t0, tstar, nbeta = length(nlme::fixef(model)), B = B)
   
   # Format for return
   .bootstrap.completion(model, tstar, B, .f, type = paste("reb", reb_type, sep = ""))

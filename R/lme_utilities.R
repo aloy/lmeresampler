@@ -113,11 +113,11 @@ extract_zlist.lme <- function(model){
 
 
 extract_parameters.lme <- function(model) {
-  sig.e <- sigma(model)
-  vc <- getVarCov(model)
+  sig.e <- nlme::sigma(model)
+  vc <- nlme::getVarCov(model)
   
   c(
-    beta = fixef(model), 
+    beta = nlme::fixef(model), 
     vc = c(diag(vc), sig.e^2)
   )
 }
