@@ -86,3 +86,42 @@ arrange_ranefs.lme <- function(b, fl, levs, cnms){
     Matrix::t(zstar[[i]]) %*% bstar[[i]]
   })
 }
+
+
+
+#' REB/2 post processing
+#' 
+#' @param t0 stats extracted from original model
+#' @param tstar bootstrap statistics
+#' @param nbeta number of fixed effects parameters, \code{length(getME(model, "beta"))}
+#' @keywords internal
+#' @noRd
+.postprocess.reb2 <- function(t0, tstar, nbeta, B){
+  nparams <- length(t0)
+  fe0 <- t0[1:nbeta]
+  vc0 <- t0[(nbeta+1):nparams]
+  
+  fe.star <- t(tstar[1:nbeta,])
+  vc.star <- t(tstar[(nbeta+1):nparams,])
+  
+  # Rescaling
+  Sb <- log(vc.star)
+  CovSb <- cov(Sb)
+  SdSb <- sqrt(diag(CovSb))
+  
+  EW <- eigen(solve(CovSb), symmetric = T)
+  Whalf <- EW$vectors %*% diag(sqrt(EW$values))
+  
+  Db <- matrix(rep(SdSb, times = B), nrow = B, byrow = TRUE)
+  Mb <- matrix(rep(colMeans(Sb), times = B), nrow = B, byrow = TRUE)
+  
+  Sbmod <- (Sb - Mb) %*% Whalf
+  Sbmod <- Sbmod * Db # elementwise not a type 
+  Lb <- exp(Mb + Sbmod)
+  
+  # Bias corrections
+  fe.adj <- sweep(fe.star, MARGIN = 2, STATS = fe0 - colMeans(fe.star, na.rm = TRUE), FUN = "+")
+  vc.adj <- sweep(vc.star, MARGIN = 2, STATS = vc0 / colMeans(vc.star, na.rm = TRUE), FUN = "*")
+  
+  as.data.frame(t(cbind(fe.adj, vc.adj)))
+}
