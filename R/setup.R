@@ -82,7 +82,7 @@
   re.struct <- model$modelStruct$reStruct
   re.form <- formula(re.struct)
 
-  Ztlist <- lme4::getME(object = model, name = "Ztlist")
+  Zlist <- extract_zlist.lme(model)
   
   level.num <- ncol(model$groups)
   
@@ -132,7 +132,7 @@
   }
   
   
-  RES <- list(Xbeta = Xbeta, b = b, e = e, Ztlist = Ztlist)
+  RES <- list(Xbeta = Xbeta, b = b, e = e, Zlist = Zlist)
   if(type == "reb") {
     RES <- append(RES, list(flist = fl, levs = levs))
   } else{

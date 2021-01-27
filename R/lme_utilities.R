@@ -51,7 +51,7 @@
 updated.model<- function(model, new.y = NULL, new.data = NULL){
   # Extract formulas and data
   mod.fixd <- as.formula(model$call$fixed)
-  mod.rand <- as.formula(model$call$random)
+  mod.rand <- model$call$random
   
   if(is.null(new.data)){
     # Place ystars in data
@@ -63,8 +63,14 @@ updated.model<- function(model, new.y = NULL, new.data = NULL){
   
   # create new lme
   ctrl <- nlme::lmeControl(opt = 'optim', returnObject = TRUE)
-  out.lme <- nlme::lme(fixed = mod.fixd, data = mod.data, random = mod.rand, control = ctrl)
-  return(out.lme)
+  if(is.null(mod.rand)){
+    out.lme <- nlme::lme(fixed = mod.fixd, data = mod.data, control = ctrl)
+  } else{
+    mod.rand <- as.formula(mod.rand)
+    out.lme <- nlme::lme(fixed = mod.fixd, data = mod.data, random = mod.rand, control = ctrl)
+  }
+  
+  out.lme
 }
 
 
@@ -99,5 +105,16 @@ extract_zlist.lme <- function(model){
     b.e <- bstar[[e]]
     purrr::map(1:length(z.e), function(j) unlist(mapply("*", z.e[[j]], b.e[,j], SIMPLIFY = FALSE)))
   })
-  Reduce("+", unlist(Zbstar, recursive = FALSE))
+  Reduce("+", unlist(zbstar_list, recursive = FALSE))
+}
+
+
+extract_parameters.lme <- function(model) {
+  sig.e <- sigma(model)
+  vc <- getVarCov(model)
+  
+  c(
+    beta = fixef(model), 
+    vc = vc$vcov[is.na(vc$var2)]
+  )
 }
