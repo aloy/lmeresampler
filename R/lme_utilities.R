@@ -74,7 +74,10 @@ updated.model<- function(model, new.y = NULL, new.data = NULL){
 }
 
 
-# Create list of Z matrices, similar to Ztlist in lme4
+#' Create list of Z matrices, similar to Ztlist in lme4
+#' @importFrom forcats fct_inorder
+#' @keywords internal
+#' @noRd
 extract_zlist.lme <- function(model){
   level.num <- ncol(model$groups)
   re.form <- formula(model$modelStruct$reStr)

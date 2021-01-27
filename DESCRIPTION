@@ -18,7 +18,8 @@ Imports:
     Matrix,
     nlmeU,
     HLMdiag,
-    purrr
+    purrr,
+    forcats
 Suggests:
     lme4 (>= 1.1-7),
     nlme,
