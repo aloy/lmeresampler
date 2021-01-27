@@ -115,6 +115,6 @@ extract_parameters.lme <- function(model) {
   
   c(
     beta = fixef(model), 
-    vc = vc$vcov[is.na(vc$var2)]
+    vc = c(diag(vc), sig.e^2)
   )
 }
