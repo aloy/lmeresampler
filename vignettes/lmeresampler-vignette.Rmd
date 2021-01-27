@@ -284,14 +284,14 @@ Let's compare the runtime of the above `b_parallel2` with the same bootstrap run
 
 
 ```{r timings, message = FALSE, warning = FALSE, cache = TRUE}
-system.time(b_nopar  <- bootstrap(vcmodA, .f = fixef, type = "parametric", B = 1000))
+system.time(b_nopar  <- bootstrap(vcmodA, .f = fixef, type = "parametric", B = 5000))
 
 numCores <- 2
 cl <- snow::makeSOCKcluster(numCores)
 doParallel::registerDoParallel(cl) 
 
 system.time({
-  b_parallel2 <- foreach(B = rep(500, 2), 
+  b_parallel2 <- foreach(B = rep(2500, 2), 
                          .combine = combine_lmeresamp,
                          .packages = c("lmeresampler", "lme4", "purrr", "dplyr")) %dopar% {
                            bootstrap(vcmodA, .f = fixef, type = "parametric", B = B)
