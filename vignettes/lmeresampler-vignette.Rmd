@@ -10,9 +10,13 @@ editor_options:
 ---
 
 ```{r init, include = FALSE}
+is_check <- ("CheckExEnv" %in% search()) || any(c("_R_CHECK_TIMINGS_",
+             "_R_CHECK_LICENSE_") %in% names(Sys.getenv()))
+
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval = !is_check
 )
 ```
 
@@ -261,15 +265,15 @@ The basic idea with clusters is that they execute tasks as a "cluster" of comput
 
 With all of this in mind, let's explore an example using `lmeresampler`. Notice that we have the user implement the parallelization with the `bootstrap()` call itself, rather than doing it within `lmeresampler` itself. Thus, a modified, parallelized, call to `bootstrap()` is as follows:
 
-```{r parallel example, message = FALSE, warning = FALSE, cache = TRUE}
+```{r parallel example, message = FALSE, warning = FALSE}
 library(purrr)
 library(foreach)
 library(doParallel)
 set.seed(1234)
 numCores <- 2
 
-cl <- snow::makeSOCKcluster(numCores) # make a socket cluster
-doParallel::registerDoParallel(cl)    # how the CPU knows to run in parallel
+cl <- makeCluster(numCores, type = "PSOCK") # make a socket cluster
+doParallel::registerDoParallel(cl)          # how the CPU knows to run in parallel
 
 b_parallel2 <- foreach(B = rep(250, 2), 
                        .combine = combine_lmeresamp,
@@ -283,11 +287,11 @@ stopCluster(cl)
 Let's compare the runtime of the above `b_parallel2` with the same bootstrap run without parallelization. Note that differences in runtime will be somewhat arbitrary for a small number of resamples (say, 100), and will become more pronounced as the number of resamples increases (to 1000, for example), in favor of the parallelized bootstrap.
 
 
-```{r timings, message = FALSE, warning = FALSE, cache = TRUE}
+```{r timings, message = FALSE, warning = FALSE}
 system.time(b_nopar  <- bootstrap(vcmodA, .f = fixef, type = "parametric", B = 5000))
 
 numCores <- 2
-cl <- snow::makeSOCKcluster(numCores)
+cl <- makeCluster(numCores, type = "PSOCK")
 doParallel::registerDoParallel(cl) 
 
 system.time({
