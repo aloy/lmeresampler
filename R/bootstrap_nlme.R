@@ -52,7 +52,7 @@ case_bootstrap.lme <- function(model, .f, B, resample){
     stop("'resample' is not the same length as the number of grouping variables. 
          Please specify whether to resample the data at each level of grouping.")
   
-  tstar <- purrr::map(integer(B), function(x) .resamp.cases(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
+  tstar <- purrr::map(integer(B), function(x) .resample_refit.cases(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
   
   return(.bootstrap.completion(model, tstar, B, .f, type = "case"))
 }

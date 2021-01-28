@@ -23,7 +23,7 @@
     e <- mresid - Z %*% b
     
     levs <- purrr::map(fl <- model@flist, levels)
-    cnms <- getME(model, "cnms")
+    cnms <- lme4::getME(model, "cnms")
     b <- arrange_ranefs.lmerMod(b, fl, levs, cnms)
   } else{
     # Extract and center random effects
@@ -35,7 +35,7 @@
   }
   
   if(type == "cgr" || type == "reb" && reb_type == 1){
-    sig0 <- sigma(model)
+    sig0 <- stats::sigma(model)
     vclist <- purrr::map(
       seq_along(b), 
       .f = ~bdiag(lme4::VarCorr(model)[[names(b)[.x]]])
@@ -115,7 +115,7 @@
   }
   
   if(type == "cgr" || type == "reb" && reb_type == 1){
-    sig0 <- sigma(model)
+    sig0 <- stats::sigma(model)
     vclist <- purrr::map(
       as.matrix(model$modelStruct$reStruct), 
       .f = ~.x * sig0^2

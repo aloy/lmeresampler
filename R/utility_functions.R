@@ -17,8 +17,9 @@ scale_center_e <- function(x, sigma) {
 }
 
 
+#' @importFrom stats sigma
 extract_parameters.lmerMod <- function(model) {
-  sig.e <- lme4::sigma(model)
+  sig.e <- stats::sigma(model)
   vc <- as.data.frame(lme4::VarCorr(model))
   
   c(
@@ -83,7 +84,7 @@ arrange_ranefs.lme <- function(b, fl, levs, cnms){
 #' @noRd
 .Zbstar.combine <- function(bstar, zstar){
   purrr::map(1:length(bstar), function(i){
-    Matrix::t(zstar[[i]]) %*% bstar[[i]]
+    Matrix::t(zstar[[i]]) %*% as.matrix(bstar[[i]])
   })
 }
 

@@ -24,7 +24,7 @@ test_that("two-level additive random intercept model",{
   
   orig.stats <- mySumm(vcmodA)
   
-  boo <- reb_bootstrap(model = vcmodA, .f = mySumm, B = nsim)
+  boo <- reb_bootstrap(model = vcmodA, .f = mySumm, B = nsim, reb_type = 0)
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$observed, orig.stats)   
@@ -44,7 +44,7 @@ test_that("two-level random intercept model without interaction",{
                   (1 | school), data = jsp728)
   
   orig.stats <- mySumm(rimod)
-  boo <- reb_bootstrap(model = rimod, .f = mySumm, B = nsim)
+  boo <- reb_bootstrap(model = rimod, .f = mySumm, B = nsim, reb_type = 0)
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$observed, orig.stats)   
@@ -63,7 +63,7 @@ test_that("two-level random intercept model with interaction",{
                    (1 | school), data = jsp728)
   
   orig.stats <- mySumm(vcmodC)
-  boo <- reb_bootstrap(model = vcmodC, .f = mySumm, B = nsim)
+  boo <- reb_bootstrap(model = vcmodC, .f = mySumm, B = nsim, reb_type = 0)
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$observed, orig.stats)   
@@ -83,7 +83,7 @@ test_that("two-level random coefficient model with interaction",{
                   (mathAge8c | school), data = jsp728)
   
   orig.stats <- mySumm(rcmod)
-  boo <- reb_bootstrap(model = rcmod, .f = mySumm, B = nsim)
+  boo <- reb_bootstrap(model = rcmod, .f = mySumm, B = nsim, reb_type = 0)
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$observed, orig.stats)   
@@ -233,7 +233,7 @@ test_that("two-level additive random intercept model",{
   vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + 
                    (1 | school), data = jsp728)
   
-  orig.stats <- mySumm(vcmodA)
+  orig.stats <- extract_parameters.lmerMod(vcmodA)
   
   nsim <- 10
   
@@ -246,7 +246,7 @@ test_that("two-level additive random intercept model",{
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
   expect_equal(boo$type, "reb2")
-  expect_equal(boo$.f, mySumm)
+  expect_equal(boo$.f, extract_parameters.lmerMod)
 })
 
 # ------------------------------------------------------------------------------
@@ -256,7 +256,7 @@ test_that("two-level random intercept model without interaction",{
   rimod <- lmer(normAge11 ~ mathAge8c + gender + class + 
                   (1 | school), data = jsp728)
   
-  orig.stats <- mySumm(rimod)
+  orig.stats <- extract_parameters.lmerMod(rimod)
   boo <- reb_bootstrap(model = rimod, .f = mySumm, B = nsim, reb_type = 2)
   
   expect_equal(class(boo), "lmeresamp")
@@ -266,7 +266,7 @@ test_that("two-level random intercept model without interaction",{
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
   expect_equal(boo$type, "reb2")
-  expect_equal(boo$.f, mySumm)
+  expect_equal(boo$.f, extract_parameters.lmerMod)
 })
 
 
@@ -276,7 +276,7 @@ test_that("two-level random intercept model with interaction",{
   vcmodC <- lmer(mathAge11 ~ mathAge8 * schoolMathAge8 + gender + class + 
                    (1 | school), data = jsp728)
   
-  orig.stats <- mySumm(vcmodC)
+  orig.stats <- extract_parameters.lmerMod(vcmodC)
   boo <- reb_bootstrap(model = vcmodC, .f = mySumm, B = nsim, reb_type = 2)
   
   expect_equal(class(boo), "lmeresamp")
@@ -286,7 +286,7 @@ test_that("two-level random intercept model with interaction",{
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
   expect_equal(boo$type, "reb2")
-  expect_equal(boo$.f, mySumm)
+  expect_equal(boo$.f, extract_parameters.lmerMod)
 })
 
 # ------------------------------------------------------------------------------
@@ -297,7 +297,7 @@ test_that("two-level random coefficient model with interaction",{
   rcmod <- lmer(mathAge11 ~ mathAge8c * schoolMathAge8 + gender + class + 
                   (mathAge8c | school), data = jsp728)
   
-  orig.stats <- mySumm(rcmod)
+  orig.stats <- extract_parameters.lmerMod(rcmod)
   boo <- reb_bootstrap(model = rcmod, .f = mySumm, B = nsim, reb_type = 2)
   
   expect_equal(class(boo), "lmeresamp")
@@ -307,7 +307,7 @@ test_that("two-level random coefficient model with interaction",{
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
   expect_equal(boo$type, "reb2")
-  expect_equal(boo$.f, mySumm)
+  expect_equal(boo$.f, extract_parameters.lmerMod)
 })
 
 # ------------------------------------------------------------------------------

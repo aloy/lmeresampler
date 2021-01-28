@@ -1,7 +1,7 @@
 #' Case resampler for mixed models
 #' @keywords internal
 #' @noRd
-.resamp.cases <- function(model, .f, dat, cluster, resample) {
+.resamp.cases <- function(dat, cluster, resample) {
   res <- dat
   
   for(i in 1:length(cluster)) {
@@ -33,17 +33,24 @@
     }
   }
   
+  res
+}
+
+
+.resample_refit.cases <- function(model, .f, dat, cluster, resample){
+  resamp_data <- .resamp.cases(dat, cluster, resample)
+  
   if(class(model) == "lmerMod"){
     # Refit the model and apply '.f' to it using map
     form <- model@call$formula
     reml <- lme4::isREML(model)
     
-    tstar <- .f(lme4::lmer(formula = form, data = res, REML = reml)) 
+    tstar <- .f(lme4::lmer(formula = form, data = resamp_data, REML = reml)) 
     # tstar <- purrr::map(res, function(x) {
     #   .f(lme4::lmer(formula = form, data = as.data.frame(x), REML = reml)) 
     # })
   } else if(class(model) == "lme"){
-    tstar <- tryCatch(.f(updated.model(model = model, new.data = res)),  
+    tstar <- tryCatch(.f(updated.model(model = model, new.data = resamp_data)),  
                       error = function(e) e)
     if(inherits(tstar, "error")) {
       structure(rep(NA, length(.f(model))), fail.msgs = tstar$message)
@@ -101,9 +108,9 @@
     if(!is.numeric(bstar[[1]])) bstar <- purrr::map(bstar, .f = as.list)[[1]]
     names(bstar) <- names(Ztlist)
   } else {
-    bstar <- purrr::map_dfr(bstar, .f = as.data.frame)
-    bstar <- do.call(c, bstar)
-    names(bstar) <- names(Ztlist)
+    # bstar <- purrr::map_dfr(bstar, .f = as.data.frame)
+    # bstar <- do.call(c, bstar)
+    # names(bstar) <- names(Ztlist)
   }
   
   # Get Zb*

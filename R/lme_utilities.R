@@ -111,9 +111,9 @@ extract_zlist.lme <- function(model){
   Reduce("+", unlist(zbstar_list, recursive = FALSE))
 }
 
-
+#' @importFrom stats sigma
 extract_parameters.lme <- function(model) {
-  sig.e <- nlme::sigma(model)
+  sig.e <- stats::sigma(model)
   vc <- nlme::getVarCov(model)
   
   c(
