@@ -9,7 +9,8 @@
 #' @param .f A function returning the statistic(s) of interest.
 #' @param type A character string indicating the type of bootstrap that is being
 #'    requested. Possible values are \code{"parametric"}, \code{"residual"}, 
-#'    \code{"case"}, \code{"cgr"}, or \code{"reb"} (random effect block bootstrap).
+#'    \code{"case"}, \code{"cgr"}, \code{"wild"}, or \code{"reb"} 
+#'    (random effect block bootstrap).
 #' @param B The number of bootstrap resamples.
 #' @param resample A logical vector specifying whether each level of the model 
 #'    should be resampled in the cases bootstrap. The levels should be specified 
@@ -17,7 +18,11 @@
 #'    (observation-level); for example for students within a school, specify the 
 #'    school level first, then the student level.
 #' @param reb_type Specification of what random effect block bootstrap version to
-#' implement. Possible values are \code{0}, \code{1} or \code{2}.
+#'     implement. Possible values are \code{0}, \code{1} or \code{2}.
+#' @param hccme either \code{"hc2"} or \code{"hc3"}, indicating which 
+#'     heteroscedasticity consistent covariance matrix estimator to use.
+#' @param aux.dist either \code{"f1"} or \code{"f2"} indicating which auxiliary 
+#'     distribution to draw the errors from
 #' 
 #' @details
 #' All of the below methods have been implemented for nested linear mixed-effects
@@ -330,3 +335,46 @@ reb_bootstrap <- function(model, .f, B, reb_type) {
   UseMethod("reb_bootstrap", model)
 }
 
+#' Wild Bootstrap for LME models
+#'
+#' @description
+#' Generate wild bootstrap replicates of a statistic for a 
+#' linear mixed-effects model.
+#'
+#' @export
+#' @inheritParams bootstrap
+#' 
+#' @details 
+#' The wild bootstrap algorithm for LMEs implemented here was outlined by  
+#' Modugno & Giannerini (2015). The algorithm is outlined below:
+#' \enumerate{
+#'   \item Obtain the parameter estimates from the fitted model and calculate
+#'      the estimated error terms and EBLUPs.
+#'   \item Rescale the error terms and EBLUPs so that the empirical variance of
+#'      these quantities is equal to estimated variance components from the model.
+#'   \item Sample independently with replacement from the rescaled estimated error 
+#'      terms and rescaled EBLUPs.
+#'   \item Obtain bootstrap samples by combining the samples via the fitted model equation.
+#'   \item Refit the model and extract the statistic(s) of interest.
+#'   \item Repeat steps 3-5 B times.
+#' }
+#'
+#' @return 
+#' The returned value is an object of class "lmeresamp".
+#' 
+#' @seealso 
+#' \itemize{
+#'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
+#'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
+#'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
+#'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
+#'      implementation of (semi-)parameteric bootstrap for mixed models.
+#' }
+#'
+#' @references
+#'    Modugno, L., & Giannerini, S. (2015). The Wild Bootstrap for 
+#'    Multilevel Models. \emph{Communications in Statistics -- Theory and Methods}, 
+#'    \bold{44}(22), 4812--4825.
+wild_bootstrap <- function(model, .f, B, hccme, aux.dist) {
+  UseMethod("wild_bootstrap", model)
+}

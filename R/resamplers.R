@@ -98,6 +98,37 @@
   as.numeric(Xbeta + Zbstar.sum + estar)
 }
 
+
+
+#' Wild bootstrap resampling from lmerMod and lme objects
+#' @keywords internal
+#' @noRd
+.resample.wild <- function(Xbeta, mresid, .hatvalues, hccme, aux.dist, 
+                           flist, n.lev){
+  
+  # Sample from auxillary distribution
+  if(aux.dist == "f1") {
+    prob <- (sqrt(5) + 1) / (2 * sqrt(5))
+    w <- sample(
+      c(-(sqrt(5) - 1) / 2, (sqrt(5) + 1) / 2), 
+      size = n.lev,
+      prob = c(prob, 1 - prob),
+      replace = TRUE
+    )
+  } 
+  
+  if(aux.dist == "f2") {
+    w <- sample(c(1, -1), size = n.lev, replace = TRUE)
+  }
+  
+  # Calc. bootstrap y
+  if(hccme == "hc2") v <- (1 / sqrt(1 - .hatvalues)) * mresid
+  if(hccme == "hc3") v <- (1 / (1 - .hatvalues)) * mresid
+    
+    as.numeric(Xbeta + v * w[flist])
+}
+
+
 #' Resampling residuals from lmerMod objects
 #' @keywords internal
 #' @noRd

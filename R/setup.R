@@ -25,13 +25,32 @@
     levs <- purrr::map(fl <- model@flist, levels)
     cnms <- lme4::getME(model, "cnms")
     b <- arrange_ranefs.lmerMod(b, fl, levs, cnms)
-  } else{
+  } 
+  
+  if(type %in% c("cgr", "residual")){
     # Extract and center random effects
     b <- purrr::map(lme4::ranef(model), .f = scale, scale = FALSE)
     b <- purrr::map(b, as.data.frame)
     
     # Extract and center error terms
     e <- scale(resid(model), scale = FALSE)
+  }
+  
+  if(type == "wild") {
+    mresid <- lme4::getME(model, "y") - Xbeta
+    X <- lme4::getME(model, "X")
+    .hatvalues <-  diag(tcrossprod(X %*% solve(crossprod(X)), X))
+    flist <- lme4::getME(model, "flist")
+    if(length(flist) == 1) {
+      n.lev <- nlevels(flist[[1]])
+      flist <- as.numeric(flist[[1]])
+    } else {
+      flist <- lapply(flist, as.character)
+      flist <- forcats::fct_inorder(do.call("paste", c(flist, sep = ":")))
+      n.lev <- nlevels(flist)
+      flist <- as.numeric(forcats::fct_inorder(flist))
+    } 
+      
   }
   
   if(type == "cgr" || type == "reb" && reb_type == 1){
@@ -52,13 +71,20 @@
     e <- scale_center_e(e, sig0)
   }
 
+  if(type %in% c("reb", "cgr", "residual")) {
+    RES <- list(Xbeta = Xbeta, b = b, e = e, Ztlist = Ztlist)
+    
+    if(type == "reb") {
+      RES <- append(RES, list(flist = fl, levs = levs))
+    } else{
+      RES <- append(RES, list(level.num = level.num))
+      if(type == "cgr") RES <- append(RES, list(sig0 = sig0, vclist = vclist))
+    }
+  }
   
-  RES <- list(Xbeta = Xbeta, b = b, e = e, Ztlist = Ztlist)
-  if(type == "reb") {
-    RES <- append(RES, list(flist = fl, levs = levs))
-  } else{
-    RES <- append(RES, list(level.num = level.num))
-    if(type == "cgr") RES <- append(RES, list(sig0 = sig0, vclist = vclist))
+  if(type == "wild") {
+    RES <- list(Xbeta = Xbeta, mresid = mresid, .hatvalues = .hatvalues, 
+                flist = flist, n.lev = n.lev)
   }
   
   RES
@@ -99,7 +125,8 @@
     levs <- purrr::map(fl <- model$groups, levels)
     cnms <- purrr::map(model$coefficients$random, colnames)
     b <- arrange_ranefs.lme(b, fl, levs, cnms)
-  } else{
+  } 
+  if(type %in% c("cgr", "residual")){
     # Extract and center random effects
     reff <- nlme::ranef(model)
     if(level.num == 1) {
@@ -112,6 +139,16 @@
     
     # Extract and center error terms
     e <- scale(resid(model), scale = FALSE)
+  }
+  
+  if(type == "wild") {
+    mresid <- design$Y - Xbeta
+    X <- design$X
+    .hatvalues <-  diag(tcrossprod(X %*% solve(crossprod(X)), X))
+    flist <- model$groups
+    flist <- flist[[ncol(flist)]]
+    n.lev <- nlevels(flist)
+    flist <- as.numeric(flist)
   }
   
   if(type == "cgr" || type == "reb" && reb_type == 1){
@@ -131,13 +168,21 @@
     e <- scale_center_e(e, sig0)
   }
   
+  if(type %in% c("reb", "cgr", "residual")) {
+    RES <- list(Xbeta = Xbeta, b = b, e = e, Zlist = Zlist)
+    
+    if(type == "reb") {
+      RES <- append(RES, list(flist = fl, levs = levs))
+    } else{
+      RES <- append(RES, list(level.num = level.num))
+      if(type == "cgr") RES <- append(RES, list(sig0 = sig0, vclist = vclist))
+    }
+  }
   
-  RES <- list(Xbeta = Xbeta, b = b, e = e, Zlist = Zlist)
-  if(type == "reb") {
-    RES <- append(RES, list(flist = fl, levs = levs))
-  } else{
-    RES <- append(RES, list(level.num = level.num))
-    if(type == "cgr") RES <- append(RES, list(sig0 = sig0, vclist = vclist))
+  
+  if(type == "wild") {
+    RES <- list(Xbeta = Xbeta, mresid = mresid, .hatvalues = .hatvalues, 
+                flist = flist, n.lev = n.lev)
   }
   
   RES

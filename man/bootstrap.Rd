@@ -20,7 +20,8 @@ bootstrap(model, .f, type, B, resample = NULL, reb_type = NULL)
 
 \item{type}{A character string indicating the type of bootstrap that is being
 requested. Possible values are \code{"parametric"}, \code{"residual"}, 
-\code{"case"}, \code{"cgr"}, or \code{"reb"} (random effect block bootstrap).}
+\code{"case"}, \code{"cgr"}, \code{"wild"}, or \code{"reb"} 
+(random effect block bootstrap).}
 
 \item{B}{The number of bootstrap resamples.}
 
@@ -32,6 +33,12 @@ school level first, then the student level.}
 
 \item{reb_type}{Specification of what random effect block bootstrap version to
 implement. Possible values are \code{0}, \code{1} or \code{2}.}
+
+\item{hccme}{either \code{"hc2"} or \code{"hc3"}, indicating which 
+heteroscedasticity consistent covariance matrix estimator to use.}
+
+\item{aux.dist}{either \code{"f1"} or \code{"f2"} indicating which auxiliary 
+distribution to draw the errors from}
 }
 \value{
 The returned value is an object of class "lmeresamp".

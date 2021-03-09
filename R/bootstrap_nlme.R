@@ -176,4 +176,38 @@ cgr_bootstrap.lme <- function(model, .f, B){
 }
 
 
+#' @rdname wild_bootstrap
+#' @inheritParams bootstrap
+#' @export
+wild_bootstrap.lme <- function(model, .f, B, hccme = c("hc2", "hc3"), 
+                               aux.dist = c("f1", "f2")){
+  
+  .f <- match.fun(.f)
+  hccme <- match.arg(hccme)
+  aux.dist <- match.arg(aux.dist)
+  
+  setup <- .setup.lme(model, type = "wild")
+  
+  ystar <- as.data.frame(
+    replicate(
+      n = B, 
+      .resample.wild(
+        Xbeta = setup$Xbeta, 
+        mresid = setup$mresid, 
+        .hatvalues = setup$.hatvalues, 
+        hccme = hccme, 
+        aux.dist = aux.dist,
+        n.lev = setup$n.lev,
+        flist = setup$flist
+      )
+    )
+  )
+  
+  tstar <- purrr::map_dfc(ystar, function(x) {
+    .f(updated.model(model = model, new.y = x))
+  })
+  
+  
+  .bootstrap.completion(model, tstar, B, .f, type = "wild")
+}
 
