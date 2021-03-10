@@ -146,42 +146,6 @@ parametric_bootstrap <- function(model, .f, B) {
   UseMethod("parametric_bootstrap", model)
 }
 
-#' @title Residual Bootstrap for Nested LMEs
-#'
-#' @description
-#' Generate residual bootstrap replicates of a statistic for a nested linear 
-#' mixed-effects model.
-#' 
-#' @details
-#' The residual bootstrap resamples the residual quantities from the fitted 
-#' linear mixed-effects model in order to generate bootstrap resamples. That is, 
-#' a random sample, drawn with replacement, is taken from the estimated error terms 
-#' and the EBLUPS (at each level) and the random samples are combined into bootstrap
-#' samples via the fitted model equation.
-#'
-#' @export
-#' @inheritParams bootstrap
-#' 
-#' @return 
-#' The returned value is an object of class "lmersamp".
-#' 
-#' @seealso 
-#' \itemize{
-#'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
-#'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
-#'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
-#'      implementation of (semi-)parameteric bootstrap for mixed models.
-#' }
-#'
-#'
-#' @references
-#'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
-#'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
-#'    Multilevel Analysis}, pages 401--433. New York: Springer.
-resid_bootstrap <- function(model, .f, B) {
-  UseMethod("resid_bootstrap", model)
-}
 
 #' @title Cases Bootstrap for Nested LMEs
 #'
@@ -231,10 +195,10 @@ case_bootstrap <- function(model, .f, B, resample) {
   UseMethod("case_bootstrap", model)
 }
 
-#' CGR Bootstrap for Nested LMEs
+#' Residual Bootstrap for Nested LMEs
 #'
 #' @description
-#' Generate semi-parametric bootstrap replicates of a statistic for a nested 
+#' Generate semi-parametric residual bootstrap replicates of a statistic for a nested 
 #' linear mixed-effects model.
 #'
 #' @export
@@ -242,7 +206,8 @@ case_bootstrap <- function(model, .f, B, resample) {
 #' 
 #' @details 
 #' The semi-parametric bootstrap algorithm implemented was outlined by  Carpenter,  
-#' Goldstein and Rasbash (2003). The algorithm is outlined below:
+#' Goldstein and Rasbash (2003), and is referred to as the CGR bootstrap by some. 
+#' The algorithm is outlined below:
 #' \enumerate{
 #'   \item Obtain the parameter estimates from the fitted model and calculate
 #'      the estimated error terms and EBLUPs.
@@ -272,8 +237,8 @@ case_bootstrap <- function(model, .f, B, resample) {
 #'    procedure for assessing the relationship between class size and achievement. 
 #'    \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, 
 #'    \bold{52}, 431--443.
-cgr_bootstrap <- function(model, .f, B) {
-  UseMethod("cgr_bootstrap", model)
+resid_bootstrap <- function(model, .f, B) {
+  UseMethod("resid_bootstrap", model)
 }
 
 #' @title REB Bootstrap for Two-Level Nested LMEs

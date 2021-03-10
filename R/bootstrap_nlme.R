@@ -5,7 +5,6 @@ bootstrap.lme <- function(model, .f, type, B, resample, reb_type){
          parametric = parametric_bootstrap.lme(model, .f, B),
          residual = resid_bootstrap.lme(model, .f, B),
          case = case_bootstrap.lme(model, .f, B, resample),
-         cgr = cgr_bootstrap.lme(model, .f, B),
          reb = reb_bootstrap.lme(model, .f, B, reb_type))
 }
 
@@ -56,35 +55,6 @@ case_bootstrap.lme <- function(model, .f, B, resample){
   
   return(.bootstrap.completion(model, tstar, B, .f, type = "case"))
 }
-
-#' @rdname resid_bootstrap
-#' @export
-resid_bootstrap.lme <- function(model, .f, B){
-  
-  .f <- match.fun(.f)
-  
-  setup <- .setup.lme(model, type = "residual")
-  
-  ystar <- as.data.frame(
-    replicate(
-      n = B, 
-      .resample.resids.lme(
-        b = setup$b, 
-        e = setup$e, 
-        Xbeta = setup$Xbeta,
-        Zlist = setup$Zlist
-      )
-    )
-  )
-  
-  tstar <- purrr::map_dfc(ystar, function(x) {
-    .f(updated.model(model = model, new.y = x))
-  })
-  
-  
-  .bootstrap.completion(model, tstar, B, .f, type = "residual")
-}
-
 
 
 
@@ -144,14 +114,14 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type){
 
 
 
-#' @rdname cgr_bootstrap
+#' @rdname resid_bootstrap
 #' @inheritParams bootstrap
 #' @export
-cgr_bootstrap.lme <- function(model, .f, B){
+resid_bootstrap.lme <- function(model, .f, B){
   
   .f <- match.fun(.f)
   
-  setup <- .setup.lme(model, type = "cgr")
+  setup <- .setup.lme(model, type = "residual")
   
   ystar <- as.data.frame(
     replicate(
@@ -172,7 +142,7 @@ cgr_bootstrap.lme <- function(model, .f, B){
   })
   
   
-  .bootstrap.completion(model, tstar, B, .f, type = "cgr")
+  .bootstrap.completion(model, tstar, B, .f, type = "residual")
 }
 
 

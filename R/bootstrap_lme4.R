@@ -7,7 +7,6 @@ bootstrap.lmerMod <- function(model, .f, type, B, resample, reb_type){
          parametric = parametric_bootstrap.lmerMod(model, .f, B),
          residual = resid_bootstrap.lmerMod(model, .f, B),
          case = case_bootstrap.lmerMod(model, .f, B, resample),
-         cgr = cgr_bootstrap.lmerMod(model, .f, B),
          reb = reb_bootstrap.lmerMod(model, .f, B, reb_type))
   # TODO: need to be able to save results
 }
@@ -29,33 +28,31 @@ parametric_bootstrap.lmerMod <- function(model, .f, B){
 }
 
 
-#' @rdname resid_bootstrap
-#' @export
-resid_bootstrap.lmerMod <- function(model, .f, B){
-  
-  .f <- match.fun(.f)
-  
-  setup <- .setup(model, type = "residual")
-  
-  ystar <- as.data.frame(
-    replicate(
-      n = B, 
-      .resample.resids(
-        b = setup$b, 
-        e = setup$e, 
-        level.num = setup$level.num, 
-        Ztlist = setup$Ztlist, 
-        Xbeta = setup$Xbeta
-      )
-    )
-  )
-  
-  tstar <- purrr::map_dfc(ystar, function(x) {
-    .f(lme4::refit(object = model, newresp = x))
-  })
-  
-  .bootstrap.completion(model, tstar, B, .f, type = "residual")
-}
+# resid_bootstrap.lmerMod <- function(model, .f, B){
+#   
+#   .f <- match.fun(.f)
+#   
+#   setup <- .setup(model, type = "residual")
+#   
+#   ystar <- as.data.frame(
+#     replicate(
+#       n = B, 
+#       .resample.resids(
+#         b = setup$b, 
+#         e = setup$e, 
+#         level.num = setup$level.num, 
+#         Ztlist = setup$Ztlist, 
+#         Xbeta = setup$Xbeta
+#       )
+#     )
+#   )
+#   
+#   tstar <- purrr::map_dfc(ystar, function(x) {
+#     .f(lme4::refit(object = model, newresp = x))
+#   })
+#   
+#   .bootstrap.completion(model, tstar, B, .f, type = "residual")
+# }
 
 
 #' @rdname case_bootstrap
@@ -78,13 +75,13 @@ case_bootstrap.lmerMod <- function(model, .f, B, resample){
 
 
 
-#' @rdname cgr_bootstrap
+#' @rdname resid_bootstrap
 #' @export
-cgr_bootstrap.lmerMod <- function(model, .f, B){
+resid_bootstrap.lmerMod <- function(model, .f, B){
   
   .f <- match.fun(.f)
   
-  setup <- .setup(model, type = "cgr")
+  setup <- .setup(model, type = "residual")
   
   ystar <- as.data.frame(
     replicate(
@@ -105,7 +102,7 @@ cgr_bootstrap.lmerMod <- function(model, .f, B){
     .f(lme4::refit(object = model, newresp = x))
   })
   
-  .bootstrap.completion(model, tstar, B, .f, type = "cgr")
+  .bootstrap.completion(model, tstar, B, .f, type = "residual")
 }
 
 

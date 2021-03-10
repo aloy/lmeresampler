@@ -27,7 +27,7 @@
     b <- arrange_ranefs.lmerMod(b, fl, levs, cnms)
   } 
   
-  if(type %in% c("cgr", "residual")){
+  if(type == "residual"){
     # Extract and center random effects
     b <- purrr::map(lme4::ranef(model), .f = scale, scale = FALSE)
     b <- purrr::map(b, as.data.frame)
@@ -53,7 +53,7 @@
       
   }
   
-  if(type == "cgr" || type == "reb" && reb_type == 1){
+  if(type == "residual" || type == "reb" && reb_type == 1){
     sig0 <- stats::sigma(model)
     vclist <- purrr::map(
       seq_along(b), 
@@ -71,14 +71,13 @@
     e <- scale_center_e(e, sig0)
   }
 
-  if(type %in% c("reb", "cgr", "residual")) {
+  if(type %in% c("reb", "residual")) {
     RES <- list(Xbeta = Xbeta, b = b, e = e, Ztlist = Ztlist)
     
     if(type == "reb") {
       RES <- append(RES, list(flist = fl, levs = levs))
     } else{
-      RES <- append(RES, list(level.num = level.num))
-      if(type == "cgr") RES <- append(RES, list(sig0 = sig0, vclist = vclist))
+      RES <- append(RES, list(level.num = level.num, sig0 = sig0, vclist = vclist))
     }
   }
   
@@ -126,7 +125,7 @@
     cnms <- purrr::map(model$coefficients$random, colnames)
     b <- arrange_ranefs.lme(b, fl, levs, cnms)
   } 
-  if(type %in% c("cgr", "residual")){
+  if(type == "residual"){
     # Extract and center random effects
     reff <- nlme::ranef(model)
     if(level.num == 1) {
@@ -151,7 +150,7 @@
     flist <- as.numeric(flist)
   }
   
-  if(type == "cgr" || type == "reb" && reb_type == 1){
+  if(type == "residual" || type == "reb" && reb_type == 1){
     sig0 <- stats::sigma(model)
     vclist <- purrr::map(
       as.matrix(model$modelStruct$reStruct), 
@@ -168,14 +167,13 @@
     e <- scale_center_e(e, sig0)
   }
   
-  if(type %in% c("reb", "cgr", "residual")) {
+  if(type %in% c("reb", "residual")) {
     RES <- list(Xbeta = Xbeta, b = b, e = e, Zlist = Zlist)
     
     if(type == "reb") {
       RES <- append(RES, list(flist = fl, levs = levs))
     } else{
-      RES <- append(RES, list(level.num = level.num))
-      if(type == "cgr") RES <- append(RES, list(sig0 = sig0, vclist = vclist))
+      RES <- append(RES, list(level.num = level.num, sig0 = sig0, vclist = vclist))
     }
   }
   

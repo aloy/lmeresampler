@@ -129,33 +129,6 @@
 }
 
 
-#' Resampling residuals from lmerMod objects
-#' @keywords internal
-#' @noRd
-.resample.resids <- function(b, e, level.num, Ztlist, Xbeta) {
-  bstar <- purrr::map(b, .f = dplyr::slice_sample, prop = 1, replace = TRUE)
-  
-  if(level.num == 1){
-    if(!is.numeric(bstar[[1]])) bstar <- purrr::map(bstar, .f = as.list)[[1]]
-    names(bstar) <- names(Ztlist)
-  } else {
-    # bstar <- purrr::map_dfr(bstar, .f = as.data.frame)
-    # bstar <- do.call(c, bstar)
-    # names(bstar) <- names(Ztlist)
-  }
-  
-  # Get Zb*
-  Zbstar <- .Zbstar.combine(bstar = bstar, zstar = Ztlist)
-  Zbstar.sum <- Reduce("+", Zbstar)
-  
-  # Resample residuals
-  estar <- sample(x = e, size = length(e), replace = TRUE)
-  
-  # Calculate boostrap responses
-  as.numeric(Xbeta + Zbstar.sum + estar)
-}
-
-
 #' REB resampling procedure for lmerMod objects
 #' 
 #' @param Xbeta marginal fitted values

@@ -21,23 +21,33 @@ resid_bootstrap(model, .f, B)
 \item{B}{The number of bootstrap resamples.}
 }
 \value{
-The returned value is an object of class "lmersamp".
+The returned value is an object of class "lmeresamp".
 }
 \description{
-Generate residual bootstrap replicates of a statistic for a nested linear 
-mixed-effects model.
+Generate semi-parametric residual bootstrap replicates of a statistic for a nested 
+linear mixed-effects model.
 }
 \details{
-The residual bootstrap resamples the residual quantities from the fitted 
-linear mixed-effects model in order to generate bootstrap resamples. That is, 
-a random sample, drawn with replacement, is taken from the estimated error terms 
-and the EBLUPS (at each level) and the random samples are combined into bootstrap
-samples via the fitted model equation.
+The semi-parametric bootstrap algorithm implemented was outlined by  Carpenter,  
+Goldstein and Rasbash (2003), and is referred to as the CGR bootstrap by some. 
+The algorithm is outlined below:
+\enumerate{
+  \item Obtain the parameter estimates from the fitted model and calculate
+     the estimated error terms and EBLUPs.
+  \item Rescale the error terms and EBLUPs so that the empirical variance of
+     these quantities is equal to estimated variance components from the model.
+  \item Sample independently with replacement from the rescaled estimated error 
+     terms and rescaled EBLUPs.
+  \item Obtain bootstrap samples by combining the samples via the fitted model equation.
+  \item Refit the model and extract the statistic(s) of interest.
+  \item Repeat steps 3-5 B times.
+}
 }
 \references{
-Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
-   models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
-   Multilevel Analysis}, pages 401--433. New York: Springer.
+Carpenter, J. R., Goldstein, H. and Rasbash, J. (2003) A novel bootstrap 
+   procedure for assessing the relationship between class size and achievement. 
+   \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, 
+   \bold{52}, 431--443.
 }
 \seealso{
 \itemize{
