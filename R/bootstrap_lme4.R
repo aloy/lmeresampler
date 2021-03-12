@@ -2,9 +2,9 @@
 #' @export
 #' @importFrom stats as.formula cov formula model.matrix na.exclude 
 #' na.omit predict resid simulate sd confint quantile
-bootstrap.lmerMod <- function(model, .f, type, B, resample, reb_type){
+bootstrap.merMod <- function(model, .f, type, B, resample, reb_type){
   switch(type,
-         parametric = parametric_bootstrap.lmerMod(model, .f, B),
+         parametric = parametric_bootstrap.merMod(model, .f, B),
          residual = resid_bootstrap.lmerMod(model, .f, B),
          case = case_bootstrap.lmerMod(model, .f, B, resample),
          reb = reb_bootstrap.lmerMod(model, .f, B, reb_type))
@@ -14,7 +14,7 @@ bootstrap.lmerMod <- function(model, .f, type, B, resample, reb_type){
 
 #' @rdname parametric_bootstrap
 #' @export
-parametric_bootstrap.lmerMod <- function(model, .f, B){
+parametric_bootstrap.merMod <- function(model, .f, B){
   .f <- match.fun(.f)
   
   # model.fixef <- lme4::fixef(model) # Extract fixed effects
