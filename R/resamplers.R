@@ -73,11 +73,7 @@
 #' CGR resampling from lmerMod objects
 #' @keywords internal
 #' @noRd
-.resample.cgr <- function(b, e, level.num, Ztlist, Xbeta, vclist, sig0){
-  
-  # Resample resids
-  estar <- sample(x = e, size = length(e), replace = TRUE)
-  ehat <- scale_center_e(estar, sigma = sig0)
+.resample.cgr <- function(glmm, b, e, level.num, Ztlist, Xbeta, vclist, sig0, invlink){
   
   # Resample Uhat
   ustar <- purrr::map(b, .f = dplyr::slice_sample, prop = 1, replace = TRUE)
@@ -99,8 +95,19 @@
   Zbstar <- .Zbstar.combine(bstar = ustar, zstar = Ztlist)
   Zbstar.sum <- Reduce("+", Zbstar)
   
+  if(glmm) {
+    eta <- as.numeric(Xbeta + Zbstar.sum)
+    ystar  <- invlink(eta) # not really ystar, need inv. link
+  } else{
+  # Resample resids
+  estar <- sample(x = e, size = length(e), replace = TRUE)
+  ehat <- scale_center_e(estar, sigma = sig0)
+  
   # Calc. bootstrap y
-  as.numeric(Xbeta + Zbstar.sum + estar)
+  ystar <- as.numeric(Xbeta + Zbstar.sum + estar)
+  }
+  
+  ystar
 }
 
 

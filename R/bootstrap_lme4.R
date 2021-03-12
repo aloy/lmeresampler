@@ -77,9 +77,10 @@ case_bootstrap.merMod <- function(model, .f, B, resample){
 
 #' @rdname resid_bootstrap
 #' @export
-resid_bootstrap.lmerMod <- function(model, .f, B){
+resid_bootstrap.merMod <- function(model, .f, B){
   
   .f <- match.fun(.f)
+  glmm <- lme4::isGLMM(model)
   
   setup <- .setup(model, type = "residual")
   
@@ -87,16 +88,34 @@ resid_bootstrap.lmerMod <- function(model, .f, B){
     replicate(
       n = B, 
       .resample.cgr(
+        glmm = glmm,
         b = setup$b, 
         e = setup$e, 
         level.num = setup$level.num, 
         Ztlist = setup$Ztlist, 
         Xbeta = setup$Xbeta,
         vclist = setup$vclist,
-        sig0 = setup$sig0
+        sig0 = setup$sig0,
+        invlink = ifelse(glmm, model@resp$family$linkinv, NULL)
       )
     )
   )
+  
+  if(glmm){
+    fam <- stats::family(model)
+    wts <- stats::weights(model)
+    # Back transform to y - adapting code from lme4 simulate
+    # if (fam$family == "binomial" && is.matrix(r <- model.response(model@frame))) {
+    #     weights <- rowSums(r)
+    # }
+    
+    # simulate y
+    simfun <- simfunList[[fam$family]]
+    ystar <- purrr::map(ystar,
+      ~simfun(model, nsim = 1, ftd = .x, wts = wts)
+    )
+      
+  }
   
   tstar <- purrr::map_dfc(ystar, function(x) {
     .f(lme4::refit(object = model, newresp = x))
