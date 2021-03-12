@@ -57,10 +57,15 @@
     } else{
       tstar
     }
-    return(tstar)
+  } else if(class(model) == "glmerMod") {
+    form <- update(model@call$formula, y ~ .)
+    colnames(resamp_data)[1] <- "y"
+    fam  <- family(model)
+    tstar <- .f(lme4::glmer(formula = form, data = resamp_data, family = fam)) 
   } else{
-    stop("model class must be either 'lme' or 'lmerMod'")
+    stop("model class must be one of 'lme', 'lmerMod', or 'glmerMod'")
   }
+  tstar
 }
 
 

@@ -6,7 +6,7 @@ bootstrap.merMod <- function(model, .f, type, B, resample, reb_type){
   switch(type,
          parametric = parametric_bootstrap.merMod(model, .f, B),
          residual = resid_bootstrap.lmerMod(model, .f, B),
-         case = case_bootstrap.lmerMod(model, .f, B, resample),
+         case = case_bootstrap.merMod(model, .f, B, resample),
          reb = reb_bootstrap.lmerMod(model, .f, B, reb_type))
   # TODO: need to be able to save results
 }
@@ -57,7 +57,7 @@ parametric_bootstrap.merMod <- function(model, .f, B){
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lmerMod <- function(model, .f, B, resample){
+case_bootstrap.merMod <- function(model, .f, B, resample){
   
   data <- model@frame
   # data$.id <- seq_len(nrow(data))

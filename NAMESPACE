@@ -3,7 +3,7 @@
 S3method(bootstrap,lme)
 S3method(bootstrap,merMod)
 S3method(case_bootstrap,lme)
-S3method(case_bootstrap,lmerMod)
+S3method(case_bootstrap,merMod)
 S3method(confint,lmeresamp)
 S3method(parametric_bootstrap,lme)
 S3method(parametric_bootstrap,merMod)
