@@ -1,10 +1,10 @@
 library(nlme, quietly = TRUE)
 
 data(Socatt, package = "mlmRev")
-
 Socatt$religion <- relevel(Socatt$religion, ref = "none")
 Socatt$rv <- as.numeric(as.character(Socatt$numpos))
 Socatt$rv <- scale(Socatt$rv) # a plot shows this is clearly non-normal
+
 
 # ==============================================================================
 context("residual bootstrap (lme)")

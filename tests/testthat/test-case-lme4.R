@@ -1,10 +1,11 @@
 library(lme4, quietly = TRUE)
-library(mlmRev, quietly = TRUE)
 library(dplyr, quietly = TRUE)
 
+data(Socatt, package = "mlmRev")
 Socatt$religion <- relevel(Socatt$religion, ref = "none")
 Socatt$rv <- as.numeric(as.character(Socatt$numpos))
 Socatt$rv <- scale(Socatt$rv) # a plot shows this is clearly non-normal
+
 
 # ==============================================================================
 context("case bootstrap (lmerMod)")
@@ -138,3 +139,71 @@ test_that("three-level random intercept model",{
   expect_equal(boo$type, "case")
   expect_equal(boo$.f, mySumm)
 })
+
+
+# ==============================================================================
+context("case bootstrap (glmerMod)")
+# ==============================================================================
+
+mySumm <- function(.) { 
+  c(beta = getME(., "beta"), sig01 = unname(getME(., "theta"))) 
+}
+
+test_that("two-level binomial logistic regression",{
+  skip_on_cran()
+  gm <- glmer(cbind(incidence, size - incidence) ~ period + (1 | herd),
+              data = cbpp, family = binomial)
+  
+  orig.stats <- mySumm(gm)
+  boo <- case_bootstrap(model = gm, .f = mySumm, B = nsim, resample = c(TRUE, TRUE))
+  
+  expect_equal(class(boo), "lmeresamp")
+  expect_equal(boo$observed, orig.stats)
+  expect_equal(boo$stats$observed, unname(orig.stats))
+  expect_equal(nrow(boo$replicates), nsim)
+  expect_equal(ncol(boo$replicates), length(orig.stats))
+  expect_equal(boo$R, nsim)
+  expect_equal(boo$type, "case")
+  expect_equal(boo$.f, mySumm)
+})
+
+# ------------------------------------------------------------------------------
+
+test_that("two-level poisson regression model",{
+  skip_on_cran()
+  gm <- glmer(TICKS ~ YEAR + cHEIGHT + (1|LOCATION),
+              family="poisson", data=grouseticks)
+  
+  orig.stats <- mySumm(gm)
+  boo <- case_bootstrap(model = gm, .f = mySumm, B = nsim, resample = c(TRUE, FALSE))
+  
+  expect_equal(class(boo), "lmeresamp")
+  expect_equal(boo$observed, orig.stats)
+  expect_equal(boo$stats$observed, unname(orig.stats))
+  expect_equal(nrow(boo$replicates), nsim)
+  expect_equal(ncol(boo$replicates), length(orig.stats))
+  expect_equal(boo$R, nsim)
+  expect_equal(boo$type, "case")
+  expect_equal(boo$.f, mySumm)
+})
+
+
+test_that("three-level poisson regression model",{
+  skip_on_cran()
+  gm <- glmer(TICKS ~ YEAR + cHEIGHT + (1|LOCATION/BROOD),
+              family="poisson",data=grouseticks)
+  
+  orig.stats <- mySumm(gm)
+  boo <- case_bootstrap(model = gm, .f = mySumm, B = nsim, resample = c(FALSE, FALSE, TRUE))
+  
+  expect_equal(class(boo), "lmeresamp")
+  expect_equal(boo$observed, orig.stats)
+  expect_equal(boo$stats$observed, unname(orig.stats))
+  expect_equal(nrow(boo$replicates), nsim)
+  expect_equal(ncol(boo$replicates), length(orig.stats))
+  expect_equal(boo$R, nsim)
+  expect_equal(boo$type, "case")
+  expect_equal(boo$.f, mySumm)
+})
+
+# ------------------------------------------------------------------------------
