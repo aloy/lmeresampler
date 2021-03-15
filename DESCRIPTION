@@ -6,8 +6,8 @@ Authors@R: c(person("Adam", "Loy", email = "loyad01@gmail.com",
     person("Jenna", "Korobova", role = "aut"))
 Description: Bootstrap routines for nested linear mixed effects models fit using
     either 'lme4' or 'nlme'. The provided 'bootstrap()' function implements the
-    parametric, residual, cases, semi-parametric (i.e., CGR),  and random effect
-    block (REB) bootstrap procedures. An overview of these procedures can be found 
+    parametric, residual, cases, random effect block (REB), and wild bootstrap 
+    procedures. An overview of these procedures can be found 
     in Van der Leeden et al. (2008) <doi: 10.1007/978-0-387-73186-5_11>, 
     Carpenter, Goldstein & Rasbash (2003) <doi: 10.1111/1467-9876.00415>,
     and Chambers & Chandra (2013) <doi: 10.1080/10618600.2012.681216>.
@@ -19,7 +19,9 @@ Imports:
     nlmeU,
     HLMdiag,
     purrr,
-    forcats
+    forcats,
+    stats,
+    statmod
 Suggests:
     lme4 (>= 1.1-7),
     nlme,

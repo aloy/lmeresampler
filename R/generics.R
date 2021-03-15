@@ -36,8 +36,8 @@
 #' @seealso 
 #' \itemize{
 #'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
-#'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
+#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
+#'      for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
 #' }
@@ -97,7 +97,7 @@
 #'    Bates, D., Maechler, M., Bolker, W., Walker, S. (2015).
 #'    Fitting Linear Mixed-Effects Models Using lme4. \emph{Journal of
 #'    Statistical Software}, \bold{67}, 1--48. doi:10.18637/jss.v067.i01.
-bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL) {
+bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL, hccme = NULL, aux.dist = NULL) {
   if(!type %in% c("parametric", "residual", "case", "cgr", "reb"))
     stop("'type' must be one of 'parametric', 'residual', 'case', 'cgr', or 'reb'")
   if(!is.null(reb_type))
@@ -128,8 +128,8 @@ bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL) {
 #' @seealso 
 #' \itemize{
 #'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
-#'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
+#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
+#'      for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
 #' }
@@ -181,8 +181,8 @@ parametric_bootstrap <- function(model, .f, B) {
 #' @seealso 
 #' \itemize{
 #'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
-#'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
+#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
+#'      for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
 #' }
@@ -226,8 +226,8 @@ case_bootstrap <- function(model, .f, B, resample) {
 #' @seealso 
 #' \itemize{
 #'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
-#'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
+#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
+#'      for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
 #' }
@@ -286,8 +286,8 @@ resid_bootstrap <- function(model, .f, B) {
 #' @seealso 
 #' \itemize{
 #'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
-#'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
+#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
+#'      for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
 #' }
@@ -330,8 +330,8 @@ reb_bootstrap <- function(model, .f, B, reb_type) {
 #' @seealso 
 #' \itemize{
 #'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
-#'      \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
+#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
+#'      for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
 #' }

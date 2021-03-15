@@ -1,4 +1,6 @@
 ### Provided in lme4/predict.R
+#' @importFrom stats family fitted model.frame model.response rbinom 
+#' rgamma rnbinom rnorm rpois weights
 gaussian_simfun <- function(object, nsim, ftd=fitted(object),
                             wts=weights(object)) {
   
@@ -61,8 +63,8 @@ gamma.shape.merMod <- function(object, ...) {
   if(family(object)$family != "Gamma")
     stop("Can not fit gamma shape parameter because Gamma family not used")
   
-  y <- getME(object, "y")
-  mu <- getME(object, "mu")
+  y <- lme4::getME(object, "y")
+  mu <- lme4::getME(object, "mu")
   w <- weights(object)
   # Sec 8.3.2 (MN)
   L <- w*(log(y/mu)-((y-mu)/mu))
@@ -74,6 +76,7 @@ gamma.shape.merMod <- function(object, ...) {
             class = "gamma.shape")
 }
 
+#' @importFrom statmod rinvgauss
 inverse.gaussian_simfun <- function(object, nsim, ftd=fitted(object),
                                     wts = weights(object)) {
   if (any(wts != 1)) message("using weights as inverse variances")
@@ -92,7 +95,7 @@ negative.binomial_simfun <- function (object, nsim,
   
   if (any(wts != 1))
     warning("ignoring prior weights")
-  theta <- getNBdisp(object)
+  theta <- lme4::getME(object, "glmer.nb.theta")
   rnbinom(nsim * length(ftd), mu = ftd, size = theta)
 }
 
