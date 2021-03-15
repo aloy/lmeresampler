@@ -56,8 +56,8 @@ Modugno, L., & Giannerini, S. (2015). The Wild Bootstrap for
 \seealso{
 \itemize{
   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-     \code{\link{case_bootstrap}}, \code{\link{cgr_bootstrap}}, 
-     \code{\link{reb_bootstrap}} for more details on a specific bootstrap.
+     \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
+     for more details on a specific bootstrap.
   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
      implementation of (semi-)parameteric bootstrap for mixed models.
 }

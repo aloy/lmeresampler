@@ -2,13 +2,13 @@
 #' @export
 #' @importFrom stats as.formula cov formula model.matrix na.exclude 
 #' na.omit predict resid simulate sd confint quantile
-bootstrap.merMod <- function(model, .f, type, B, resample, reb_type){
+bootstrap.merMod <- function(model, .f, type, B, resample, reb_type, hccme, aux.dist){
   switch(type,
          parametric = parametric_bootstrap.merMod(model, .f, B),
-         residual = resid_bootstrap.lmerMod(model, .f, B),
+         residual = resid_bootstrap.merMod(model, .f, B),
          case = case_bootstrap.merMod(model, .f, B, resample),
-         reb = reb_bootstrap.lmerMod(model, .f, B, reb_type))
-  # TODO: need to be able to save results
+         reb = reb_bootstrap.lmerMod(model, .f, B, reb_type),
+         wild = wild_bootstrap.lmerMod(model, .f, B, hccme, aux.dist))
 }
 
 
