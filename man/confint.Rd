@@ -2,9 +2,15 @@
 % Please edit documentation in R/confint.R
 \name{confint.lmeresamp}
 \alias{confint.lmeresamp}
-\title{confint}
+\title{Calculate confidence interval for lmeresamp object}
 \usage{
-\method{confint}{lmeresamp}(object, parm, level = 0.95, method, ...)
+\method{confint}{lmeresamp}(
+  object,
+  parm,
+  level = 0.95,
+  type = c("all", "norm", "basic", "perc"),
+  ...
+)
 }
 \arguments{
 \item{object}{The lmeresamp object for which confidence intervals should be computed.}
@@ -13,12 +19,17 @@
 
 \item{level}{The level at which the confidence interval should be calculated.}
 
-\item{method}{The type of confidence intervals that should be executed.}
+\item{type}{A character string giving the type of confidence intervals that should be calculated. 
+Is should be a subset of \code{c("norm", "basic", "perc")} (for normal, basic, and percentile
+bootstrap confidence interals, respectively), or \code{"all"}.}
 
 \item{...}{not used}
 }
+\value{
+A tibble with columns term, estimate, lower, upper, type, and level.
+}
 \description{
-Performs confidence intervals on an lmeresamp object.
+Calculates confidence intervals on an lmeresamp object.
 }
 \details{
 This function is given \code{object, method, level} and uses them to calculate the

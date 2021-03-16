@@ -21,7 +21,8 @@ Imports:
     purrr,
     forcats,
     stats,
-    statmod
+    statmod,
+    magrittr
 Suggests:
     lme4 (>= 1.1-7),
     nlme,
