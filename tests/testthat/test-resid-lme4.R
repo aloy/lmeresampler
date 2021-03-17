@@ -173,7 +173,7 @@ test_that("two-level poisson regression model",{
 test_that("three-level poisson regression model",{
   skip_on_cran()
   gm <- glmer(TICKS ~ YEAR + cHEIGHT + (1|LOCATION/BROOD),
-              family="poisson",data=grouseticks)
+              family="poisson", data=grouseticks)
   
   orig.stats <- mySumm(gm)
   boo <- resid_bootstrap(model = gm, .f = mySumm, B = nsim)
