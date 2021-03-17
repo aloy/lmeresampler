@@ -4,7 +4,7 @@
 .resamp.cases <- function(dat, cluster, resample) {
   res <- dat
   
-  for(i in 1:length(cluster)) {
+  for(i in seq_along(cluster)) {
     if(i==1 & resample[i]) {
       dots <- as.name(cluster[1])
       grouped <- dplyr::group_by(res, !!dots)
