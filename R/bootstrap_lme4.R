@@ -60,11 +60,19 @@ parametric_bootstrap.merMod <- function(model, .f, B){
 case_bootstrap.merMod <- function(model, .f, B, resample){
   
   data <- model@frame
-  # data$.id <- seq_len(nrow(data))
-  clusters <- c(rev(names(lme4::getME(model, "flist"))), ".id")
+  flist <- lme4::getME(model, "flist")
+  re_names <- names(flist)
+  clusters <- c(rev(re_names), ".id")
   
   if(length(clusters) != length(resample))
-    stop("'resample' is not the same length as the number of grouping variables. Please specify whether to resample the data at each level of grouping.")
+    stop("'resample' is not the same length as the number of grouping variables. 
+         Please specify whether to resample the data at each level of grouping,
+         including at the observation level.")
+  
+  if(!all(re_names %in% colnames(data))) {
+    missing_re <- setdiff(re_names, colnames(data))
+    data <- dplyr::bind_cols(data, flist[missing_re])
+  }
   
   # rep.data <- purrr::map(integer(B), function(x) .cases.resamp(model = model, dat = data, cluster = clusters, resample = resample))
   tstar <- purrr::map(integer(B), function(x) .resample_refit.cases(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
