@@ -50,7 +50,7 @@ test_that("two-level additive random intercept model",{
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$observed, orig.stats)
-  expect_equal(boo$stats$observed, unname(orig.stats))
+  expect_equal(unname(boo$stats$observed), unname(orig.stats))
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
@@ -74,7 +74,7 @@ test_that("two-level random intercept model without interaction",{
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$observed, orig.stats)
-  expect_equal(boo$stats$observed, unname(orig.stats))
+  expect_equal(unname(boo$stats$observed), unname(orig.stats))
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
@@ -93,7 +93,7 @@ test_that("two-level random intercept model with interaction",{
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$observed, orig.stats)
-  expect_equal(boo$stats$observed, unname(orig.stats))
+  expect_equal(unname(boo$stats$observed), unname(orig.stats))
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
@@ -113,7 +113,7 @@ test_that("two-level random coefficient model with interaction",{
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$observed, orig.stats)
-  expect_equal(boo$stats$observed, unname(orig.stats))
+  expect_equal(unname(boo$stats$observed), unname(orig.stats))
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
@@ -132,7 +132,7 @@ test_that("three-level random intercept model",{
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$observed, orig.stats)
-  expect_equal(boo$stats$observed, unname(orig.stats))
+  expect_equal(unname(boo$stats$observed), unname(orig.stats))
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
@@ -159,7 +159,7 @@ test_that("two-level binomial logistic regression",{
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$observed, orig.stats)
-  expect_equal(boo$stats$observed, unname(orig.stats))
+  expect_equal(unname(boo$stats$observed), unname(orig.stats))
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
@@ -179,7 +179,7 @@ test_that("two-level poisson regression model",{
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$observed, orig.stats)
-  expect_equal(boo$stats$observed, unname(orig.stats))
+  expect_equal(unname(boo$stats$observed), unname(orig.stats))
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
@@ -198,7 +198,7 @@ test_that("three-level poisson regression model",{
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$observed, orig.stats)
-  expect_equal(boo$stats$observed, unname(orig.stats))
+  expect_equal(unname(boo$stats$observed), unname(orig.stats))
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)

@@ -112,6 +112,7 @@ extract_zlist.lme <- function(model){
 }
 
 #' @importFrom stats sigma
+#' @export
 extract_parameters.lme <- function(model) {
   sig.e <- stats::sigma(model)
   vc <- nlme::getVarCov(model)

@@ -96,7 +96,7 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type){
   # Extract bootstrap statistics
   if(reb_type == 2) .f <- extract_parameters.lme
   
-  tstar <- purrr::map_dfc(y.star, function(x) {
+  tstar <- purrr::map(y.star, function(x) {
     .f(updated.model(model = model, new.y = x))
   })
   
@@ -138,7 +138,7 @@ resid_bootstrap.lme <- function(model, .f, B){
     )
   )
   
-  tstar <- purrr::map_dfc(ystar, function(x) {
+  tstar <- purrr::map(ystar, function(x) {
     .f(updated.model(model = model, new.y = x))
   })
   
@@ -174,7 +174,7 @@ wild_bootstrap.lme <- function(model, .f, B, hccme = c("hc2", "hc3"),
     )
   )
   
-  tstar <- purrr::map_dfc(ystar, function(x) {
+  tstar <- purrr::map(ystar, function(x) {
     .f(updated.model(model = model, new.y = x))
   })
   

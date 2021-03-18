@@ -21,38 +21,11 @@ parametric_bootstrap.merMod <- function(model, .f, B){
   ystar <- simulate(model, nsim = B, na.action = na.exclude)
   
   # refit here
-  tstar <- purrr::map_dfc(ystar, function(x) {
+  tstar <- purrr::map(ystar, function(x) {
     .f(lme4::refit(object = model, newresp = x))
   })
   return(.bootstrap.completion(model, tstar, B, .f, type = "parametric"))
 }
-
-
-# resid_bootstrap.lmerMod <- function(model, .f, B){
-#   
-#   .f <- match.fun(.f)
-#   
-#   setup <- .setup(model, type = "residual")
-#   
-#   ystar <- as.data.frame(
-#     replicate(
-#       n = B, 
-#       .resample.resids(
-#         b = setup$b, 
-#         e = setup$e, 
-#         level.num = setup$level.num, 
-#         Ztlist = setup$Ztlist, 
-#         Xbeta = setup$Xbeta
-#       )
-#     )
-#   )
-#   
-#   tstar <- purrr::map_dfc(ystar, function(x) {
-#     .f(lme4::refit(object = model, newresp = x))
-#   })
-#   
-#   .bootstrap.completion(model, tstar, B, .f, type = "residual")
-# }
 
 
 #' @rdname case_bootstrap
@@ -112,10 +85,6 @@ resid_bootstrap.merMod <- function(model, .f, B){
   if(glmm){
     fam <- stats::family(model)
     wts <- stats::weights(model)
-    # Back transform to y - adapting code from lme4 simulate
-    # if (fam$family == "binomial" && is.matrix(r <- model.response(model@frame))) {
-    #     weights <- rowSums(r)
-    # }
     
     # simulate y
     simfun <- simfunList[[fam$family]]
@@ -125,7 +94,7 @@ resid_bootstrap.merMod <- function(model, .f, B){
       
   }
   
-  tstar <- purrr::map_dfc(ystar, function(x) {
+  tstar <- purrr::map(ystar, function(x) {
     .f(lme4::refit(object = model, newresp = x))
   })
   
@@ -159,7 +128,7 @@ wild_bootstrap.lmerMod <- function(model, .f, B, hccme = c("hc2", "hc3"),
     )
   )
   
-  tstar <- purrr::map_dfc(ystar, function(y) {
+  tstar <- purrr::map(ystar, function(y) {
     .f(lme4::refit(object = model, newresp = y))
   })
   
@@ -203,9 +172,9 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
   y.star <- as.data.frame(y.star)
   
   # Extract bootstrap statistics
-  if(reb_type == 2) .f <- extract_parameters.lmerMod
+  if(reb_type == 2) .f <- extract_parameters.merMod
   
-  tstar <- purrr::map_dfc(y.star, function(x) {
+  tstar <- purrr::map(y.star, function(x) {
     .f(lme4::refit(object = model, newresp = x))
     })
   

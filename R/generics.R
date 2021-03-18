@@ -343,3 +343,19 @@ reb_bootstrap <- function(model, .f, B, reb_type) {
 wild_bootstrap <- function(model, .f, B, hccme, aux.dist) {
   UseMethod("wild_bootstrap", model)
 }
+
+
+#' Extract parameters from LME models
+#'
+#' @description
+#' A utility function that extracts the fixed effects and variance component
+#' estimates from a fitted \code{merMod} or \code{lme} obje.
+#' 
+#' @return 
+#' A named vector of parameters.
+#' 
+#' @export
+#' @param model the fitted model object, either an \code{merMod} or \code{lme} object.
+extract_parameters <- function(model) {
+  UseMethod("extract_parameters", model)
+}

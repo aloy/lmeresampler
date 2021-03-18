@@ -17,36 +17,43 @@
   t0 <- .f(model)
   
   nsim <- length(tstar)
-  tstar <- do.call("cbind", tstar) # Can these be nested?
-  row.names(tstar) <- names(t0)
+  # tstar <- do.call("cbind", tstar) # Can these be nested?
+  # row.names(tstar) <- names(t0)
   
-  if((nfail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
-    warning("some bootstrap runs failed (", nfail, "/", nsim, ")")
-    fail.msgs <- purrr::map_chr(tstar[bad.runs], .f = attr, FUN.VALUE = character(1),
-                                "fail.msgs")
-  } else fail.msgs <- NULL
+  # if((nfail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
+  #   warning("some bootstrap runs failed (", nfail, "/", nsim, ")")
+  #   fail.msgs <- purrr::map_chr(tstar[bad.runs], .f = attr, FUN.VALUE = character(1),
+  #                               "fail.msgs")
+  # } else fail.msgs <- NULL
   
   # prep for stats df
-  replicates <- as.data.frame(t(tstar))
+  
   observed <- t0
-  rep.mean <- colMeans(replicates)
-  se <- unlist(purrr::map(replicates, sd))
-  bias <- rep.mean - observed
   
-  stats <- data.frame(observed, rep.mean, se, bias)
-  
-  if(class(model) == "lmerMod") {
-    data = model@frame
-  } else if (class(model) == "lme") {
-    data = model$data
+  if(is.numeric(t0)) {
+    replicates <- dplyr::bind_rows(tstar)
+    rep.mean <- colMeans(replicates)
+    se <- unlist(purrr::map(replicates, sd))
+    bias <- rep.mean - observed
+    stats <- dplyr::tibble(term = names(t0), observed, rep.mean, se, bias)
+  } else{
+    if(is.data.frame(t0)) {
+      .ids <- rep(seq_along(tstar), times = vapply(tstar, nrow, FUN.VALUE = 0L))
+      replicates <- dplyr::bind_rows(tstar) %>% dplyr::mutate(.n = .ids)
+    }
+    stats <- NULL
   }
+
+  
+  if (class(model) == "lme") data <- model$data
+  else data <- model@frame
   
   RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = data,
                         seed = .Random.seed, type = type, call = match.call()), 
                    class = "lmeresamp")
   
-  attr(RES,"bootFail") <- nfail
-  attr(RES,"boot.fail.msgs") <- fail.msgs
+  # attr(RES,"bootFail") <- nfail
+  # attr(RES,"boot.fail.msgs") <- fail.msgs
   return(RES)
 }

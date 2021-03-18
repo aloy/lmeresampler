@@ -18,7 +18,8 @@ scale_center_e <- function(x, sigma) {
 
 
 #' @importFrom stats sigma
-extract_parameters.lmerMod <- function(model) {
+#' @export
+extract_parameters.merMod <- function(model) {
   sig.e <- stats::sigma(model)
   vc <- as.data.frame(lme4::VarCorr(model))
   
@@ -102,6 +103,7 @@ arrange_ranefs.lme <- function(b, fl, levs, cnms){
   fe0 <- t0[1:nbeta]
   vc0 <- t0[(nbeta+1):nparams]
   
+  tstar <- dplyr::bind_cols(tstar)
   fe.star <- t(tstar[1:nbeta,])
   vc.star <- t(tstar[(nbeta+1):nparams,])
   
@@ -124,5 +126,9 @@ arrange_ranefs.lme <- function(b, fl, levs, cnms){
   fe.adj <- sweep(fe.star, MARGIN = 2, STATS = fe0 - colMeans(fe.star, na.rm = TRUE), FUN = "+")
   vc.adj <- sweep(vc.star, MARGIN = 2, STATS = vc0 / colMeans(vc.star, na.rm = TRUE), FUN = "*")
   
-  as.data.frame(t(cbind(fe.adj, vc.adj)))
+  res <- as.data.frame(t(cbind(fe.adj, vc.adj)))
+  res <- lapply(seq(nrow(res)), function(i) as.numeric(res[i, ]))
+  names(res) <- names(t0)
+  
+  res
 }
