@@ -13,10 +13,11 @@
 #' @return list
 #' @keywords internal
 #' @noRd
-.bootstrap.completion <- function(model, tstar, B, .f, type = type){
+.bootstrap.completion <- function(model, tstar, B, .f, type = type, warnings){
   t0 <- .f(model)
   
   nsim <- length(tstar)
+  
   # tstar <- do.call("cbind", tstar) # Can these be nested?
   # row.names(tstar) <- names(t0)
   
@@ -50,7 +51,8 @@
   
   RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
                         stats = stats, R = B, data = data,
-                        seed = .Random.seed, type = type, call = match.call()), 
+                        seed = .Random.seed, type = type, call = match.call(),
+                        message = warnings$message, warning = warnings$warning, error = warnings$error), 
                    class = "lmeresamp")
   
   # attr(RES,"bootFail") <- nfail

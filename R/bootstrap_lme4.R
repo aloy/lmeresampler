@@ -21,10 +21,9 @@ parametric_bootstrap.merMod <- function(model, .f, B){
   ystar <- simulate(model, nsim = B, na.action = na.exclude)
   
   # refit here
-  tstar <- purrr::map(ystar, function(x) {
-    .f(lme4::refit(object = model, newresp = x))
-  })
-  return(.bootstrap.completion(model, tstar, B, .f, type = "parametric"))
+  refits <- refit_merMod(ystar, model, .f)
+  
+  .bootstrap.completion(model, tstar = refits$tstar, B, .f, type = "parametric", warnings = refits$warnings)
 }
 
 
@@ -48,10 +47,16 @@ case_bootstrap.merMod <- function(model, .f, B, resample){
   }
   
   # rep.data <- purrr::map(integer(B), function(x) .cases.resamp(model = model, dat = data, cluster = clusters, resample = resample))
-  tstar <- purrr::map(integer(B), function(x) .resample_refit.cases(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
+  refits <- purrr::map(integer(B), function(x) .resample_refit.cases(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
   
-  RES <- .bootstrap.completion(model, tstar, B, .f, type = "case")
-  return(RES)
+  tstar <- purrr::map(refits, ~.x$value)
+  warnings <- list(
+    warning = lapply(refits, function(.x) unlist(.x$warning)$message),
+    message = lapply(refits, function(.x) unlist(.x$message)$message),
+    error = lapply(refits, function(.x) unlist(.x$error)$message)
+  )
+  
+  .bootstrap.completion(model, tstar = tstar, B, .f, type = "case", warnings = warnings)
 }
 
 
@@ -94,11 +99,9 @@ resid_bootstrap.merMod <- function(model, .f, B){
       
   }
   
-  tstar <- purrr::map(ystar, function(x) {
-    .f(lme4::refit(object = model, newresp = x))
-  })
+  refits <- refit_merMod(ystar, model, .f)
   
-  .bootstrap.completion(model, tstar, B, .f, type = "residual")
+  .bootstrap.completion(model, tstar = refits$tstar, B, .f, type = "residual", warnings = refits$warnings)
 }
 
 
@@ -128,11 +131,10 @@ wild_bootstrap.lmerMod <- function(model, .f, B, hccme = c("hc2", "hc3"),
     )
   )
   
-  tstar <- purrr::map(ystar, function(y) {
-    .f(lme4::refit(object = model, newresp = y))
-  })
   
-  .bootstrap.completion(model, tstar, B, .f, type = "wild")
+  refits <- refit_merMod(ystar, model, .f)
+  
+  .bootstrap.completion(model, tstar = refits$tstar, B, .f, type = "wild", warnings = refits$warnings)
 }
 
 
@@ -169,15 +171,13 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
     )
   )
   
-  y.star <- as.data.frame(y.star)
+  ystar <- as.data.frame(y.star)
   
   # Extract bootstrap statistics
   if(reb_type == 2) .f <- extract_parameters.merMod
   
-  tstar <- purrr::map(y.star, function(x) {
-    .f(lme4::refit(object = model, newresp = x))
-    })
-  
+  refits <- refit_merMod(ystar, model, .f)
+  tstar <- refits$tstar
   # Extract original statistics
   t0 <- .f(model)
   
@@ -186,7 +186,10 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
     tstar <- .postprocess.reb2(t0, tstar, nbeta = length(lme4::getME(model, "beta")), B = B)
   
   # Format for return
-  .bootstrap.completion(model, tstar, B, .f, type = paste("reb", reb_type, sep = ""))
+  .bootstrap.completion(model, tstar = tstar, B, .f, 
+                        type = paste("reb", reb_type, sep = ""), 
+                        warnings = refits$warnings)
+  
 }
 
 

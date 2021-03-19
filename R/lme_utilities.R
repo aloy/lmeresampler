@@ -48,7 +48,7 @@
 # }
 
 # Refit the model
-updated.model<- function(model, new.y = NULL, new.data = NULL){
+updated.model <- function(model, new.y = NULL, new.data = NULL){
   # Extract formulas and data
   mod.fixd <- as.formula(model$call$fixed)
   mod.rand <- model$call$random
@@ -64,14 +64,42 @@ updated.model<- function(model, new.y = NULL, new.data = NULL){
   # create new lme
   ctrl <- nlme::lmeControl(opt = 'optim', returnObject = TRUE)
   if(is.null(mod.rand)){
-    out.lme <- nlme::lme(fixed = mod.fixd, data = mod.data, control = ctrl)
+    out.lme <- catchr::catch_expr(
+      nlme::lme(fixed = mod.fixd, data = mod.data, control = ctrl),
+      warning, message, error
+    )
   } else{
     mod.rand <- as.formula(mod.rand)
-    out.lme <- nlme::lme(fixed = mod.fixd, data = mod.data, random = mod.rand, control = ctrl)
+    out.lme <- catchr::catch_expr(
+      nlme::lme(fixed = mod.fixd, data = mod.data, random = mod.rand, control = ctrl),
+      warning, message, error
+    )
   }
   
   out.lme
 }
+
+
+#' Refitting lme with error catching
+#' @param ystar bootstrapped responses
+#' @param model fitted merMod object
+#' @param .f function to calc bootstrap stats
+#' @keywords internal
+#' @noRd
+refit_lme <- function(ystar = NULL, model, .f) {
+  if(!is.null(ystar))
+    refits <- purrr::map(ystar, function(y) updated.model(model = model, new.y = y))
+  
+  stats <- purrr::map(refits, ~.f(.x$value))
+  warn  <- lapply(refits, function(.x) unlist(.x$warning)$message)
+  msgs  <- lapply(refits, function(.x) unlist(.x$message)$message)
+  errs  <- lapply(refits, function(.x) unlist(.x$error)$message)
+  
+  list(tstar = stats, warnings = list(warning = warn, message = msgs, error = errs))
+}
+
+
+
 
 
 #' Create list of Z matrices, similar to Ztlist in lme4

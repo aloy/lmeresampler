@@ -25,17 +25,9 @@ parametric_bootstrap.lme <- function(model, .f, B){
   row.names(ystar) <- 1:model$dims$N
   ystar <- data.frame(ystar)
   
-  tstar <- purrr::map(ystar, function(y) {
-    fit <- tryCatch(.f(updated.model(model = model, new.y = y)),  
-                    error = function(e) e)
-    if(inherits(fit, "error")) {
-      structure(rep(NA, length(t0)), fail.msgs = fit$message)
-    } else{
-      fit
-    }
-  })
+  refits <- refit_lme(ystar = ystar, model = model, .f = .f)
   
-  return(.bootstrap.completion(model, tstar, B, .f, type = "parametric"))
+  .bootstrap.completion(model, tstar = refits$tstar, B, .f, type = "parametric", warnings = refits$warnings)
 }
 
 
@@ -52,9 +44,16 @@ case_bootstrap.lme <- function(model, .f, B, resample){
     stop("'resample' is not the same length as the number of grouping variables. 
          Please specify whether to resample the data at each level of grouping.")
   
-  tstar <- purrr::map(integer(B), function(x) .resample_refit.cases(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
+  refits <- purrr::map(integer(B), function(x) .resample_refit.cases(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
   
-  return(.bootstrap.completion(model, tstar, B, .f, type = "case"))
+  tstar <- purrr::map(refits, ~.x$value)
+  warnings <- list(
+    warning = lapply(refits, function(.x) unlist(.x$warning)$message),
+    message = lapply(refits, function(.x) unlist(.x$message)$message),
+    error = lapply(refits, function(.x) unlist(.x$error)$message)
+  )
+  
+  .bootstrap.completion(model, tstar = tstar, B, .f, type = "case", warnings = warnings)
 }
 
 
@@ -91,14 +90,13 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type){
     )
   )
   
-  y.star <- as.data.frame(y.star)
+  ystar <- as.data.frame(y.star)
   
   # Extract bootstrap statistics
   if(reb_type == 2) .f <- extract_parameters.lme
   
-  tstar <- purrr::map(y.star, function(x) {
-    .f(updated.model(model = model, new.y = x))
-  })
+  refits <- refit_lme(ystar = ystar, model = model, .f = .f)
+  tstar <- refits$tstar
   
   # Extract original statistics
   t0 <- .f(model)
@@ -108,7 +106,9 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type){
     tstar <- .postprocess.reb2(t0, tstar, nbeta = length(nlme::fixef(model)), B = B)
   
   # Format for return
-  .bootstrap.completion(model, tstar, B, .f, type = paste("reb", reb_type, sep = ""))
+  .bootstrap.completion(model, tstar = tstar, B, .f, 
+                        type = paste("reb", reb_type, sep = ""), 
+                        warnings = refits$warnings)
 }
 
 
@@ -138,12 +138,10 @@ resid_bootstrap.lme <- function(model, .f, B){
     )
   )
   
-  tstar <- purrr::map(ystar, function(x) {
-    .f(updated.model(model = model, new.y = x))
-  })
   
+  refits <- refit_lme(ystar = ystar, model = model, .f = .f)
   
-  .bootstrap.completion(model, tstar, B, .f, type = "residual")
+  .bootstrap.completion(model, tstar = refits$tstar, B, .f, type = "residual", warnings = refits$warnings)
 }
 
 
@@ -174,11 +172,9 @@ wild_bootstrap.lme <- function(model, .f, B, hccme = c("hc2", "hc3"),
     )
   )
   
-  tstar <- purrr::map(ystar, function(x) {
-    .f(updated.model(model = model, new.y = x))
-  })
   
+  refits <- refit_lme(ystar = ystar, model = model, .f = .f)
   
-  .bootstrap.completion(model, tstar, B, .f, type = "wild")
+  .bootstrap.completion(model, tstar = refits$tstar, B, .f, type = "wild", warnings = refits$warnings)
 }
 

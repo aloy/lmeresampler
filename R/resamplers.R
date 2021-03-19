@@ -45,23 +45,24 @@
     form <- model@call$formula
     reml <- lme4::isREML(model)
     
-    tstar <- .f(lme4::lmer(formula = form, data = resamp_data, REML = reml)) 
+    tstar <- catchr::catch_expr(
+      .f(lme4::lmer(formula = form, data = resamp_data, REML = reml)),
+      warning, message, error
+    )
     # tstar <- purrr::map(res, function(x) {
     #   .f(lme4::lmer(formula = form, data = as.data.frame(x), REML = reml)) 
     # })
   } else if(class(model) == "lme"){
-    tstar <- tryCatch(.f(updated.model(model = model, new.data = resamp_data)),  
-                      error = function(e) e)
-    if(inherits(tstar, "error")) {
-      structure(rep(NA, length(.f(model))), fail.msgs = tstar$message)
-    } else{
-      tstar
-    }
+    tstar <- updated.model(model = model, new.data = resamp_data)  
+    tstar$value <- .f(tstar$value)
   } else if(class(model) == "glmerMod") {
     form <- update(model@call$formula, y ~ .)
     colnames(resamp_data)[1] <- "y"
     fam  <- family(model)
-    tstar <- .f(lme4::glmer(formula = form, data = resamp_data, family = fam)) 
+    tstar <- catchr::catch_expr(
+      .f(lme4::glmer(formula = form, data = resamp_data, family = fam)),
+      warning, message, error
+    )
   } else{
     stop("model class must be one of 'lme', 'lmerMod', or 'glmerMod'")
   }
