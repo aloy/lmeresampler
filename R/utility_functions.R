@@ -140,6 +140,7 @@ arrange_ranefs.lme <- function(b, fl, levs, cnms){
 #' @keywords internal
 #' @noRd
 refit_merMod <- function(ystar, model, .f) {
+  error <- NULL
   refits <- purrr::map(ystar, function(x) {
     catchr::catch_expr(lme4::refit(object = model, newresp = x), warning, message, error)
   })

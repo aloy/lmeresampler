@@ -63,6 +63,7 @@ updated.model <- function(model, new.y = NULL, new.data = NULL){
   
   # create new lme
   ctrl <- nlme::lmeControl(opt = 'optim', returnObject = TRUE)
+  error <- NULL
   if(is.null(mod.rand)){
     out.lme <- catchr::catch_expr(
       nlme::lme(fixed = mod.fixd, data = mod.data, control = ctrl),

@@ -36,9 +36,10 @@
   res
 }
 
-
+#' @importFrom catchr catch_expr
 .resample_refit.cases <- function(model, .f, dat, cluster, resample){
   resamp_data <- .resamp.cases(dat, cluster, resample)
+  error <- NULL
   
   if(class(model) == "lmerMod"){
     # Refit the model and apply '.f' to it using map
