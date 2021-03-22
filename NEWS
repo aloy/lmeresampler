@@ -4,12 +4,15 @@
 0.2.0
 =====
 
+* The case, parametric, and residual bootstraps now suppport `glmerMod` objects.
+* The Wild bootstrap is available for `lme` and `lmerMod` objects.
+* The CGR bootstrap is now the default "residual" bootstrap algorithm.
 * Objects returned by the `bootstrap()` call are now of class `lmeresamp`
 * `lmeresamp` objects have a new structure, including a new `stats` dataframe (contains the observed value, bootstrap mean, standard error, and bias of each LME model parameter)
 * New generic `print()` function that is compatible with `lmeresamp` objects
-* New generic `confint()` function that is compatible with `lmeresamp` objects (the possible confidence intervals include: basic, normal-t, bootstrap-t, percentile-t, or all)
+* New generic `confint()` function that is compatible with `lmeresamp` objects (the possible confidence intervals include: basic, normal, percentile, or all)
 * Package vignette is now available
-* Outline in vignette of how to perform parallelization with calls to `bootstrap()` using the `doParallel` and `foreach` packages
+* Vignette outlines how to perform parallelization in `bootstrap()` using the `doParallel` and `foreach` packages
 * New `combine()` function that combines processes split for parallelization for unified output
 
 0.1.1
