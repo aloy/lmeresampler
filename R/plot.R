@@ -7,18 +7,20 @@
 #' This function is given \code{x, var} and uses them to plot the density plot
 #' of bootstrap estimates for the var of choice.
 #'
-#' @param x The lmeresamp object to plot.
-#' @param var The estimated parameter to plot.
+#' @param obj The lmeresamp object to plot.
+#' @param var The estimated parameter to plot, as a string.
 #' @param ... not used
 #'
 #' @rdname plot
 #' @export 
 #' @method plot lmeresamp
-plot.lmeresamp <- function(x, var, ...){
+plot.lmeresamp <- function(obj, var, ...){
   
-  var_name <- as.character(var)
+  obj$replicates <- as.data.frame(obj$replicates)
   
-  ggplot(x$replicates, aes(x = x$replicates$var)) + 
-    geom_density(fill = "cadetblue", alpha = 0.5) +
-    labs(title = "density plot", x = var_name) 
+  to_plot <- unlist(obj$replicates[var])
+  
+  ggplot2::ggplot(obj$replicates, ggplot2::aes(x = to_plot)) + 
+    ggplot2::geom_density(fill = "cadetblue", alpha = 0.5) +
+    ggplot2::labs(title = "density plot", x = var) 
 }
