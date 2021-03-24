@@ -8,13 +8,18 @@
 #' of bootstrap estimates for the var of choice.
 #'
 #' @param x The lmeresamp object to plot.
-#' @param var The estimated parameter to plot, as a string.
+#' @param var The estimated parameter to plot, as a string or column number.
 #' @param ... not used
 #'
 #' @rdname plot
 #' @export 
 #' @method plot lmeresamp
 plot.lmeresamp <- function(x, var, ...){
+  
+  # set default
+  if(missing(var)){
+    var <- 1
+  }
   
   x$replicates <- as.data.frame(x$replicates)
   
