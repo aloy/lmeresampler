@@ -21,6 +21,6 @@ plot.lmeresamp <- function(obj, var, ...){
   to_plot <- unlist(obj$replicates[var])
   
   ggplot2::ggplot(obj$replicates, ggplot2::aes(x = to_plot)) + 
-    ggplot2::geom_density(fill = "cadetblue", alpha = 0.5) +
-    ggplot2::labs(title = "density plot", x = var) 
+    ggdist::stat_halfeye(fill = "cadetblue", alpha = 0.5) +
+    ggplot2::labs(title = paste("density plot of bootstrap estimates for", var), x = var) 
 }
