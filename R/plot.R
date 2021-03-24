@@ -16,11 +16,11 @@
 #' @method plot lmeresamp
 plot.lmeresamp <- function(x, var, ...){
   
-  obj$replicates <- as.data.frame(obj$replicates)
+  x$replicates <- as.data.frame(x$replicates)
   
-  to_plot <- unlist(obj$replicates[var])
+  to_plot <- unlist(x$replicates[var])
   
-  ggplot2::ggplot(obj$replicates, ggplot2::aes(x = to_plot)) + 
+  ggplot2::ggplot(x$replicates, ggplot2::aes(x = to_plot)) + 
     ggplot2::geom_density(fill = "cadetblue", alpha = 0.5) +
     ggplot2::labs(title = "density plot", x = var) 
 }
