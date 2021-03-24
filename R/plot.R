@@ -7,14 +7,14 @@
 #' This function is given \code{x, var} and uses them to plot the density plot
 #' of bootstrap estimates for the var of choice.
 #'
-#' @param obj The lmeresamp object to plot.
+#' @param x The lmeresamp object to plot.
 #' @param var The estimated parameter to plot, as a string.
 #' @param ... not used
 #'
 #' @rdname plot
 #' @export 
 #' @method plot lmeresamp
-plot.lmeresamp <- function(obj, var, ...){
+plot.lmeresamp <- function(x, var, ...){
   
   obj$replicates <- as.data.frame(obj$replicates)
   
