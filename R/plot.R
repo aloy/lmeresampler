@@ -14,6 +14,8 @@
 #' @rdname plot
 #' @export 
 #' @method plot lmeresamp
+#' @importFrom ggplot2 ggplot labs aes
+#' @importFrom ggdist stat_halfeye
 plot.lmeresamp <- function(x, var, ...){
   
   # set default

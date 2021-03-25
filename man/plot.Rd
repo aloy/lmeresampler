@@ -4,12 +4,12 @@
 \alias{plot.lmeresamp}
 \title{plot}
 \usage{
-\method{plot}{lmeresamp}(obj, var, ...)
+\method{plot}{lmeresamp}(x, var, ...)
 }
 \arguments{
-\item{obj}{The lmeresamp object to plot.}
+\item{x}{The lmeresamp object to plot.}
 
-\item{var}{The estimated parameter to plot, as a string.}
+\item{var}{The estimated parameter to plot, as a string or column number.}
 
 \item{...}{not used}
 }

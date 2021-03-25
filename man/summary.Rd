@@ -4,12 +4,10 @@
 \alias{summary.lmeresamp}
 \title{summary}
 \usage{
-\method{summary}{lmeresamp}(x, ci = FALSE, ...)
+\method{summary}{lmeresamp}(object, ...)
 }
 \arguments{
-\item{x}{The lmeresamp object to print.}
-
-\item{ci}{A logical value specifying whether confidence intervals should be printed.}
+\item{object}{The lmeresamp object to be summarized.}
 
 \item{...}{not used}
 }
@@ -17,6 +15,6 @@
 Summarizes the output of the bootstrap call.
 }
 \details{
-This function is given \code{x, ci} and uses them to print the bootstrap result
+This function is given \code{object, ci} and uses them to print the bootstrap result
 and confidence intervals if the user wishes to have them.
 }

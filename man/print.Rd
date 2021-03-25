@@ -7,6 +7,8 @@
 \method{print}{lmeresamp}(x, ci = FALSE, ...)
 }
 \arguments{
+\item{x}{The lmeresamp object to print.}
+
 \item{ci}{A logical value specifying whether confidence intervals should be printed.}
 
 \item{...}{not used}
