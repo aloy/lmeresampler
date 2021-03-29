@@ -4,8 +4,7 @@
 #' Summarizes the output of the bootstrap call.
 #'
 #' @details
-#' This function is given \code{object, ci} and uses them to print the bootstrap result
-#' and confidence intervals if the user wishes to have them.
+#' This function is given \code{object} and uses them to summarize the bootstrap result.
 #'
 #' @param object The lmeresamp object to be summarized.
 #' @param ... not used
