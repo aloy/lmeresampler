@@ -14,9 +14,6 @@
 #' @method summary lmeresamp
 summary.lmeresamp <- function(object, ...){
   
-  # use this to test warnings
-  # lme_res_boot <- bootstrap(vcmodB, .f = fixef, type = "residual", B = 100)
-  
   print.lmeresamp(object)
   
   message_count <- 0
