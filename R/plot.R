@@ -14,6 +14,8 @@
 #' @rdname plot
 #' @export 
 #' @method plot lmeresamp
+#' @importFrom ggplot2 ggplot labs aes
+#' @importFrom ggdist stat_halfeye
 plot.lmeresamp <- function(x, var, ...){
   
   # set default
@@ -25,7 +27,7 @@ plot.lmeresamp <- function(x, var, ...){
   
   to_plot <- unlist(x$replicates[var])
   
-  ggplot2::ggplot(obj$replicates, ggplot2::aes(x = to_plot)) + 
+  ggplot2::ggplot(x$replicates, ggplot2::aes(x = to_plot)) + 
     ggdist::stat_halfeye(fill = "cadetblue", alpha = 0.5) +
     ggplot2::labs(title = paste("density plot of bootstrap estimates for", var), x = var) 
 }
