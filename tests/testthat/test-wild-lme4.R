@@ -28,7 +28,7 @@ test_that("two-level additive random intercept model",{
   
   orig.stats <- mySumm(vcmodA)
   
-  boo <- wild_bootstrap.merMod(model = vcmodA, .f = mySumm, B = nsim)
+  boo <- wild_bootstrap.lmerMod(model = vcmodA, .f = mySumm, B = nsim)
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$observed, orig.stats)   
@@ -36,7 +36,7 @@ test_that("two-level additive random intercept model",{
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$type, "parametric")
+  expect_equal(boo$type, "wild")
   expect_equal(boo$.f, mySumm)
 })
 

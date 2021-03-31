@@ -20,7 +20,7 @@ print.lmeresamp <- function(x, ci = FALSE, ...){
   cat(paste("\n"))
   cat(paste("Number of resamples:", x$R, "\n"))
   cat(paste("\n"))
-  print(x$stats)
+  print(as.data.frame(x$stats))
   
   message_count <- 0
   for(i in length(x$message)){

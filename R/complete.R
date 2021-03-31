@@ -36,8 +36,7 @@
     rep.mean <- colMeans(replicates)
     se <- unlist(purrr::map(replicates, sd))
     bias <- rep.mean - observed
-    # stats <- dplyr::tibble(term = names(t0), observed, rep.mean, se, bias)
-    stats <- as.data.frame(term = names(t0), observed, rep.mean, se, bias)
+    stats <- dplyr::tibble(term = names(t0), observed, rep.mean, se, bias)
   } else{
     if(is.data.frame(t0)) {
       .ids <- rep(seq_along(tstar), times = vapply(tstar, nrow, FUN.VALUE = 0L))
