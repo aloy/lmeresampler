@@ -15,9 +15,9 @@
 combine_lmeresamp <- function(...) {
   boot_list <- list(...)
   combo_replicates <- purrr::map_dfr(boot_list, ~as.data.frame(.x$replicates))
-  combo_r <- sum(map_dbl(boot_list, ~.x$R))
+  combo_r <- sum(map_dbl(boot_list, ~.x$B))
   RES <- boot_list[[1]]
-  RES$R <- combo_r
+  RES$B <- combo_r
   RES$replicates <- combo_replicates
   RES$stats$rep.mean <- colMeans(RES$replicates) # recalculated mean
   RES$stats$se <- unlist(purrr::map(RES$replicates, sd)) # recalculated se

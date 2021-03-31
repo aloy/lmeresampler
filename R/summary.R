@@ -14,7 +14,11 @@
 #' @method summary lmeresamp
 summary.lmeresamp <- function(object, ...){
   
-  print.lmeresamp(object)
+  cat(paste("Bootstrap type:", object$type, "\n"))
+  cat(paste("\n"))
+  cat(paste("Number of resamples:", object$B, "\n"))
+  cat(paste("\n"))
+  print(as.data.frame(object$stats))
   
   message_count <- 0
   for(i in length(object$message)){
