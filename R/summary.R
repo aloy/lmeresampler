@@ -52,19 +52,19 @@ summary.lmeresamp <- function(object, ...){
   
   top_message <- names(sort(summary(object$message), decreasing=T)[[1]])
   if(!is.null(top_message)){
-    cat(paste("The most commonly occuring message was:"))
+    cat(paste("The most commonly occurring message was:"))
     cat(paste("\n"))
   }
   
   top_warning <- names(sort(summary(object$warning), decreasing=T)[[1]])
   if(!is.null(top_warning)){
-    cat(paste("The most commonly occuring warning was:"))
+    cat(paste("The most commonly occurring warning was:"))
     cat(paste("\n"))
   }
   
   top_error <- names(sort(summary(object$error), decreasing=T)[[1]])
   if(!is.null(top_error)){
-    cat(paste("The most commonly occuring error was:"))
+    cat(paste("The most commonly occurring error was:"))
   }
   
 }
