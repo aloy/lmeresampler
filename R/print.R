@@ -23,22 +23,22 @@ print.lmeresamp <- function(x, ci = FALSE, ...){
   print(x$stats)
   
   message_count <- 0
-  for(i in length(object$message)){
-    if(!is.null(object$message[[i]])){
+  for(i in length(x$message)){
+    if(!is.null(x$message[[i]])){
       message_count <- message_count + 1
     }
   }
   
   warning_count <- 0
-  for(j in length(object$warning)){
-    if(!is.null(object$warning[[j]])){
+  for(j in length(x$warning)){
+    if(!is.null(x$warning[[j]])){
       warning_count <- warning_count + 1
     }
   }
   
   error_count <- 0
-  for(k in length(object$error)){
-    if(!is.null(object$error[[k]])){
+  for(k in length(x$error)){
+    if(!is.null(x$error[[k]])){
       error_count <- error_count + 1
     }
   }
