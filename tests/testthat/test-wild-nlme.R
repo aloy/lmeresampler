@@ -33,7 +33,7 @@ test_that("two-level additive random intercept model",{
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$type, "parametric")
+  expect_equal(boo$type, "wild")
   expect_equal(boo$.f, mySumm)
 })
 
@@ -54,7 +54,7 @@ test_that("two-level random intercept model without interaction",{
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$type, "parametric")
+  expect_equal(boo$type, "wild")
   expect_equal(boo$.f, mySumm)
 })
 
@@ -74,7 +74,7 @@ test_that("two-level random intercept model with interaction",{
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$type, "parametric")
+  expect_equal(boo$type, "wild")
   expect_equal(boo$.f, mySumm)
 })
 
@@ -95,7 +95,7 @@ test_that("two-level random coefficient model with interaction",{
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$type, "parametric")
+  expect_equal(boo$type, "wild")
   expect_equal(boo$.f, mySumm)
 })
 

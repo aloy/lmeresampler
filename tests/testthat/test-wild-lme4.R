@@ -48,7 +48,7 @@ test_that("two-level random intercept model without interaction",{
                   (1 | school), data = jsp728)
   
   orig.stats <- mySumm(rimod)
-  boo <- wild_bootstrap.merMod(model = rimod, .f = mySumm, B = nsim)
+  boo <- wild_bootstrap.lmerMod(model = rimod, .f = mySumm, B = nsim)
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$observed, orig.stats)   
@@ -56,7 +56,7 @@ test_that("two-level random intercept model without interaction",{
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$type, "parametric")
+  expect_equal(boo$type, "wild")
   expect_equal(boo$.f, mySumm)
 })
 
@@ -67,7 +67,7 @@ test_that("two-level random intercept model with interaction",{
                    (1 | school), data = jsp728)
   
   orig.stats <- mySumm(vcmodC)
-  boo <- wild_bootstrap.merMod(model = vcmodC, .f = mySumm, B = nsim)
+  boo <- wild_bootstrap.lmerMod(model = vcmodC, .f = mySumm, B = nsim)
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$observed, orig.stats)   
@@ -75,7 +75,7 @@ test_that("two-level random intercept model with interaction",{
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$type, "parametric")
+  expect_equal(boo$type, "wild")
   expect_equal(boo$.f, mySumm)
 })
 
@@ -88,7 +88,7 @@ test_that("two-level random coefficient model with interaction",{
                   (mathAge8c | school), data = jsp728)
   
   orig.stats <- mySumm(rcmod)
-  boo <- wild_bootstrap.merMod(model = rcmod, .f = mySumm, B = nsim)
+  boo <- wild_bootstrap.lmerMod(model = rcmod, .f = mySumm, B = nsim)
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$observed, orig.stats)   
@@ -96,7 +96,7 @@ test_that("two-level random coefficient model with interaction",{
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$type, "parametric")
+  expect_equal(boo$type, "wild")
   expect_equal(boo$.f, mySumm)
 })
 
@@ -107,7 +107,7 @@ test_that("three-level random intercept model",{
   rmA <- lmer(rv ~ religion + year  + (1 | respond) + (1 | district), data = Socatt)
   
   orig.stats <- mySumm(rmA)
-  boo <- wild_bootstrap.merMod(model = rmA, .f = mySumm, B = nsim)
+  boo <- wild_bootstrap.lmerMod(model = rmA, .f = mySumm, B = nsim)
   
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$observed, orig.stats)   
@@ -115,6 +115,6 @@ test_that("three-level random intercept model",{
   expect_equal(nrow(boo$replicates), nsim)
   expect_equal(ncol(boo$replicates), length(orig.stats))
   expect_equal(boo$R, nsim)
-  expect_equal(boo$type, "parametric")
+  expect_equal(boo$type, "wild")
   expect_equal(boo$.f, mySumm)
 })
