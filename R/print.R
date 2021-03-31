@@ -18,7 +18,7 @@ print.lmeresamp <- function(x, ci = FALSE, ...){
   
   cat(paste("Bootstrap type:", x$type, "\n"))
   cat(paste("\n"))
-  cat(paste("Number of resamples:", x$R, "\n"))
+  cat(paste("Number of resamples:", x$B, "\n"))
   cat(paste("\n"))
   print(as.data.frame(x$stats))
   
