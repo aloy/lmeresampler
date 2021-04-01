@@ -24,7 +24,7 @@
 confint.lmeresamp <- function(object, parm, level = 0.95, 
                               type = c("all", "norm", "basic", "perc"), 
                               ...) {
-  terms <- estimate <- lower <- upper <- NULL
+  term <- estimate <- lower <- upper <- NULL
   
   if(!level > 0 && !level < 1){
     stop("please specify a confidence level between 0 and 1")
