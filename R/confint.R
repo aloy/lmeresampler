@@ -24,7 +24,7 @@
 confint.lmeresamp <- function(object, parm, level = 0.95, 
                               type = c("all", "norm", "basic", "perc"), 
                               ...) {
-  term <- estimate <- lower <- upper <- NULL
+  terms <- estimate <- lower <- upper <- NULL
   
   if(!level > 0 && !level < 1){
     stop("please specify a confidence level between 0 and 1")
@@ -32,7 +32,9 @@ confint.lmeresamp <- function(object, parm, level = 0.95,
   
   type <- match.arg(type)
   
-  orig <- dplyr::tibble(term = names(object$observed), estimate = object$observed)
+  terms <- names(object$observed)
+  if(is.null(terms)) terms <- ""
+  orig <- dplyr::tibble(term = terms, estimate = object$observed)
 
   ci.out <- NULL
   if(any(type == "all" | type == "norm")) {
@@ -77,12 +79,13 @@ confint.lmeresamp <- function(object, parm, level = 0.95,
 #' @keywords internal
 #' @noRd
 .perc_ci <- function(object, level){
-  t(apply(
-    object$replicates, 
-    2, 
-    quantile, 
-    probs = (1 + c(-level, level)) / 2
-    ))
+  if(typeof(object$replicates) == "list") {
+    t(
+      apply(object$replicates, 2, quantile, probs = (1 + c(-level, level)) / 2)
+    )
+  } else {
+    t(quantile(object$replicates, probs = (1 + c(-level, level)) / 2))
+  }
 }
 
 
@@ -101,9 +104,14 @@ confint.lmeresamp <- function(object, parm, level = 0.95,
 #' @keywords internal
 #' @noRd
 .basic_ci <- function(object, level){
-  quants <- apply(object$replicates, 2, quantile, probs = (1 + c(level, -level))/2)
-  ci <- 2 * object$observed - t(quants)
-  colnames(ci) <- rev(colnames(ci))
+  if(typeof(object$replicates) == "list") {
+    quants <- apply(object$replicates, 2, quantile, probs = (1 + c(level, -level))/2)
+    ci <- 2 * object$observed - t(quants)
+    colnames(ci) <- rev(colnames(ci))
+  } else{
+    quants <- quantile(object$replicates, probs = (1 + c(level, -level))/2)
+    ci <- 2 * object$observed - t(quants)
+  }
   ci
 }
 
@@ -123,7 +131,11 @@ confint.lmeresamp <- function(object, parm, level = 0.95,
 #' @keywords internal
 #' @noRd
 .norm_ci <- function(object, level){
-  se   <- apply(object$replicates, 2, sd, na.rm = TRUE)
+  if(typeof(object$replicates) == "list") {
+    se   <- apply(object$replicates, 2, sd, na.rm = TRUE)
+  } else {
+    se <- sd(object$replicates, na.rm = TRUE)
+  }
   merr <- se * qnorm((1 + level) / 2)
   bias <- object$stats$bias
   orig <- object$observed
