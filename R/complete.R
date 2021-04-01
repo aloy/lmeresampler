@@ -50,7 +50,7 @@
   else data <- model@frame
   
   RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
-                        stats = stats, R = B, data = data,
+                        stats = stats, B = B, data = data,
                         seed = .Random.seed, type = type, call = match.call(),
                         message = warnings$message, warning = warnings$warning, error = warnings$error), 
                    class = "lmeresamp")
