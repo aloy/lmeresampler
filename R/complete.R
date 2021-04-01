@@ -32,11 +32,20 @@
   observed <- t0
   
   if(is.numeric(t0)) {
-    replicates <- dplyr::bind_rows(tstar)
-    rep.mean <- colMeans(replicates)
-    se <- unlist(purrr::map(replicates, sd))
-    bias <- rep.mean - observed
-    stats <- dplyr::tibble(term = names(t0), observed, rep.mean, se, bias)
+    if(length(t0) == 1) {
+      replicates <- unlist(tstar)
+      rep.mean <- mean(replicates)
+      se <- sd(replicates)
+      bias <- rep.mean - observed
+      stats <- dplyr::tibble(observed, rep.mean, se, bias)
+    } else{
+      replicates <- dplyr::bind_rows(tstar)
+      rep.mean <- colMeans(replicates)
+      se <- unlist(purrr::map(replicates, sd))
+      bias <- rep.mean - observed
+      stats <- dplyr::tibble(term = names(t0), observed, rep.mean, se, bias)
+    }
+    
   } else{
     if(is.data.frame(t0)) {
       .ids <- rep(seq_along(tstar), times = vapply(tstar, nrow, FUN.VALUE = 0L))
