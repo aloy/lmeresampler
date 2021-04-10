@@ -12,7 +12,7 @@
 #' estimators of the bias and standard errors for inference. 
 #' lmeresampler provides an easy way to bootstrap nested 
 #' linear-mixed effects models using either the parametric, 
-#' residual, cases, CGR (semi-parametric), or random effects block 
+#' residual, cases, wild, or random effects block 
 #' (REB) bootstrap fit using either lme4 or nlme.
 #' 
 #' @name lmeresampler

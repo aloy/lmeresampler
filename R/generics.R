@@ -2,14 +2,14 @@
 #'
 #' @description
 #' Perform various bootstrap process for nested linear mixed effects (LMEs) models including:
-#' parametric, residual, cases, CGR, and REB bootstraps.
+#' parametric, residual, cases, wild, and REB bootstraps.
 #'
 #' @export
 #' @param model The model object you wish to bootstrap.
 #' @param .f A function returning the statistic(s) of interest.
 #' @param type A character string indicating the type of bootstrap that is being
 #'    requested. Possible values are \code{"parametric"}, \code{"residual"}, 
-#'    \code{"case"}, \code{"cgr"}, \code{"wild"}, or \code{"reb"} 
+#'    \code{"case"}, \code{"wild"}, \code{"wild"}, or \code{"reb"} 
 #'    (random effect block bootstrap).
 #' @param B The number of bootstrap resamples.
 #' @param resample A logical vector specifying whether each level of the model 
@@ -36,7 +36,7 @@
 #' @seealso 
 #' \itemize{
 #'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
+#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, \code{\link{wild_bootstrap}}  
 #'      for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
@@ -98,8 +98,8 @@
 #'    Fitting Linear Mixed-Effects Models Using lme4. \emph{Journal of
 #'    Statistical Software}, \bold{67}, 1--48. doi:10.18637/jss.v067.i01.
 bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL, hccme = NULL, aux.dist = NULL) {
-  if(!type %in% c("parametric", "residual", "case", "cgr", "reb"))
-    stop("'type' must be one of 'parametric', 'residual', 'case', 'cgr', or 'reb'")
+  if(!type %in% c("parametric", "residual", "case", "wild", "reb"))
+    stop("'type' must be one of 'parametric', 'residual', 'case', 'wild', or 'reb'")
   if(!is.null(reb_type))
     if(!reb_type %in% 0:2) 
       stop("'reb_type' must be either 0, 1, or 2")
@@ -128,7 +128,7 @@ bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL, hccm
 #' @seealso 
 #' \itemize{
 #'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
+#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, \code{\link{wild_bootstrap}} 
 #'      for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
@@ -181,7 +181,7 @@ parametric_bootstrap <- function(model, .f, B) {
 #' @seealso 
 #' \itemize{
 #'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
+#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, \code{\link{reb_bootstrap}}  
 #'      for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
@@ -226,7 +226,7 @@ case_bootstrap <- function(model, .f, B, resample) {
 #' @seealso 
 #' \itemize{
 #'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
+#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, \code{\link{reb_bootstrap}} 
 #'      for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
@@ -286,7 +286,7 @@ resid_bootstrap <- function(model, .f, B) {
 #' @seealso 
 #' \itemize{
 #'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
+#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, \code{\link{reb_bootstrap}}  
 #'      for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
@@ -330,7 +330,7 @@ reb_bootstrap <- function(model, .f, B, reb_type) {
 #' @seealso 
 #' \itemize{
 #'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
+#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, \code{\link{reb_bootstrap}} 
 #'      for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
