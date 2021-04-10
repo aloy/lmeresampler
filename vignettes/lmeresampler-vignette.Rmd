@@ -149,7 +149,7 @@ lme_cases_boot1 <- bootstrap(vcmodB, .f = fixef, type = "case", B = 100, resampl
 lme_cases_boot2 <- bootstrap(vcmodB, .f = fixef, type = "case", B = 100, resample = c(TRUE, TRUE))
 ```
 
-# 4. The CGR (Semi-Parametric) Bootstrap
+# 4. The CGR Bootstrap
 
 The semi-parametric bootstrap algorithm implemented was described by Carpenter, Goldstein and Rasbash (2003). The algorithm is outlined below:
 
@@ -227,7 +227,7 @@ summary(lmer_reb_boot1)
 
 ## The `print()` Function
 
-The `print()` function in `lmeresampler` also follows the syntax of the default `print()` function. The function calls the `summary()` to return information about the `bootstrap()` call. In addition, if the user would like to print confidence intervals for the object, setting `ci = TRUE` will call the `confint()` function and set `method = "all"` and `level = 0.95`. If not all of the intervals are of interest or a different confidence level is required, it is recommended that the user directly call `confint()` on the bootstrap object.
+The `print()` function in `lmeresampler` also follows the syntax of the default `print()` function. In `lmeresampler`, `print()` calls `summary()` to return information about the `bootstrap()` call. In addition, if the user would like to print confidence intervals for the object, setting `ci = TRUE` in `print()` will call the `confint()` function and set `method = "all"` and `level = 0.95`. If not all of the intervals are of interest or a different confidence level is required, it is recommended that the user directly call `confint()` on the bootstrap object.
 
 ### Examples
 
@@ -255,9 +255,9 @@ confint(lmer_reb_boot0, method = "boot-t", level= 0.90)
 
 ## Examples
 
+# 7. Bootstrapping with GLMMs
 
-
-# 7. Parallelization (User Extension)
+# 8. Parallelization (User Extension)
 
 ## The Idea
 
@@ -322,7 +322,7 @@ stopCluster(cl)
 
 Pretty useful stuff! The above can be applied to all bootstrap types and models fit using both `lme4` and `nlme`. 
 
-# 8. Future Directions (Developer Extensions)
+# 9. Future Directions (Developer Extensions)
 
 When fitting linear mixed effects models, it is common that users need to use data with crossed effects, that is, when lower-level observations exist in multiple factors of a higher-level. For example, if patients (level-1) adhere strictly to one doctor (level-2), but the doctors work for multiple hospitals (level-3), levels two and three are crossed. It is currently possible to use `lmeresampler` to bootstrap a model with crossed effects with the parametric bootstrap, however, future updates should explore adding functionality to allow bootstrapping of crossed models for the cases, residual, wild, and REB bootstraps. Crossed relationships need to be evaluated differently than standard nested relationships, thus the code will need significant modifications in its evaluation process.
 
