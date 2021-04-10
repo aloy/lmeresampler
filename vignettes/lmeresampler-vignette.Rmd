@@ -26,7 +26,7 @@ library(lmeresampler)
 
 # Overview
 
-The `lmeresampler` package provides functionality to perform various bootstrap processes for nested linear mixed-effects (LMEs) models including parametric, residual, cases, CGR, and REB bootstraps. This is particularly useful for models fit with relatively small data sets, where bootstrapping may yield more robust parameter estimates. This vignette seeks to inform users of:
+The `lmeresampler` package provides functionality to perform various bootstrap processes for nested linear mixed-effects (LMEs) models including parametric, residual, cases, wild, and REB bootstraps. This is particularly useful for models fit with relatively small data sets, where bootstrapping may yield more robust parameter estimates. This vignette seeks to inform users of:
 
 * how to bootstrap hierarchical linear models with `lmeresampler`,
 
@@ -96,7 +96,7 @@ Regardless of the type of bootstrap performed, the output of `bootstrap()` will 
 
 * `replicates`: a `B` $\times \  p$ data frame of bootstrap values for each of the model parameters, $p$,
 
-* `stats`: a data frame containing the `observed`, `rep.mean` (bootstrap mean), `se` (bootstrap standard error), and `bias` values for each model parameter,
+* `stats`: a tibble containing the `observed`, `rep.mean` (bootstrap mean), `se` (bootstrap standard error), and `bias` values for each model parameter,
 
 * `R`: the number of bootstrap resamples performed,
 
@@ -167,12 +167,12 @@ The semi-parametric bootstrap algorithm implemented was described by Carpenter, 
 
 ## Examples
 
-```{r CGR example}
+```{r wild example}
 # lme4
-lmer_cgr_boot <- bootstrap(vcmodA, .f = fixef, type = "cgr", B = 100)
+lmer_wild_boot <- bootstrap(vcmodA, .f = fixef, type = "wild", B = 100)
 
 # nlme
-lme_cgr_boot  <- bootstrap(vcmodB, .f = fixef, type = "cgr", B = 100)
+lme_wild_boot  <- bootstrap(vcmodB, .f = fixef, type = "wild", B = 100)
 ```
 
 # 5. The Random Effects Block (REB) Bootstrap
@@ -213,11 +213,21 @@ lme_reb_boot2  <- bootstrap(vcmodB, .f = fixef, type = "reb", B = 100, reb_type 
 
 # 6. Output Options
 
-The newest version of `lmeresampler` comes equipped with its own `print()` and `confint()` functions, both of which follow the syntax of a generic `print()` and `confint()` function. In order for these functions to operate as necessary, the output of the `bootstrap()` function has been updated to be an object of class `lmeresamp`. See the next sections for some examples.
+The newest version of `lmeresampler` comes equipped with its own `summary()`, `print()`, `confint()` and `plot()` functions, all of which follow the syntax of generic `summary()`, `print()`, `confint()` and `plot()` functions. In order for these functions to operate as necessary, the output of the `bootstrap()` function has been updated to be an object of class `lmeresamp`. See the next sections for some examples.
+
+## The `summary()` function
+
+The syntax of the `lmeresampler` `summary()` function is similar to the default `summary()` function. The object to be summarized must be the object returned by the `bootstrap()` call, an `lmeresamp` object.
+
+### Example
+
+```{r summary method, warning = FALSE, message = FALSE}
+summary(lmer_reb_boot1)
+```
 
 ## The `print()` Function
 
-The syntax of the `lmeresampler` `print()` function is similar to the default `print()` function. The object to be printed must be the object returned by the `bootstrap()` call, an `lmeresamp` object. In addition, if the user would like to print confidence intervals for the object, setting `ci = TRUE` will call the `confint()` function and set `method = "all"` and `level = 0.95`. If not all of the intervals are of interest or a different confidence level is required, it is recommended that the user directly call `confint()` on the bootstrap object.
+The `print()` function in `lmeresampler` also follows the syntax of the default `print()` function. The function calls the `summary()` to return information about the `bootstrap()` call. In addition, if the user would like to print confidence intervals for the object, setting `ci = TRUE` will call the `confint()` function and set `method = "all"` and `level = 0.95`. If not all of the intervals are of interest or a different confidence level is required, it is recommended that the user directly call `confint()` on the bootstrap object.
 
 ### Examples
 
@@ -233,13 +243,19 @@ Similarly, the syntax of the `lmeresampler` `confint()` function resembles the d
 
 Notice that the output of the three intervals differ slightly. The normal-t interval returns intervals for all of the fixed effects, all of the random effects, and sigma, the bootstrap-t interval returns intervals for only the fixed effects, and both the basic and percentile-t intervals return intervals for parameters specified by `.f`. This has to do with the nature of the interval calculations and the functions available to pull the necessary information out of the models. The bootstrap-t interval, on the other hand, is more complicated. The way that bootstrap-t intervals are calculated necessitates that we use the standard errors of the random component estimates. While there is a way to calculate these standard errors, they are often unreliable. Thus we only provide functionality for bootstrap-t intervals for fixed effects. For the curious, the math behind the variance component standard error calculations may be found in Ben Bolker's (one of the authors of, and the current maintainer of, `lme4`) two posts in the References section below.
 
-## Examples
+### Examples
 
 ```{r confints, message = FALSE, warning = FALSE}
 confint(lme_reb_boot2) # all ci types, 0.95 confidence level
 
 confint(lmer_reb_boot0, method = "boot-t", level= 0.90)
 ```
+
+## The `plot()` function
+
+## Examples
+
+
 
 # 7. Parallelization (User Extension)
 
@@ -286,7 +302,6 @@ stopCluster(cl)
 
 Let's compare the runtime of the above `b_parallel2` with the same bootstrap run without parallelization. Note that differences in runtime will be somewhat arbitrary for a small number of resamples (say, 100), and will become more pronounced as the number of resamples increases (to 1000, for example), in favor of the parallelized bootstrap.
 
-
 ```{r timings, message = FALSE, warning = FALSE}
 system.time(b_nopar  <- bootstrap(vcmodA, .f = fixef, type = "parametric", B = 5000))
 
@@ -309,9 +324,7 @@ Pretty useful stuff! The above can be applied to all bootstrap types and models 
 
 # 8. Future Directions (Developer Extensions)
 
-When fitting linear mixed effects models, it is common that users need to use data with crossed effects, that is, when lower-level observations exist in multiple factors of a higher-level. For example, if patients (level-1) adhere strictly to one doctor (level-2), but the doctors work for multiple hospitals (level-3), levels two and three are crossed. It is currently possible to use `lmeresampler` to bootstrap a model with crossed effects with the parametric bootstrap, however, future updates should explore adding functionality to allow bootstrapping of crossed models for the cases, residual, CGR, and REB bootstraps. Crossed relationships need to be evaluated differently than standard nested relationships, thus the code will need significant modifications in its evaluation process.
-
-Furthermore, future extensions of `lmeresampler` may focus on implementing the existing functions for generalized linear mixed-effects (GLMM) models for all of the bootstraps types. This has been requested by past users.
+When fitting linear mixed effects models, it is common that users need to use data with crossed effects, that is, when lower-level observations exist in multiple factors of a higher-level. For example, if patients (level-1) adhere strictly to one doctor (level-2), but the doctors work for multiple hospitals (level-3), levels two and three are crossed. It is currently possible to use `lmeresampler` to bootstrap a model with crossed effects with the parametric bootstrap, however, future updates should explore adding functionality to allow bootstrapping of crossed models for the cases, residual, wild, and REB bootstraps. Crossed relationships need to be evaluated differently than standard nested relationships, thus the code will need significant modifications in its evaluation process.
 
 # References
 
