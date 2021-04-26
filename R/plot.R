@@ -1,11 +1,8 @@
-#' @title plot
+#' @title Plot bootstrap results
 #'
 #' @description
-#' Plots the bootstrap call.
-#'
-#' @details
-#' This function is given \code{x, var} and uses them to plot the density plot
-#' of bootstrap estimates for the var of choice.
+#' Generate a density plot with a half-eye plot representing the 68% and 95%
+#' percentile intervals from an \code{lmeresamp} object.
 #'
 #' @param x The lmeresamp object to plot.
 #' @param var The estimated parameter to plot, as a string or column number.

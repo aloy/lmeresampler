@@ -54,7 +54,7 @@ The returned value is an object of class "lmeresamp".
 }
 \description{
 Perform various bootstrap process for nested linear mixed effects (LMEs) models including:
-parametric, residual, cases, CGR, and REB bootstraps.
+parametric, residual, cases, REB, and Wild bootstraps.
 }
 \details{
 All of the below methods have been implemented for nested linear mixed-effects
@@ -122,8 +122,8 @@ Carpenter, J. R., Goldstein, H. and Rasbash, J. (2003) A novel bootstrap
 \seealso{
 \itemize{
   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-     \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
-     for more details on a specific bootstrap.
+     \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, 
+     \code{\link{wild_bootstrap}} for more details on a specific bootstrap.
   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
      implementation of (semi-)parameteric bootstrap for mixed models.
 }

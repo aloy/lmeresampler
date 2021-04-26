@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Perform various bootstrap process for nested linear mixed effects (LMEs) models including:
-#' parametric, residual, cases, CGR, and REB bootstraps.
+#' parametric, residual, cases, REB, and Wild bootstraps.
 #'
 #' @export
 #' @param model The model object you wish to bootstrap.
@@ -36,8 +36,8 @@
 #' @seealso 
 #' \itemize{
 #'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
-#'      for more details on a specific bootstrap.
+#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, 
+#'      \code{\link{wild_bootstrap}} for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
 #' }
@@ -127,9 +127,10 @@ bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL, hccm
 #' 
 #' @seealso 
 #' \itemize{
+#'   \item Examples are given in \code{\link{bootstrap}}
 #'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
-#'      for more details on a specific bootstrap.
+#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, 
+#'      \code{\link{wild_bootstrap}} for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
 #' }
@@ -180,9 +181,10 @@ parametric_bootstrap <- function(model, .f, B) {
 #' 
 #' @seealso 
 #' \itemize{
+#'   \item Examples are given in \code{\link{bootstrap}}
 #'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
-#'      for more details on a specific bootstrap.
+#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, 
+#'      \code{\link{wild_bootstrap}} for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
 #' }
@@ -211,7 +213,7 @@ case_bootstrap <- function(model, .f, B, resample) {
 #' \enumerate{
 #'   \item Obtain the parameter estimates from the fitted model and calculate
 #'      the estimated error terms and EBLUPs.
-#'   \item Rescale the error terms and EBLUPs so that the empirical variance of
+#'   \item Center and rescale the error terms and EBLUPs so that the empirical variance of
 #'      these quantities is equal to estimated variance components from the model.
 #'   \item Sample independently with replacement from the rescaled estimated error 
 #'      terms and rescaled EBLUPs.
@@ -225,9 +227,10 @@ case_bootstrap <- function(model, .f, B, resample) {
 #' 
 #' @seealso 
 #' \itemize{
+#'   \item Examples are given in \code{\link{bootstrap}}
 #'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
-#'      for more details on a specific bootstrap.
+#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, 
+#'      \code{\link{wild_bootstrap}} for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
 #' }
@@ -261,12 +264,14 @@ resid_bootstrap <- function(model, .f, B) {
 #'      \item predicted random effects \eqn{\tilde{b} = (Z^\prime Z)^{-1} Z^\prime r}
 #'      \item error terms \eqn{\tilde{e} = r - Z \tilde{b}}
 #'   }
-#'   \item Take a simple random sample with replacement of the groups and extract
-#'      the corresponding elements of \eqn{\tilde{b}} and \eqn{tilde{e}}.
+#'   \item Take a simple random sample, with replacement, of the predicted random effects, \eqn{\tilde{b}}.
+#'   \item Draw a simple random sample, with replacement, of the group (cluster) IDs.
+#'       For each sampled cluster, draw a random sample, with replacement, of size 
+#'       \eqn{n_i} from that cluster's vector of error terms, \eqn{\tilde{e}}.
 #'   \item Generate bootstrap samples via the fitted model equation 
 #'      \eqn{y = X \widehat{\beta} + Z \tilde{b} + \tilde{e}}
 #'   \item Refit the model and extract the statistic(s) of interest.
-#'   \item Repeat steps 2-4 B times.
+#'   \item Repeat steps 2-5 B times.
 #' }
 #' 
 #' Variation 1 (\code{type = 1}): 
@@ -285,9 +290,10 @@ resid_bootstrap <- function(model, .f, B) {
 #' 
 #' @seealso 
 #' \itemize{
+#'   \item Examples are given in \code{\link{bootstrap}}
 #'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
-#'      for more details on a specific bootstrap.
+#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, 
+#'      \code{\link{wild_bootstrap}} for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
 #' }
@@ -313,15 +319,15 @@ reb_bootstrap <- function(model, .f, B, reb_type) {
 #' The wild bootstrap algorithm for LMEs implemented here was outlined by  
 #' Modugno & Giannerini (2015). The algorithm is outlined below:
 #' \enumerate{
-#'   \item Obtain the parameter estimates from the fitted model and calculate
-#'      the estimated error terms and EBLUPs.
-#'   \item Rescale the error terms and EBLUPs so that the empirical variance of
-#'      these quantities is equal to estimated variance components from the model.
-#'   \item Sample independently with replacement from the rescaled estimated error 
-#'      terms and rescaled EBLUPs.
-#'   \item Obtain bootstrap samples by combining the samples via the fitted model equation.
+#'   \item Draw a random sample equal to the number of groups (clusters) from
+#'      an auxillary distribution with mean zero and unit variance. 
+#'      Denote these as \eqn{w_1, \ldots, w_g}.
+#'   \item Calculate the selected heteroscedasticity consistent matrix estimator for
+#'      the marginal residuals, \eqn{\tilde{v}_i}
+#'   \item Generate bootstrap responses using the fitted equation: 
+#'      \eqn{y_i^* = X_i \beta + \tilde{v}_i w_j}
 #'   \item Refit the model and extract the statistic(s) of interest.
-#'   \item Repeat steps 3-5 B times.
+#'   \item Repeat steps 2-4 B times.
 #' }
 #'
 #' @return 
@@ -329,9 +335,10 @@ reb_bootstrap <- function(model, .f, B, reb_type) {
 #' 
 #' @seealso 
 #' \itemize{
+#'   \item Examples are given in \code{\link{bootstrap}}
 #'   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
-#'      for more details on a specific bootstrap.
+#'      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, 
+#'      \code{\link{wild_bootstrap}} for more details on a specific bootstrap.
 #'   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
 #'      implementation of (semi-)parameteric bootstrap for mixed models.
 #' }
@@ -349,7 +356,7 @@ wild_bootstrap <- function(model, .f, B, hccme, aux.dist) {
 #'
 #' @description
 #' A utility function that extracts the fixed effects and variance component
-#' estimates from a fitted \code{merMod} or \code{lme} obje.
+#' estimates from a fitted \code{merMod} or \code{lme} object.
 #' 
 #' @return 
 #' A named vector of parameters.
