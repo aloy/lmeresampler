@@ -66,13 +66,13 @@ updated.model <- function(model, new.y = NULL, new.data = NULL){
   error <- NULL
   if(is.null(mod.rand)){
     out.lme <- catchr::catch_expr(
-      nlme::lme(fixed = mod.fixd, data = mod.data, control = ctrl),
+      do.call("lme", args = list(fixed = mod.fixd, data = mod.data, control = ctrl)), 
       warning, message, error
     )
   } else{
     mod.rand <- as.formula(mod.rand)
     out.lme <- catchr::catch_expr(
-      nlme::lme(fixed = mod.fixd, data = mod.data, random = mod.rand, control = ctrl),
+      do.call("lme", args = list(fixed = mod.fixd, data = mod.data, random = mod.rand, control = ctrl)), 
       warning, message, error
     )
   }

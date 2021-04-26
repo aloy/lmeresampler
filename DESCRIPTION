@@ -18,6 +18,8 @@ Imports:
     dplyr (>= 0.8.0),
     Matrix,
     nlmeU,
+    ggplot2,
+    ggdist,
     HLMdiag,
     purrr,
     forcats,

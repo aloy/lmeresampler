@@ -16,11 +16,7 @@
 #' @method print lmeresamp
 print.lmeresamp <- function(x, ci = FALSE, ...){
   
-  cat(paste("Bootstrap type:", x$type, "\n"))
-  cat(paste("\n"))
-  cat(paste("Number of resamples:", x$R, "\n"))
-  cat(paste("\n"))
-  print(x$stats)
+  summary.lmeresamp(x)
   
   if(ci == TRUE){
     confint(x)
