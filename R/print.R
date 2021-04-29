@@ -25,6 +25,8 @@ print.lmeresamp <- function(x, ci = FALSE, ...){
   summary.lmeresamp(x)
   
   if(ci == TRUE){
+    cat(paste("\n"))
+    cat(paste("\n"))
     confint(x)
   }
 }
