@@ -44,10 +44,10 @@ We will work with `vcmodA` for `lme4`, and `vcmodB` for `nlme`. Each of these tw
 
 ```{r fit models, results = FALSE, message = FALSE}
 library(lme4)
-vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
+vcmodA <- lme4::lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
 
 library(nlme)
-vcmodB <- lme(mathAge11 ~ mathAge8 + gender + class, random = ~1|school, data = jsp728)
+vcmodB <- nlme::lme(mathAge11 ~ mathAge8 + gender + class, random = ~1|school, data = jsp728)
 ```
 
 ## The Call
@@ -118,18 +118,7 @@ str(lmer_par_boot)
 head(lmer_par_boot)
 ```
 
-# 2. The Residual Bootstrap
-
-The residual bootstrap resamples the residual quantities from the fitted linear mixed-effects model in order to generate bootstrap resamples. That is, a random sample, drawn with replacement, is taken from the estimated error terms and the EBLUPS (at each level). Then the random samples are combined into bootstrap samples via the fitted model equation.
-
-## Examples
-
-```{r residual example}
-# nlme
-lme_res_boot <- bootstrap(vcmodB, .f = fixef, type = "residual", B = 100)
-```
-
-# 3. The Cases Bootstrap
+# 2. The Cases Bootstrap
 
 The cases bootstrap is a fully nonparametric bootstrap that resamples the data with respect to the clusters in order to generate bootstrap samples. Depending on the nature of the data, the resampling can be done only for the higher-level cluster(s), only at the observation-level within a cluster, or at all levels. See Van der Leeden et al. for a nice discussion of this decision. The level(s) of the data that should be resampled may be specified using the `resample` parameter, which is a logical vector. When setting `resample` values, the user should make sure to first specify the highest level (largest cluster) of the hierarchy, then the lowest (observation-level). For example, for students within a school, the school level should be specified first, then the student level.
 
@@ -149,9 +138,9 @@ lme_cases_boot1 <- bootstrap(vcmodB, .f = fixef, type = "case", B = 100, resampl
 lme_cases_boot2 <- bootstrap(vcmodB, .f = fixef, type = "case", B = 100, resample = c(TRUE, TRUE))
 ```
 
-# 4. The CGR Bootstrap
+# 3. The Residual Bootstrap
 
-The semi-parametric bootstrap algorithm implemented was described by Carpenter, Goldstein and Rasbash (2003). The algorithm is outlined below:
+The semi-parametric (residual) bootstrap algorithm implemented was described by Carpenter, Goldstein and Rasbash (2003). The algorithm is outlined below:
 
 1. Obtain the parameter estimates from the fitted model and calculate the estimated error terms and EBLUPs. 
 
@@ -167,12 +156,28 @@ The semi-parametric bootstrap algorithm implemented was described by Carpenter, 
 
 ## Examples
 
-```{r wild example}
+```{r residual example}
 # lme4
-lmer_wild_boot <- bootstrap(vcmodA, .f = fixef, type = "wild", B = 100)
+lmer_res_boot <- bootstrap(vcmodA, .f = fixef, type = "residual", B = 100)
 
 # nlme
-lme_wild_boot  <- bootstrap(vcmodB, .f = fixef, type = "wild", B = 100)
+lme_res_boot <- bootstrap(vcmodB, .f = fixef, type = "residual", B = 100)
+```
+
+# 4. The Wild Bootstrap
+
+The wild bootstrap exists for various types of models, but was first discussed in the context of hierarchical models by Modugno and Giannerini (2015). This bootstrap makes no distribution assumptions and allows for heteroskedasticity, which is often useful for economists. The heteroskedasticity is accounted for using the Heteroskedasticity Consistent Covariance Matrix Estimator (HCCME), and the two most commonly used flavors of these HCCMEs are HC2 and HC3. These can be set in a call to `bootstrap()` using `hccme = "hc2"` or `hccme = "hc3"`. The wild bootstrap also draws bootstrap samples for the errors from what is known as an auxiliary distribution. The two versions of this discussed in the paper, F1 and F2, can be set in a `bootstrap()` call using `aux.dist = "f1"` or `aux.dist = "f2"`. For more information on HCCMEs and the purpose and structure of the auxiliary distributions, please refer to Modugno and Giannerini's paper, which is cited in the References section.
+
+## Examples
+
+```{r wild examples}
+# lme4
+lmer_wild_boot <- bootstrap(vcmodA, .f = fixef, type = "wild", hccme = "hc2", aux.dist = "f1", B = 100)
+lmer_wild_boot <- bootstrap(vcmodA, .f = fixef, type = "wild", hccme = "hc3", aux.dist = "f2", B = 100)
+
+# nlme
+lme_wild_boot <- bootstrap(vcmodB, .f = fixef, type = "wild", hccme = "hc2", aux.dist = "f2", B = 100)
+lme_wild_boot <- bootstrap(vcmodB, .f = fixef, type = "wild", hccme = "hc3", aux.dist = "f1", B = 100)
 ```
 
 # 5. The Random Effects Block (REB) Bootstrap
@@ -253,7 +258,17 @@ confint(lmer_reb_boot0, method = "boot-t", level= 0.90)
 
 ## The `plot()` function
 
+Finally, like the previous functions, the `plot()` function follows the same syntax as a default `plot()` function. In lmeresampler, this function creates a density plot of bootstrap estimates for a default (the first covariate, often the intercept) or specified variable. The bottom of the graph also contains 66% and 95% percentile intervals for the covariate. 
+
 ## Examples
+
+```{r message = FALSE, warning = FALSE}
+plot(lmer_par_boot) # defaults to printing first variable
+
+plot(lmer_par_boot, "mathAge8") # plot mathAge8 variable
+
+plot(lmer_par_boot, 1) # plots first variable
+```
 
 # 7. Bootstrapping with GLMMs
 
@@ -333,6 +348,8 @@ Carpenter, J.R., Goldstein, H. and Rasbash, J. (2003), A novel bootstrap procedu
 [JSP728 Data](http://www.bristol.ac.uk/cmm/team/hg/msm-3rd-ed/datasets.html)
 
 Leeden R.., Meijer E., Busing F.M. (2008) Resampling Multilevel Models. In: Leeuw J.., Meijer E. (eds) Handbook of Multilevel Analysis. Springer, New York, NY. DOI: 10.1007/978-0-387-73186-5_11
+
+Modugno, Lucia and Giannerini, Simone, “The Wild Bootstrap for Multilevel Models,” Communications in Statistics — Theory and Methods 44, no. 22 (2015): 4812–25, https://doi.org/10.1080/03610926.2013.802807
 
 Raymond Chambers & Hukum Chandra (2013) A Random Effect Block Bootstrap for Clustered Data, Journal of Computational and Graphical Statistics, 22:2, 452-470, DOI: 10.1080/10618600.2012.681216
 
