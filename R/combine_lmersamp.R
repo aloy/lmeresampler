@@ -1,7 +1,7 @@
 #' @title combine
 #'
 #' @description
-#' Combines processes split for parallelization.
+#' Combines bootstrap results from processes split for parallelization.
 #'
 #' @details
 #' This helper function combines the different processes split for

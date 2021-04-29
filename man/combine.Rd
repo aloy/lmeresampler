@@ -10,7 +10,7 @@ combine_lmeresamp(...)
 \item{...}{two or more objects of class \code{lmeresamp}, to be combined into one.}
 }
 \description{
-Combines processes split for parallelization.
+Combines bootstrap results from processes split for parallelization.
 }
 \details{
 This helper function combines the different processes split for

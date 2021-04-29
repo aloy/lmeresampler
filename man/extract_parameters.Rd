@@ -14,5 +14,5 @@ A named vector of parameters.
 }
 \description{
 A utility function that extracts the fixed effects and variance component
-estimates from a fitted \code{merMod} or \code{lme} obje.
+estimates from a fitted \code{merMod} or \code{lme} object.
 }

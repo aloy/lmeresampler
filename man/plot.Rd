@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot.R
 \name{plot.lmeresamp}
 \alias{plot.lmeresamp}
-\title{plot}
+\title{Plot bootstrap results}
 \usage{
 \method{plot}{lmeresamp}(x, var, ...)
 }
@@ -14,9 +14,6 @@
 \item{...}{not used}
 }
 \description{
-Plots the bootstrap call.
-}
-\details{
-This function is given \code{x, var} and uses them to plot the density plot
-of bootstrap estimates for the var of choice.
+Generate a density plot with a half-eye plot representing the 68% and 95%
+percentile intervals from an \code{lmeresamp} object.
 }
