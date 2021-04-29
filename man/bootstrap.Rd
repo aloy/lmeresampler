@@ -29,7 +29,7 @@ bootstrap(
 
 \item{type}{A character string indicating the type of bootstrap that is being
 requested. Possible values are \code{"parametric"}, \code{"residual"}, 
-\code{"case"}, \code{"cgr"}, \code{"wild"}, or \code{"reb"} 
+\code{"case"}, \code{"wild"}, \code{"wild"}, or \code{"reb"} 
 (random effect block bootstrap).}
 
 \item{B}{The number of bootstrap resamples.}
@@ -54,7 +54,7 @@ The returned value is an object of class "lmeresamp".
 }
 \description{
 Perform various bootstrap process for nested linear mixed effects (LMEs) models including:
-parametric, residual, cases, REB, and Wild bootstraps.
+parametric, residual, cases, wild, and REB bootstraps.
 }
 \details{
 All of the below methods have been implemented for nested linear mixed-effects
