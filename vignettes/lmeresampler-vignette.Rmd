@@ -272,6 +272,8 @@ plot(lmer_par_boot, 1) # plots first variable
 
 # 7. Bootstrapping with GLMMs
 
+It is also possible to perform bootstraps on generalized linear mixed models (GLMMs), or hierarchical generalized linear models. In `lmeresampler`, GLMMs are compatible with the parametric, cases, and residual bootstraps. 
+
 # 8. Parallelization (User Extension)
 
 ## The Idea
