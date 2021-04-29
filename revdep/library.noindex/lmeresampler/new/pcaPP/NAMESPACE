@@ -1,0 +1,18 @@
+useDynLib(pcaPP, .registration = TRUE)
+
+importFrom(mvtnorm, rmvnorm)
+
+importFrom("grDevices", "gray", "rainbow")
+importFrom("graphics", "abline", "lines", "mtext", "par", "plot",
+         "plot.new", "plot.window", "rect", "text", "title")
+importFrom("stats", "cov", "cov2cor", "mad", "median", "qchisq",
+         "qnorm", "rnorm", "runif", "sd")
+importFrom("utils", "flush.console", "installed.packages")
+
+export(PCAgrid, PCAproj, PCdiagplot, ScaleAdv, cor.fk, covPC,
+       covPCAgrid, covPCAproj, data.Zou, l1median, l1median_BFGS,
+       l1median_CG, l1median_HoCr, l1median_NLM, l1median_NM,
+       l1median_VaZh, objplot, opt.BIC, opt.TPO, plotcov, qn, sPCAgrid)
+
+S3method (plot, opt.TPO)
+S3method (plot, opt.BIC)

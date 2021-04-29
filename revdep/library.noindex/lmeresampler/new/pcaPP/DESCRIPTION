@@ -1,0 +1,20 @@
+Package: pcaPP
+Version: 1.9-74
+Date: 2021-04-22
+VersionNote: Released 1.9-73 on 2018-01-04 on CRAN
+Title: Robust PCA by Projection Pursuit
+Author: Peter Filzmoser, Heinrich Fritz, Klaudius Kalcher
+Maintainer: Valentin Todorov <valentin.todorov@chello.at>
+Imports: mvtnorm
+Suggests: robustbase
+Description: Provides functions for robust PCA by projection pursuit.
+    The methods are described in Croux et al. (2006) <doi:10.2139/ssrn.968376>,
+    Croux et al. (2013) <doi:10.1080/00401706.2012.727746>,
+    Todorov and Filzmoser (2013) <doi:10.1007/978-3-642-33042-1_31>.
+License: GPL (>= 3)
+NeedsCompilation: yes
+Repository: CRAN
+Packaged: 2021-04-22 22:08:03 UTC; valen
+Date/Publication: 2021-04-23 04:40:02 UTC
+Built: R 4.0.2; x86_64-apple-darwin17.0; 2021-04-23 10:23:04 UTC; unix
+Archs: pcaPP.so.dSYM

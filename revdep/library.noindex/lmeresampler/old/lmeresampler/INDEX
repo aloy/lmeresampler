@@ -1,0 +1,12 @@
+bootstrap.lmerMod       Bootstrap Nested Linear Mixed-Effects Models
+case_bootstrap.lmerMod
+                        Cases Bootstrap for Nested LMEs
+cgr_bootstrap.lmerMod   CGR Bootstrap for Nested LMEs
+jsp728                  Junior school project data
+lmeresampler            Bootstrapping Nested Linear Mixed Effects
+                        Models
+parametric_bootstrap.lmerMod
+                        Parametric Bootstrap for Nested LMEs
+reb_bootstrap.lmerMod   REB Bootstrap for Two-Level Nested LMEs
+resid_bootstrap.lmerMod
+                        Residual Bootstrap for Nested LMEs
