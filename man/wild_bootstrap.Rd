@@ -37,15 +37,15 @@ linear mixed-effects model.
 The wild bootstrap algorithm for LMEs implemented here was outlined by  
 Modugno & Giannerini (2015). The algorithm is outlined below:
 \enumerate{
-  \item Obtain the parameter estimates from the fitted model and calculate
-     the estimated error terms and EBLUPs.
-  \item Rescale the error terms and EBLUPs so that the empirical variance of
-     these quantities is equal to estimated variance components from the model.
-  \item Sample independently with replacement from the rescaled estimated error 
-     terms and rescaled EBLUPs.
-  \item Obtain bootstrap samples by combining the samples via the fitted model equation.
+  \item Draw a random sample equal to the number of groups (clusters) from
+     an auxillary distribution with mean zero and unit variance. 
+     Denote these as \eqn{w_1, \ldots, w_g}.
+  \item Calculate the selected heteroscedasticity consistent matrix estimator for
+     the marginal residuals, \eqn{\tilde{v}_i}
+  \item Generate bootstrap responses using the fitted equation: 
+     \eqn{y_i^* = X_i \beta + \tilde{v}_i w_j}
   \item Refit the model and extract the statistic(s) of interest.
-  \item Repeat steps 3-5 B times.
+  \item Repeat steps 2-4 B times.
 }
 }
 \references{
@@ -55,9 +55,10 @@ Modugno, L., & Giannerini, S. (2015). The Wild Bootstrap for
 }
 \seealso{
 \itemize{
+  \item Examples are given in \code{\link{bootstrap}}
   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-     \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
-     for more details on a specific bootstrap.
+     \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, 
+     \code{\link{wild_bootstrap}} for more details on a specific bootstrap.
   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
      implementation of (semi-)parameteric bootstrap for mixed models.
 }

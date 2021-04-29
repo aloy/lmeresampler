@@ -1,5 +1,6 @@
 #' @rdname bootstrap
 #' @export
+#' @method bootstrap merMod
 #' @importFrom stats as.formula cov formula model.matrix na.exclude 
 #' na.omit predict resid simulate sd confint quantile
 bootstrap.merMod <- function(model, .f, type, B, resample, reb_type, hccme, aux.dist){
@@ -14,6 +15,7 @@ bootstrap.merMod <- function(model, .f, type, B, resample, reb_type, hccme, aux.
 
 #' @rdname parametric_bootstrap
 #' @export
+#' @method parametric_bootstrap merMod
 parametric_bootstrap.merMod <- function(model, .f, B){
   .f <- match.fun(.f)
   
@@ -29,6 +31,7 @@ parametric_bootstrap.merMod <- function(model, .f, B){
 
 #' @rdname case_bootstrap
 #' @export
+#' @method case_bootstrap merMod
 case_bootstrap.merMod <- function(model, .f, B, resample){
   
   data <- model@frame
@@ -63,6 +66,7 @@ case_bootstrap.merMod <- function(model, .f, B, resample){
 
 #' @rdname resid_bootstrap
 #' @export
+#' @method resid_bootstrap merMod
 resid_bootstrap.merMod <- function(model, .f, B){
   
   .f <- match.fun(.f)
@@ -107,6 +111,7 @@ resid_bootstrap.merMod <- function(model, .f, B){
 
 #' @rdname wild_bootstrap
 #' @export
+#' @method wild_bootstrap lmerMod
 wild_bootstrap.lmerMod <- function(model, .f, B, hccme = c("hc2", "hc3"), 
                                    aux.dist = c("f1", "f2")){
   
@@ -142,6 +147,7 @@ wild_bootstrap.lmerMod <- function(model, .f, B, hccme = c("hc2", "hc3"),
 
 #' @rdname reb_bootstrap
 #' @export
+#' @method reb_bootstrap lmerMod
 reb_bootstrap.lmerMod <- function(model, .f, B, reb_type){
   
   if(missing(reb_type)){

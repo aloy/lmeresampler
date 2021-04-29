@@ -6,7 +6,7 @@ bootstrap.lme <- function(model, .f, type, B, resample, reb_type, hccme, aux.dis
          residual = resid_bootstrap.lme(model, .f, B),
          case = case_bootstrap.lme(model, .f, B, resample),
          reb = reb_bootstrap.lme(model, .f, B, reb_type),
-         wild = wild_bootstrap.lmerMod(model, .f, B, hccme, aux.dist))
+         wild = wild_bootstrap.lme(model, .f, B, hccme, aux.dist))
 }
 
 

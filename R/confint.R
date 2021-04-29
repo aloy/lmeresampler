@@ -1,22 +1,21 @@
-#' @title Calculate confidence interval for lmeresamp object
+#' @title Calculate confidence intervals for a lmeresamp object
 #'
 #' @description
-#' Calculates confidence intervals on an lmeresamp object.
+#' Calculates normal, basic, and percentile bootstrap confidence intervals 
+#' from a \code{lmeresamp} object.
 #'
-#' @details
-#' This function is given \code{object, method, level} and uses them to calculate the
-#' confidence interval(s).
 #'
 #' @param object The lmeresamp object for which confidence intervals should be computed.
 #' @param type A character string giving the type of confidence intervals that should be calculated. 
-#' Is should be a subset of \code{c("norm", "basic", "perc")} (for normal, basic, and percentile
-#' bootstrap confidence interals, respectively), or \code{"all"}.
+#' This should be a subset of \code{c("norm", "basic", "perc")} (for normal, basic, and percentile
+#' bootstrap confidence intervals, respectively), or \code{"all"}.
 #' @param level The level at which the confidence interval should be calculated. 
 #' @param parm not used
 #' @param ... not used
 #' 
 #' @return 
 #' A tibble with columns term, estimate, lower, upper, type, and level.
+#' 
 #'
 #' @rdname confint
 #' @export 

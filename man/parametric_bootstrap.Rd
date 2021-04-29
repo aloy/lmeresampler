@@ -44,9 +44,10 @@ Chambers, R. and Chandra, H. (2013) A random effect block bootstrap for
 }
 \seealso{
 \itemize{
+  \item Examples are given in \code{\link{bootstrap}}
   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-     \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}} 
-     for more details on a specific bootstrap.
+     \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, 
+     \code{\link{wild_bootstrap}} for more details on a specific bootstrap.
   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
      implementation of (semi-)parameteric bootstrap for mixed models.
 }

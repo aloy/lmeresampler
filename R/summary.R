@@ -1,10 +1,18 @@
-#' @title summary
+#' @title Calculate summary statistics for \code{lmeresamp} objects
 #'
 #' @description
-#' Summarizes the output of the bootstrap call.
+#' Calculate basic summary statistics such as the mean, standard error, and bias of the
+#' bootstrap replicates.
 #'
 #' @details
-#' This function is given \code{object} and uses them to summarize the bootstrap result.
+#' If the bootstrap statistics are stored in a vector (as opposed to a data frame or tibble), 
+#' then summary statistics will be calculated. The printed data frame will include
+#' the name of the term (if applicable), the observed value (\code{observed}), the mean of the bootstrap replicated 
+#' (\code{rep.mean}), the standard error (\code{se}), and the bootstrap bias estimate (\code{bias}).
+#' In addition, the number of resamples will be printed. If any messages, warnings, or errors were
+#' generated during the bootstrap procedure, they will be summarized below, and you should check the 
+#' \code{message}, \code{warning}, and \code{error} elements of the \code{lmeresamp} object to
+#' investigate further.
 #'
 #' @param object The lmeresamp object to be summarized.
 #' @param ... not used

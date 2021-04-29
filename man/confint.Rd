@@ -2,7 +2,7 @@
 % Please edit documentation in R/confint.R
 \name{confint.lmeresamp}
 \alias{confint.lmeresamp}
-\title{Calculate confidence interval for lmeresamp object}
+\title{Calculate confidence intervals for a lmeresamp object}
 \usage{
 \method{confint}{lmeresamp}(
   object,
@@ -20,8 +20,8 @@
 \item{level}{The level at which the confidence interval should be calculated.}
 
 \item{type}{A character string giving the type of confidence intervals that should be calculated. 
-Is should be a subset of \code{c("norm", "basic", "perc")} (for normal, basic, and percentile
-bootstrap confidence interals, respectively), or \code{"all"}.}
+This should be a subset of \code{c("norm", "basic", "perc")} (for normal, basic, and percentile
+bootstrap confidence intervals, respectively), or \code{"all"}.}
 
 \item{...}{not used}
 }
@@ -29,9 +29,6 @@ bootstrap confidence interals, respectively), or \code{"all"}.}
 A tibble with columns term, estimate, lower, upper, type, and level.
 }
 \description{
-Calculates confidence intervals on an lmeresamp object.
-}
-\details{
-This function is given \code{object, method, level} and uses them to calculate the
-confidence interval(s).
+Calculates normal, basic, and percentile bootstrap confidence intervals 
+from a \code{lmeresamp} object.
 }
