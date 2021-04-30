@@ -11,3 +11,5 @@ R/.Rapp.history
 R/.DS_Store
 Meta
 doc
+/doc/
+/Meta/
