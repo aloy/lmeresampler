@@ -97,6 +97,10 @@
 #'    Bates, D., Maechler, M., Bolker, W., Walker, S. (2015).
 #'    Fitting Linear Mixed-Effects Models Using lme4. \emph{Journal of
 #'    Statistical Software}, \bold{67}, 1--48. doi:10.18637/jss.v067.i01.
+#'    
+#'    Modugno, L., & Giannerini, S. (2015). The Wild Bootstrap for 
+#'    Multilevel Models. \emph{Communications in Statistics -- Theory and Methods}, 
+#'    \bold{44}(22), 4812--4825.
 bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL, hccme = NULL, aux.dist = NULL) {
   if(!type %in% c("parametric", "residual", "case", "wild", "reb"))
     stop("'type' must be one of 'parametric', 'residual', 'case', 'wild', or 'reb'")
