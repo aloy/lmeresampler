@@ -16,7 +16,8 @@ is_check <- ("CheckExEnv" %in% search()) || any(c("_R_CHECK_TIMINGS_",
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = !is_check
+  eval = !is_check,
+  fig.height = 3, fig.width = 5
 )
 ```
 
@@ -52,19 +53,43 @@ vcmodB <- nlme::lme(mathAge11 ~ mathAge8 + gender + class, random = ~1|school, d
 
 ## The Call
 
-In order to perform the bootstrap, the user must call the `bootstrap()` function. The function contains several important parameters for the user to specify when making the call:
+In order to perform the bootstrap, the user must call the `bootstrap()` function. The function contains several required parameters for the user to specify when making the call:
 
 * `model`: the LME model to be bootstrapped.
 
 * `.f`: a function that will compute the statistics of interest (for example, to have the bootstrap return the fixed effects estimates, specify `.f = fixef`).
 
-* `type`: a character string specifying what type of bootstrap should be executed. Possible values are `"parametric"`, `"residual"`, `"case"`, `cgr`, or `reb`. More information about each bootstrap `type` may be found in the following sections.
+* `type`: a character string specifying what type of bootstrap should be executed. Possible values are `"parametric"`, `"residual"`, `"case"`, `"wild"`, or `"reb"`. More information about each bootstrap `type` may be found in the following sections.
 
 * `B`: the number of bootstrap resamples to be performed.
+
+Additional parameters are required by specific bootstrap methods:
 
 * `resample`: a logical vector specifying whether each level of the data set should be resampled in the cases bootstrap. The levels should be specified from the highest level (largest cluster) of the hierarchy to the lowest (observation-level). For example, for students within a school, specify the school level first, then the student level.
 
 * `reb_type`: an integer value specifying what kind of REB (random effects block) bootstrap should be performed. More on what the differences between the REB bootstrap types are may be found in section 5 of this vignette.
+
+* `hccme`: a character string specifying which heteroscedasticity consistent covariance matrix  (HCCME) estimator to use in the wild bootstrap. Current options include `"hc2"` and `"hc3"`, the two estimators recommended by Modugno and Giannerini (2015).
+
+    \begin{align}
+{\tt hc2} &: \tilde{\boldmath{v}}_i = {\rm diag} \left( \boldmath{I}_{n_i} - \boldmath{H}_i \right)^{-1/2} \circ \boldmath{r}_i\\
+{\tt hc3} &: \tilde{\boldmath{v}}_i = {\rm diag} \left( \boldmath{I}_{n_i} - \boldmath{H}_i \right) \circ \boldmath{r}_i,
+\end{align}
+
+    where  $\boldmath{H}_i = \boldmath{X}_i \left(\boldmath{X}_i^\prime \boldmath{X}_i \right)^\prime \boldmath{X}_i^\prime$, the $i$th diagonal block of the orthogonal projection matrix, and  $\boldmath{r}_i$ is the vector of marginal residuals for group $i$.
+
+* `aux.dist`: a character string specifying which auxillary distribution to use in the wild bootstrap. Current options include `"f1"` and `"f2"`, the two estimators recommended by Modugno and Giannerini (2015).
+
+  \begin{align}
+  {\tt f1}: w_i &= \begin{cases}
+    -(\sqrt{5} - 1)/2 & \text{ with probability } p=(\sqrt{5}+1) / (2 \sqrt{5})\\
+    (\sqrt{5} + 1)/2 & \text{ with probability } 1-p\\
+  \end{cases}\\
+{\tt f2}:  w_i &= \begin{cases}
+    -1 & \text{ with probability } 0.5\\
+    1 & \text{ with probability } 0.5,\\
+  \end{cases}
+\end{align}
 
 # 1. The Parametric Bootstrap
 
@@ -86,41 +111,43 @@ Let's also take a look at the structure of the `lmeresamp` objects returned by a
 
 ## `bootstrap()` output
 
-Regardless of the type of bootstrap performed, the output of `bootstrap()` will be an `lmeresamp` object that is formatted as a list of 10 objects. Notice that some of the objects come from the call itself, while others are calculated for the user using the bootstrapped values. The 10 list objects are as follows:
+Regardless of the type of bootstrap performed, the output of `bootstrap()` will be an `lmeresamp` object that is formatted as a list of length 13. Notice that some of the objects come from the call itself, while others are calculated for the user using the bootstrapped values.
+
+```{r}
+names(lmer_par_boot)
+```
 
 * `observed`: the estimated values for the model parameters,
 
-* `model`: the fit model, formatted as the default list object,
+* `model`: the fitted model, formatted as the default `merMod` or `lme` object,
 
 * `.f`: the function call,
 
-* `replicates`: a `B` $\times \  p$ data frame of bootstrap values for each of the model parameters, $p$,
+* `replicates`: a `B` $\times \  p$ data frame of bootstrap values for each of the $p$ model parameters,
 
 * `stats`: a tibble containing the `observed`, `rep.mean` (bootstrap mean), `se` (bootstrap standard error), and `bias` values for each model parameter,
 
-* `R`: the number of bootstrap resamples performed,
+* `B`: the number of bootstrap resamples performed,
 
 * `data`: the data with which the model was fit,
 
 * `seed`: a vector of randomly generated seeds that are used by the bootstrap,
 
-* `type`: the type of bootstrap executed, and
+* `type`: the type of bootstrap executed,
 
-* `call`: the call to `bootstrap()` that the user made.
+* `call`: the call to `bootstrap()` that the user,
 
-Let's take a look at an example using the `lmer_par_boot` object we created in the above section.
+* `message`: a list of length `B` giving any messages generated during refitting. An entry will be `NULL` if no message was generated,
 
-```{r bootstrap output}
-# everything the lmeresamp object (and each of its sub-objects) contains
-str(lmer_par_boot)
+* `warning`: a list of length `B` giving any warnings generated during refitting. An entry will be `NULL` if no message was generated, and 
 
-# an overview of those 10 list items
-head(lmer_par_boot)
-```
+* `error`: a list of length `B` giving any errors generated during refitting. An entry will be `NULL` if no message was generated,
+
+Notice that the elements `message`, `warning`, and `error` allow you to eliminate any iterations that might be problematic, such as if the model did not converge.
 
 # 2. The Cases Bootstrap
 
-The cases bootstrap is a fully nonparametric bootstrap that resamples the data with respect to the clusters in order to generate bootstrap samples. Depending on the nature of the data, the resampling can be done only for the higher-level cluster(s), only at the observation-level within a cluster, or at all levels. See Van der Leeden et al. for a nice discussion of this decision. The level(s) of the data that should be resampled may be specified using the `resample` parameter, which is a logical vector. When setting `resample` values, the user should make sure to first specify the highest level (largest cluster) of the hierarchy, then the lowest (observation-level). For example, for students within a school, the school level should be specified first, then the student level.
+The cases bootstrap is a fully nonparametric bootstrap that resamples the data with respect to the clusters in order to generate bootstrap samples. Depending on the nature of the data, the resampling can be done only for the higher-level cluster(s), only at the observation-level within a cluster, or at all levels. See Van der Leeden et al. (2008) for a nice discussion of this decision. The level(s) of the data that should be resampled may be specified using the `resample` parameter, which is a logical vector. When setting `resample` values, the user should make sure to first specify the highest level (largest cluster) of the hierarchy, then the lowest (observation-level). For example, for students within a school, the school level should be specified first, then the student level.
 
 ## Examples
 
@@ -140,7 +167,7 @@ lme_cases_boot2 <- bootstrap(vcmodB, .f = fixef, type = "case", B = 100, resampl
 
 # 3. The Residual Bootstrap
 
-The semi-parametric (residual) bootstrap algorithm implemented was described by Carpenter, Goldstein and Rasbash (2003). The algorithm is outlined below:
+We implement the semi-parametric residual bootstrap algorithm proposed by Carpenter, Goldstein and Rasbash (2003). The algorithm is outlined below:
 
 1. Obtain the parameter estimates from the fitted model and calculate the estimated error terms and EBLUPs. 
 
@@ -166,7 +193,7 @@ lme_res_boot <- bootstrap(vcmodB, .f = fixef, type = "residual", B = 100)
 
 # 4. The Wild Bootstrap
 
-The wild bootstrap exists for various types of models, but was first discussed in the context of hierarchical models by Modugno and Giannerini (2015). This bootstrap makes no distribution assumptions and allows for heteroskedasticity, which is often useful for economists. The heteroskedasticity is accounted for using the Heteroskedasticity Consistent Covariance Matrix Estimator (HCCME), and the two most commonly used flavors of these HCCMEs are HC2 and HC3. These can be set in a call to `bootstrap()` using `hccme = "hc2"` or `hccme = "hc3"`. The wild bootstrap also draws bootstrap samples for the errors from what is known as an auxiliary distribution. The two versions of this discussed in the paper, F1 and F2, can be set in a `bootstrap()` call using `aux.dist = "f1"` or `aux.dist = "f2"`. For more information on HCCMEs and the purpose and structure of the auxiliary distributions, please refer to Modugno and Giannerini's paper, which is cited in the References section.
+The wild bootstrap exists for various types of models, but was first discussed in the context of hierarchical models by Modugno and Giannerini (2015). This bootstrap makes no distribution assumptions and allows for heteroskedasticity, which is often useful for economists. The heteroskedasticity is accounted for using the Heteroskedasticity Consistent Covariance Matrix Estimator (HCCME), and the two HCCMEs explored by Modugno and Giannerini (2015) were HC2 and HC3. These can be set in a call to `bootstrap()` using `hccme = "hc2"` or `hccme = "hc3"`. The wild bootstrap also draws bootstrap samples for the errors from what is known as an auxiliary distribution. The two versions of this discussed by Modugno and Giannerini (2015), F1 and F2, can be set in a `bootstrap()` call using `aux.dist = "f1"` or `aux.dist = "f2"`. For more information on HCCMEs and the purpose and structure of the auxiliary distributions, please refer to Modugno and Giannerini (2015).
 
 ## Examples
 
@@ -192,18 +219,21 @@ The REB bootstrap algorithm (`type = 0`) is as follows:
     + marginal residuals $r = y - X\beta$
     + predicted random effects $\tilde{b} = (Z^\prime Z)^{-1} Z^\prime r$
     + error terms $\tilde{e} = r - Z \tilde{b}$
-  
-2. Take a simple random sample with replacement of the groups and extract the corresponding elements of $\tilde{b}$ and $\tilde{e}$.
 
-3. Generate bootstrap samples via the fitted model equation $y = X \widehat{\beta} + Z \tilde{b} + \tilde{e}$.
+2.  Take a simple random sample with replacement of the groups and extract the corresponding elements of $\tilde{b}$. Denote these resampled random effects as $\bm{\tilde{b}}^*_i$.
 
-4. Refit the model and extract the statistic(s) of interest.
+3. Take a random sample, with replacement, of size $g$ from the cluster (group) ids. For each sampled cluster, draw a random sample, with replacement, of size $n_i$ from that cluster's vector of error terms, $\bm{\tilde{e}}_i$. Denote these resampled random effects as $\bm{\tilde{e}}^*_i$.
 
-5. Repeat steps 2-4 `B` times.
+4. Generate bootstrap samples via the fitted model equation $y = X \widehat{\beta} + Z \tilde{b}^* + \tilde{e}^*$.
+
+5. Refit the model and extract the statistic(s) of interest.
+
+6. Repeat steps 2-4 `B` times.
 
 Variation 1 (`type = 1`): The first variation of the REB bootstrap zero centers and rescales the residual quantities prior to resampling.
 
 Variation 2 (`type = 2`): The second variation of the REB bootstrap scales the estimates and centers the bootstrap distributions (i.e., adjusts for bias) after REB bootstrapping.
+
 
 ## Examples
 
@@ -218,11 +248,11 @@ lme_reb_boot2  <- bootstrap(vcmodB, .f = fixef, type = "reb", B = 100, reb_type 
 
 # 6. Output Options
 
-The newest version of `lmeresampler` comes equipped with its own `summary()`, `print()`, `confint()` and `plot()` functions, all of which follow the syntax of generic `summary()`, `print()`, `confint()` and `plot()` functions. In order for these functions to operate as necessary, the output of the `bootstrap()` function has been updated to be an object of class `lmeresamp`. See the next sections for some examples.
+The newest version of `lmeresampler` comes equipped with `summary()`, `print()`, `confint()` and `plot()` methods for `lmeresamp` objects, all of which follow the syntax of generic `summary()`, `print()`, `confint()` and `plot()` functions. In order for these functions to operate as necessary, the output of the `bootstrap()` function has been updated to be an object of class `lmeresamp`. See the next sections for some examples.
 
 ## The `summary()` function
 
-The syntax of the `lmeresampler` `summary()` function is similar to the default `summary()` function. The object to be summarized must be the object returned by the `bootstrap()` call, an `lmeresamp` object.
+The syntax of the `summary()` function is similar to the default. The object to be summarized must be the object returned by the `bootstrap()` call, an `lmeresamp` object.
 
 ### Example
 
@@ -244,21 +274,21 @@ print(lme_reb_boot2, ci = TRUE)
 
 ## The `confint()` Function
 
-Similarly, the syntax of the `lmeresampler` `confint()` function resembles the default `confint()` function. The object for which confidence are calculated must be the `lmeresamp` object returned by the `bootstrap()` call. The type of confidence interval may be specified with `method`, for which possible values include: `"basic"` (basic interval), `"norm"` (normal-t interval), `"boot-t"` (bootstrap-t interval using output from the `bootstrap()` call), `"perc"` (percentile interval), and `"all"` (all of aforementioned methods, and the default if `method` is unspecified). The level at which the confidence interval is to be computed may be specified with `level`, which defaults to `0.95` if unspecified. 
-
-Notice that the output of the three intervals differ slightly. The normal-t interval returns intervals for all of the fixed effects, all of the random effects, and sigma, the bootstrap-t interval returns intervals for only the fixed effects, and both the basic and percentile-t intervals return intervals for parameters specified by `.f`. This has to do with the nature of the interval calculations and the functions available to pull the necessary information out of the models. The bootstrap-t interval, on the other hand, is more complicated. The way that bootstrap-t intervals are calculated necessitates that we use the standard errors of the random component estimates. While there is a way to calculate these standard errors, they are often unreliable. Thus we only provide functionality for bootstrap-t intervals for fixed effects. For the curious, the math behind the variance component standard error calculations may be found in Ben Bolker's (one of the authors of, and the current maintainer of, `lme4`) two posts in the References section below.
+Similarly, the syntax of the `confint()` function resembles the default. The object for which confidence are calculated must be the `lmeresamp` object returned by the `bootstrap()` call. The type of confidence interval may be specified with `type`, for which possible values include: `"basic"` (basic bootstrap interval), `"norm"` (normal bootstrap interval), `"perc"` (percentile bootstrap interval), and `"all"` (all of aforementioned methods, and the default if `method` is unspecified). The level at which the confidence interval is to be computed may be specified with `level`, which defaults to `0.95` if unspecified. 
 
 ### Examples
 
 ```{r confints, message = FALSE, warning = FALSE}
-confint(lme_reb_boot2) # all ci types, 0.95 confidence level
+# all ci types, 0.95 confidence level
+confint(lme_reb_boot2)
 
-confint(lmer_reb_boot0, method = "boot-t", level= 0.90)
+# 90% percentile bootstrap intervals
+confint(lmer_reb_boot0, method = "perc", level= 0.90)
 ```
 
 ## The `plot()` function
 
-Finally, like the previous functions, the `plot()` function follows the same syntax as a default `plot()` function. In lmeresampler, this function creates a density plot of bootstrap estimates for a default (the first covariate, often the intercept) or specified variable. The bottom of the graph also contains 66% and 95% percentile intervals for the covariate. 
+Finally,  the `plot()` function creates a density plot of bootstrap estimates for a default (the first bootstrap statistic, often the intercept) or specified parameter. The bottom of the graph also contains 66% and 95% percentile intervals for the covariate. 
 
 ## Examples
 
@@ -270,7 +300,11 @@ plot(lmer_par_boot, "mathAge8") # plot mathAge8 variable
 plot(lmer_par_boot, 1) # plots first variable
 ```
 
+The density plots are rendered via `ggplot2`, so axis labels and titles can be altered in the usual way, via `labs()`.
+
 # 7. Bootstrapping with GLMMs
+
+It is also possible to perform bootstraps on generalized linear mixed models (GLMMs), or hierarchical generalized linear models. In `lmeresampler`, GLMMs are compatible with the parametric, cases, and residual bootstraps. 
 
 # 8. Parallelization (User Extension)
 
@@ -278,7 +312,7 @@ plot(lmer_par_boot, 1) # plots first variable
 
 Parallelization (also known as parallel computing, parallel processing, or executing "in parallel") is the idea of splitting a process into sub-processes that execute at the same time. This is of interest in the context of bootstrapping because bootstrapping is often both computation-heavy and time-consuming. 
 
-Using parallelization, the processes behind `bootstrap()` can be executed on multiple computer cores, depending on the makeup of the machine you are using. To check how many cores your machine has, run `parallel::detectCores()`. This will output the number of cores your CPU "logically" has, which is twice more than the number of cores it physically has. The number of logical cores is the number of cores you may actually use when working in parallel (the more cores you have available to you, the better!). We recommend using multiple cores when possible, **without using all/most of your CPU's cores**, which it needs to run everything, not just RStudio. However, if your machine only has one core, parallelization is neither useful nor possible.
+Using parallelization, the processes behind `bootstrap()` can be executed on multiple computer cores, depending on the makeup of the machine you are using. To check how many cores your machine has, run `parallel::detectCores()`. This will output the number of cores your CPU "logically" has, which is twice more than the number of cores it physically has. The number of logical cores is the number of cores you may actually use when working in parallel (the more cores you have available to you, the better!). We recommend using multiple cores when possible, **without using all/most of your CPU's cores**, which it needs to run everything, not just your IDE (e.g., RStudio). However, if your machine only has one core, parallelization is neither useful nor possible.
 
 ## Performance
 
@@ -288,7 +322,7 @@ There are two types of parallelization techniques: forking (also known as `multi
 
 ## Implementation
 
-We implement our parallel processing using Steve Weston and Rich Calaway's guide on jointly using `doParallel` and `foreach`, as the code is both concise and simple enough for those without much experience with parallelization. While `doParallel` and `foreach` default to `multicore` (forking) functionality when using parallel computing on UNIX operating systems and `snow` (clustering) functionality on Windows systems, in order to be as explicit as possible, we will outline our examples using clustering. For more information on forking, please see Weston and Calaway's guide, "Getting Started with doParallel and foreach" (the link can be found in the References section).
+We implement our parallel processing using Steve Weston and Rich Calaway's guide on jointly using `doParallel` and `foreach`, as the code is both concise and simple enough for those without much experience with parallelization. While `doParallel` and `foreach` default to `multicore` (forking) functionality when using parallel computing on UNIX operating systems and `snow` (clustering) functionality on Windows systems, in order to be as explicit as possible, we will outline our examples using clustering. For more information on forking, please see Weston and Calaway's guide, "Getting Started with doParallel and foreach".
 
 The basic idea with clusters is that they execute tasks as a "cluster" of computers, which means that each cluster needs to be fed in information separately. For this reason, clustering has more overhead than forking. Both `doParallel` and `foreach` use what Weston and Calaway call "`snow`-like functionality", meaning that while the clustering is done using these two packages, it uses the syntax from `snow` (a now deprecated package). Clusters also need to be "made" and "stopped" with each call to a `foreach()` loop and `doParallel`, to explicitly tell the CPU when to begin and end the parallelization.
 
@@ -352,9 +386,5 @@ Leeden R.., Meijer E., Busing F.M. (2008) Resampling Multilevel Models. In: Leeu
 Modugno, Lucia and Giannerini, Simone, “The Wild Bootstrap for Multilevel Models,” Communications in Statistics — Theory and Methods 44, no. 22 (2015): 4812–25, https://doi.org/10.1080/03610926.2013.802807
 
 Raymond Chambers & Hukum Chandra (2013) A Random Effect Block Bootstrap for Clustered Data, Journal of Computational and Graphical Statistics, 22:2, 452-470, DOI: 10.1080/10618600.2012.681216
-
-[Ben Bolker's lme4 Variance Component SE Tips](https://stackoverflow.com/questions/31694812/standard-error-of-variance-component-from-the-output-of-lmer)
-
-[Ben Bolker's nlme Variance Component SE Ideas](https://bbolker.github.io/mixedmodels-misc/notes/corr_braindump.html)
 
 [Weston and Calaway's doParallel and foreach Guide](https://cran.r-project.org/web/packages/doParallel/vignettes/gettingstartedParallel.pdf)
