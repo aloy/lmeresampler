@@ -2,8 +2,8 @@
 * local OS X install, R 4.0.5
 * Windows Server 2008 R2 SP1, R-devel (R-hub), 32/64 bit
 * Fedora Linux, R-devel, clang, gfortran (R-hub)
-* ubuntu 20.04 (on R-hub), R 4.0.5
-* ubuntu 20.04 (on R-hub), R-devel
+* ubuntu 20.04 (on github), R 4.0.5
+* ubuntu 20.04 (on githuv), R-devel
 * win-builder (devel)
 
 
