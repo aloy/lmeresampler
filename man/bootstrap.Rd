@@ -50,7 +50,25 @@ heteroscedasticity consistent covariance matrix estimator to use.}
 distribution to draw the errors from}
 }
 \value{
-The returned value is an object of class "lmeresamp".
+The returned value is an object of class "lmeresamp". This is a list
+with the following elements:
+
+\itemize{
+\item \code{observed}: the estimated values for the model parameters
+\item \code{model}: the fitted model object
+\item \code{.f}: the function call
+\item \code{replicates}: a \eqn{B \times p} data frame of bootstrap values for each of the p model parameters,
+\item \code{stats}: a tibble containing the \]code{observed}, \code{rep.mean} (bootstrap mean), 
+\code{se} (bootstrap standard error), and \code{bias} values for each model parameter,
+\item \code{B}: the number of bootstrap resamples performed
+\item \code{data}: the data with which the model was fit
+\item \code{seed}: a vector of randomly generated seeds that are used by the bootstrap
+\item \code{type}: the type of bootstrap executed
+\item \code{call}: the call to \code{bootstrap()} that the user
+\item \code{message}: a list of length \code{B} giving any messages generated during refitting. An entry will be \code{NULL} if no message was generated.
+\item \code{warning}: a list of length \code{B} giving any warnings generated during refitting. An entry will be \code{NULL} if no message was generated.
+\item \code{error}: a list of length \code{B} giving any errors generated during refitting. An entry will be \code{NULL} if no message was generated.
+}
 }
 \description{
 Perform various bootstrap process for nested linear mixed effects (LMEs) models including:
@@ -118,6 +136,10 @@ Carpenter, J. R., Goldstein, H. and Rasbash, J. (2003) A novel bootstrap
    Bates, D., Maechler, M., Bolker, W., Walker, S. (2015).
    Fitting Linear Mixed-Effects Models Using lme4. \emph{Journal of
    Statistical Software}, \bold{67}, 1--48. doi:10.18637/jss.v067.i01.
+   
+   Modugno, L., & Giannerini, S. (2015). The Wild Bootstrap for 
+   Multilevel Models. \emph{Communications in Statistics -- Theory and Methods}, 
+   \bold{44}(22), 4812--4825.
 }
 \seealso{
 \itemize{

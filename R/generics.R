@@ -31,7 +31,25 @@
 #' in the help file for that specific function.
 #'   
 #' @return 
-#' The returned value is an object of class "lmeresamp".
+#' The returned value is an object of class "lmeresamp". This is a list
+#' with the following elements:
+#' 
+#' \itemize{
+#' \item \code{observed}: the estimated values for the model parameters
+#' \item \code{model}: the fitted model object
+#' \item \code{.f}: the function call
+#' \item \code{replicates}: a \eqn{B \times p} data frame of bootstrap values for each of the p model parameters,
+#' \item \code{stats}: a tibble containing the \]code{observed}, \code{rep.mean} (bootstrap mean), 
+#' \code{se} (bootstrap standard error), and \code{bias} values for each model parameter,
+#' \item \code{B}: the number of bootstrap resamples performed
+#' \item \code{data}: the data with which the model was fit
+#' \item \code{seed}: a vector of randomly generated seeds that are used by the bootstrap
+#' \item \code{type}: the type of bootstrap executed
+#' \item \code{call}: the call to \code{bootstrap()} that the user
+#' \item \code{message}: a list of length \code{B} giving any messages generated during refitting. An entry will be \code{NULL} if no message was generated.
+#' \item \code{warning}: a list of length \code{B} giving any warnings generated during refitting. An entry will be \code{NULL} if no message was generated.
+#' \item \code{error}: a list of length \code{B} giving any errors generated during refitting. An entry will be \code{NULL} if no message was generated.
+#' }
 #' 
 #' @seealso 
 #' \itemize{
