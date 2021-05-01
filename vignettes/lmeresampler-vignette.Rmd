@@ -387,4 +387,6 @@ Modugno, Lucia and Giannerini, Simone, “The Wild Bootstrap for Multilevel Mode
 
 Raymond Chambers & Hukum Chandra (2013) A Random Effect Block Bootstrap for Clustered Data, Journal of Computational and Graphical Statistics, 22:2, 452-470, DOI: 10.1080/10618600.2012.681216
 
-[Weston and Calaway's doParallel and foreach Guide](https://cran.r-project.org/web/packages/doParallel/vignettes/gettingstartedParallel.pdf)
+Microsoft Corporation and Steve Weston (2020). doParallel: Foreach Parallel
+  Adaptor for the 'parallel' Package. R package version 1.0.16.
+  \url{https://CRAN.R-project.org/package=doParallel}
