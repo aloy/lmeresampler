@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>print — print.lmeresamp • lmeresampler</title>
+<title>Print a summary of an lmeresamp object — print.lmeresamp • lmeresampler</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,8 @@
 
 
 
-<meta property="og:title" content="print — print.lmeresamp" />
-<meta property="og:description" content="Prints the output of the bootstrap call." />
+<meta property="og:title" content="Print a summary of an lmeresamp object — print.lmeresamp" />
+<meta property="og:description" content="Print summary statistics and confidence intervals, if desired, for an lmeresamp object." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -80,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">lmeresampler</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.0000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -88,7 +88,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -111,7 +111,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/aloy/lmeresampler/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -128,13 +128,13 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>print</h1>
+    <h1>Print a summary of an <code>lmeresamp</code> object</h1>
     <small class="dont-index">Source: <a href='https://github.com/aloy/lmeresampler/blob/master/R/print.R'><code>R/print.R</code></a></small>
     <div class="hidden name"><code>print.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Prints the output of the bootstrap call.</p>
+    <p>Print summary statistics and confidence intervals, if desired, for an <code>lmeresamp</code> object.</p>
     </div>
 
     <pre class="usage"><span class='co'># S3 method for lmeresamp</span>
@@ -159,8 +159,14 @@
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>This function is given <code>x, ci</code> and uses them to print the bootstrap result
-and confidence intervals if the user wishes to have them.</p>
+    <p>If the bootstrap statistics are stored in a vector (as opposed to a data frame or tibble), 
+then summary statistics will be calculated and printed. The printed data frame will include
+the name of the term (if applicable), the observed value (<code>observed</code>), the mean of the bootstrap replicated 
+(<code>rep.mean</code>), the standard error (<code>se</code>), and the bootstrap bias estimate (<code>bias</code>).
+In addition, the number of resamples will be printed. If any messages, warnings, or errors were
+generated during the bootstrap procedure, they will be summarized below, and you should check the 
+<code>message</code>, <code>warning</code>, and <code>error</code> elements of the <code>lmeresamp</code> object to
+investigate further.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

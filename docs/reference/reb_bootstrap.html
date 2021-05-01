@@ -81,7 +81,7 @@ two-level nested linear mixed-effects model." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">lmeresampler</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.0000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -89,7 +89,7 @@ two-level nested linear mixed-effects model." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -112,7 +112,7 @@ two-level nested linear mixed-effects model." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/aloy/lmeresampler/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -184,12 +184,14 @@ $$y = X \beta + Z b + \epsilon$$</p>
 <li><p>predicted random effects \(\tilde{b} = (Z^\prime Z)^{-1} Z^\prime r\)</p></li>
 <li><p>error terms \(\tilde{e} = r - Z \tilde{b}\)</p></li>
 </ul></li>
-<li><p>Take a simple random sample with replacement of the groups and extract
-     the corresponding elements of \(\tilde{b}\) and \(tilde{e}\).</p></li>
+<li><p>Take a simple random sample, with replacement, of the predicted random effects, \(\tilde{b}\).</p></li>
+<li><p>Draw a simple random sample, with replacement, of the group (cluster) IDs.
+      For each sampled cluster, draw a random sample, with replacement, of size 
+      \(n_i\) from that cluster's vector of error terms, \(\tilde{e}\).</p></li>
 <li><p>Generate bootstrap samples via the fitted model equation 
      \(y = X \widehat{\beta} + Z \tilde{b} + \tilde{e}\)</p></li>
 <li><p>Refit the model and extract the statistic(s) of interest.</p></li>
-<li><p>Repeat steps 2-4 B times.</p></li>
+<li><p>Repeat steps 2-5 B times.</p></li>
 </ol>
 
 <p>Variation 1 (<code>type = 1</code>): 
@@ -207,9 +209,10 @@ $$y = X \beta + Z b + \epsilon$$</p>
 
     <div class='dont-index'>
 <ul>
-<li><p><code><a href='parametric_bootstrap.lmerMod.html'>parametric_bootstrap</a></code>, <code><a href='resid_bootstrap.lmerMod.html'>resid_bootstrap</a></code>,
-     <code><a href='case_bootstrap.lmerMod.html'>case_bootstrap</a></code>, <code><a href='cgr_bootstrap.lmerMod.html'>cgr_bootstrap</a></code>, 
-     <code>reb_bootstrap</code> for more details on a specific bootstrap.</p></li>
+<li><p>Examples are given in <code><a href='bootstrap.merMod.html'>bootstrap</a></code></p></li>
+<li><p><code><a href='parametric_bootstrap.merMod.html'>parametric_bootstrap</a></code>, <code><a href='resid_bootstrap.merMod.html'>resid_bootstrap</a></code>,
+     <code><a href='case_bootstrap.merMod.html'>case_bootstrap</a></code>, <code>reb_bootstrap</code>, 
+     <code><a href='wild_bootstrap.lmerMod.html'>wild_bootstrap</a></code> for more details on a specific bootstrap.</p></li>
 <li><p><code><a href='https://rdrr.io/pkg/lme4/man/bootMer.html'>bootMer</a></code> in the <span class="pkg">lme4</span> package for an 
      implementation of (semi-)parameteric bootstrap for mixed models.</p></li>
 </ul>

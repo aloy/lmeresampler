@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Parametric Bootstrap for Nested LMEs — parametric_bootstrap.merMod • lmeresampler</title>
+<title>Calculate summary statistics for lmeresamp objects — summary.lmeresamp • lmeresampler</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,9 +46,9 @@
 
 
 
-<meta property="og:title" content="Parametric Bootstrap for Nested LMEs — parametric_bootstrap.merMod" />
-<meta property="og:description" content="Generate parametric bootstrap replicates of a statistic for a nested linear 
-mixed-effects model." />
+<meta property="og:title" content="Calculate summary statistics for lmeresamp objects — summary.lmeresamp" />
+<meta property="og:description" content="Calculate basic summary statistics such as the mean, standard error, and bias of the
+bootstrap replicates." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -129,70 +129,42 @@ mixed-effects model." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Parametric Bootstrap for Nested LMEs</h1>
-    <small class="dont-index">Source: <a href='https://github.com/aloy/lmeresampler/blob/master/R/bootstrap_lme4.R'><code>R/bootstrap_lme4.R</code></a>, <a href='https://github.com/aloy/lmeresampler/blob/master/R/bootstrap_nlme.R'><code>R/bootstrap_nlme.R</code></a>, <a href='https://github.com/aloy/lmeresampler/blob/master/R/generics.R'><code>R/generics.R</code></a></small>
-    <div class="hidden name"><code>parametric_bootstrap.Rd</code></div>
+    <h1>Calculate summary statistics for <code>lmeresamp</code> objects</h1>
+    <small class="dont-index">Source: <a href='https://github.com/aloy/lmeresampler/blob/master/R/summary.R'><code>R/summary.R</code></a></small>
+    <div class="hidden name"><code>summary.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Generate parametric bootstrap replicates of a statistic for a nested linear 
-mixed-effects model.</p>
+    <p>Calculate basic summary statistics such as the mean, standard error, and bias of the
+bootstrap replicates.</p>
     </div>
 
-    <pre class="usage"><span class='co'># S3 method for merMod</span>
-<span class='fu'>parametric_bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>B</span><span class='op'>)</span>
-
-<span class='co'># S3 method for lme</span>
-<span class='fu'>parametric_bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>B</span><span class='op'>)</span>
-
-<span class='fu'>parametric_bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>B</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='co'># S3 method for lmeresamp</span>
+<span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>...</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>model</th>
-      <td><p>The model object you wish to bootstrap.</p></td>
+      <th>object</th>
+      <td><p>The lmeresamp object to be summarized.</p></td>
     </tr>
     <tr>
-      <th>.f</th>
-      <td><p>A function returning the statistic(s) of interest.</p></td>
-    </tr>
-    <tr>
-      <th>B</th>
-      <td><p>The number of bootstrap resamples.</p></td>
+      <th>...</th>
+      <td><p>not used</p></td>
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>The returned value is an object of class "lmeresamp".</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The parametric bootstrap simulates bootstrap samples from the estimated 
-distribution functions. That is, error terms and random effects are simulated
-from their estimated normal distributions and are combined into bootstrap
-samples via the fitted model equation.</p>
-    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
-
-    <p>Chambers, R. and Chandra, H. (2013) A random effect block bootstrap for 
-   clustered data. <em>Journal of Computational and Graphical Statistics</em>, 
-   <b>22</b>, 452--470.</p>   
-<p>Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
-   models. In J. de Leeuw and E. Meijer, editors, <em>Handbook of 
-   Multilevel Analysis</em>, pages 401--433. New York: Springer.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <div class='dont-index'>
-<ul>
-<li><p>Examples are given in <code><a href='bootstrap.merMod.html'>bootstrap</a></code></p></li>
-<li><p><code>parametric_bootstrap</code>, <code><a href='resid_bootstrap.merMod.html'>resid_bootstrap</a></code>,
-     <code><a href='case_bootstrap.merMod.html'>case_bootstrap</a></code>, <code><a href='reb_bootstrap.lmerMod.html'>reb_bootstrap</a></code>, 
-     <code><a href='wild_bootstrap.lmerMod.html'>wild_bootstrap</a></code> for more details on a specific bootstrap.</p></li>
-<li><p><code><a href='https://rdrr.io/pkg/lme4/man/bootMer.html'>bootMer</a></code> in the <span class="pkg">lme4</span> package for an 
-     implementation of (semi-)parameteric bootstrap for mixed models.</p></li>
-</ul>
-</div>
+    <p>If the bootstrap statistics are stored in a vector (as opposed to a data frame or tibble), 
+then summary statistics will be calculated. The printed data frame will include
+the name of the term (if applicable), the observed value (<code>observed</code>), the mean of the bootstrap replicated 
+(<code>rep.mean</code>), the standard error (<code>se</code>), and the bootstrap bias estimate (<code>bias</code>).
+In addition, the number of resamples will be printed. If any messages, warnings, or errors were
+generated during the bootstrap procedure, they will be summarized below, and you should check the 
+<code>message</code>, <code>warning</code>, and <code>error</code> elements of the <code>lmeresamp</code> object to
+investigate further.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

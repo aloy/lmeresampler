@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>confint — confint.lmeresamp • lmeresampler</title>
+<title>Calculate confidence intervals for a lmeresamp object — confint.lmeresamp • lmeresampler</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,8 +46,9 @@
 
 
 
-<meta property="og:title" content="confint — confint.lmeresamp" />
-<meta property="og:description" content="Performs confidence intervals on an lmeresamp object." />
+<meta property="og:title" content="Calculate confidence intervals for a lmeresamp object — confint.lmeresamp" />
+<meta property="og:description" content="Calculates normal, basic, and percentile bootstrap confidence intervals 
+from a lmeresamp object." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -80,7 +81,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">lmeresampler</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.0000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -88,7 +89,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -111,7 +112,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/aloy/lmeresampler/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -128,17 +129,24 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>confint</h1>
+    <h1>Calculate confidence intervals for a lmeresamp object</h1>
     <small class="dont-index">Source: <a href='https://github.com/aloy/lmeresampler/blob/master/R/confint.R'><code>R/confint.R</code></a></small>
     <div class="hidden name"><code>confint.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Performs confidence intervals on an lmeresamp object.</p>
+    <p>Calculates normal, basic, and percentile bootstrap confidence intervals 
+from a <code>lmeresamp</code> object.</p>
     </div>
 
     <pre class="usage"><span class='co'># S3 method for lmeresamp</span>
-<span class='fu'><a href='https://rdrr.io/r/stats/confint.html'>confint</a></span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>parm</span>, level <span class='op'>=</span> <span class='fl'>0.95</span>, <span class='va'>method</span>, <span class='va'>...</span><span class='op'>)</span></pre>
+<span class='fu'><a href='https://rdrr.io/r/stats/confint.html'>confint</a></span><span class='op'>(</span>
+  <span class='va'>object</span>,
+  <span class='va'>parm</span>,
+  level <span class='op'>=</span> <span class='fl'>0.95</span>,
+  type <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='st'>"all"</span>, <span class='st'>"norm"</span>, <span class='st'>"basic"</span>, <span class='st'>"perc"</span><span class='op'>)</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -156,8 +164,10 @@
       <td><p>The level at which the confidence interval should be calculated.</p></td>
     </tr>
     <tr>
-      <th>method</th>
-      <td><p>The type of confidence intervals that should be executed.</p></td>
+      <th>type</th>
+      <td><p>A character string giving the type of confidence intervals that should be calculated. 
+This should be a subset of <code><a href='https://rdrr.io/r/base/c.html'>c("norm", "basic", "perc")</a></code> (for normal, basic, and percentile
+bootstrap confidence intervals, respectively), or <code>"all"</code>.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -165,10 +175,9 @@
     </tr>
     </table>
 
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>This function is given <code>object, method, level</code> and uses them to calculate the
-confidence interval(s).</p>
+    <p>A tibble with columns term, estimate, lower, upper, type, and level.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

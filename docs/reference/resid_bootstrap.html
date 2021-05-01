@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Residual Bootstrap for Nested LMEs — resid_bootstrap.lmerMod • lmeresampler</title>
+<title>Residual Bootstrap for Nested LMEs — resid_bootstrap.merMod • lmeresampler</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,9 +46,9 @@
 
 
 
-<meta property="og:title" content="Residual Bootstrap for Nested LMEs — resid_bootstrap.lmerMod" />
-<meta property="og:description" content="Generate residual bootstrap replicates of a statistic for a nested linear 
-mixed-effects model." />
+<meta property="og:title" content="Residual Bootstrap for Nested LMEs — resid_bootstrap.merMod" />
+<meta property="og:description" content="Generate semi-parametric residual bootstrap replicates of a statistic for a nested 
+linear mixed-effects model." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -81,7 +81,7 @@ mixed-effects model." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">lmeresampler</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.0000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -89,7 +89,7 @@ mixed-effects model." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -112,7 +112,7 @@ mixed-effects model." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/aloy/lmeresampler/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -135,11 +135,11 @@ mixed-effects model." />
     </div>
 
     <div class="ref-description">
-    <p>Generate residual bootstrap replicates of a statistic for a nested linear 
-mixed-effects model.</p>
+    <p>Generate semi-parametric residual bootstrap replicates of a statistic for a nested 
+linear mixed-effects model.</p>
     </div>
 
-    <pre class="usage"><span class='co'># S3 method for lmerMod</span>
+    <pre class="usage"><span class='co'># S3 method for merMod</span>
 <span class='fu'>resid_bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>B</span><span class='op'>)</span>
 
 <span class='co'># S3 method for lme</span>
@@ -166,26 +166,37 @@ mixed-effects model.</p>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The returned value is an object of class "lmersamp".</p>
+    <p>The returned value is an object of class "lmeresamp".</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The residual bootstrap resamples the residual quantities from the fitted 
-linear mixed-effects model in order to generate bootstrap resamples. That is, 
-a random sample, drawn with replacement, is taken from the estimated error terms 
-and the EBLUPS (at each level) and the random samples are combined into bootstrap
-samples via the fitted model equation.</p>
+    <p>The semi-parametric bootstrap algorithm implemented was outlined by  Carpenter,  
+Goldstein and Rasbash (2003), and is referred to as the CGR bootstrap by some. 
+The algorithm is outlined below:</p><ol>
+<li><p>Obtain the parameter estimates from the fitted model and calculate
+     the estimated error terms and EBLUPs.</p></li>
+<li><p>Center and rescale the error terms and EBLUPs so that the empirical variance of
+     these quantities is equal to estimated variance components from the model.</p></li>
+<li><p>Sample independently with replacement from the rescaled estimated error 
+     terms and rescaled EBLUPs.</p></li>
+<li><p>Obtain bootstrap samples by combining the samples via the fitted model equation.</p></li>
+<li><p>Refit the model and extract the statistic(s) of interest.</p></li>
+<li><p>Repeat steps 3-5 B times.</p></li>
+</ol>
+
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
-    <p>Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
-   models. In J. de Leeuw and E. Meijer, editors, <em>Handbook of 
-   Multilevel Analysis</em>, pages 401--433. New York: Springer.</p>
+    <p>Carpenter, J. R., Goldstein, H. and Rasbash, J. (2003) A novel bootstrap 
+   procedure for assessing the relationship between class size and achievement. 
+   <em>Journal of the Royal Statistical Society. Series C (Applied Statistics)</em>, 
+   <b>52</b>, 431--443.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'>
 <ul>
-<li><p><code><a href='parametric_bootstrap.lmerMod.html'>parametric_bootstrap</a></code>, <code>resid_bootstrap</code>,
-     <code><a href='case_bootstrap.lmerMod.html'>case_bootstrap</a></code>, <code><a href='cgr_bootstrap.lmerMod.html'>cgr_bootstrap</a></code>, 
-     <code><a href='reb_bootstrap.lmerMod.html'>reb_bootstrap</a></code> for more details on a specific bootstrap.</p></li>
+<li><p>Examples are given in <code><a href='bootstrap.merMod.html'>bootstrap</a></code></p></li>
+<li><p><code><a href='parametric_bootstrap.merMod.html'>parametric_bootstrap</a></code>, <code>resid_bootstrap</code>,
+     <code><a href='case_bootstrap.merMod.html'>case_bootstrap</a></code>, <code><a href='reb_bootstrap.lmerMod.html'>reb_bootstrap</a></code>, 
+     <code><a href='wild_bootstrap.lmerMod.html'>wild_bootstrap</a></code> for more details on a specific bootstrap.</p></li>
 <li><p><code><a href='https://rdrr.io/pkg/lme4/man/bootMer.html'>bootMer</a></code> in the <span class="pkg">lme4</span> package for an 
      implementation of (semi-)parameteric bootstrap for mixed models.</p></li>
 </ul>

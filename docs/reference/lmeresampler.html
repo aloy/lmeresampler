@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>lmeresampler: A package for bootstrapping nested linear mixed effects models. — lmeresampler • lmeresampler</title>
+<title>lmeresampler: A package for bootstrapping nested linear mixed-effects models — lmeresampler • lmeresampler</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,21 +46,20 @@
 
 
 
-<meta property="og:title" content="lmeresampler: A package for bootstrapping nested linear mixed effects models. — lmeresampler" />
+<meta property="og:title" content="lmeresampler: A package for bootstrapping nested linear mixed-effects models — lmeresampler" />
 <meta property="og:description" content="The lme4 and nlme packages have made fitting nested 
-linear mixed-effects models quite easy. Using the the 
+linear mixed-effects (LME) models quite easy. Using the the 
 functionality of these packages we can easily use maximum 
-likelihood or restricted maximum likelihood to fit our 
+likelihood or restricted maximum likelihood to fit a 
 model and conduct inference using our parametric toolkit. 
 In practice, the assumptions of our model are often violated 
 to such a degree that leads to biased estimators and 
 incorrect standard errors. In these situations, resampling 
 methods such as the bootstrap can be used to obtain consistent 
-estimators of the bias and standard errors for inference. 
+estimators and standard errors for inference. 
 lmeresampler provides an easy way to bootstrap nested 
-linear-mixed effects models using either the parametric, 
-residual, cases, CGR (semi-parametric), or random effects block 
-(REB) bootstrap fit using either lme4 or nlme." />
+linear-mixed effects models using either fit using either lme4 or 
+nlme." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -93,7 +92,7 @@ residual, cases, CGR (semi-parametric), or random effects block
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">lmeresampler</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.0000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -101,7 +100,7 @@ residual, cases, CGR (semi-parametric), or random effects block
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -124,7 +123,7 @@ residual, cases, CGR (semi-parametric), or random effects block
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/aloy/lmeresampler/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -141,30 +140,41 @@ residual, cases, CGR (semi-parametric), or random effects block
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>lmeresampler: A package for bootstrapping nested linear mixed effects models.</h1>
+    <h1>lmeresampler: A package for bootstrapping nested linear mixed-effects models</h1>
     <small class="dont-index">Source: <a href='https://github.com/aloy/lmeresampler/blob/master/R/lmeresampler.R'><code>R/lmeresampler.R</code></a></small>
     <div class="hidden name"><code>lmeresampler.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>The lme4 and nlme packages have made fitting nested 
-linear mixed-effects models quite easy. Using the the 
+    <p>The <span class="pkg">lme4</span> and <span class="pkg">nlme</span> packages have made fitting nested 
+linear mixed-effects (LME) models quite easy. Using the the 
 functionality of these packages we can easily use maximum 
-likelihood or restricted maximum likelihood to fit our 
+likelihood or restricted maximum likelihood to fit a 
 model and conduct inference using our parametric toolkit. 
 In practice, the assumptions of our model are often violated 
 to such a degree that leads to biased estimators and 
 incorrect standard errors. In these situations, resampling 
 methods such as the bootstrap can be used to obtain consistent 
-estimators of the bias and standard errors for inference. 
-lmeresampler provides an easy way to bootstrap nested 
-linear-mixed effects models using either the parametric, 
-residual, cases, CGR (semi-parametric), or random effects block 
-(REB) bootstrap fit using either lme4 or nlme.</p>
+estimators and standard errors for inference. 
+<code>lmeresampler</code> provides an easy way to bootstrap nested 
+linear-mixed effects models using either fit using either <span class="pkg">lme4</span> or 
+<span class="pkg">nlme</span>.</p>
     </div>
 
 
 
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>A variety of bootstrap procedures are available:</p><ul>
+<li><p>the parametric bootstrap: <code><a href='parametric_bootstrap.merMod.html'>parametric_bootstrap</a></code></p></li>
+<li><p>the residual bootstrap: <code><a href='resid_bootstrap.merMod.html'>resid_bootstrap</a></code></p></li>
+<li><p>the cases (i.e. non-parametric) bootstrap: <code><a href='case_bootstrap.merMod.html'>case_bootstrap</a></code></p></li>
+<li><p>the random effects block (REB) bootstrap: <code><a href='reb_bootstrap.lmerMod.html'>reb_bootstrap</a></code></p></li>
+<li><p>the Wild bootstrap: <code><a href='wild_bootstrap.lmerMod.html'>wild_bootstrap</a></code></p></li>
+</ul>
+
+<p>In addition to the individual bootstrap functions, <code>lmeresampler</code> provides
+a unified interface to bootstrapping LME models in its  <code>bootstrap</code> function.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

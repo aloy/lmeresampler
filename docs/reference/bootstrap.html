@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Bootstrap Nested Linear Mixed-Effects Models — bootstrap.lmerMod • lmeresampler</title>
+<title>Bootstrap Nested Linear Mixed-Effects Models — bootstrap.merMod • lmeresampler</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,9 +46,9 @@
 
 
 
-<meta property="og:title" content="Bootstrap Nested Linear Mixed-Effects Models — bootstrap.lmerMod" />
+<meta property="og:title" content="Bootstrap Nested Linear Mixed-Effects Models — bootstrap.merMod" />
 <meta property="og:description" content="Perform various bootstrap process for nested linear mixed effects (LMEs) models including:
-parametric, residual, cases, CGR, and REB bootstraps." />
+parametric, residual, cases, wild, and REB bootstraps." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -81,7 +81,7 @@ parametric, residual, cases, CGR, and REB bootstraps." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">lmeresampler</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.0000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -89,7 +89,7 @@ parametric, residual, cases, CGR, and REB bootstraps." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -112,7 +112,7 @@ parametric, residual, cases, CGR, and REB bootstraps." />
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/aloy/lmeresampler/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -136,16 +136,25 @@ parametric, residual, cases, CGR, and REB bootstraps." />
 
     <div class="ref-description">
     <p>Perform various bootstrap process for nested linear mixed effects (LMEs) models including:
-parametric, residual, cases, CGR, and REB bootstraps.</p>
+parametric, residual, cases, wild, and REB bootstraps.</p>
     </div>
 
-    <pre class="usage"><span class='co'># S3 method for lmerMod</span>
-<span class='fu'>bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>type</span>, <span class='va'>B</span>, <span class='va'>resample</span>, <span class='va'>reb_type</span><span class='op'>)</span>
+    <pre class="usage"><span class='co'># S3 method for merMod</span>
+<span class='fu'>bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>type</span>, <span class='va'>B</span>, <span class='va'>resample</span>, <span class='va'>reb_type</span>, <span class='va'>hccme</span>, <span class='va'>aux.dist</span><span class='op'>)</span>
 
 <span class='co'># S3 method for lme</span>
-<span class='fu'>bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>type</span>, <span class='va'>B</span>, <span class='va'>resample</span>, <span class='va'>reb_type</span><span class='op'>)</span>
+<span class='fu'>bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>type</span>, <span class='va'>B</span>, <span class='va'>resample</span>, <span class='va'>reb_type</span>, <span class='va'>hccme</span>, <span class='va'>aux.dist</span><span class='op'>)</span>
 
-<span class='fu'>bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>type</span>, <span class='va'>B</span>, resample <span class='op'>=</span> <span class='cn'>NULL</span>, reb_type <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
+<span class='fu'>bootstrap</span><span class='op'>(</span>
+  <span class='va'>model</span>,
+  <span class='va'>.f</span>,
+  <span class='va'>type</span>,
+  <span class='va'>B</span>,
+  resample <span class='op'>=</span> <span class='cn'>NULL</span>,
+  reb_type <span class='op'>=</span> <span class='cn'>NULL</span>,
+  hccme <span class='op'>=</span> <span class='cn'>NULL</span>,
+  aux.dist <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -162,7 +171,8 @@ parametric, residual, cases, CGR, and REB bootstraps.</p>
       <th>type</th>
       <td><p>A character string indicating the type of bootstrap that is being
 requested. Possible values are <code>"parametric"</code>, <code>"residual"</code>, 
-<code>"case"</code>, <code>"cgr"</code>, or <code>"reb"</code> (random effect block bootstrap).</p></td>
+<code>"case"</code>, <code>"wild"</code>, <code>"wild"</code>, or <code>"reb"</code> 
+(random effect block bootstrap).</p></td>
     </tr>
     <tr>
       <th>B</th>
@@ -181,11 +191,39 @@ school level first, then the student level.</p></td>
       <td><p>Specification of what random effect block bootstrap version to
 implement. Possible values are <code>0</code>, <code>1</code> or <code>2</code>.</p></td>
     </tr>
+    <tr>
+      <th>hccme</th>
+      <td><p>either <code>"hc2"</code> or <code>"hc3"</code>, indicating which 
+heteroscedasticity consistent covariance matrix estimator to use.</p></td>
+    </tr>
+    <tr>
+      <th>aux.dist</th>
+      <td><p>either <code>"f1"</code> or <code>"f2"</code> indicating which auxiliary 
+distribution to draw the errors from</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The returned value is an object of class "lmeresamp".</p>
+    <p>The returned value is an object of class "lmeresamp". This is a list
+with the following elements:</p>
+<ul>
+<li><p><code>observed</code>: the estimated values for the model parameters</p></li>
+<li><p><code>model</code>: the fitted model object</p></li>
+<li><p><code>.f</code>: the function call</p></li>
+<li><p><code>replicates</code>: a \(B \times p\) data frame of bootstrap values for each of the p model parameters,</p></li>
+<li><p><code>stats</code>: a tibble containing the \]codeobserved, <code>rep.mean</code> (bootstrap mean), 
+<code>se</code> (bootstrap standard error), and <code>bias</code> values for each model parameter,</p></li>
+<li><p><code>B</code>: the number of bootstrap resamples performed</p></li>
+<li><p><code>data</code>: the data with which the model was fit</p></li>
+<li><p><code>seed</code>: a vector of randomly generated seeds that are used by the bootstrap</p></li>
+<li><p><code>type</code>: the type of bootstrap executed</p></li>
+<li><p><code>call</code>: the call to <code>bootstrap()</code> that the user</p></li>
+<li><p><code>message</code>: a list of length <code>B</code> giving any messages generated during refitting. An entry will be <code>NULL</code> if no message was generated.</p></li>
+<li><p><code>warning</code>: a list of length <code>B</code> giving any warnings generated during refitting. An entry will be <code>NULL</code> if no message was generated.</p></li>
+<li><p><code>error</code>: a list of length <code>B</code> giving any errors generated during refitting. An entry will be <code>NULL</code> if no message was generated.</p></li>
+</ul>
+
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>All of the below methods have been implemented for nested linear mixed-effects
@@ -208,14 +246,17 @@ in the help file for that specific function.</p>
    Multilevel Analysis</em>, pages 401--433. New York: Springer.</p>   
 <p>Bates, D., Maechler, M., Bolker, W., Walker, S. (2015).
    Fitting Linear Mixed-Effects Models Using lme4. <em>Journal of
-   Statistical Software</em>, <b>67</b>, 1--48. doi:10.18637/jss.v067.i01.</p>
+   Statistical Software</em>, <b>67</b>, 1--48. doi:10.18637/jss.v067.i01.</p>   
+<p>Modugno, L., &amp; Giannerini, S. (2015). The Wild Bootstrap for 
+   Multilevel Models. <em>Communications in Statistics -- Theory and Methods</em>, 
+   <b>44</b>(22), 4812--4825.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'>
 <ul>
-<li><p><code><a href='parametric_bootstrap.lmerMod.html'>parametric_bootstrap</a></code>, <code><a href='resid_bootstrap.lmerMod.html'>resid_bootstrap</a></code>,
-     <code><a href='case_bootstrap.lmerMod.html'>case_bootstrap</a></code>, <code><a href='cgr_bootstrap.lmerMod.html'>cgr_bootstrap</a></code>, 
-     <code><a href='reb_bootstrap.lmerMod.html'>reb_bootstrap</a></code> for more details on a specific bootstrap.</p></li>
+<li><p><code><a href='parametric_bootstrap.merMod.html'>parametric_bootstrap</a></code>, <code><a href='resid_bootstrap.merMod.html'>resid_bootstrap</a></code>,
+     <code><a href='case_bootstrap.merMod.html'>case_bootstrap</a></code>, <code><a href='reb_bootstrap.lmerMod.html'>reb_bootstrap</a></code>, 
+     <code><a href='wild_bootstrap.lmerMod.html'>wild_bootstrap</a></code> for more details on a specific bootstrap.</p></li>
 <li><p><code><a href='https://rdrr.io/pkg/lme4/man/bootMer.html'>bootMer</a></code> in the <span class="pkg">lme4</span> package for an 
      implementation of (semi-)parameteric bootstrap for mixed models.</p></li>
 </ul>
@@ -258,13 +299,21 @@ in the help file for that specific function.</p>
 #&gt; 
 #&gt; Number of resamples: 100 
 #&gt; 
-#&gt;         observed   rep.mean         se          bias
-#&gt; beta1 14.1577509 14.0158661 0.65832020 -0.1418848720
-#&gt; beta2  0.6388895  0.6429228 0.02436914  0.0040333457
-#&gt; beta3 -0.3571922 -0.2909488 0.36701673  0.0662434573
-#&gt; beta4  0.7200815  0.7242379 0.39057968  0.0041564090
-#&gt; sigma  4.4416279  4.4414617 0.11345797 -0.0001661894
-#&gt; sig01  1.8199553  1.7909477 0.24175360 -0.0290075852</div><div class='input'>
+#&gt;    term   observed   rep.mean         se          bias
+#&gt; 1 beta1 14.1577509 14.0158661 0.65832020 -0.1418848720
+#&gt; 2 beta2  0.6388895  0.6429228 0.02436914  0.0040333457
+#&gt; 3 beta3 -0.3571922 -0.2909488 0.36701673  0.0662434573
+#&gt; 4 beta4  0.7200815  0.7242379 0.39057968  0.0041564090
+#&gt; 5 sigma  4.4416279  4.4414617 0.11345797 -0.0001661894
+#&gt; 6 sig01  1.8199553  1.7909477 0.24175360 -0.0290075852
+#&gt; 
+#&gt; There were 0 messages, 0 warnings, and 0 errors.
+#&gt; 
+#&gt; The most commonly occurring message was: NULL
+#&gt; 
+#&gt; The most commonly occurring warning was: NULL
+#&gt; 
+#&gt; The most commonly occurring error was: NULL</div><div class='input'>
 
 </div></pre>
   </div>
