@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 ```
 
 
-The `lme4` and `nlme` packages have made fitting nested linear mixed-effects models quite easy. Using the functionality of these packages we can easily use maximum likelihood or restricted maximum likelihood to fit our model and conduct inference using our parametric toolkit. In practice, the assumptions of our model are often violated to such a degree that leads to biased estimators and incorrect standard errors. In these situations, resampling methods such as the bootstrap can be used to obtain consistent estimators of the bias and standard errors for inference. `lmeresampler` provides an easy way to bootstrap nested linear-mixed effects models using either the parametric, residual, cases, CGR (semi-parametric), or random effects block (REB) bootstrap fit using either `lme4` or `nlme`. The output from `lmeresampler` is an `lmeresamp` object. Moreover, the `lmeresampler` package has its own `print()` and `confint()` functions, both of which follow the syntax of a generic `print()` and `confint()` function; thus, the two commands may be used with `lmeresamp` objects. 
+The `lme4` and `nlme` packages have made fitting nested linear mixed-effects models quite easy. Using the functionality of these packages we can easily use maximum likelihood or restricted maximum likelihood to fit our model and conduct inference using our parametric toolkit. In practice, the assumptions of our model are often violated to such a degree that leads to biased estimators and incorrect standard errors. In these situations, resampling methods such as the bootstrap can be used to obtain consistent estimators of the bias and standard errors for inference. `lmeresampler` provides an easy way to bootstrap nested linear-mixed effects models using the parametric, residual, cases, wild, or random effects block (REB) bootstraps fit using either `lme4` or `nlme`. The output from `lmeresampler` is an `lmeresamp` object. Moreover, the `lmeresampler` package has its own `print()`, `summary()`, `confint()`, and `plot()` functions. All of these functions follow the syntax of generic `print()`, `summary()`, `confint()`, and `plot()` functions; thus, the commands may be used with `lmeresamp` objects. 
 
 ## Installation
 
@@ -64,7 +64,7 @@ lmer_par_boot <- bootstrap(vcmodA, .f = fixef, type = "parametric", B = 100)
 lme_par_boot  <- bootstrap(vcmodB, .f = fixef, type = "parametric", B = 100)
 ```
 
-The four other bootstrap types (residual, cases, CGR, and REB) may be executed in a similar way, with some minor changes. 
+The four other bootstrap types (residual, cases, wild, and REB) may be executed in a similar way, with some minor changes. 
 
 ## References
 
