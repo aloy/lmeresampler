@@ -1,3 +1,10 @@
+0.2.0.99999
+===========
+
+
+BUG FIXES
+* message/error/warning summarization in `summary.lmeresamp` has been fixed
+
 0.2.0
 =====
 
