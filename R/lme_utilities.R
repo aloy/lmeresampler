@@ -52,14 +52,13 @@ updated.model <- function(model, new.y = NULL, new.data = NULL){
   # Extract formulas and data
   mod.fixd <- as.formula(model$call$fixed)
   mod.rand <- model$call$random
+  mod.data <- model$data
+  if(!is.null(model$na.action) && model$na.action == 8) mod.data <- na.omit(mod.data)
   
   if(is.null(new.data)){
     # Place ystars in data
-    mod.data <- model$data
     mod.data[,as.character(mod.fixd[[2]])] <- unname(new.y)
-  } else{
-    mod.data <- new.data
-  }
+  } 
   
   # create new lme
   ctrl <- nlme::lmeControl(opt = 'optim', returnObject = TRUE)
