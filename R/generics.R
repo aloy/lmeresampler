@@ -81,9 +81,6 @@
 #' ## running a cases bootstrap - resampling the schools and students within the school
 #' boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
 #' 
-#' ## running a semi-parametric bootstrap
-#' boo3 <- bootstrap(model = vcmodA, .f = mySumm, type = "cgr", B = 100)
-#' 
 #' ## running a residual bootstrap
 #' boo4 <- bootstrap(model = vcmodA, .f = mySumm, type = "residual", B = 100)
 #' 
