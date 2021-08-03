@@ -63,6 +63,6 @@ Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel
      \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, 
      \code{\link{wild_bootstrap}} for more details on a specific bootstrap.
   \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
-     implementation of (semi-)parameteric bootstrap for mixed models.
+     implementation of (semi-)parametric bootstrap for mixed models.
 }
 }

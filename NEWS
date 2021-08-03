@@ -4,6 +4,7 @@
 
 BUG FIXES
 * message/error/warning summarization in `summary.lmeresamp` has been fixed
+* If `var` is omitted from `plot.lmeresamp()` a halfeye plot with all terms is created.
 
 0.2.0
 =====
