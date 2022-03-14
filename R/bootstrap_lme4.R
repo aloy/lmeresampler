@@ -50,14 +50,18 @@ case_bootstrap.merMod <- function(model, .f, B, resample){
   }
   
   # rep.data <- purrr::map(integer(B), function(x) .cases.resamp(model = model, dat = data, cluster = clusters, resample = resample))
-  refits <- purrr::map(integer(B), function(x) .resample_refit.cases(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
+  tstar <- purrr::map(integer(B), function(x) .resample_refit.cases(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
   
-  tstar <- purrr::map(refits, ~.x$value)
-  warnings <- list(
-    warning = lapply(refits, function(.x) unlist(.x$warning)$message),
-    message = lapply(refits, function(.x) unlist(.x$message)$message),
-    error = lapply(refits, function(.x) unlist(.x$error)$message)
-  )
+  warnings <- collect_warnings(tstar)
+  
+  # tstar <- bind_rows(refits)
+  
+  # tstar <- purrr::map(refits, ~.x$value)
+  # warnings <- list(
+  #   warning = lapply(tstar, function(.x) attr(.x, "factory-warning")),
+  #   message = lapply(tstar, function(.x) attr(.x, "factory-message")),
+  #   error   = lapply(tstar, function(.x) attr(.x, "factory-error"))
+  # )
   
   .bootstrap.completion(model, tstar = tstar, B, .f, type = "case", warnings = warnings)
 }

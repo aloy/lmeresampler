@@ -62,18 +62,20 @@ updated.model <- function(model, new.y = NULL, new.data = NULL){
   
   # create new lme
   ctrl <- nlme::lmeControl(opt = 'optim', returnObject = TRUE)
-  error <- NULL
+  
   if(is.null(mod.rand)){
-    out.lme <- catchr::catch_expr(
-      do.call("lme", args = list(fixed = mod.fixd, data = mod.data, control = ctrl)), 
-      warning, message, error
+    f1 <- factory(
+      function(mod.fixd, mod.data, ctrl) 
+        do.call("lme", args = list(fixed = mod.fixd, data = mod.data, control = ctrl))
     )
+    out.lme <- f1(mod.fixd, mod.data, ctrl)
   } else{
     mod.rand <- as.formula(mod.rand)
-    out.lme <- catchr::catch_expr(
-      do.call("lme", args = list(fixed = mod.fixd, data = mod.data, random = mod.rand, control = ctrl)), 
-      warning, message, error
+    f1 <- factory(
+      function(mod.fixd, mod.data, mod.rand, ctrl) 
+        do.call("lme", args = list(fixed = mod.fixd, data = mod.data, random = mod.rand, control = ctrl))
     )
+    out.lme <- f1(mod.fixd, mod.data, mod.rand, ctrl)
   }
   
   out.lme
@@ -90,12 +92,9 @@ refit_lme <- function(ystar = NULL, model, .f) {
   if(!is.null(ystar))
     refits <- purrr::map(ystar, function(y) updated.model(model = model, new.y = y))
   
-  stats <- purrr::map(refits, ~.f(.x$value))
-  warn  <- lapply(refits, function(.x) unlist(.x$warning)$message)
-  msgs  <- lapply(refits, function(.x) unlist(.x$message)$message)
-  errs  <- lapply(refits, function(.x) unlist(.x$error)$message)
+  stats <- purrr::map(refits, ~.f(.x))
   
-  list(tstar = stats, warnings = list(warning = warn, message = msgs, error = errs))
+  list(tstar = stats, warnings = collect_warnings(stats))
 }
 
 

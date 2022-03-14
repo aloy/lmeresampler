@@ -46,24 +46,29 @@
     form <- model@call$formula
     reml <- lme4::isREML(model)
     
-    tstar <- catchr::catch_expr(
-      .f(lme4::lmer(formula = form, data = resamp_data, REML = reml)),
-      warning, message, error
-    )
+    f1 <- factory(
+      function(form, resamp_data, reml) 
+        .f(lme4::lmer(formula = form, data = resamp_data, REML = reml))
+      )
+    tstar <- f1(form, resamp_data, reml)
+    
     # tstar <- purrr::map(res, function(x) {
     #   .f(lme4::lmer(formula = form, data = as.data.frame(x), REML = reml)) 
     # })
   } else if(class(model) == "lme"){
     tstar <- updated.model(model = model, new.data = resamp_data)  
-    tstar$value <- .f(tstar$value)
+    tstar <- .f(tstar)
   } else if(class(model) == "glmerMod") {
     form <- update(model@call$formula, y ~ .)
     colnames(resamp_data)[1] <- "y"
     fam  <- family(model)
-    tstar <- catchr::catch_expr(
-      .f(lme4::glmer(formula = form, data = resamp_data, family = fam)),
-      warning, message, error
+    
+    f1 <- factory(
+      function(form, resamp_data, fam) 
+        .f(lme4::glmer(formula = form, data = resamp_data, family = fam))
     )
+    tstar <- f1(form, resamp_data, fam)
+    
   } else{
     stop("model class must be one of 'lme', 'lmerMod', or 'glmerMod'")
   }

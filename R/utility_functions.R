@@ -141,13 +141,13 @@ arrange_ranefs.lme <- function(b, fl, levs, cnms){
 #' @noRd
 refit_merMod <- function(ystar, model, .f) {
   error <- NULL
-  refits <- purrr::map(ystar, function(x) {
-    catchr::catch_expr(lme4::refit(object = model, newresp = x), warning, message, error)
-  })
-  stats <- purrr::map(refits, ~.f(.x$value))
-  warn  <- lapply(refits, function(.x) unlist(.x$warning)$message)
-  msgs  <- lapply(refits, function(.x) unlist(.x$message)$message)
-  errs  <- lapply(refits, function(.x) unlist(.x$error)$message)
   
-  list(tstar = stats, warnings = list(warning = warn, message = msgs, error = errs))
+  f1 <- factory(
+    function(model, y) 
+      .f(lme4::refit(object = model, newresp = y))
+  )
+  stats <- purrr::map(ystar, function(.y) f1(model, .y))
+
+  
+  list(tstar = stats, warnings = collect_warnings(stats))
 }
