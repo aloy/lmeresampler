@@ -6,7 +6,6 @@
 #' If there are no errors and no warnings, the result is provided.  
 #' If there are warnings but no errors, the result is provided with a warn attribute set.
 #' If there are errors, the result returns is a list with the elements of warn and err.
-#' @export
 #' @param fun The function to be turned into a factory
 #' @param debug print debugging statements?
 #' @param errval the value to be returned from the function if an error is thrown
