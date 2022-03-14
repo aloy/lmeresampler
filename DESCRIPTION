@@ -14,7 +14,6 @@ Description: Bootstrap routines for nested linear mixed effects models fit using
 Depends:
     R (>= 3.5.0)
 Imports:
-    catchr,
     dplyr (>= 0.8.0),
     Matrix,
     nlmeU,

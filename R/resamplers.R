@@ -36,7 +36,7 @@
   res
 }
 
-#' @importFrom catchr catch_expr
+
 .resample_refit.cases <- function(model, .f, dat, cluster, resample){
   resamp_data <- .resamp.cases(dat, cluster, resample)
   error <- NULL
