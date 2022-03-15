@@ -1,6 +1,8 @@
-0.2.0.99999
+0.2.1
 ===========
 
+DEPENDENCY CHANGE
+* Remove `catchr` dependency to avoid issues on CRAN
 
 BUG FIXES
 * message/error/warning summarization in `summary.lmeresamp` has been fixed
