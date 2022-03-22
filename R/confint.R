@@ -80,10 +80,10 @@ confint.lmeresamp <- function(object, parm, level = 0.95,
 .perc_ci <- function(object, level){
   if(typeof(object$replicates) == "list") {
     t(
-      apply(object$replicates, 2, quantile, probs = (1 + c(-level, level)) / 2)
+      apply(object$replicates, 2, quantile, probs = (1 + c(-level, level)) / 2, na.rm = TRUE)
     )
   } else {
-    t(quantile(object$replicates, probs = (1 + c(-level, level)) / 2))
+    t(quantile(object$replicates, probs = (1 + c(-level, level)) / 2, na.rm = TRUE))
   }
 }
 

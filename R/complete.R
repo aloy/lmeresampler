@@ -39,6 +39,12 @@
       bias <- rep.mean - observed
       stats <- dplyr::tibble(observed, rep.mean, se, bias)
     } else{
+      # Check for names
+      nms <- unlist(lapply(tstar, names))
+      if(is.null(nms)) 
+        warning("Lists of unnamed vectors are converted to data frames.\nPlease create named vectors in .f() if this is not the desired behavior.",
+                call. = FALSE)
+      
       replicates <- dplyr::bind_rows(tstar)
       rep.mean <- colMeans(replicates)
       se <- unlist(purrr::map(replicates, sd))

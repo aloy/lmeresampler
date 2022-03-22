@@ -72,7 +72,7 @@
 #'
 #' ## running a parametric bootstrap 
 #' set.seed(1234)
-#' boo1 <- bootstrap(model = vcmodA, .f = mySumm, type = "parametric", B = 100)
+#' boo1 <- bootstrap(model = vcmodA, .f = mySumm, type = "parametric", B = 20)
 #' 
 #' \dontrun{
 #' ## running a cases bootstrap - only resampling the schools
