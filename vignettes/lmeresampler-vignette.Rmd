@@ -339,6 +339,7 @@ numCores <- 2
 
 cl <- makeCluster(numCores, type = "PSOCK") # make a socket cluster
 doParallel::registerDoParallel(cl)          # how the CPU knows to run in parallel
+clusterCall(cl, function(x) .libPaths(x), .libPaths())
 
 b_parallel2 <- foreach(B = rep(250, 2), 
                        .combine = combine_lmeresamp,
@@ -357,6 +358,7 @@ system.time(b_nopar  <- bootstrap(vcmodA, .f = fixef, type = "parametric", B = 5
 numCores <- 2
 cl <- makeCluster(numCores, type = "PSOCK")
 doParallel::registerDoParallel(cl) 
+clusterCall(cl, function(x) .libPaths(x), .libPaths())
 
 system.time({
   b_parallel2 <- foreach(B = rep(2500, 2), 
