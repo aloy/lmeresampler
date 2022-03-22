@@ -24,6 +24,7 @@ Imports:
     forcats,
     stats,
     statmod,
+    tidyr,
     magrittr
 Suggests:
     lme4 (>= 1.1-7),

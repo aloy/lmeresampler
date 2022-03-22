@@ -1,6 +1,8 @@
 0.2.1
 ===========
 
+* Unarchiving from CRAN
+
 DEPENDENCY CHANGE
 * Remove `catchr` dependency to avoid issues on CRAN
 

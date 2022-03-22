@@ -55,7 +55,7 @@
   }
 
   
-  if (class(model) == "lme") data <- model$data
+  if (inherits(model, "lme")) data <- model$data
   else data <- model@frame
   
   RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,

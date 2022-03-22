@@ -15,7 +15,7 @@
 #' @importFrom ggdist stat_halfeye
 #' @importFrom tidyr pivot_longer
 plot.lmeresamp <- function(x, var, ...){
-  
+  value <- term <- NULL
   # set default
   if(missing(var)){
     tidy_reps <- tidyr::pivot_longer(

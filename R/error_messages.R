@@ -14,13 +14,7 @@
 #' @references
 #' \url{http://stackoverflow.com/questions/4948361/how-do-i-save-warnings-and-errors-as-output-from-a-function}
 #' @author Martin Morgan; Modified by Russell S. Pierce and Ben Bolker
-#' @examples 
-#' f.log <- factory(log)
-#' f.log("a")
-#' f.log.NA <- factory(log,errval=NA)
-#' f.log.NA("a")
-#' f.as.numeric <- factory(as.numeric)
-#' f.as.numeric(c("a","b",1))
+#' @noRd
 factory <- function (fun, debug=FALSE,
                      errval="An error occurred in the factory function",
                      types=c("message","warning","error")) {
@@ -74,6 +68,7 @@ factory <- function (fun, debug=FALSE,
 
 
 #' Collect all the warnings, errors, and messages from model refits
+#' @noRd
 collect_warnings <- function(.x) {
   list(
     warning = lapply(.x, function(.x) attr(.x, "factory-warning")),

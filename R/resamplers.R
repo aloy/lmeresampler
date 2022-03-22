@@ -41,7 +41,7 @@
   resamp_data <- .resamp.cases(dat, cluster, resample)
   error <- NULL
   
-  if(class(model) == "lmerMod"){
+  if(inherits(model, "lmerMod")){
     # Refit the model and apply '.f' to it using map
     form <- model@call$formula
     reml <- lme4::isREML(model)
@@ -55,10 +55,10 @@
     # tstar <- purrr::map(res, function(x) {
     #   .f(lme4::lmer(formula = form, data = as.data.frame(x), REML = reml)) 
     # })
-  } else if(class(model) == "lme"){
+  } else if(inherits(model, "lme")){
     tstar <- updated.model(model = model, new.data = resamp_data)  
     tstar <- .f(tstar)
-  } else if(class(model) == "glmerMod") {
+  } else if(inherits(model, "glmerMod")) {
     form <- update(model@call$formula, y ~ .)
     colnames(resamp_data)[1] <- "y"
     fam  <- family(model)
