@@ -22,7 +22,7 @@
 #' @param hccme either \code{"hc2"} or \code{"hc3"}, indicating which 
 #'     heteroscedasticity consistent covariance matrix estimator to use.
 #' @param aux.dist one of \code{"mammen"}, \code{"rademacher"}, \code{"norm"}, 
-#' \code{"webb"}, or \code{"gamma} indicating which auxiliary 
+#'     \code{"webb"}, or \code{"gamma"} indicating which auxiliary 
 #'     distribution to draw the errors from
 #' @details
 #' All of the below methods have been implemented for nested linear mixed-effects

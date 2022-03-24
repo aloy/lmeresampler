@@ -29,7 +29,7 @@ bootstrap(
 
 \item{type}{A character string indicating the type of bootstrap that is being
 requested. Possible values are \code{"parametric"}, \code{"residual"}, 
-\code{"case"}, \code{"wild"}, \code{"wild"}, or \code{"reb"} 
+\code{"case"}, \code{"wild"}, or \code{"reb"} 
 (random effect block bootstrap).}
 
 \item{B}{The number of bootstrap resamples.}
@@ -47,8 +47,8 @@ implement. Possible values are \code{0}, \code{1} or \code{2}.}
 heteroscedasticity consistent covariance matrix estimator to use.}
 
 \item{aux.dist}{one of \code{"mammen"}, \code{"rademacher"}, \code{"norm"}, 
-\code{"webb"}, or \code{"gamma} indicating which auxiliary 
-    distribution to draw the errors from}
+\code{"webb"}, or \code{"gamma"} indicating which auxiliary 
+distribution to draw the errors from}
 }
 \value{
 The returned value is an object of class "lmeresamp". This is a list

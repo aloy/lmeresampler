@@ -36,8 +36,8 @@ wild_bootstrap(model, .f, B, hccme, aux.dist)
 heteroscedasticity consistent covariance matrix estimator to use.}
 
 \item{aux.dist}{one of \code{"mammen"}, \code{"rademacher"}, \code{"norm"}, 
-\code{"webb"}, or \code{"gamma} indicating which auxiliary 
-    distribution to draw the errors from}
+\code{"webb"}, or \code{"gamma"} indicating which auxiliary 
+distribution to draw the errors from}
 }
 \value{
 The returned value is an object of class "lmeresamp".
