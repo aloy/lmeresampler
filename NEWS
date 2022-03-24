@@ -4,6 +4,10 @@
 * Additional auxilliary distributions were added for the Wild bootstrap. 
 There are now 6 options, including the standard normal.
 
+BUG FIXES
+* `plot.lmeresamp()` now works if the replicates are a numeric vector rather
+than a data frame or tibble.
+
 0.2.1
 ===========
 
