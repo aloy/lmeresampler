@@ -46,8 +46,9 @@ implement. Possible values are \code{0}, \code{1} or \code{2}.}
 \item{hccme}{either \code{"hc2"} or \code{"hc3"}, indicating which 
 heteroscedasticity consistent covariance matrix estimator to use.}
 
-\item{aux.dist}{either \code{"f1"} or \code{"f2"} indicating which auxiliary 
-distribution to draw the errors from}
+\item{aux.dist}{one of \code{"mammen"}, \code{"rademacher"}, \code{"norm"}, 
+\code{"webb"}, or \code{"gamma} indicating which auxiliary 
+    distribution to draw the errors from}
 }
 \value{
 The returned value is an object of class "lmeresamp". This is a list
@@ -99,7 +100,7 @@ boo1 <- bootstrap(model = vcmodA, .f = mySumm, type = "parametric", B = 20)
 boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
 
 ## running a cases bootstrap - resampling the schools and students within the school
-boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
+boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 100, resample = c(TRUE, TRUE))
 
 ## running a residual bootstrap
 boo4 <- bootstrap(model = vcmodA, .f = mySumm, type = "residual", B = 100)

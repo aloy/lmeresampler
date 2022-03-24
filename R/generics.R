@@ -9,7 +9,7 @@
 #' @param .f A function returning the statistic(s) of interest.
 #' @param type A character string indicating the type of bootstrap that is being
 #'    requested. Possible values are \code{"parametric"}, \code{"residual"}, 
-#'    \code{"case"}, \code{"wild"}, \code{"wild"}, or \code{"reb"} 
+#'    \code{"case"}, \code{"wild"}, or \code{"reb"} 
 #'    (random effect block bootstrap).
 #' @param B The number of bootstrap resamples.
 #' @param resample A logical vector specifying whether each level of the model 
@@ -79,7 +79,7 @@
 #' boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
 #' 
 #' ## running a cases bootstrap - resampling the schools and students within the school
-#' boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
+#' boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 100, resample = c(TRUE, TRUE))
 #' 
 #' ## running a residual bootstrap
 #' boo4 <- bootstrap(model = vcmodA, .f = mySumm, type = "residual", B = 100)
