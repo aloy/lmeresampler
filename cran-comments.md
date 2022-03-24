@@ -1,11 +1,13 @@
 ## Test environments
-
+Windows
+macOS
+Ubuntu
 
 
 ## R CMD check results
 There were no ERRORs or WARNINGs. 
 
-There were 2 NOTES:
+There was 1 NOTE:
 
 *  checking CRAN incoming feasibility ... NOTE
   Maintainer: 'Adam Loy <loyad01@gmail.com>'
@@ -38,9 +40,3 @@ There were 2 NOTES:
         Message: 503
       
         This DOI is valid, and I did not receive an error navigating there in a web browser
-
-
-## Downstream dependencies
-I have also run R CMD check on downstream dependencies of httr 
-(https://github.com/wch/checkresults/blob/master/httr/r-release). 
-All packages that I could install passed except:

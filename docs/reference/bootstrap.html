@@ -81,7 +81,7 @@ parametric, residual, cases, wild, and REB bootstraps." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">lmeresampler</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1</span>
       </span>
     </div>
 
@@ -258,7 +258,7 @@ in the help file for that specific function.</p>
      <code><a href='case_bootstrap.merMod.html'>case_bootstrap</a></code>, <code><a href='reb_bootstrap.lmerMod.html'>reb_bootstrap</a></code>, 
      <code><a href='wild_bootstrap.lmerMod.html'>wild_bootstrap</a></code> for more details on a specific bootstrap.</p></li>
 <li><p><code><a href='https://rdrr.io/pkg/lme4/man/bootMer.html'>bootMer</a></code> in the <span class="pkg">lme4</span> package for an 
-     implementation of (semi-)parameteric bootstrap for mixed models.</p></li>
+     implementation of (semi-)parametric bootstrap for mixed models.</p></li>
 </ul>
 </div>
 
@@ -274,7 +274,7 @@ in the help file for that specific function.</p>
 
 <span class='co'>## running a parametric bootstrap </span>
 <span class='fu'><a href='https://rdrr.io/r/base/Random.html'>set.seed</a></span><span class='op'>(</span><span class='fl'>1234</span><span class='op'>)</span>
-<span class='va'>boo1</span> <span class='op'>&lt;-</span> <span class='fu'>bootstrap</span><span class='op'>(</span>model <span class='op'>=</span> <span class='va'>vcmodA</span>, .f <span class='op'>=</span> <span class='va'>mySumm</span>, type <span class='op'>=</span> <span class='st'>"parametric"</span>, B <span class='op'>=</span> <span class='fl'>100</span><span class='op'>)</span>
+<span class='va'>boo1</span> <span class='op'>&lt;-</span> <span class='fu'>bootstrap</span><span class='op'>(</span>model <span class='op'>=</span> <span class='va'>vcmodA</span>, .f <span class='op'>=</span> <span class='va'>mySumm</span>, type <span class='op'>=</span> <span class='st'>"parametric"</span>, B <span class='op'>=</span> <span class='fl'>20</span><span class='op'>)</span>
 
 <span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
 <span class='co'>## running a cases bootstrap - only resampling the schools</span>
@@ -282,9 +282,6 @@ in the help file for that specific function.</p>
 
 <span class='co'>## running a cases bootstrap - resampling the schools and students within the school</span>
 <span class='va'>boo2</span> <span class='op'>&lt;-</span> <span class='fu'>bootstrap</span><span class='op'>(</span>model <span class='op'>=</span> <span class='va'>vcmodA</span>, .f <span class='op'>=</span> <span class='va'>mySumm</span>, type <span class='op'>=</span> <span class='st'>"case"</span>, B <span class='op'>=</span> <span class='fl'>100</span>, resample <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='cn'>TRUE</span>, <span class='cn'>FALSE</span><span class='op'>)</span><span class='op'>)</span>
-
-<span class='co'>## running a semi-parametric bootstrap</span>
-<span class='va'>boo3</span> <span class='op'>&lt;-</span> <span class='fu'>bootstrap</span><span class='op'>(</span>model <span class='op'>=</span> <span class='va'>vcmodA</span>, .f <span class='op'>=</span> <span class='va'>mySumm</span>, type <span class='op'>=</span> <span class='st'>"cgr"</span>, B <span class='op'>=</span> <span class='fl'>100</span><span class='op'>)</span>
 
 <span class='co'>## running a residual bootstrap</span>
 <span class='va'>boo4</span> <span class='op'>&lt;-</span> <span class='fu'>bootstrap</span><span class='op'>(</span>model <span class='op'>=</span> <span class='va'>vcmodA</span>, .f <span class='op'>=</span> <span class='va'>mySumm</span>, type <span class='op'>=</span> <span class='st'>"residual"</span>, B <span class='op'>=</span> <span class='fl'>100</span><span class='op'>)</span>
@@ -297,23 +294,17 @@ in the help file for that specific function.</p>
 <span class='fu'><a href='https://rdrr.io/r/base/print.html'>print</a></span><span class='op'>(</span><span class='va'>boo1</span><span class='op'>)</span>
 </div><div class='output co'>#&gt; Bootstrap type: parametric 
 #&gt; 
-#&gt; Number of resamples: 100 
+#&gt; Number of resamples: 20 
 #&gt; 
 #&gt;    term   observed   rep.mean         se          bias
-#&gt; 1 beta1 14.1577509 14.0158661 0.65832020 -0.1418848720
-#&gt; 2 beta2  0.6388895  0.6429228 0.02436914  0.0040333457
-#&gt; 3 beta3 -0.3571922 -0.2909488 0.36701673  0.0662434573
-#&gt; 4 beta4  0.7200815  0.7242379 0.39057968  0.0041564090
-#&gt; 5 sigma  4.4416279  4.4414617 0.11345797 -0.0001661894
-#&gt; 6 sig01  1.8199553  1.7909477 0.24175360 -0.0290075852
+#&gt; 1 beta1 14.1577509 14.1949464 0.66538125  0.0371954794
+#&gt; 2 beta2  0.6388895  0.6385629 0.02608992 -0.0003265699
+#&gt; 3 beta3 -0.3571922 -0.4561735 0.35477238 -0.0989812789
+#&gt; 4 beta4  0.7200815  0.7927683 0.31179264  0.0726868125
+#&gt; 5 sigma  4.4416279  4.4036722 0.11963706 -0.0379557056
+#&gt; 6 sig01  1.8199553  1.7894322 0.23985803 -0.0305230950
 #&gt; 
-#&gt; There were 0 messages, 0 warnings, and 0 errors.
-#&gt; 
-#&gt; The most commonly occurring message was: NULL
-#&gt; 
-#&gt; The most commonly occurring warning was: NULL
-#&gt; 
-#&gt; The most commonly occurring error was: NULL</div><div class='input'>
+#&gt; There were 0 messages, 0 warnings, and 0 errors.</div><div class='input'>
 
 </div></pre>
   </div>

@@ -146,7 +146,8 @@ resid_bootstrap.lme <- function(model, .f, B){
 #' @inheritParams bootstrap
 #' @export
 wild_bootstrap.lme <- function(model, .f, B, hccme = c("hc2", "hc3"), 
-                               aux.dist = c("f1", "f2")){
+                               aux.dist = c("mammen", "rademacher",
+                                            "norm", "webb", "gamma")){
   
   .f <- match.fun(.f)
   hccme <- match.arg(hccme)

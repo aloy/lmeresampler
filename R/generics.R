@@ -21,9 +21,9 @@
 #'     implement. Possible values are \code{0}, \code{1} or \code{2}.
 #' @param hccme either \code{"hc2"} or \code{"hc3"}, indicating which 
 #'     heteroscedasticity consistent covariance matrix estimator to use.
-#' @param aux.dist either \code{"f1"} or \code{"f2"} indicating which auxiliary 
+#' @param aux.dist one of \code{"mammen"}, \code{"rademacher"}, \code{"norm"}, 
+#' \code{"webb"}, or \code{"gamma} indicating which auxiliary 
 #'     distribution to draw the errors from
-#' 
 #' @details
 #' All of the below methods have been implemented for nested linear mixed-effects
 #' models fit by \code{lmer} (i.e., an \code{lmerMod} object) and \code{lme} 

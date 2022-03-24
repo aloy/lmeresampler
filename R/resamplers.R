@@ -126,7 +126,8 @@
                            flist, n.lev){
   
   # Sample from auxillary distribution
-  if(aux.dist == "f1") {
+  # Mammen distribution
+  if(aux.dist == "mammen") { 
     prob <- (sqrt(5) + 1) / (2 * sqrt(5))
     w <- sample(
       c(-(sqrt(5) - 1) / 2, (sqrt(5) + 1) / 2), 
@@ -136,8 +137,28 @@
     )
   } 
   
-  if(aux.dist == "f2") {
+  # Rademacher distribution
+  if(aux.dist == "rademacher") {
     w <- sample(c(1, -1), size = n.lev, replace = TRUE)
+  }
+  
+  # Standard normal
+  if(aux.dist == "norm") {
+    w <- rnorm(n = n.lev)
+  }
+  
+  # Webb's 6-point distribution
+  if(aux.dist == "webb") {
+    w <- sample(
+      c(sqrt(3/2), 1, sqrt(1/2), -sqrt(3/2), -1, -sqrt(1/2)),
+      size = n.lev,
+      replace = TRUE
+    )
+  }
+  
+  # Gamma(4, scale = 1/2) -- Liu (1988)
+  if(aux.dist == "gamma") {
+    w <- rgamma(n = n.lev, shape = 4, scale = 1/2)
   }
   
   # Calc. bootstrap y

@@ -117,7 +117,8 @@ resid_bootstrap.merMod <- function(model, .f, B){
 #' @export
 #' @method wild_bootstrap lmerMod
 wild_bootstrap.lmerMod <- function(model, .f, B, hccme = c("hc2", "hc3"), 
-                                   aux.dist = c("f1", "f2")){
+                                   aux.dist = c("mammen", "rademacher",
+                                                "norm", "webb", "gamma")){
   
   .f <- match.fun(.f)
   hccme <- match.arg(hccme)

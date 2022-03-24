@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">lmeresampler</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1</span>
       </span>
     </div>
 
@@ -83,7 +83,7 @@
 
       
 
-      </header><script src="lmeresampler-vignette_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
+      </header><script src="lmeresampler-vignette_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Vignette</h1>
@@ -318,19 +318,13 @@
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Number of resamples: 100 </span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt;             term   observed   rep.mean         se          bias</span>
-<span class="co">#&gt; 1    (Intercept) 14.1577509 14.1620847 0.77480112  0.0043338037</span>
-<span class="co">#&gt; 2       mathAge8  0.6388895  0.6415328 0.02661601  0.0026432670</span>
-<span class="co">#&gt; 3        genderM -0.3571922 -0.3498662 0.35134229  0.0073260069</span>
-<span class="co">#&gt; 4 classnonmanual  0.7200815  0.7192855 0.36631502 -0.0007960003</span>
+<span class="co">#&gt;             term   observed   rep.mean        se         bias</span>
+<span class="co">#&gt; 1    (Intercept) 14.1577509 14.0939928 0.7619304 -0.063758158</span>
+<span class="co">#&gt; 2       mathAge8  0.6388895  0.6427270 0.0258425  0.003837477</span>
+<span class="co">#&gt; 3        genderM -0.3571922 -0.4002436 0.3405975 -0.043051423</span>
+<span class="co">#&gt; 4 classnonmanual  0.7200815  0.6684065 0.3845490 -0.051674951</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; There were 0 messages, 0 warnings, and 0 errors.</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; The most commonly occurring message was: NULL</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; The most commonly occurring warning was: NULL</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; The most commonly occurring error was: NULL</span></code></pre></div>
+<span class="co">#&gt; There were 0 messages, 0 warnings, and 0 errors.</span></code></pre></div>
 </div>
 </div>
 <div id="the-print-function" class="section level2">
@@ -347,18 +341,12 @@
 <span class="co">#&gt; Number of resamples: 100 </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;             term   observed   rep.mean         se         bias</span>
-<span class="co">#&gt; 1    (Intercept) 14.1577509 14.2795118 0.70961171  0.121760897</span>
-<span class="co">#&gt; 2       mathAge8  0.6388895  0.6349971 0.02538807 -0.003892424</span>
-<span class="co">#&gt; 3        genderM -0.3571922 -0.3697994 0.35638900 -0.012607168</span>
-<span class="co">#&gt; 4 classnonmanual  0.7200815  0.7470203 0.40217471  0.026938813</span>
+<span class="co">#&gt; 1    (Intercept) 14.1577509 14.2510470 0.66295416  0.093296106</span>
+<span class="co">#&gt; 2       mathAge8  0.6388895  0.6378485 0.02203797 -0.001041028</span>
+<span class="co">#&gt; 3        genderM -0.3571922 -0.3212176 0.32108620  0.035974639</span>
+<span class="co">#&gt; 4 classnonmanual  0.7200815  0.7469447 0.40098928  0.026863259</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; There were 0 messages, 0 warnings, and 0 errors.</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; The most commonly occurring message was: NULL</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; The most commonly occurring warning was: NULL</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; The most commonly occurring error was: NULL</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">lme_reb_boot2</span>, ci <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> 
 <span class="co">#&gt; Bootstrap type: reb2 </span>
@@ -366,41 +354,35 @@
 <span class="co">#&gt; Number of resamples: 100 </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;                  term   observed   rep.mean         se          bias</span>
-<span class="co">#&gt; 1    beta.(Intercept) 14.1577509 14.1577509 0.79496217  0.000000e+00</span>
-<span class="co">#&gt; 2       beta.mathAge8  0.6388895  0.6388895 0.02433864  0.000000e+00</span>
-<span class="co">#&gt; 3        beta.genderM -0.3571922 -0.3571922 0.31671370  0.000000e+00</span>
-<span class="co">#&gt; 4 beta.classnonmanual  0.7200815  0.7200815 0.41967191  0.000000e+00</span>
-<span class="co">#&gt; 5      vc.(Intercept)  3.3122380  3.3122380 1.01194316 -4.440892e-16</span>
-<span class="co">#&gt; 6                 vc2 19.7280582 19.7280582 1.19576818  0.000000e+00</span>
+<span class="co">#&gt; 1    beta.(Intercept) 14.1577509 14.1577509 0.70486967  0.000000e+00</span>
+<span class="co">#&gt; 2       beta.mathAge8  0.6388895  0.6388895 0.02314132  0.000000e+00</span>
+<span class="co">#&gt; 3        beta.genderM -0.3571922 -0.3571922 0.30686210  0.000000e+00</span>
+<span class="co">#&gt; 4 beta.classnonmanual  0.7200815  0.7200815 0.37172562  0.000000e+00</span>
+<span class="co">#&gt; 5      vc.(Intercept)  3.3122380  3.3122380 0.95810165 -4.440892e-16</span>
+<span class="co">#&gt; 6                 vc2 19.7280582 19.7280582 1.32306880  0.000000e+00</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; There were 0 messages, 0 warnings, and 0 errors.</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; The most commonly occurring message was: NULL</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; The most commonly occurring warning was: NULL</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; The most commonly occurring error was: NULL</span>
-<span class="co">#&gt; # A tibble: 18 x 6</span>
+<span class="co">#&gt; # A tibble: 18 × 6</span>
 <span class="co">#&gt;    term                estimate    lower  upper type  level</span>
 <span class="co">#&gt;    &lt;chr&gt;                  &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;</span>
-<span class="co">#&gt;  1 beta.(Intercept)      14.2   12.6     15.7   norm   0.95</span>
-<span class="co">#&gt;  2 beta.mathAge8          0.639  0.591    0.687 norm   0.95</span>
-<span class="co">#&gt;  3 beta.genderM          -0.357 -0.978    0.264 norm   0.95</span>
-<span class="co">#&gt;  4 beta.classnonmanual    0.720 -0.102    1.54  norm   0.95</span>
-<span class="co">#&gt;  5 vc.(Intercept)         3.31   1.33     5.30  norm   0.95</span>
-<span class="co">#&gt;  6 vc2                   19.7   17.4     22.1   norm   0.95</span>
-<span class="co">#&gt;  7 beta.(Intercept)      14.2   12.8     15.5   basic  0.95</span>
-<span class="co">#&gt;  8 beta.mathAge8          0.639  0.597    0.688 basic  0.95</span>
-<span class="co">#&gt;  9 beta.genderM          -0.357 -1.03     0.167 basic  0.95</span>
-<span class="co">#&gt; 10 beta.classnonmanual    0.720  0.00830  1.55  basic  0.95</span>
-<span class="co">#&gt; 11 vc.(Intercept)         3.31   1.51     5.03  basic  0.95</span>
-<span class="co">#&gt; 12 vc2                   19.7   17.6     22.0   basic  0.95</span>
-<span class="co">#&gt; 13 beta.(Intercept)      14.2   12.9     15.6   perc   0.95</span>
-<span class="co">#&gt; 14 beta.mathAge8          0.639  0.590    0.681 perc   0.95</span>
-<span class="co">#&gt; 15 beta.genderM          -0.357 -0.882    0.320 perc   0.95</span>
-<span class="co">#&gt; 16 beta.classnonmanual    0.720 -0.105    1.43  perc   0.95</span>
-<span class="co">#&gt; 17 vc.(Intercept)         3.31   1.60     5.11  perc   0.95</span>
-<span class="co">#&gt; 18 vc2                   19.7   17.5     21.8   perc   0.95</span></code></pre></div>
+<span class="co">#&gt;  1 beta.(Intercept)      14.2   12.8     15.5   norm   0.95</span>
+<span class="co">#&gt;  2 beta.mathAge8          0.639  0.594    0.684 norm   0.95</span>
+<span class="co">#&gt;  3 beta.genderM          -0.357 -0.959    0.244 norm   0.95</span>
+<span class="co">#&gt;  4 beta.classnonmanual    0.720 -0.00849  1.45  norm   0.95</span>
+<span class="co">#&gt;  5 vc.(Intercept)         3.31   1.43     5.19  norm   0.95</span>
+<span class="co">#&gt;  6 vc2                   19.7   17.1     22.3   norm   0.95</span>
+<span class="co">#&gt;  7 beta.(Intercept)      14.2   12.7     15.3   basic  0.95</span>
+<span class="co">#&gt;  8 beta.mathAge8          0.639  0.602    0.686 basic  0.95</span>
+<span class="co">#&gt;  9 beta.genderM          -0.357 -0.978    0.143 basic  0.95</span>
+<span class="co">#&gt; 10 beta.classnonmanual    0.720  0.0391   1.41  basic  0.95</span>
+<span class="co">#&gt; 11 vc.(Intercept)         3.31   1.27     4.67  basic  0.95</span>
+<span class="co">#&gt; 12 vc2                   19.7   17.0     22.3   basic  0.95</span>
+<span class="co">#&gt; 13 beta.(Intercept)      14.2   13.0     15.6   perc   0.95</span>
+<span class="co">#&gt; 14 beta.mathAge8          0.639  0.592    0.676 perc   0.95</span>
+<span class="co">#&gt; 15 beta.genderM          -0.357 -0.857    0.264 perc   0.95</span>
+<span class="co">#&gt; 16 beta.classnonmanual    0.720  0.0270   1.40  perc   0.95</span>
+<span class="co">#&gt; 17 vc.(Intercept)         3.31   1.96     5.35  perc   0.95</span>
+<span class="co">#&gt; 18 vc2                   19.7   17.2     22.5   perc   0.95</span></code></pre></div>
 </div>
 </div>
 <div id="the-confint-function" class="section level2">
@@ -413,45 +395,45 @@
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># all ci types, 0.95 confidence level</span>
 <span class="fu"><a href="https://rdrr.io/r/stats/confint.html">confint</a></span><span class="op">(</span><span class="va">lme_reb_boot2</span><span class="op">)</span>
-<span class="co">#&gt; # A tibble: 18 x 6</span>
+<span class="co">#&gt; # A tibble: 18 × 6</span>
 <span class="co">#&gt;    term                estimate    lower  upper type  level</span>
 <span class="co">#&gt;    &lt;chr&gt;                  &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;</span>
-<span class="co">#&gt;  1 beta.(Intercept)      14.2   12.6     15.7   norm   0.95</span>
-<span class="co">#&gt;  2 beta.mathAge8          0.639  0.591    0.687 norm   0.95</span>
-<span class="co">#&gt;  3 beta.genderM          -0.357 -0.978    0.264 norm   0.95</span>
-<span class="co">#&gt;  4 beta.classnonmanual    0.720 -0.102    1.54  norm   0.95</span>
-<span class="co">#&gt;  5 vc.(Intercept)         3.31   1.33     5.30  norm   0.95</span>
-<span class="co">#&gt;  6 vc2                   19.7   17.4     22.1   norm   0.95</span>
-<span class="co">#&gt;  7 beta.(Intercept)      14.2   12.8     15.5   basic  0.95</span>
-<span class="co">#&gt;  8 beta.mathAge8          0.639  0.597    0.688 basic  0.95</span>
-<span class="co">#&gt;  9 beta.genderM          -0.357 -1.03     0.167 basic  0.95</span>
-<span class="co">#&gt; 10 beta.classnonmanual    0.720  0.00830  1.55  basic  0.95</span>
-<span class="co">#&gt; 11 vc.(Intercept)         3.31   1.51     5.03  basic  0.95</span>
-<span class="co">#&gt; 12 vc2                   19.7   17.6     22.0   basic  0.95</span>
-<span class="co">#&gt; 13 beta.(Intercept)      14.2   12.9     15.6   perc   0.95</span>
-<span class="co">#&gt; 14 beta.mathAge8          0.639  0.590    0.681 perc   0.95</span>
-<span class="co">#&gt; 15 beta.genderM          -0.357 -0.882    0.320 perc   0.95</span>
-<span class="co">#&gt; 16 beta.classnonmanual    0.720 -0.105    1.43  perc   0.95</span>
-<span class="co">#&gt; 17 vc.(Intercept)         3.31   1.60     5.11  perc   0.95</span>
-<span class="co">#&gt; 18 vc2                   19.7   17.5     21.8   perc   0.95</span>
+<span class="co">#&gt;  1 beta.(Intercept)      14.2   12.8     15.5   norm   0.95</span>
+<span class="co">#&gt;  2 beta.mathAge8          0.639  0.594    0.684 norm   0.95</span>
+<span class="co">#&gt;  3 beta.genderM          -0.357 -0.959    0.244 norm   0.95</span>
+<span class="co">#&gt;  4 beta.classnonmanual    0.720 -0.00849  1.45  norm   0.95</span>
+<span class="co">#&gt;  5 vc.(Intercept)         3.31   1.43     5.19  norm   0.95</span>
+<span class="co">#&gt;  6 vc2                   19.7   17.1     22.3   norm   0.95</span>
+<span class="co">#&gt;  7 beta.(Intercept)      14.2   12.7     15.3   basic  0.95</span>
+<span class="co">#&gt;  8 beta.mathAge8          0.639  0.602    0.686 basic  0.95</span>
+<span class="co">#&gt;  9 beta.genderM          -0.357 -0.978    0.143 basic  0.95</span>
+<span class="co">#&gt; 10 beta.classnonmanual    0.720  0.0391   1.41  basic  0.95</span>
+<span class="co">#&gt; 11 vc.(Intercept)         3.31   1.27     4.67  basic  0.95</span>
+<span class="co">#&gt; 12 vc2                   19.7   17.0     22.3   basic  0.95</span>
+<span class="co">#&gt; 13 beta.(Intercept)      14.2   13.0     15.6   perc   0.95</span>
+<span class="co">#&gt; 14 beta.mathAge8          0.639  0.592    0.676 perc   0.95</span>
+<span class="co">#&gt; 15 beta.genderM          -0.357 -0.857    0.264 perc   0.95</span>
+<span class="co">#&gt; 16 beta.classnonmanual    0.720  0.0270   1.40  perc   0.95</span>
+<span class="co">#&gt; 17 vc.(Intercept)         3.31   1.96     5.35  perc   0.95</span>
+<span class="co">#&gt; 18 vc2                   19.7   17.2     22.5   perc   0.95</span>
 
 <span class="co"># 90% percentile bootstrap intervals</span>
 <span class="fu"><a href="https://rdrr.io/r/stats/confint.html">confint</a></span><span class="op">(</span><span class="va">lmer_reb_boot0</span>, method <span class="op">=</span> <span class="st">"perc"</span>, level<span class="op">=</span> <span class="fl">0.90</span><span class="op">)</span>
-<span class="co">#&gt; # A tibble: 12 x 6</span>
+<span class="co">#&gt; # A tibble: 12 × 6</span>
 <span class="co">#&gt;    term           estimate   lower  upper type  level</span>
 <span class="co">#&gt;    &lt;chr&gt;             &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;</span>
-<span class="co">#&gt;  1 (Intercept)      14.2   12.9    15.2   norm    0.9</span>
-<span class="co">#&gt;  2 mathAge8          0.639  0.601   0.685 norm    0.9</span>
-<span class="co">#&gt;  3 genderM          -0.357 -0.931   0.242 norm    0.9</span>
-<span class="co">#&gt;  4 classnonmanual    0.720  0.0316  1.35  norm    0.9</span>
-<span class="co">#&gt;  5 (Intercept)      14.2   13.0    15.2   basic   0.9</span>
-<span class="co">#&gt;  6 mathAge8          0.639  0.603   0.682 basic   0.9</span>
-<span class="co">#&gt;  7 genderM          -0.357 -0.971   0.196 basic   0.9</span>
-<span class="co">#&gt;  8 classnonmanual    0.720  0.165   1.36  basic   0.9</span>
-<span class="co">#&gt;  9 (Intercept)      14.2   13.1    15.3   perc    0.9</span>
-<span class="co">#&gt; 10 mathAge8          0.639  0.596   0.674 perc    0.9</span>
-<span class="co">#&gt; 11 genderM          -0.357 -0.910   0.256 perc    0.9</span>
-<span class="co">#&gt; 12 classnonmanual    0.720  0.0849  1.27  perc    0.9</span></code></pre></div>
+<span class="co">#&gt;  1 (Intercept)      14.2   13.0    15.2   norm    0.9</span>
+<span class="co">#&gt;  2 mathAge8          0.639  0.604   0.676 norm    0.9</span>
+<span class="co">#&gt;  3 genderM          -0.357 -0.921   0.135 norm    0.9</span>
+<span class="co">#&gt;  4 classnonmanual    0.720  0.0336  1.35  norm    0.9</span>
+<span class="co">#&gt;  5 (Intercept)      14.2   12.9    15.1   basic   0.9</span>
+<span class="co">#&gt;  6 mathAge8          0.639  0.604   0.675 basic   0.9</span>
+<span class="co">#&gt;  7 genderM          -0.357 -0.945   0.157 basic   0.9</span>
+<span class="co">#&gt;  8 classnonmanual    0.720  0.0415  1.38  basic   0.9</span>
+<span class="co">#&gt;  9 (Intercept)      14.2   13.2    15.5   perc    0.9</span>
+<span class="co">#&gt; 10 mathAge8          0.639  0.603   0.674 perc    0.9</span>
+<span class="co">#&gt; 11 genderM          -0.357 -0.871   0.230 perc    0.9</span>
+<span class="co">#&gt; 12 classnonmanual    0.720  0.0580  1.40  perc    0.9</span></code></pre></div>
 </div>
 </div>
 <div id="the-plot-function" class="section level2">
@@ -515,6 +497,14 @@
 
 <span class="va">cl</span> <span class="op">&lt;-</span> <span class="fu">makeCluster</span><span class="op">(</span><span class="va">numCores</span>, type <span class="op">=</span> <span class="st">"PSOCK"</span><span class="op">)</span> <span class="co"># make a socket cluster</span>
 <span class="fu">doParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/doParallel/man/registerDoParallel.html">registerDoParallel</a></span><span class="op">(</span><span class="va">cl</span><span class="op">)</span>          <span class="co"># how the CPU knows to run in parallel</span>
+<span class="fu">clusterCall</span><span class="op">(</span><span class="va">cl</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/libPaths.html">.libPaths</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/libPaths.html">.libPaths</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#&gt; [[1]]</span>
+<span class="co">#&gt; [1] "/private/var/folders/p0/kzl82ys143d1wd2kfj24jm_8000pww/T/Rtmpn4FMNd/temp_libpath185881e8d314c"</span>
+<span class="co">#&gt; [2] "/Library/Frameworks/R.framework/Versions/4.1/Resources/library"                               </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; [[2]]</span>
+<span class="co">#&gt; [1] "/private/var/folders/p0/kzl82ys143d1wd2kfj24jm_8000pww/T/Rtmpn4FMNd/temp_libpath185881e8d314c"</span>
+<span class="co">#&gt; [2] "/Library/Frameworks/R.framework/Versions/4.1/Resources/library"</span>
 
 <span class="va">b_parallel2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/foreach/man/foreach.html">foreach</a></span><span class="op">(</span>B <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">250</span>, <span class="fl">2</span><span class="op">)</span>, 
                        .combine <span class="op">=</span> <span class="va">combine_lmeresamp</span>,
@@ -527,11 +517,19 @@
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="va">b_nopar</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootstrap.merMod.html">bootstrap</a></span><span class="op">(</span><span class="va">vcmodA</span>, .f <span class="op">=</span> <span class="va">fixef</span>, type <span class="op">=</span> <span class="st">"parametric"</span>, B <span class="op">=</span> <span class="fl">5000</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;  85.254   1.065  89.390</span>
+<span class="co">#&gt;  52.237   0.349  52.934</span>
 
 <span class="va">numCores</span> <span class="op">&lt;-</span> <span class="fl">2</span>
 <span class="va">cl</span> <span class="op">&lt;-</span> <span class="fu">makeCluster</span><span class="op">(</span><span class="va">numCores</span>, type <span class="op">=</span> <span class="st">"PSOCK"</span><span class="op">)</span>
 <span class="fu">doParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/doParallel/man/registerDoParallel.html">registerDoParallel</a></span><span class="op">(</span><span class="va">cl</span><span class="op">)</span> 
+<span class="fu">clusterCall</span><span class="op">(</span><span class="va">cl</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/libPaths.html">.libPaths</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/libPaths.html">.libPaths</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
+<span class="co">#&gt; [[1]]</span>
+<span class="co">#&gt; [1] "/private/var/folders/p0/kzl82ys143d1wd2kfj24jm_8000pww/T/Rtmpn4FMNd/temp_libpath185881e8d314c"</span>
+<span class="co">#&gt; [2] "/Library/Frameworks/R.framework/Versions/4.1/Resources/library"                               </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; [[2]]</span>
+<span class="co">#&gt; [1] "/private/var/folders/p0/kzl82ys143d1wd2kfj24jm_8000pww/T/Rtmpn4FMNd/temp_libpath185881e8d314c"</span>
+<span class="co">#&gt; [2] "/Library/Frameworks/R.framework/Versions/4.1/Resources/library"</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
   <span class="va">b_parallel2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/foreach/man/foreach.html">foreach</a></span><span class="op">(</span>B <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">2500</span>, <span class="fl">2</span><span class="op">)</span>, 
@@ -541,7 +539,7 @@
                          <span class="op">}</span>
 <span class="op">}</span><span class="op">)</span>
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;   0.089   0.011  42.637</span>
+<span class="co">#&gt;   0.062   0.011  32.048</span>
 
 <span class="fu">stopCluster</span><span class="op">(</span><span class="va">cl</span><span class="op">)</span> </code></pre></div>
 <p>Pretty useful stuff! The above can be applied to all bootstrap types and models fit using both <code>lme4</code> and <code>nlme</code>.</p>
