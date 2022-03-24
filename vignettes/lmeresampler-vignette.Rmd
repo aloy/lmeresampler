@@ -69,7 +69,7 @@ Additional parameters are required by specific bootstrap methods:
 
 * `reb_type`: an integer value specifying what kind of REB (random effects block) bootstrap should be performed. More on what the differences between the REB bootstrap types are may be found in section 5 of this vignette.
 
-* `hccme`: a character string specifying which heteroscedasticity consistent covariance matrix  (HCCME) estimator to use in the wild bootstrap. Current options include `"hc2"` and `"hc3"`, the two estimators recommended by Modugno and Giannerini (2015).
+* `hccme`: a character string specifying which heteroscedasticity consistent covariance matrix  (HCCME) estimator to use in the Wild bootstrap. Current options include `"hc2"` and `"hc3"`, the two estimators recommended by Modugno and Giannerini (2015).
 
     \begin{align}
 {\tt hc2} &: \tilde{\boldmath{v}}_i = {\rm diag} \left( \boldmath{I}_{n_i} - \boldmath{H}_i \right)^{-1/2} \circ \boldmath{r}_i\\
@@ -78,8 +78,9 @@ Additional parameters are required by specific bootstrap methods:
 
     where  $\boldmath{H}_i = \boldmath{X}_i \left(\boldmath{X}_i^\prime \boldmath{X}_i \right)^\prime \boldmath{X}_i^\prime$, the $i$th diagonal block of the orthogonal projection matrix, and  $\boldmath{r}_i$ is the vector of marginal residuals for group $i$.
 
-* `aux.dist`: a character string specifying which auxillary distribution to use in the wild bootstrap. Current options include `"f1"` and `"f2"`, the two estimators recommended by Modugno and Giannerini (2015).
+* `aux.dist`: a character string specifying which auxillary distribution to use in the wild bootstrap. Current options include `"mammen"`, `"rademacher"`, `"norm"`, `"webb"`, and `"gamma"`, the distributions outlined by Roodman et al. (2019).
 
+NEED TO UPDATE!!
   \begin{align}
   {\tt f1}: w_i &= \begin{cases}
     -(\sqrt{5} - 1)/2 & \text{ with probability } p=(\sqrt{5}+1) / (2 \sqrt{5})\\
@@ -193,18 +194,21 @@ lme_res_boot <- bootstrap(vcmodB, .f = fixef, type = "residual", B = 100)
 
 # 4. The Wild Bootstrap
 
-The wild bootstrap exists for various types of models, but was first discussed in the context of hierarchical models by Modugno and Giannerini (2015). This bootstrap makes no distribution assumptions and allows for heteroskedasticity, which is often useful for economists. The heteroskedasticity is accounted for using the Heteroskedasticity Consistent Covariance Matrix Estimator (HCCME), and the two HCCMEs explored by Modugno and Giannerini (2015) were HC2 and HC3. These can be set in a call to `bootstrap()` using `hccme = "hc2"` or `hccme = "hc3"`. The wild bootstrap also draws bootstrap samples for the errors from what is known as an auxiliary distribution. The two versions of this discussed by Modugno and Giannerini (2015), F1 and F2, can be set in a `bootstrap()` call using `aux.dist = "f1"` or `aux.dist = "f2"`. For more information on HCCMEs and the purpose and structure of the auxiliary distributions, please refer to Modugno and Giannerini (2015).
+The wild bootstrap exists for various types of models, but was first discussed in the context of hierarchical models by Modugno and Giannerini (2015). This bootstrap makes no distribution assumptions and allows for heteroskedasticity, which is often useful for economists. The heteroskedasticity is accounted for using the Heteroskedasticity Consistent Covariance Matrix Estimator (HCCME), and the two HCCMEs explored by Modugno and Giannerini (2015) were HC2 and HC3. These can be set in a call to `bootstrap()` using `hccme = "hc2"` or `hccme = "hc3"`. The wild bootstrap also draws bootstrap samples for the errors from what is known as an auxiliary distribution. 
+
+FIX THIS!!
+The two versions of this discussed by Modugno and Giannerini (2015), F1 and F2, can be set in a `bootstrap()` call using `aux.dist = "f1"` or `aux.dist = "f2"`. For more information on HCCMEs and the purpose and structure of the auxiliary distributions, please refer to Modugno and Giannerini (2015).
 
 ## Examples
 
 ```{r wild examples}
 # lme4
-lmer_wild_boot <- bootstrap(vcmodA, .f = fixef, type = "wild", hccme = "hc2", aux.dist = "f1", B = 100)
-lmer_wild_boot <- bootstrap(vcmodA, .f = fixef, type = "wild", hccme = "hc3", aux.dist = "f2", B = 100)
+lmer_wild_boot <- bootstrap(vcmodA, .f = fixef, type = "wild", hccme = "hc2", aux.dist = "mammen", B = 100)
+lmer_wild_boot <- bootstrap(vcmodA, .f = fixef, type = "wild", hccme = "hc3", aux.dist = "mammen", B = 100)
 
 # nlme
-lme_wild_boot <- bootstrap(vcmodB, .f = fixef, type = "wild", hccme = "hc2", aux.dist = "f2", B = 100)
-lme_wild_boot <- bootstrap(vcmodB, .f = fixef, type = "wild", hccme = "hc3", aux.dist = "f1", B = 100)
+lme_wild_boot <- bootstrap(vcmodB, .f = fixef, type = "wild", hccme = "hc2", aux.dist = "rademacher", B = 100)
+lme_wild_boot <- bootstrap(vcmodB, .f = fixef, type = "wild", hccme = "hc3", aux.dist = "rademacher", B = 100)
 ```
 
 # 5. The Random Effects Block (REB) Bootstrap
@@ -392,3 +396,7 @@ Raymond Chambers & Hukum Chandra (2013) A Random Effect Block Bootstrap for Clus
 Microsoft Corporation and Steve Weston (2020). doParallel: Foreach Parallel
   Adaptor for the 'parallel' Package. R package version 1.0.16.
   \url{https://CRAN.R-project.org/package=doParallel}
+
+Roodman, D., Nielsen, M. Ø., MacKinnon, J. G., & Webb, M. D. (2019). 
+  Fast and wild: Bootstrap inference in Stata using boottest. 
+  *The Stata Journal*, 19(1), 4–60.
