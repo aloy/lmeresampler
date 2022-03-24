@@ -108,7 +108,7 @@ refit_lme <- function(ystar = NULL, model, .f) {
 extract_zlist.lme <- function(model){
   level.num <- ncol(model$groups)
   re.form <- formula(model$modelStruct$reStr)
-  Z <- purrr::map(1:length(re.form), function(i) model.matrix(formula(model$modelStruct$reStr)[[i]], data=model$data))
+  Z <- purrr::map(seq_along(re.form), function(i) model.matrix(formula(model$modelStruct$reStr)[[i]], data=model$data))
   names(Z) <- names(re.form)
   
   grp <- purrr::map(model$groups, forcats::fct_inorder)
@@ -122,7 +122,7 @@ extract_zlist.lme <- function(model){
     Z <- purrr::map(Z, as.data.frame)
     Z  <- Z[rev(names(Z))] # agree w/ order of model$group and bstar
     
-    Zlist <- purrr::map(1:length(Z), function(i) purrr::map(Z[[i]], function(col) split(col, model$group[,i])))
+    Zlist <- purrr::map(seq_along(Z), function(i) purrr::map(Z[[i]], function(col) split(col, model$group[,i])))
     names(Zlist) <- names(Z)
   # }
   Zlist
@@ -130,10 +130,10 @@ extract_zlist.lme <- function(model){
 
 
 .Zbstar.combine.lme <- function(bstar, Zlist){
-  zbstar_list <- purrr::map(1:length(Zlist), function(e) {
+  zbstar_list <- purrr::map(seq_along(Zlist), function(e) {
     z.e <- Zlist[[e]]
     b.e <- bstar[[e]]
-    purrr::map(1:length(z.e), function(j) unlist(mapply("*", z.e[[j]], b.e[,j], SIMPLIFY = FALSE)))
+    purrr::map(seq_along(z.e), function(j) unlist(mapply("*", z.e[[j]], b.e[,j], SIMPLIFY = FALSE)))
   })
   Reduce("+", unlist(zbstar_list, recursive = FALSE))
 }
