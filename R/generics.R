@@ -74,22 +74,59 @@
 #' set.seed(1234)
 #' boo1 <- bootstrap(model = vcmodA, .f = mySumm, type = "parametric", B = 20)
 #' 
+#' ## to print results in a formatted way
+#' print(boo1)
+#' 
 #' \dontrun{
 #' ## running a cases bootstrap - only resampling the schools
 #' boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 100, resample = c(TRUE, FALSE))
 #' 
 #' ## running a cases bootstrap - resampling the schools and students within the school
-#' boo2 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 100, resample = c(TRUE, TRUE))
+#' boo3 <- bootstrap(model = vcmodA, .f = mySumm, type = "case", B = 100, resample = c(TRUE, TRUE))
 #' 
 #' ## running a residual bootstrap
 #' boo4 <- bootstrap(model = vcmodA, .f = mySumm, type = "residual", B = 100)
 #' 
 #' ## running an REB0 bootstrap
 #' boo5 <- bootstrap(model = vcmodA, .f = mySumm, type = "reb", B = 100, reb_typ = 0)
+#' 
+#' ## Running the Wild bootstrap
+#' boo6 <- bootstrap(model = vcmodA, .f = mySumm, type = "wild", B= 100, hccme = "hc2", aux.dist = "mammen")
+#' 
+#' ## Running a bootstrap in parallel via foreach
+#' library(foreach)
+#' library(doParallel)
+#' set.seed(1234)
+#' numCores <- 2
+#' 
+#' cl <- makeCluster(numCores, type = "PSOCK") # make a socket cluster
+#' doParallel::registerDoParallel(cl)          # how the CPU knows to run in parallel
+#' 
+#' b_parallel <- foreach(B = rep(250, 2), 
+#'                        .combine = combine_lmeresamp,
+#'                        .packages = c("lmeresampler", "lme4")) %dopar% {
+#'                          bootstrap(vcmodA, .f = fixef, type = "parametric", B = B)
+#'                        }
+#' stopCluster(cl)
+#' 
+#' ## Running a bootstrap in parallel via parLapply
+#' cl <- makeCluster(numCores, type = "PSOCK") # make a socket cluster
+#' doParallel::registerDoParallel(cl)          # how the CPU knows to run in parallel
+#' 
+#' boot_mod <- function(...) {
+#'   library(lme4)
+#'   library(lmeresampler)
+#'   vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
+#'   bootstrap(vcmodA, .f = fixef, type = "parametric", B = 250)
+#'   
 #' }
 #' 
-#' ## to print results in a formatted way
-#' print(boo1)
+#' result <- parLapply(cl, seq_len(2), boot_mod)
+#' b_parallel2 <- do.call("combine_lmeresamp", result)
+#' 
+#' stopCluster(cl)
+#' }
+#' 
 #' 
 #'
 #' @references
