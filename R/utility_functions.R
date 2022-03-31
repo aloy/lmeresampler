@@ -139,14 +139,23 @@ arrange_ranefs.lme <- function(b, fl, levs, cnms){
 #' @param .f function to calc bootstrap stats
 #' @keywords internal
 #' @noRd
+#' @importFrom stats napredict
 refit_merMod <- function(ystar, model, .f) {
   error <- NULL
+  
+  # Adjustment to respect na.action
+  .na.act <- attr(model@frame, "na.action")
+  ystar2 <- purrr::map(ystar, function(.y) {
+    attr(.y, "na.action") <- .na.act
+    .y
+  })
+  
   
   f1 <- factory(
     function(model, y) 
       .f(lme4::refit(object = model, newresp = y))
   )
-  stats <- purrr::map(ystar, function(.y) f1(model, .y))
+  stats <- purrr::map(ystar2, function(.y) f1(model, .y))
 
   
   list(tstar = stats, warnings = collect_warnings(stats))
