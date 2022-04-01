@@ -161,7 +161,7 @@ refit_merMod <- function(ystar, model, .f) {
   list(tstar = stats, warnings = collect_warnings(stats))
 }
 
-
+#' @importFrom stats terms getCall
 getResponseFromFormula <- function(model) {
   if (attr(terms(model), which = 'response'))
     all.vars(getCall(model)$formula)[1]
