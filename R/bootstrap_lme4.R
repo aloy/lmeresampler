@@ -3,11 +3,11 @@
 #' @method bootstrap merMod
 #' @importFrom stats as.formula cov formula model.matrix na.exclude 
 #' na.omit predict resid simulate sd confint quantile
-bootstrap.merMod <- function(model, .f, type, B, resample, reb_type, hccme, aux.dist){
+bootstrap.merMod <- function(model, .f, type, B, resample, reb_type, hccme, aux.dist, orig_data){
   switch(type,
          parametric = parametric_bootstrap.merMod(model, .f, B),
          residual = resid_bootstrap.merMod(model, .f, B),
-         case = case_bootstrap.merMod(model, .f, B, resample),
+         case = case_bootstrap.merMod(model, .f, B, resample, orig_data),
          reb = reb_bootstrap.lmerMod(model, .f, B, reb_type),
          wild = wild_bootstrap.lmerMod(model, .f, B, hccme, aux.dist))
 }
@@ -32,9 +32,14 @@ parametric_bootstrap.merMod <- function(model, .f, B){
 #' @rdname case_bootstrap
 #' @export
 #' @method case_bootstrap merMod
-case_bootstrap.merMod <- function(model, .f, B, resample){
+case_bootstrap.merMod <- function(model, .f, B, resample, orig_data = NULL){
   
-  data <- model@frame
+  if(!is.null(orig_data)){
+    data <- orig_data
+  }else{
+    data <- model@frame
+  }
+  
   flist <- lme4::getME(model, "flist")
   re_names <- names(flist)
   clusters <- c(rev(re_names), ".id")

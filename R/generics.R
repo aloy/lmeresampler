@@ -24,6 +24,9 @@
 #' @param aux.dist one of \code{"mammen"}, \code{"rademacher"}, \code{"norm"}, 
 #'     \code{"webb"}, or \code{"gamma"} indicating which auxiliary 
 #'     distribution to draw the errors from
+#' @param orig_data the original data frame. This should be specified if variables
+#'     are transformed within the formula for \code{glmer()} or \code{lmer()}
+#'     and the case bootstrap is used.
 #' @details
 #' All of the below methods have been implemented for nested linear mixed-effects
 #' models fit by \code{lmer} (i.e., an \code{lmerMod} object) and \code{lme} 
@@ -153,7 +156,7 @@
 #'    Modugno, L., & Giannerini, S. (2015). The Wild Bootstrap for 
 #'    Multilevel Models. \emph{Communications in Statistics -- Theory and Methods}, 
 #'    \bold{44}(22), 4812--4825.
-bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL, hccme = NULL, aux.dist = NULL) {
+bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL, hccme = NULL, aux.dist = NULL, orig_data = NULL) {
   if(!type %in% c("parametric", "residual", "case", "wild", "reb"))
     stop("'type' must be one of 'parametric', 'residual', 'case', 'wild', or 'reb'")
   if(!is.null(reb_type))
@@ -249,7 +252,7 @@ parametric_bootstrap <- function(model, .f, B) {
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-case_bootstrap <- function(model, .f, B, resample) {
+case_bootstrap <- function(model, .f, B, resample, orig_data = NULL) {
   UseMethod("case_bootstrap", model)
 }
 

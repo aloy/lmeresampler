@@ -7,6 +7,8 @@ There are now 6 options, including the standard normal.
 BUG FIXES
 * `plot.lmeresamp()` now works if the replicates are a numeric vector rather
 than a data frame or tibble.
+* bug fixed when `na.action = na.omit` 
+* fixed issue with transformed variables in `glmer`
 
 0.2.1
 ===========
