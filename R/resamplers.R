@@ -61,7 +61,11 @@
   } else if(inherits(model, "glmerMod")) {
     form <- update(model@call$formula, y ~ .)
     y_idx <- colnames(resamp_data) == getResponseFromFormula(model)
-    colnames(resamp_data)[y_idx] <- "y"
+    if(sum(y_idx) > 0) {
+      colnames(resamp_data)[y_idx] <- "y"
+    } else {
+      colnames(resamp_data)[1] <- "y"
+    }
     fam  <- family(model)
     
     f1 <- factory(
