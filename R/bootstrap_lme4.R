@@ -3,7 +3,7 @@
 #' @method bootstrap merMod
 #' @importFrom stats as.formula cov formula model.matrix na.exclude 
 #' na.omit predict resid simulate sd confint quantile
-bootstrap.merMod <- function(model, .f, type, B, resample, reb_type, hccme, aux.dist, orig_data){
+bootstrap.merMod <- function(model, .f, type, B, resample, reb_type, hccme, aux.dist, orig_data = NULL){
   switch(type,
          parametric = parametric_bootstrap.merMod(model, .f, B),
          residual = resid_bootstrap.merMod(model, .f, B),

@@ -7,11 +7,11 @@
 \alias{case_bootstrap}
 \title{Cases Bootstrap for Nested LMEs}
 \usage{
-\method{case_bootstrap}{merMod}(model, .f, B, resample)
+\method{case_bootstrap}{merMod}(model, .f, B, resample, orig_data = NULL)
 
-\method{case_bootstrap}{lme}(model, .f, B, resample)
+\method{case_bootstrap}{lme}(model, .f, B, resample, orig_data = NULL)
 
-case_bootstrap(model, .f, B, resample)
+case_bootstrap(model, .f, B, resample, orig_data = NULL)
 }
 \arguments{
 \item{model}{The model object you wish to bootstrap.}
@@ -25,6 +25,10 @@ should be resampled in the cases bootstrap. The levels should be specified
 from the highest level (largest cluster) of the hierarchy to the lowest 
 (observation-level); for example for students within a school, specify the 
 school level first, then the student level.}
+
+\item{orig_data}{the original data frame. This should be specified if variables
+are transformed within the formula for \code{glmer()} or \code{lmer()}
+and the case bootstrap is used.}
 }
 \value{
 The returned value is an object of class "lmeresamp".

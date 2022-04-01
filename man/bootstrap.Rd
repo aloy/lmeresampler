@@ -7,9 +7,29 @@
 \alias{bootstrap}
 \title{Bootstrap Nested Linear Mixed-Effects Models}
 \usage{
-\method{bootstrap}{merMod}(model, .f, type, B, resample, reb_type, hccme, aux.dist)
+\method{bootstrap}{merMod}(
+  model,
+  .f,
+  type,
+  B,
+  resample,
+  reb_type,
+  hccme,
+  aux.dist,
+  orig_data = NULL
+)
 
-\method{bootstrap}{lme}(model, .f, type, B, resample, reb_type, hccme, aux.dist)
+\method{bootstrap}{lme}(
+  model,
+  .f,
+  type,
+  B,
+  resample,
+  reb_type,
+  hccme,
+  aux.dist,
+  orig_data = NULL
+)
 
 bootstrap(
   model,
@@ -19,7 +39,8 @@ bootstrap(
   resample = NULL,
   reb_type = NULL,
   hccme = NULL,
-  aux.dist = NULL
+  aux.dist = NULL,
+  orig_data = NULL
 )
 }
 \arguments{
@@ -49,6 +70,10 @@ heteroscedasticity consistent covariance matrix estimator to use.}
 \item{aux.dist}{one of \code{"mammen"}, \code{"rademacher"}, \code{"norm"}, 
 \code{"webb"}, or \code{"gamma"} indicating which auxiliary 
 distribution to draw the errors from}
+
+\item{orig_data}{the original data frame. This should be specified if variables
+are transformed within the formula for \code{glmer()} or \code{lmer()}
+and the case bootstrap is used.}
 }
 \value{
 The returned value is an object of class "lmeresamp". This is a list
@@ -112,7 +137,8 @@ boo4 <- bootstrap(model = vcmodA, .f = mySumm, type = "residual", B = 100)
 boo5 <- bootstrap(model = vcmodA, .f = mySumm, type = "reb", B = 100, reb_typ = 0)
 
 ## Running the Wild bootstrap
-boo6 <- bootstrap(model = vcmodA, .f = mySumm, type = "wild", B= 100, hccme = "hc2", aux.dist = "mammen")
+boo6 <- bootstrap(model = vcmodA, .f = mySumm, type = "wild", B= 100, 
+                  hccme = "hc2", aux.dist = "mammen")
 
 ## Running a bootstrap in parallel via foreach
 library(foreach)

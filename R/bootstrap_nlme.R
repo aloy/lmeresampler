@@ -1,10 +1,10 @@
 #' @rdname bootstrap
 #' @export
-bootstrap.lme <- function(model, .f, type, B, resample, reb_type, hccme, aux.dist){
+bootstrap.lme <- function(model, .f, type, B, resample, reb_type, hccme, aux.dist, orig_data = NULL){
   switch(type,
          parametric = parametric_bootstrap.lme(model, .f, B),
          residual = resid_bootstrap.lme(model, .f, B),
-         case = case_bootstrap.lme(model, .f, B, resample),
+         case = case_bootstrap.lme(model, .f, B, resample, orig_data),
          reb = reb_bootstrap.lme(model, .f, B, reb_type),
          wild = wild_bootstrap.lme(model, .f, B, hccme, aux.dist))
 }
@@ -34,7 +34,7 @@ parametric_bootstrap.lme <- function(model, .f, B){
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lme <- function(model, .f, B, resample){
+case_bootstrap.lme <- function(model, .f, B, resample, orig_data = NULL){
   
   data <- model$data
   # data$.id <- seq_len(nrow(data))
