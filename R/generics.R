@@ -94,7 +94,8 @@
 #' boo5 <- bootstrap(model = vcmodA, .f = mySumm, type = "reb", B = 100, reb_typ = 0)
 #' 
 #' ## Running the Wild bootstrap
-#' boo6 <- bootstrap(model = vcmodA, .f = mySumm, type = "wild", B= 100, hccme = "hc2", aux.dist = "mammen")
+#' boo6 <- bootstrap(model = vcmodA, .f = mySumm, type = "wild", B= 100, 
+#'                   hccme = "hc2", aux.dist = "mammen")
 #' 
 #' ## Running a bootstrap in parallel via foreach
 #' library(foreach)
