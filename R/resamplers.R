@@ -161,9 +161,9 @@
     )
   }
   
-  # Gamma(4, scale = 1/2) -- Liu (1988)
+  # Recentered Gamma(4, scale = 1/2) -- Liu (1988)
   if(aux.dist == "gamma") {
-    w <- rgamma(n = n.lev, shape = 4, scale = 1/2)
+    w <- rgamma(n = n.lev, shape = 4, scale = 1/2) - 2
   }
   
   # Calc. bootstrap y
