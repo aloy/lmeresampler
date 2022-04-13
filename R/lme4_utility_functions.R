@@ -168,3 +168,69 @@ getResponseFromFormula <- function(model) {
   else
     NULL
 }
+
+refit_to_newdf <- function(model, newdata, .f) {
+  if(inherits(model, "lmerMod")){
+    # Refit the model and apply '.f' to it using map
+    form <- model@call$formula
+    reml <- lme4::isREML(model)
+    
+    f1 <- factory(
+      function(form, newdata, reml) 
+        .f(lme4::lmer(formula = form, data = newdata, REML = reml))
+    )
+    tstar <- f1(form, newdata, reml)
+    
+    # tstar <- purrr::map(res, function(x) {
+    #   .f(lme4::lmer(formula = form, data = as.data.frame(x), REML = reml)) 
+    # })
+  } else if(inherits(model, "lme")){
+    tstar <- updated.model(model = model, new.data = newdata)  
+    tstar <- .f(tstar)
+  } else if(inherits(model, "glmerMod")) {
+    form <- update(model@call$formula, y ~ .)
+    y_idx <- colnames(newdata) == getResponseFromFormula(model)
+    if(sum(y_idx) > 0) {
+      colnames(newdata)[y_idx] <- "y"
+    } else {
+      colnames(newdata)[1] <- "y"
+    }
+    fam  <- family(model)
+    
+    f1 <- factory(
+      function(form, newdata, fam) 
+        .f(lme4::glmer(formula = form, data = newdata, family = fam))
+    )
+    tstar <- f1(form, newdata, fam)
+    
+  } else{
+    stop("model class must be one of 'lme', 'lmerMod', or 'glmerMod'")
+  }
+  tstar
+}
+
+
+#' Set up for case resampling in lme4
+prep_cases.merMod <- function(model, resample, orig_data) {
+  if(!is.null(orig_data)){
+    data <- orig_data
+  }else{
+    data <- model@frame
+  }
+  
+  flist <- lme4::getME(model, "flist")
+  re_names <- names(flist)
+  clusters <- c(rev(re_names), ".id")
+  
+  if(length(clusters) != length(resample))
+    stop("'resample' is not the same length as the number of grouping variables. 
+         Please specify whether to resample the data at each level of grouping,
+         including at the observation level.")
+  
+  if(!all(re_names %in% colnames(data))) {
+    missing_re <- setdiff(re_names, colnames(data))
+    data <- dplyr::bind_cols(data, flist[missing_re])
+  }
+  
+  return(list(data, clusters))
+}

@@ -12,7 +12,8 @@
   .f,
   B,
   hccme = c("hc2", "hc3"),
-  aux.dist = c("mammen", "rademacher", "norm", "webb", "gamma")
+  aux.dist = c("mammen", "rademacher", "norm", "webb", "gamma"),
+  .refit = TRUE
 )
 
 \method{wild_bootstrap}{lme}(
@@ -20,10 +21,11 @@
   .f,
   B,
   hccme = c("hc2", "hc3"),
-  aux.dist = c("mammen", "rademacher", "norm", "webb", "gamma")
+  aux.dist = c("mammen", "rademacher", "norm", "webb", "gamma"),
+  .refit = TRUE
 )
 
-wild_bootstrap(model, .f, B, hccme, aux.dist)
+wild_bootstrap(model, .f, B, hccme, aux.dist, .refit = TRUE)
 }
 \arguments{
 \item{model}{The model object you wish to bootstrap.}
@@ -38,6 +40,10 @@ heteroscedasticity consistent covariance matrix estimator to use.}
 \item{aux.dist}{one of \code{"mammen"}, \code{"rademacher"}, \code{"norm"}, 
 \code{"webb"}, or \code{"gamma"} indicating which auxiliary 
 distribution to draw the errors from}
+
+\item{.refit}{a logical value indicating whether the model should be refit to 
+the bootstrap resample, or if the simulated bootstrap resample should be 
+returned. Defaults to \code{TRUE}.}
 }
 \value{
 The returned value is an object of class "lmeresamp".

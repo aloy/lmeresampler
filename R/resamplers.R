@@ -1,3 +1,23 @@
+# bootstrap_resample.merMod <- function(model, type, B, resample, reb_type, hccme, 
+#                                aux.dist, orig_data = NULL) {
+#   
+#   if(type == "parametric") {
+#     ystar <- simulate(model, nsim = B, na.action = na.exclude)
+#   }
+#   
+#   if(type == "cases") {
+#     prep <- prep_cases.merMod(model = model, resample = resample, orig_data = orig_data)
+#   }
+#   
+#   if(type == "residual") {
+#     
+#   }
+#   
+#   
+# }
+
+
+
 #' Case resampler for mixed models
 #' @keywords internal
 #' @noRd
@@ -37,9 +57,11 @@
 }
 
 
-.resample_refit.cases <- function(model, .f, dat, cluster, resample){
+.resample_refit.cases <- function(model, .f, dat, cluster, resample, .refit){
   resamp_data <- .resamp.cases(dat, cluster, resample)
   error <- NULL
+  
+  if(!.refit) return(resamp_data)
   
   if(inherits(model, "lmerMod")){
     # Refit the model and apply '.f' to it using map

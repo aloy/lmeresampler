@@ -7,11 +7,11 @@
 \alias{resid_bootstrap}
 \title{Residual Bootstrap for Nested LMEs}
 \usage{
-\method{resid_bootstrap}{merMod}(model, .f, B)
+\method{resid_bootstrap}{merMod}(model, .f, B, .refit = TRUE)
 
-\method{resid_bootstrap}{lme}(model, .f, B)
+\method{resid_bootstrap}{lme}(model, .f, B, .refit = TRUE)
 
-resid_bootstrap(model, .f, B)
+resid_bootstrap(model, .f, B, .refit = TRUE)
 }
 \arguments{
 \item{model}{The model object you wish to bootstrap.}
@@ -19,6 +19,10 @@ resid_bootstrap(model, .f, B)
 \item{.f}{A function returning the statistic(s) of interest.}
 
 \item{B}{The number of bootstrap resamples.}
+
+\item{.refit}{a logical value indicating whether the model should be refit to 
+the bootstrap resample, or if the simulated bootstrap resample should be 
+returned. Defaults to \code{TRUE}.}
 }
 \value{
 The returned value is an object of class "lmeresamp".

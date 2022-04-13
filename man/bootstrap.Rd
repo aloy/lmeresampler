@@ -9,14 +9,15 @@
 \usage{
 \method{bootstrap}{merMod}(
   model,
-  .f,
+  .f = extract_parameters,
   type,
   B,
   resample,
   reb_type,
   hccme,
   aux.dist,
-  orig_data = NULL
+  orig_data = NULL,
+  .refit = TRUE
 )
 
 \method{bootstrap}{lme}(
@@ -28,7 +29,8 @@
   reb_type,
   hccme,
   aux.dist,
-  orig_data = NULL
+  orig_data = NULL,
+  .refit = TRUE
 )
 
 bootstrap(
@@ -40,7 +42,8 @@ bootstrap(
   reb_type = NULL,
   hccme = NULL,
   aux.dist = NULL,
-  orig_data = NULL
+  orig_data = NULL,
+  .refit = TRUE
 )
 }
 \arguments{
@@ -74,6 +77,10 @@ distribution to draw the errors from}
 \item{orig_data}{the original data frame. This should be specified if variables
 are transformed within the formula for \code{glmer()} or \code{lmer()}
 and the case bootstrap is used.}
+
+\item{.refit}{a logical value indicating whether the model should be refit to 
+the bootstrap resample, or if the simulated bootstrap resample should be 
+returned. Defaults to \code{TRUE}.}
 }
 \value{
 The returned value is an object of class "lmeresamp". This is a list

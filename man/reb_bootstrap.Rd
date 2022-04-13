@@ -7,11 +7,11 @@
 \alias{reb_bootstrap}
 \title{REB Bootstrap for Two-Level Nested LMEs}
 \usage{
-\method{reb_bootstrap}{lmerMod}(model, .f, B, reb_type)
+\method{reb_bootstrap}{lmerMod}(model, .f, B, reb_type, .refit = TRUE)
 
-\method{reb_bootstrap}{lme}(model, .f, B, reb_type)
+\method{reb_bootstrap}{lme}(model, .f, B, reb_type, .refit = TRUE)
 
-reb_bootstrap(model, .f, B, reb_type)
+reb_bootstrap(model, .f, B, reb_type, .refit = TRUE)
 }
 \arguments{
 \item{model}{The model object you wish to bootstrap.}
@@ -22,6 +22,10 @@ reb_bootstrap(model, .f, B, reb_type)
 
 \item{reb_type}{Specification of what random effect block bootstrap version to
 implement. Possible values are \code{0}, \code{1} or \code{2}.}
+
+\item{.refit}{a logical value indicating whether the model should be refit to 
+the bootstrap resample, or if the simulated bootstrap resample should be 
+returned. Defaults to \code{TRUE}.}
 }
 \value{
 The returned value is an object of class "lmeresamp".

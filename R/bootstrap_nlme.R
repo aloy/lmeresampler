@@ -1,6 +1,6 @@
 #' @rdname bootstrap
 #' @export
-bootstrap.lme <- function(model, .f, type, B, resample, reb_type, hccme, aux.dist, orig_data = NULL){
+bootstrap.lme <- function(model, .f, type, B, resample, reb_type, hccme, aux.dist, orig_data = NULL, .refit = TRUE){
   switch(type,
          parametric = parametric_bootstrap.lme(model, .f, B),
          residual = resid_bootstrap.lme(model, .f, B),
@@ -13,10 +13,12 @@ bootstrap.lme <- function(model, .f, type, B, resample, reb_type, hccme, aux.dis
 #' @rdname parametric_bootstrap
 #' @export
 #' @importFrom nlmeU simulateY
-parametric_bootstrap.lme <- function(model, .f, B){
+parametric_bootstrap.lme <- function(model, .f, B, .refit = TRUE){
   # Match function
-  .f <- match.fun(.f)
-  t0 <- .f(model)
+  if (.refit) {
+    .f <- match.fun(.f)
+    t0 <- .f(model)
+  }
   
   # Extract fixed effects
   # model.fixef <- nlme::fixef(model)
@@ -24,6 +26,8 @@ parametric_bootstrap.lme <- function(model, .f, B){
   ystar <- nlmeU::simulateY(model, nsim = B)
   row.names(ystar) <- 1:model$dims$N
   ystar <- data.frame(ystar)
+  
+  if(!.refit) return(ystar)
   
   refits <- refit_lme(ystar = ystar, model = model, .f = .f)
   
@@ -34,7 +38,7 @@ parametric_bootstrap.lme <- function(model, .f, B){
 
 #' @rdname case_bootstrap
 #' @export
-case_bootstrap.lme <- function(model, .f, B, resample, orig_data = NULL){
+case_bootstrap.lme <- function(model, .f, B, resample, orig_data = NULL, .refit = TRUE){
   
   data <- model$data
   # data$.id <- seq_len(nrow(data))
@@ -45,9 +49,11 @@ case_bootstrap.lme <- function(model, .f, B, resample, orig_data = NULL){
          Please specify whether to resample the data at each level of grouping.")
   
   refits <- purrr::map(integer(B), function(x) 
-    .resample_refit.cases(model = model, .f = .f, dat = data, cluster = clusters, resample = resample))
+    .resample_refit.cases(model = model, .f = .f, dat = data, cluster = clusters, resample = resample, .refit = .refit))
   
   tstar <- purrr::map(refits, ~.x)
+  
+  if(!.refit) return(tstar)
 
   .bootstrap.completion(model, tstar = tstar, B, .f, type = "case", 
                         warnings = collect_warnings(.resample_refit.cases))
@@ -58,7 +64,7 @@ case_bootstrap.lme <- function(model, .f, B, resample, orig_data = NULL){
 #' @rdname reb_bootstrap
 #' @inheritParams bootstrap
 #' @export
-reb_bootstrap.lme <- function(model, .f, B, reb_type){
+reb_bootstrap.lme <- function(model, .f, B, reb_type, .refit = TRUE){
   
   if(missing(reb_type)){
     reb_type <- 0
@@ -67,6 +73,10 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type){
   
   if(ncol(model$groups) > 1) {
     stop("The REB bootstrap has not been adapted for 3+ level models.")
+  }
+  
+  if(!.refit & reb_type == 2) {
+    stop(".refit == FALSE is not available with reb_type = 2.")
   }
   
   .f <- match.fun(.f)
@@ -88,6 +98,8 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type){
   )
   
   ystar <- as.data.frame(y.star)
+  
+  if(!.refit) return(ystar)
   
   # Extract bootstrap statistics
   if(reb_type == 2) .f <- extract_parameters.lme
@@ -115,7 +127,7 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type){
 #' @rdname resid_bootstrap
 #' @inheritParams bootstrap
 #' @export
-resid_bootstrap.lme <- function(model, .f, B){
+resid_bootstrap.lme <- function(model, .f, B, .refit = TRUE){
   
   .f <- match.fun(.f)
   
@@ -135,6 +147,7 @@ resid_bootstrap.lme <- function(model, .f, B){
     )
   )
   
+  if(!.refit) return(ystar)
   
   refits <- refit_lme(ystar = ystar, model = model, .f = .f)
   
@@ -147,7 +160,8 @@ resid_bootstrap.lme <- function(model, .f, B){
 #' @export
 wild_bootstrap.lme <- function(model, .f, B, hccme = c("hc2", "hc3"), 
                                aux.dist = c("mammen", "rademacher",
-                                            "norm", "webb", "gamma")){
+                                            "norm", "webb", "gamma"),
+                               .refit = TRUE){
   
   .f <- match.fun(.f)
   hccme <- match.arg(hccme)
@@ -169,7 +183,8 @@ wild_bootstrap.lme <- function(model, .f, B, hccme = c("hc2", "hc3"),
       )
     )
   )
-  
+
+  if(!.refit) return(ystar)  
   
   refits <- refit_lme(ystar = ystar, model = model, .f = .f)
   

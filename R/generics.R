@@ -27,6 +27,9 @@
 #' @param orig_data the original data frame. This should be specified if variables
 #'     are transformed within the formula for \code{glmer()} or \code{lmer()}
 #'     and the case bootstrap is used.
+#' @param .refit a logical value indicating whether the model should be refit to 
+#'     the bootstrap resample, or if the simulated bootstrap resample should be 
+#'     returned. Defaults to \code{TRUE}.
 #' @details
 #' All of the below methods have been implemented for nested linear mixed-effects
 #' models fit by \code{lmer} (i.e., an \code{lmerMod} object) and \code{lme} 
@@ -157,7 +160,8 @@
 #'    Modugno, L., & Giannerini, S. (2015). The Wild Bootstrap for 
 #'    Multilevel Models. \emph{Communications in Statistics -- Theory and Methods}, 
 #'    \bold{44}(22), 4812--4825.
-bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL, hccme = NULL, aux.dist = NULL, orig_data = NULL) {
+bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL, 
+                      hccme = NULL, aux.dist = NULL, orig_data = NULL, .refit = TRUE) {
   if(!type %in% c("parametric", "residual", "case", "wild", "reb"))
     stop("'type' must be one of 'parametric', 'residual', 'case', 'wild', or 'reb'")
   if(!is.null(reb_type))
@@ -203,7 +207,7 @@ bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL, hccm
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-parametric_bootstrap <- function(model, .f, B) {
+parametric_bootstrap <- function(model, .f, B, .refit = TRUE) {
   UseMethod("parametric_bootstrap", model)
 }
 
@@ -253,7 +257,7 @@ parametric_bootstrap <- function(model, .f, B) {
 #'    Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
 #'    models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
 #'    Multilevel Analysis}, pages 401--433. New York: Springer.
-case_bootstrap <- function(model, .f, B, resample, orig_data = NULL) {
+case_bootstrap <- function(model, .f, B, resample, orig_data = NULL, .refit = TRUE) {
   UseMethod("case_bootstrap", model)
 }
 
@@ -300,7 +304,7 @@ case_bootstrap <- function(model, .f, B, resample, orig_data = NULL) {
 #'    procedure for assessing the relationship between class size and achievement. 
 #'    \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, 
 #'    \bold{52}, 431--443.
-resid_bootstrap <- function(model, .f, B) {
+resid_bootstrap <- function(model, .f, B, .refit = TRUE) {
   UseMethod("resid_bootstrap", model)
 }
 
@@ -362,7 +366,7 @@ resid_bootstrap <- function(model, .f, B) {
 #'    Chambers, R. and Chandra, H. (2013) A random effect block bootstrap for 
 #'    clustered data. \emph{Journal of Computational and Graphical Statistics}, 
 #'    \bold{22}, 452--470.
-reb_bootstrap <- function(model, .f, B, reb_type) {
+reb_bootstrap <- function(model, .f, B, reb_type, .refit = TRUE) {
   UseMethod("reb_bootstrap", model)
 }
 
@@ -407,7 +411,7 @@ reb_bootstrap <- function(model, .f, B, reb_type) {
 #'    Modugno, L., & Giannerini, S. (2015). The Wild Bootstrap for 
 #'    Multilevel Models. \emph{Communications in Statistics -- Theory and Methods}, 
 #'    \bold{44}(22), 4812--4825.
-wild_bootstrap <- function(model, .f, B, hccme, aux.dist) {
+wild_bootstrap <- function(model, .f, B, hccme, aux.dist, .refit = TRUE) {
   UseMethod("wild_bootstrap", model)
 }
 

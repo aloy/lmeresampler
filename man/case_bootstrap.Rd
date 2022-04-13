@@ -7,11 +7,11 @@
 \alias{case_bootstrap}
 \title{Cases Bootstrap for Nested LMEs}
 \usage{
-\method{case_bootstrap}{merMod}(model, .f, B, resample, orig_data = NULL)
+\method{case_bootstrap}{merMod}(model, .f, B, resample, orig_data = NULL, .refit = TRUE)
 
-\method{case_bootstrap}{lme}(model, .f, B, resample, orig_data = NULL)
+\method{case_bootstrap}{lme}(model, .f, B, resample, orig_data = NULL, .refit = TRUE)
 
-case_bootstrap(model, .f, B, resample, orig_data = NULL)
+case_bootstrap(model, .f, B, resample, orig_data = NULL, .refit = TRUE)
 }
 \arguments{
 \item{model}{The model object you wish to bootstrap.}
@@ -29,6 +29,10 @@ school level first, then the student level.}
 \item{orig_data}{the original data frame. This should be specified if variables
 are transformed within the formula for \code{glmer()} or \code{lmer()}
 and the case bootstrap is used.}
+
+\item{.refit}{a logical value indicating whether the model should be refit to 
+the bootstrap resample, or if the simulated bootstrap resample should be 
+returned. Defaults to \code{TRUE}.}
 }
 \value{
 The returned value is an object of class "lmeresamp".

@@ -7,11 +7,11 @@
 \alias{parametric_bootstrap}
 \title{Parametric Bootstrap for Nested LMEs}
 \usage{
-\method{parametric_bootstrap}{merMod}(model, .f, B)
+\method{parametric_bootstrap}{merMod}(model, .f, B, .refit = TRUE)
 
-\method{parametric_bootstrap}{lme}(model, .f, B)
+\method{parametric_bootstrap}{lme}(model, .f, B, .refit = TRUE)
 
-parametric_bootstrap(model, .f, B)
+parametric_bootstrap(model, .f, B, .refit = TRUE)
 }
 \arguments{
 \item{model}{The model object you wish to bootstrap.}
@@ -19,6 +19,10 @@ parametric_bootstrap(model, .f, B)
 \item{.f}{A function returning the statistic(s) of interest.}
 
 \item{B}{The number of bootstrap resamples.}
+
+\item{.refit}{a logical value indicating whether the model should be refit to 
+the bootstrap resample, or if the simulated bootstrap resample should be 
+returned. Defaults to \code{TRUE}.}
 }
 \value{
 The returned value is an object of class "lmeresamp".

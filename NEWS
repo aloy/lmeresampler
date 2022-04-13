@@ -3,6 +3,9 @@
 
 * Additional auxilliary distributions were added for the Wild bootstrap. 
 There are now 6 options, including the standard normal.
+* `.refit` argument can be set to FALSE in order to return the only bootstrap
+responses.
+
 
 BUG FIXES
 * `plot.lmeresamp()` now works if the replicates are a numeric vector rather
