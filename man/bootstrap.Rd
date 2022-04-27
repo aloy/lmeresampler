@@ -22,7 +22,7 @@
 
 \method{bootstrap}{lme}(
   model,
-  .f,
+  .f = extract_parameters,
   type,
   B,
   resample,

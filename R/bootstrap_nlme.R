@@ -1,12 +1,12 @@
 #' @rdname bootstrap
 #' @export
-bootstrap.lme <- function(model, .f, type, B, resample, reb_type, hccme, aux.dist, orig_data = NULL, .refit = TRUE){
+bootstrap.lme <- function(model, .f = extract_parameters, type, B, resample, reb_type, hccme, aux.dist, orig_data = NULL, .refit = TRUE){
   switch(type,
-         parametric = parametric_bootstrap.lme(model, .f, B),
-         residual = resid_bootstrap.lme(model, .f, B),
-         case = case_bootstrap.lme(model, .f, B, resample, orig_data),
-         reb = reb_bootstrap.lme(model, .f, B, reb_type),
-         wild = wild_bootstrap.lme(model, .f, B, hccme, aux.dist))
+         parametric = parametric_bootstrap.lme(model, .f, B, .refit),
+         residual = resid_bootstrap.lme(model, .f, B, .refit),
+         case = case_bootstrap.lme(model, .f, B, resample, orig_data, .refit),
+         reb = reb_bootstrap.lme(model, .f, B, reb_type, .refit),
+         wild = wild_bootstrap.lme(model, .f, B, hccme, aux.dist, .refit))
 }
 
 

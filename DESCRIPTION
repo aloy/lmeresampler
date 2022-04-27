@@ -26,7 +26,8 @@ Imports:
     stats,
     statmod,
     tidyr,
-    magrittr
+    magrittr,
+    tibble
 Suggests:
     lme4 (>= 1.1-7),
     nlme,
