@@ -1,5 +1,30 @@
 #' @title Calculate Bootstrap p-values for fixed effects
 #' 
+#' Perform bootstrap tests based on the t-statistic for each
+#' fixed effect in order to calculate approximate p-values.
+#' 
+#' @details 
+#' The bootstrap test compares the fitted model specified by the user
+#' to reduced models that eliminate a single fixed effect, the same
+#' comparison summarized by the table of coefficients in the summary.
+#' The bootstrap p-value is then calculated as 
+#' $(n_{extreme} + 1) / (B + 1)$.
+#' 
+#' @return 
+#' A tibble giving the table of coefficients from the model summary with a column
+#' appended containing bootstrap p-values.
+#' 
+#' @references 
+#' Davison, A., & Hinkley, D. (1997). Tests. In Bootstrap Methods and their 
+#' Application (Cambridge Series in Statistical and Probabilistic Mathematics, pp. 136-190). 
+#' Cambridge: Cambridge University Press. doi:10.1017/CBO9780511802843.005
+#' 
+#' @examples 
+#' \dontrun{
+#' # This takes a while to run
+#' bootstrap_pvals.merMod(jsp_mod, type = "wild", B = 1000, hccme = "hc2", aux.dist = "mammen")
+#' }
+#' 
 #' @inheritParams bootstrap
 #' @export
 bootstrap_pvals <- function(model, type, B, resample = NULL,

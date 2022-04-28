@@ -1,4 +1,4 @@
-#' @title combine
+#' @title Combine bootstrap results
 #'
 #' @description
 #' Combines bootstrap results from processes split for parallelization.
