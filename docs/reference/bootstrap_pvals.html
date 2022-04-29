@@ -6,7 +6,10 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>REB Bootstrap for Two-Level Nested LMEs — reb_bootstrap.lmerMod • lmeresampler</title>
+<title>Calculate Bootstrap p-values for fixed effects
+
+Perform bootstrap tests based on the t-statistic for each
+fixed effect in order to calculate approximate p-values. — bootstrap_pvals • lmeresampler</title>
 
 <!-- favicons -->
 <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
@@ -46,9 +49,13 @@
 
 
 
-<meta property="og:title" content="REB Bootstrap for Two-Level Nested LMEs — reb_bootstrap.lmerMod" />
-<meta property="og:description" content="Generate random effect block (REB) bootstrap replicates of a statistic for a 
-two-level nested linear mixed-effects model." />
+<meta property="og:title" content="Calculate Bootstrap p-values for fixed effects
+
+Perform bootstrap tests based on the t-statistic for each
+fixed effect in order to calculate approximate p-values. — bootstrap_pvals" />
+<meta property="og:description" content="Calculate Bootstrap p-values for fixed effects
+Perform bootstrap tests based on the t-statistic for each
+fixed effect in order to calculate approximate p-values." />
 <meta property="og:image" content="/logo.png" />
 
 
@@ -129,23 +136,51 @@ two-level nested linear mixed-effects model." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>REB Bootstrap for Two-Level Nested LMEs</h1>
-    <small class="dont-index">Source: <a href='https://github.com/aloy/lmeresampler/blob/master/R/bootstrap_lme4.R'><code>R/bootstrap_lme4.R</code></a>, <a href='https://github.com/aloy/lmeresampler/blob/master/R/bootstrap_nlme.R'><code>R/bootstrap_nlme.R</code></a>, <a href='https://github.com/aloy/lmeresampler/blob/master/R/generics.R'><code>R/generics.R</code></a></small>
-    <div class="hidden name"><code>reb_bootstrap.Rd</code></div>
+    <h1>Calculate Bootstrap p-values for fixed effects
+
+Perform bootstrap tests based on the t-statistic for each
+fixed effect in order to calculate approximate p-values.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/aloy/lmeresampler/blob/master/R/pvals.R'><code>R/pvals.R</code></a></small>
+    <div class="hidden name"><code>bootstrap_pvals.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Generate random effect block (REB) bootstrap replicates of a statistic for a 
-two-level nested linear mixed-effects model.</p>
+    <p>Calculate Bootstrap p-values for fixed effects</p>
+<p>Perform bootstrap tests based on the t-statistic for each
+fixed effect in order to calculate approximate p-values.</p>
     </div>
 
-    <pre class="usage"><span class='co'># S3 method for lmerMod</span>
-<span class='fu'>reb_bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>B</span>, <span class='va'>reb_type</span>, .refit <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
+    <pre class="usage"><span class='fu'>bootstrap_pvals</span><span class='op'>(</span>
+  <span class='va'>model</span>,
+  <span class='va'>type</span>,
+  <span class='va'>B</span>,
+  resample <span class='op'>=</span> <span class='cn'>NULL</span>,
+  reb_type <span class='op'>=</span> <span class='cn'>NULL</span>,
+  hccme <span class='op'>=</span> <span class='cn'>NULL</span>,
+  aux.dist <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span>
+
+<span class='co'># S3 method for merMod</span>
+<span class='fu'>bootstrap_pvals</span><span class='op'>(</span>
+  <span class='va'>model</span>,
+  <span class='va'>type</span>,
+  <span class='va'>B</span>,
+  resample <span class='op'>=</span> <span class='cn'>NULL</span>,
+  reb_type <span class='op'>=</span> <span class='cn'>NULL</span>,
+  hccme <span class='op'>=</span> <span class='cn'>NULL</span>,
+  aux.dist <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span>
 
 <span class='co'># S3 method for lme</span>
-<span class='fu'>reb_bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>B</span>, <span class='va'>reb_type</span>, .refit <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
-
-<span class='fu'>reb_bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>B</span>, <span class='va'>reb_type</span>, .refit <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></pre>
+<span class='fu'>bootstrap_pvals</span><span class='op'>(</span>
+  <span class='va'>model</span>,
+  <span class='va'>type</span>,
+  <span class='va'>B</span>,
+  resample <span class='op'>=</span> <span class='cn'>NULL</span>,
+  reb_type <span class='op'>=</span> <span class='cn'>NULL</span>,
+  hccme <span class='op'>=</span> <span class='cn'>NULL</span>,
+  aux.dist <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -155,12 +190,23 @@ two-level nested linear mixed-effects model.</p>
       <td><p>The model object you wish to bootstrap.</p></td>
     </tr>
     <tr>
-      <th>.f</th>
-      <td><p>A function returning the statistic(s) of interest.</p></td>
+      <th>type</th>
+      <td><p>A character string indicating the type of bootstrap that is being
+requested. Possible values are <code>"parametric"</code>, <code>"residual"</code>, 
+<code>"case"</code>, <code>"wild"</code>, or <code>"reb"</code> 
+(random effect block bootstrap).</p></td>
     </tr>
     <tr>
       <th>B</th>
       <td><p>The number of bootstrap resamples.</p></td>
+    </tr>
+    <tr>
+      <th>resample</th>
+      <td><p>A logical vector specifying whether each level of the model 
+should be resampled in the cases bootstrap. The levels should be specified 
+from the highest level (largest cluster) of the hierarchy to the lowest 
+(observation-level); for example for students within a school, specify the 
+school level first, then the student level.</p></td>
     </tr>
     <tr>
       <th>reb_type</th>
@@ -168,62 +214,42 @@ two-level nested linear mixed-effects model.</p>
 implement. Possible values are <code>0</code>, <code>1</code> or <code>2</code>.</p></td>
     </tr>
     <tr>
-      <th>.refit</th>
-      <td><p>a logical value indicating whether the model should be refit to 
-the bootstrap resample, or if the simulated bootstrap resample should be 
-returned. Defaults to <code>TRUE</code>.</p></td>
+      <th>hccme</th>
+      <td><p>either <code>"hc2"</code> or <code>"hc3"</code>, indicating which 
+heteroscedasticity consistent covariance matrix estimator to use.</p></td>
+    </tr>
+    <tr>
+      <th>aux.dist</th>
+      <td><p>one of <code>"mammen"</code>, <code>"rademacher"</code>, <code>"norm"</code>, 
+<code>"webb"</code>, or <code>"gamma"</code> indicating which auxiliary 
+distribution to draw the errors from</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The returned value is an object of class "lmeresamp".</p>
+    <p>A tibble giving the table of coefficients from the model summary with a column
+appended containing bootstrap p-values.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The random effects block (REB) bootstrap was outlined by Chambers and Chandra (2013)
-and has been developed for two-level nested linear mixed-effects (LME) models. 
-Consider a two-level LME of the form
-$$y = X \beta + Z b + \epsilon$$</p>
-<p>The REB bootstrap algorithm (<code>type = 0</code>) is as follows:</p><ol>
-<li><p>Calculate the nonparametric residual quantities for the fitted model</p><ul>
-<li><p>marginal residuals \(r = y - X\beta\)</p></li>
-<li><p>predicted random effects \(\tilde{b} = (Z^\prime Z)^{-1} Z^\prime r\)</p></li>
-<li><p>error terms \(\tilde{e} = r - Z \tilde{b}\)</p></li>
-</ul></li>
-<li><p>Take a simple random sample, with replacement, of the predicted random effects, \(\tilde{b}\).</p></li>
-<li><p>Draw a simple random sample, with replacement, of the group (cluster) IDs.
-      For each sampled cluster, draw a random sample, with replacement, of size 
-      \(n_i\) from that cluster's vector of error terms, \(\tilde{e}\).</p></li>
-<li><p>Generate bootstrap samples via the fitted model equation 
-     \(y = X \widehat{\beta} + Z \tilde{b} + \tilde{e}\)</p></li>
-<li><p>Refit the model and extract the statistic(s) of interest.</p></li>
-<li><p>Repeat steps 2-5 B times.</p></li>
-</ol>
-
-<p>Variation 1 (<code>type = 1</code>): 
-   The first variation of the REB bootstrap zero centers and rescales the 
-   residual quantities prior to resampling.</p>
-<p>Variation 2 (<code>type = 2</code>):
-   The second variation of the REB bootstrap scales the estimates and centers
-   the bootstrap distributions (i.e., adjusts for bias) after REB bootstrapping.</p>
+    <p>The bootstrap test compares the fitted model specified by the user
+to reduced models that eliminate a single fixed effect, the same
+comparison summarized by the table of coefficients in the summary.
+The bootstrap p-value is then calculated as 
+$(n_extreme + 1) / (B + 1)$.</p>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
-    <p>Chambers, R. and Chandra, H. (2013) A random effect block bootstrap for 
-   clustered data. <em>Journal of Computational and Graphical Statistics</em>, 
-   <b>22</b>, 452--470.</p>
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+    <p>Davison, A., &amp; Hinkley, D. (1997). Tests. In Bootstrap Methods and their 
+Application (Cambridge Series in Statistical and Probabilistic Mathematics, pp. 136-190). 
+Cambridge: Cambridge University Press. doi:10.1017/CBO9780511802843.005</p>
 
-    <div class='dont-index'>
-<ul>
-<li><p>Examples are given in <code><a href='bootstrap.merMod.html'>bootstrap</a></code></p></li>
-<li><p><code><a href='parametric_bootstrap.merMod.html'>parametric_bootstrap</a></code>, <code><a href='resid_bootstrap.merMod.html'>resid_bootstrap</a></code>,
-     <code><a href='case_bootstrap.merMod.html'>case_bootstrap</a></code>, <code>reb_bootstrap</code>, 
-     <code><a href='wild_bootstrap.lmerMod.html'>wild_bootstrap</a></code> for more details on a specific bootstrap.</p></li>
-<li><p><code><a href='https://rdrr.io/pkg/lme4/man/bootMer.html'>bootMer</a></code> in the <span class="pkg">lme4</span> package for an 
-     implementation of (semi-)parametric bootstrap for mixed models.</p></li>
-</ul>
-</div>
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='kw'>if</span> <span class='op'>(</span><span class='cn'>FALSE</span><span class='op'>)</span> <span class='op'>{</span>
+<span class='co'># This takes a while to run</span>
+<span class='fu'>bootstrap_pvals.merMod</span><span class='op'>(</span><span class='va'>jsp_mod</span>, type <span class='op'>=</span> <span class='st'>"wild"</span>, B <span class='op'>=</span> <span class='fl'>1000</span>, hccme <span class='op'>=</span> <span class='st'>"hc2"</span>, aux.dist <span class='op'>=</span> <span class='st'>"mammen"</span><span class='op'>)</span>
+<span class='op'>}</span>
 
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
