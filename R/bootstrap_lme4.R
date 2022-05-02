@@ -7,18 +7,18 @@ bootstrap.merMod <- function(model, .f = extract_parameters, type, B, resample,
                              reb_type, hccme, 
                              aux.dist, orig_data = NULL, .refit = TRUE, varest = "no"){
   switch(type,
-         parametric = parametric_bootstrap.merMod(model, .f, B, .refit, varest),
-         residual = resid_bootstrap.merMod(model, .f, B, .refit, varest),
+         parametric = parametric_bootstrap.merMod(model, .f, B, .refit, type, varest),
+         residual = resid_bootstrap.merMod(model, .f, B, .refit, type, varest),
          case = case_bootstrap.merMod(model, .f, B, resample, orig_data, .refit),
-         reb = reb_bootstrap.lmerMod(model, .f, B, reb_type, .refit, varest),
-         wild = wild_bootstrap.lmerMod(model, .f, B, hccme, aux.dist, .refit, varest))
+         reb = reb_bootstrap.lmerMod(model, .f, B, reb_type, .refit, type, varest),
+         wild = wild_bootstrap.lmerMod(model, .f, B, hccme, aux.dist, .refit, type, varest))
 }
 
 
 #' @rdname parametric_bootstrap
 #' @export
 #' @method parametric_bootstrap merMod
-parametric_bootstrap.merMod <- function(model, .f, B, .refit = TRUE, varest){
+parametric_bootstrap.merMod <- function(model, .f, B, .refit = TRUE, type, varest){
   if(.refit) .f <- match.fun(.f)
   
   # model.fixef <- lme4::fixef(model) # Extract fixed effects
@@ -27,7 +27,7 @@ parametric_bootstrap.merMod <- function(model, .f, B, .refit = TRUE, varest){
   if(!.refit) return(ystar)
   
   # refit here
-  refits <- refit_merMod(ystar, model, .f, varest)
+  refits <- refit_merMod(ystar, model, .f, type, varest)
   
   .bootstrap.completion(model, tstar = refits$tstar, B, .f, type = "parametric", warnings = refits$warnings)
 }
@@ -83,7 +83,7 @@ case_bootstrap.merMod <- function(model, .f, B, resample, orig_data = NULL, .ref
 #' @rdname resid_bootstrap
 #' @export
 #' @method resid_bootstrap merMod
-resid_bootstrap.merMod <- function(model, .f, B, .refit = TRUE, varest){
+resid_bootstrap.merMod <- function(model, .f, B, .refit = TRUE, type, varest){
   
   if(.refit) .f <- match.fun(.f)
   
@@ -122,7 +122,7 @@ resid_bootstrap.merMod <- function(model, .f, B, .refit = TRUE, varest){
   
   if(!.refit) return(ystar)
   
-  refits <- refit_merMod(ystar, model, .f, varest)
+  refits <- refit_merMod(ystar, model, .f, type, varest)
   
   .bootstrap.completion(model, tstar = refits$tstar, B, .f, type = "residual", warnings = refits$warnings)
 }
@@ -134,7 +134,7 @@ resid_bootstrap.merMod <- function(model, .f, B, .refit = TRUE, varest){
 wild_bootstrap.lmerMod <- function(model, .f, B, hccme = c("hc2", "hc3"), 
                                    aux.dist = c("mammen", "rademacher",
                                                 "norm", "webb", "gamma"),
-                                   .refit = TRUE, varest){
+                                   .refit = TRUE, type, varest){
   
   .f <- match.fun(.f)
   hccme <- match.arg(hccme)
@@ -160,7 +160,7 @@ wild_bootstrap.lmerMod <- function(model, .f, B, hccme = c("hc2", "hc3"),
   if(!.refit) return(ystar)
   
   
-  refits <- refit_merMod(ystar, model, .f, varest)
+  refits <- refit_merMod(ystar, model, .f, type, varest)
   
   .bootstrap.completion(model, tstar = refits$tstar, B, .f, type = "wild", warnings = refits$warnings)
 }
@@ -171,7 +171,7 @@ wild_bootstrap.lmerMod <- function(model, .f, B, hccme = c("hc2", "hc3"),
 #' @rdname reb_bootstrap
 #' @export
 #' @method reb_bootstrap lmerMod
-reb_bootstrap.lmerMod <- function(model, .f, B, reb_type, .refit = TRUE){
+reb_bootstrap.lmerMod <- function(model, .f, B, reb_type, .refit = TRUE, type, varest){
   
   if(missing(reb_type)){
     reb_type <- 0
@@ -211,7 +211,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type, .refit = TRUE){
   # Extract bootstrap statistics
   if(reb_type == 2) .f <- extract_parameters.merMod
   
-  refits <- refit_merMod(ystar, model, .f, varest)
+  refits <- refit_merMod(ystar, model, .f, type, varest)
   tstar <- refits$tstar
   # Extract original statistics
   t0 <- .f(model)
