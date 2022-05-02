@@ -153,7 +153,7 @@ refit_merMod <- function(ystar, model, .f) {
   
   f1 <- factory(
     function(model, y) 
-      .f(lme4::refit(object = model, newresp = y))
+      .fvarest(y, model, .f) #Original before StudCI addition .f(lme4::refit(object = model, newresp = y))
   )
   stats <- purrr::map(ystar2, function(.y) f1(model, .y))
 
