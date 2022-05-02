@@ -234,3 +234,17 @@ prep_cases.merMod <- function(model, resample, orig_data) {
   
   return(list(data, clusters))
 }
+
+#Function for running .f and obtain variance estimates for bootstrap resamples
+.fvarest <- function(y, model, .f, type, varest) {
+  
+  #Refit the model
+  refit <- lme4::refit(object = model, newresp = y)
+  
+  #Acquire the refit-point estimate
+  refitestimate <- .f(refit)
+  
+  #return the statistic, variance estimate not implemented yet
+  return(refitestimate)
+
+}
