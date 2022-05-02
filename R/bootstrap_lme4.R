@@ -10,7 +10,7 @@ bootstrap.merMod <- function(model, .f = extract_parameters, type, B, resample,
          parametric = parametric_bootstrap.merMod(model, .f, B, .refit, varest),
          residual = resid_bootstrap.merMod(model, .f, B, .refit, varest),
          case = case_bootstrap.merMod(model, .f, B, resample, orig_data, .refit),
-         reb = reb_bootstrap.lmerMod(model, .f, B, reb_type, .refit),
+         reb = reb_bootstrap.lmerMod(model, .f, B, reb_type, .refit, varest),
          wild = wild_bootstrap.lmerMod(model, .f, B, hccme, aux.dist, .refit, varest))
 }
 
@@ -211,7 +211,7 @@ reb_bootstrap.lmerMod <- function(model, .f, B, reb_type, .refit = TRUE){
   # Extract bootstrap statistics
   if(reb_type == 2) .f <- extract_parameters.merMod
   
-  refits <- refit_merMod(ystar, model, .f)
+  refits <- refit_merMod(ystar, model, .f, varest)
   tstar <- refits$tstar
   # Extract original statistics
   t0 <- .f(model)
