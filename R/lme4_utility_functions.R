@@ -140,7 +140,7 @@ arrange_ranefs.lme <- function(b, fl, levs, cnms){
 #' @keywords internal
 #' @noRd
 #' @importFrom stats napredict
-refit_merMod <- function(ystar, model, .f, varest) {
+refit_merMod <- function(ystar, model, .f, type, varest) {
   error <- NULL
   
   # Adjustment to respect na.action
@@ -153,7 +153,7 @@ refit_merMod <- function(ystar, model, .f, varest) {
   
   f1 <- factory(
     function(model, y) 
-      .fvarest(y, model, .f, varest) #Original before StudCI addition .f(lme4::refit(object = model, newresp = y))
+      .fvarest(y, model, .f, type, varest) #Original before StudCI addition .f(lme4::refit(object = model, newresp = y))
   )
   stats <- purrr::map(ystar2, function(.y) f1(model, .y))
 
