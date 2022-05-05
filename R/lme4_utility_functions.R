@@ -141,6 +141,24 @@ arrange_ranefs.lme <- function(b, fl, levs, cnms){
 #' @noRd
 #' @importFrom stats napredict
 refit_merMod <- function(ystar, model, .f, type, varest) {
+  
+  #Check varest for possible errors
+  if (varest != "no") {
+    
+    if (!(varest == "analyticalf" | varest == "nestboot")) {
+      
+      stop("Improper 'varest'. Use 'no' (default without definition), 'analyticalf', or 'nestboot'.")
+      
+    }
+    
+    else if ((type == "reb" | type == "case") & (varest == "analyticalf" | varest == "nestboot")) {
+      
+      stop("'varest' other than 'no' (default) currently not available for case or reb bootstrap methods.")
+      
+    }
+    
+  }
+  
   error <- NULL
   
   # Adjustment to respect na.action
@@ -153,7 +171,7 @@ refit_merMod <- function(ystar, model, .f, type, varest) {
   
   f1 <- factory(
     function(model, y) 
-      .fvarest(y, model, .f, type, varest) #Original before StudCI addition .f(lme4::refit(object = model, newresp = y))
+      .fvarest(y, model, .f, varest)
   )
   stats <- purrr::map(ystar2, function(.y) f1(model, .y))
 
@@ -236,7 +254,7 @@ prep_cases.merMod <- function(model, resample, orig_data) {
 }
 
 #Function for running .f and obtain variance estimates for bootstrap resamples
-.fvarest <- function(y, model, .f, type, varest) {
+.fvarest <- function(y, model, .f, varest) {
   
   #Refit the model
   refit <- lme4::refit(object = model, newresp = y)
