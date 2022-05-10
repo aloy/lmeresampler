@@ -146,15 +146,16 @@ refit_merMod <- function(ystar, model, .f, type, varest) {
   if (varest != "no") {
     
     if (!(varest == "analyticalf" | varest == "nestboot")) {
-      
       stop("Improper 'varest'. Use 'no' (default without definition), 'analyticalf', or 'nestboot'.")
-      
     }
     
     else if ((type == "reb" | type == "case") & (varest == "analyticalf" | varest == "nestboot")) {
-      
       stop("'varest' other than 'no' (default) currently not available for case or reb bootstrap methods.")
-      
+    }
+    
+    #These can be removed once the nestboot is implemented
+    else if (varest == "nestboot") {
+      stop("Variance estimation based on 'nestboot' not implemented yet. As 'varest', use 'no' (default without definition) or 'analyticalf'." )
     }
     
   }
@@ -261,8 +262,34 @@ prep_cases.merMod <- function(model, resample, orig_data) {
   
   #Acquire the refit-point estimate
   refitestimate <- .f(refit)
-  
-  #return the statistic, variance estimate not implemented yet
-  return(refitestimate)
 
+#Procedures for obtaining variance estimates (notice the varest-error checking done already in refit_merMod)
+if (varest != "no") {
+  
+  #Acquire the analytical variance
+  if (varest == "analyticalf") {
+    
+      #Obtain the variances
+      variances <- diag(vcov(refit))
+      
+    } else {
+    #"Placeholder for nested-bootstrap variance estimation, not implemented yet.
+    return(refitestimate)
+  }
+  
+  #Return the bootstrap estimates with variances
+  if(is.data.frame(refitestimate)) {
+  result <- cbind(refitestimate, data.frame(var = as.list(variances))) #The (Intercept) parentheses cause extra dots in the var name
+  return(result)
+    
+  } else {
+  result <- c(refitestimate, var = variances)
+  return(result)
+  }
+   
+  }
+
+  #No variance estimates were required, return the .f result only
+  return(refitestimate)
+  
 }
