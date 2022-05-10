@@ -14,9 +14,6 @@
 #' @keywords internal
 #' @noRd
 .bootstrap.completion <- function(model, tstar, B, .f, type = type, warnings){
-  t0 <- .f(model)
-  
-  nsim <- length(tstar)
   
   # tstar <- do.call("cbind", tstar) # Can these be nested?
   # row.names(tstar) <- names(t0)
@@ -28,15 +25,20 @@
   # } else fail.msgs <- NULL
   
   # prep for stats df
-  
+
+  t0 <- .f(model)
+  t0len <- length(t0)
+  nsim <- length(tstar)
   observed <- t0
   
   if(is.numeric(t0)) {
-    if(length(t0) == 1) {
-      replicates <- unlist(tstar)
-      rep.mean <- mean(replicates)
-      se <- sd(replicates)
-      bias <- rep.mean - observed
+    
+    replicates <- dplyr::bind_rows(tstar)
+    rep.mean <- colMeans(replicates[, 1:t0len])
+    se <- unlist(purrr::map(replicates[, 1:t0len], sd))
+    bias <- rep.mean - observed
+    
+    if(t0len == 1) {
       stats <- dplyr::tibble(observed, rep.mean, se, bias)
     } else{
       # Check for names
@@ -44,11 +46,6 @@
       if(is.null(nms)) 
         warning("Lists of unnamed vectors are converted to data frames.\nPlease create named vectors in .f() if this is not the desired behavior.",
                 call. = FALSE)
-      
-      replicates <- dplyr::bind_rows(tstar)
-      rep.mean <- colMeans(replicates)
-      se <- unlist(purrr::map(replicates, sd))
-      bias <- rep.mean - observed
       stats <- dplyr::tibble(term = names(t0), observed, rep.mean, se, bias)
     }
     
