@@ -15,22 +15,22 @@
 #' @noRd
 .bootstrap.completion <- function(model, tstar, B, .f, type = type, warnings){
   t0 <- .f(model)
-  
+
   nsim <- length(tstar)
-  
+
   # tstar <- do.call("cbind", tstar) # Can these be nested?
   # row.names(tstar) <- names(t0)
-  
+
   # if((nfail <- sum(bad.runs <- apply(is.na(tstar), 2, all))) > 0) {
   #   warning("some bootstrap runs failed (", nfail, "/", nsim, ")")
   #   fail.msgs <- purrr::map_chr(tstar[bad.runs], .f = attr, FUN.VALUE = character(1),
   #                               "fail.msgs")
   # } else fail.msgs <- NULL
-  
+
   # prep for stats df
-  
+
   observed <- t0
-  
+
   if(is.numeric(t0)) {
     if(length(t0) == 1) {
       replicates <- unlist(tstar)
@@ -41,17 +41,18 @@
     } else{
       # Check for names
       nms <- unlist(lapply(tstar, names))
-      if(is.null(nms)) 
+      if(is.null(nms))
         warning("Lists of unnamed vectors are converted to data frames.\nPlease create named vectors in .f() if this is not the desired behavior.",
                 call. = FALSE)
-      
+
+      tstar <- tstar[vapply(tstar, is.numeric, FUN.VALUE = logical(1))]
       replicates <- dplyr::bind_rows(tstar)
       rep.mean <- colMeans(replicates)
       se <- unlist(purrr::map(replicates, sd))
       bias <- rep.mean - observed
       stats <- dplyr::tibble(term = names(t0), observed, rep.mean, se, bias)
     }
-    
+
   } else{
     if(is.data.frame(t0)) {
       .ids <- rep(seq_along(tstar), times = vapply(tstar, nrow, FUN.VALUE = 0L))
@@ -60,16 +61,16 @@
     stats <- NULL
   }
 
-  
+
   if (inherits(model, "lme")) data <- model$data
   else data <- model@frame
-  
+
   RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
                         stats = stats, B = B, data = data,
                         seed = .Random.seed, type = type, call = match.call(),
-                        message = warnings$message, warning = warnings$warning, error = warnings$error), 
+                        message = warnings$message, warning = warnings$warning, error = warnings$error),
                    class = "lmeresamp")
-  
+
   # attr(RES,"bootFail") <- nfail
   # attr(RES,"boot.fail.msgs") <- fail.msgs
   return(RES)
