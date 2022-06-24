@@ -39,6 +39,8 @@ print.lmeresamp <- function(x, ci = FALSE, ...){
 #' Print table of coefficients produced by \code{bootstrap_pvals}.
 #' 
 #' @param x the coef_tbl object to print
+#' @method print coef_tbl
+#' @export 
 print.coef_tbl <- function(x) {
   cat(paste("Bootstrap type:", x$type, "\n"))
   cat(paste("\n"))

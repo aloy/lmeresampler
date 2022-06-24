@@ -4,7 +4,7 @@
 \alias{print.coef_tbl}
 \title{Print coefficients from a \code{coef_tbl} object}
 \usage{
-print.coef_tbl(x)
+\method{print}{coef_tbl}(x)
 }
 \arguments{
 \item{x}{the coef_tbl object to print}
