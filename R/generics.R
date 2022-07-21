@@ -161,7 +161,7 @@
 #'    Multilevel Models. \emph{Communications in Statistics -- Theory and Methods}, 
 #'    \bold{44}(22), 4812--4825.
 bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL, 
-                      hccme = NULL, aux.dist = NULL, orig_data = NULL, .refit = TRUE) {
+                      hccme = NULL, aux.dist = NULL, orig_data = NULL, .refit = TRUE, rbootnoise = 0) {
   if(!type %in% c("parametric", "residual", "case", "wild", "reb"))
     stop("'type' must be one of 'parametric', 'residual', 'case', 'wild', or 'reb'")
   if(!is.null(reb_type))
@@ -304,7 +304,7 @@ case_bootstrap <- function(model, .f, B, resample, orig_data = NULL, .refit = TR
 #'    procedure for assessing the relationship between class size and achievement. 
 #'    \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, 
 #'    \bold{52}, 431--443.
-resid_bootstrap <- function(model, .f, B, .refit = TRUE) {
+resid_bootstrap <- function(model, .f, B, .refit = TRUE, rbootnoise) {
   UseMethod("resid_bootstrap", model)
 }
 
