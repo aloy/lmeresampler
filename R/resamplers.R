@@ -107,10 +107,14 @@
 #' CGR resampling from lmerMod objects
 #' @keywords internal
 #' @noRd
-.resample.cgr <- function(glmm, b, e, level.num, Ztlist, Xbeta, vclist, sig0, invlink){
+.resample.cgr <- function(glmm, b, e, level.num, Ztlist, Xbeta, vclist, sig0, invlink, nclusters, rbootnoise, sde){
   
   # Resample Uhat
   ustar <- purrr::map(b, .f = dplyr::slice_sample, prop = 1, replace = TRUE)
+  
+  #Add technical noise to avoid "system is exactly singular" errors with small number of clusters
+  ustar[["cluster"]][["(Intercept)"]] <- ustar[["cluster"]][["(Intercept)"]] + rnorm(nclusters, 0, rbootnoise * sde)
+  
   ustar <- purrr::map2(ustar, vclist, scale_center_ranef)
   
   # Structure u*
