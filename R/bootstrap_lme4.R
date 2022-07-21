@@ -5,10 +5,10 @@
 #' na.omit predict resid simulate sd confint quantile
 bootstrap.merMod <- function(model, .f = extract_parameters, type, B, resample, 
                              reb_type, hccme, 
-                             aux.dist, orig_data = NULL, .refit = TRUE){
+                             aux.dist, orig_data = NULL, .refit = TRUE, rbootnoise = 0){
   switch(type,
          parametric = parametric_bootstrap.merMod(model, .f, B, .refit),
-         residual = resid_bootstrap.merMod(model, .f, B, .refit),
+         residual = resid_bootstrap.merMod(model, .f, B, .refit, rbootnoise),
          case = case_bootstrap.merMod(model, .f, B, resample, orig_data, .refit),
          reb = reb_bootstrap.lmerMod(model, .f, B, reb_type, .refit),
          wild = wild_bootstrap.lmerMod(model, .f, B, hccme, aux.dist, .refit))
@@ -83,13 +83,16 @@ case_bootstrap.merMod <- function(model, .f, B, resample, orig_data = NULL, .ref
 #' @rdname resid_bootstrap
 #' @export
 #' @method resid_bootstrap merMod
-resid_bootstrap.merMod <- function(model, .f, B, .refit = TRUE){
+resid_bootstrap.merMod <- function(model, .f, B, .refit = TRUE, rbootnoise){
   
   if(.refit) .f <- match.fun(.f)
   
   glmm <- lme4::isGLMM(model)
   
   setup <- .setup(model, type = "residual")
+  
+  #For technical noise devife SD of e
+  sde <- sd(setup[["e"]])
   
   ystar <- as.data.frame(
     replicate(
@@ -103,7 +106,9 @@ resid_bootstrap.merMod <- function(model, .f, B, .refit = TRUE){
         Xbeta = setup$Xbeta,
         vclist = setup$vclist,
         sig0 = setup$sig0,
-        invlink = ifelse(glmm, model@resp$family$linkinv, NULL)
+        invlink = ifelse(glmm, model@resp$family$linkinv, NULL),
+        rbootnoise = rbootnoise,
+        sde = sde
       )
     )
   )
