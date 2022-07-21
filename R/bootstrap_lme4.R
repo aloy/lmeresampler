@@ -5,7 +5,7 @@
 #' na.omit predict resid simulate sd confint quantile
 bootstrap.merMod <- function(model, .f = extract_parameters, type, B, resample, 
                              reb_type, hccme, 
-                             aux.dist, orig_data = NULL, .refit = TRUE, rbootnoise){
+                             aux.dist, orig_data = NULL, .refit = TRUE, rbootnoise = 0){
   switch(type,
          parametric = parametric_bootstrap.merMod(model, .f, B, .refit),
          residual = resid_bootstrap.merMod(model, .f, B, .refit, rbootnoise),
