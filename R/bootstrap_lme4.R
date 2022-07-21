@@ -94,6 +94,9 @@ resid_bootstrap.merMod <- function(model, .f, B, .refit = TRUE, rbootnoise){
   #For technical noise devife SD of e
   sde <- sd(setup[["e"]])
   
+  #Calculate number of clusters outside the replications
+  nclusters <- length(setup[["b"]][["cluster"]][["(Intercept)"]])
+  
   ystar <- as.data.frame(
     replicate(
       n = B, 
@@ -107,6 +110,7 @@ resid_bootstrap.merMod <- function(model, .f, B, .refit = TRUE, rbootnoise){
         vclist = setup$vclist,
         sig0 = setup$sig0,
         invlink = ifelse(glmm, model@resp$family$linkinv, NULL),
+        nclusters,
         rbootnoise = rbootnoise,
         sde = sde
       )
