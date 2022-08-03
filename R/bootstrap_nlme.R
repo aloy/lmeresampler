@@ -1,6 +1,12 @@
 #' @rdname bootstrap
 #' @export
-bootstrap.lme <- function(model, .f, type, B, resample, reb_type, hccme, aux.dist, orig_data = NULL, .refit = TRUE){
+bootstrap.lme <- function(model, .f, type, B, resample, reb_type, hccme, aux.dist, orig_data = NULL, .refit = TRUE, rbootnoise = 0){
+  
+  if (rbootnoise != 0 && type == "residual") {
+    warning("'rbootnoise' ignored. Technical 2-level noise implemented currently
+            only for LME4 models.")
+  }
+  
   switch(type,
          parametric = parametric_bootstrap.lme(model, .f, B),
          residual = resid_bootstrap.lme(model, .f, B),
