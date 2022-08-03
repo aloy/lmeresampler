@@ -113,8 +113,10 @@
   ustar <- purrr::map(b, .f = dplyr::slice_sample, prop = 1, replace = TRUE)
   
   #Add technical noise to avoid "system is exactly singular" errors with small number of clusters
-  ustar[["cluster"]][["(Intercept)"]] <- ustar[["cluster"]][["(Intercept)"]] + rnorm(nclusters, 0, rbootnoise * sde)
-  
+  if(rbootnoise != 0) {
+    ustar[["cluster"]][["(Intercept)"]] <- ustar[["cluster"]][["(Intercept)"]] + rnorm(nclusters, 0, rbootnoise * sde)
+  }
+    
   ustar <- purrr::map2(ustar, vclist, scale_center_ranef)
   
   # Structure u*
