@@ -114,7 +114,7 @@
   
   #Add technical noise to avoid "system is exactly singular" errors with small number of clusters
   if(rbootnoise != 0) {
-    ustar[["cluster"]][["(Intercept)"]] <- ustar[["cluster"]][["(Intercept)"]] + rnorm(nclusters, 0, rbootnoise * sde)
+    ustar[[1]][["(Intercept)"]] <- ustar[[1]][["(Intercept)"]] + rnorm(nclusters, 0, rbootnoise * sde)
   }
     
   ustar <- purrr::map2(ustar, vclist, scale_center_ranef)

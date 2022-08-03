@@ -104,7 +104,7 @@ resid_bootstrap.merMod <- function(model, .f, B, .refit = TRUE, rbootnoise){
   sde <- sd(setup[["e"]])
   
   #Calculate the number of clusters
-  nclusters <- length(setup[["b"]][["cluster"]][["(Intercept)"]])
+  nclusters <- length(setup[["b"]][[1]][["(Intercept)"]])
   
   ystar <- as.data.frame(
     replicate(
