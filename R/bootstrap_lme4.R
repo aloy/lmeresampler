@@ -89,8 +89,6 @@ resid_bootstrap.merMod <- function(model, .f, B, .refit = TRUE, rbootnoise){
   
   glmm <- lme4::isGLMM(model)
   
-  setup <- .setup(model, type = "residual")
-  
   #Check the validity of rbootnoise
   if(!(rbootnoise >= 0 && rbootnoise <= 1)) {
     stop("'rbootnoise' between 0 to 1 should be used, such as 0.001. The number
@@ -99,6 +97,8 @@ resid_bootstrap.merMod <- function(model, .f, B, .refit = TRUE, rbootnoise){
          ratios can be used if, for example, small number of clusters cause
          errors with the residual bootstrap.")
   }
+
+  setup <- .setup(model, type = "residual", rbootnoise = rbootnoise)
     
   #For technical noise define the SD of e
   sde <- sd(setup[["e"]])
