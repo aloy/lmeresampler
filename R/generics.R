@@ -304,7 +304,7 @@ case_bootstrap <- function(model, .f, B, resample, orig_data = NULL, .refit = TR
 #'    procedure for assessing the relationship between class size and achievement. 
 #'    \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, 
 #'    \bold{52}, 431--443.
-resid_bootstrap <- function(model, .f, B, .refit = TRUE, rbootnoise) {
+resid_bootstrap <- function(model, .f, B, .refit = TRUE, rbootnoise = 0) {
   UseMethod("resid_bootstrap", model)
 }
 
