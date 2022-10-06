@@ -2,14 +2,14 @@
 #' @export
 bootstrap.lme <- function(model, .f, type, B, resample, reb_type, hccme, aux.dist, orig_data = NULL, .refit = TRUE, rbootnoise = 0){
   
-  if (rbootnoise != 0 && type == "residual") {
+  if (rbootnoise != 0) {
     warning("'rbootnoise' ignored. Technical 2-level noise implemented currently
             only for LME4 models.")
   }
   
   switch(type,
          parametric = parametric_bootstrap.lme(model, .f, B),
-         residual = resid_bootstrap.lme(model, .f, B),
+         residual = resid_bootstrap.lme(model, .f, B, rbootnoise), 
          case = case_bootstrap.lme(model, .f, B, resample, orig_data),
          reb = reb_bootstrap.lme(model, .f, B, reb_type),
          wild = wild_bootstrap.lme(model, .f, B, hccme, aux.dist))
@@ -133,7 +133,7 @@ reb_bootstrap.lme <- function(model, .f, B, reb_type, .refit = TRUE){
 #' @rdname resid_bootstrap
 #' @inheritParams bootstrap
 #' @export
-resid_bootstrap.lme <- function(model, .f, B, .refit = TRUE){
+resid_bootstrap.lme <- function(model, .f, B, .refit = TRUE, rbootnoise){
   
   .f <- match.fun(.f)
   
