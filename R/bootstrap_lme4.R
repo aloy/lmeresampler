@@ -6,6 +6,11 @@
 bootstrap.merMod <- function(model, .f = extract_parameters, type, B, resample, 
                              reb_type, hccme, 
                              aux.dist, orig_data = NULL, .refit = TRUE, rbootnoise = 0){
+  
+  if(type != "residual" && rbootnoise != 0) {
+  warning("'rbootnoise' ignored, the argument is applicable only with residual bootstrapping.") 
+  }
+  
   switch(type,
          parametric = parametric_bootstrap.merMod(model, .f, B, .refit),
          residual = resid_bootstrap.merMod(model, .f, B, .refit, rbootnoise),
@@ -83,7 +88,7 @@ case_bootstrap.merMod <- function(model, .f, B, resample, orig_data = NULL, .ref
 #' @rdname resid_bootstrap
 #' @export
 #' @method resid_bootstrap merMod
-resid_bootstrap.merMod <- function(model, .f, B, .refit = TRUE, rbootnoise){
+resid_bootstrap.merMod <- function(model, .f, B, .refit = TRUE, rbootnoise = 0){
   
   if(.refit) .f <- match.fun(.f)
   
