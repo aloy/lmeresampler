@@ -3,8 +3,8 @@
 bootstrap.lme <- function(model, .f, type, B, resample, reb_type, hccme, aux.dist, orig_data = NULL, .refit = TRUE, rbootnoise = 0){
   
   if (rbootnoise != 0) {
-    warning("'rbootnoise' ignored. Technical 2-level noise implemented currently
-            only for LME4 models.")
+    stop("'rbootnoise' implemented currently
+            only for LME4 models. Do not define or use default 0.")
   }
   
   switch(type,

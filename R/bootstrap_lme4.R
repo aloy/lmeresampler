@@ -8,7 +8,7 @@ bootstrap.merMod <- function(model, .f = extract_parameters, type, B, resample,
                              aux.dist, orig_data = NULL, .refit = TRUE, rbootnoise = 0){
   
   if(type != "residual" && rbootnoise != 0) {
-  warning("'rbootnoise' ignored, the argument is applicable only with residual bootstrapping.") 
+  stop("'rbootnoise' applicable only with residual bootstrapping. Do not define or use default 0.") 
   }
   
   switch(type,
