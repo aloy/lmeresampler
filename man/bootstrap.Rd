@@ -17,7 +17,8 @@
   hccme,
   aux.dist,
   orig_data = NULL,
-  .refit = TRUE
+  .refit = TRUE,
+  rbootnoise = 0
 )
 
 \method{bootstrap}{lme}(
@@ -30,7 +31,8 @@
   hccme,
   aux.dist,
   orig_data = NULL,
-  .refit = TRUE
+  .refit = TRUE,
+  rbootnoise = 0
 )
 
 bootstrap(
@@ -43,7 +45,8 @@ bootstrap(
   hccme = NULL,
   aux.dist = NULL,
   orig_data = NULL,
-  .refit = TRUE
+  .refit = TRUE,
+  rbootnoise = 0
 )
 }
 \arguments{
@@ -81,6 +84,16 @@ and the case bootstrap is used.}
 \item{.refit}{a logical value indicating whether the model should be refit to 
 the bootstrap resample, or if the simulated bootstrap resample should be 
 returned. Defaults to \code{TRUE}.}
+
+\item{rbootnoise}{a numeric value between 0-1 indicating the strength of
+technical 2-level noise added in relation to the 1-level variation (in
+standard deviations) during residual bootstrapping. Minuscule noise, such
+as \code{rbootnoise = 0.0001}, can be used to avoid errors with singular
+matrices when exactly the same values are replicated many times during
+the bootstrapping, or when the model being processed failed to return any
+2-level variation. Currently applicable only with \code{lme4::lmer}
+models. The feature is not tested exhaustively. Defaults to \code{0} (i.e.
+not used by default).}
 }
 \value{
 The returned value is an object of class "lmeresamp". This is a list
