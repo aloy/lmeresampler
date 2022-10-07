@@ -34,11 +34,11 @@
 #'     technical 2-level noise added in relation to the 1-level variation (in
 #'     standard deviations) during residual bootstrapping. Minuscule noise, such
 #'     as \code{rbootnoise = 0.0001}, can be used to avoid errors with singular
-#'     matrices when exactly the same values are replicated many times during
-#'     the bootstrapping, or when the model being processed failed to return any
+#'     matrices when exactly the same values are replicated during the
+#'     bootstrapping, or when the model being processed fails to return any
 #'     2-level variation. Currently applicable only with \code{lme4::lmer}
-#'     models. The feature is not tested exhaustively. Defaults to \code{0} (i.e.
-#'     not used by default).
+#'     models. The feature has been tested with 2-level random-intercept models
+#'     with predictors. Defaults to \code{0} (i.e. not used by default).
 #' @details
 #' All of the below methods have been implemented for nested linear mixed-effects
 #' models fit by \code{lmer} (i.e., an \code{lmerMod} object) and \code{lme} 
