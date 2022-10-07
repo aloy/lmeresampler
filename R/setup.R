@@ -61,7 +61,7 @@
     
     #Add rbootnoise to 2-level variance when requested
     if (rbootnoise != 0) {
-      varcor[[1]][[1]] <- varcor[[1]][[1]] + (attr(VarCorr(model), "sc")*rbootnoise)^2
+      varcor[[1]][[1]] <- varcor[[1]][[1]] + (attr(lme4::VarCorr(model), "sc")*rbootnoise)^2
     }
     vclist <- purrr::map(seq_along(b), .f = ~bdiag(varcor[[names(b)[.x]]]))
     names(vclist) <- names(b)
