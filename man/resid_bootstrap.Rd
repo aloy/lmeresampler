@@ -32,7 +32,8 @@ matrices when exactly the same values are replicated during the
 bootstrapping, or when the model being processed fails to return any
 2-level variation. Currently applicable only with \code{lme4::lmer}
 models. The feature has been tested with 2-level random-intercept models
-with predictors. Defaults to \code{0} (i.e. not used by default).}
+with predictors. Defaults to \code{0} (i.e. the feature is not used by
+default).}
 }
 \value{
 The returned value is an object of class "lmeresamp".
