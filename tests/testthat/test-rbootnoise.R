@@ -67,6 +67,8 @@ test_that("compare rbootnoise = 0 to lmeresampler 0.2.1.99999 results before the
   
   comparison <- identical(boo[["stats"]], A071022ref[["stats"]])
   expect_true(comparison, info = NULL, label = NULL)
+  comparison <- identical(boo[["replicates"]], A071022ref[["replicates"]])
+  expect_true(comparison, info = NULL, label = NULL)
 })
 
 test_that("compare rbootnoise = 0.0001 to lmeresampler 0.2.1.99999 results before the implementation of the feature",{
@@ -130,6 +132,8 @@ test_that("compare rbootnoise = 0.0001 to lmeresampler 0.2.1.99999 results befor
   
   comparison <- identical(boo[["stats"]], A071022ref[["stats"]])
   expect_false(comparison, info = NULL, label = NULL)
+  comparison <- identical(boo[["replicates"]], A071022ref[["replicates"]])
+  expect_false(comparison, info = NULL, label = NULL)
 })
 
 test_that("compare rbootnoise = 0.0001 to the results of the first implementation of the feature",{
@@ -192,5 +196,7 @@ test_that("compare rbootnoise = 0.0001 to the results of the first implementatio
   boo <- bootstrap(model, .f = fixef, type = "residual", B = nsim, rbootnoise = 0.0001)
   
   comparison <- identical(boo[["stats"]], B071022ref[["stats"]])
+  expect_true(comparison, info = NULL, label = NULL)
+  comparison <- identical(boo[["replicates"]], B071022ref[["replicates"]])
   expect_true(comparison, info = NULL, label = NULL)
 })
