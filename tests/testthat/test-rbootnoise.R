@@ -6,7 +6,7 @@ data(jsp728, package = "lmeresampler")
 context("rbootnoise")
 # ==============================================================================
 
-test_that("compare rbootnoise = 0 to lmeresampler 0.2.2 results before the implementation of the feature",{
+test_that("compare rbootnoise = 0 to lmeresampler 0.2.1.99999 results before the implementation of the feature",{
   
   #Reference data creator: Ilmari Tamminen
   
@@ -69,7 +69,7 @@ test_that("compare rbootnoise = 0 to lmeresampler 0.2.2 results before the imple
   expect_true(comparison, info = NULL, label = NULL)
 })
 
-test_that("compare rbootnoise = 0.0001 to lmeresampler 0.2.2 results before the implementation of the feature",{
+test_that("compare rbootnoise = 0.0001 to lmeresampler 0.2.1.99999 results before the implementation of the feature",{
   
   #Reference data creator: Ilmari Tamminen
   
