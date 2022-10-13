@@ -6,7 +6,7 @@ data(jsp728, package = "lmeresampler")
 context("rbootnoise")
 # ==============================================================================
 
-test_that("compare rbootnoise = 0 to lmeresampler 0.2.1.99999 results before the implementation of the feature",{
+test_that("compare rbootnoise = 0 to lmeresampler 0.2.2 results before the implementation of the feature",{
   
   #Reference data creator: Ilmari Tamminen
   
@@ -29,7 +29,7 @@ test_that("compare rbootnoise = 0 to lmeresampler 0.2.1.99999 results before the
   #[1] stats     graphics  grDevices utils     datasets  methods   base     
   
   #other attached packages:
-  #[1] lmeresampler_0.2.1.99999 lme4_1.1-29              Matrix_1.4-1            
+  #[1] lmeresampler_0.2.2 lme4_1.1-29        Matrix_1.4-1      
   
   #loaded via a namespace (and not attached):
   #[1] Rcpp_1.0.8.3         lubridate_1.8.0      lattice_0.20-45      tidyr_1.2.1          prettyunits_1.1.1   
@@ -38,7 +38,7 @@ test_that("compare rbootnoise = 0 to lmeresampler 0.2.1.99999 results before the
   #[16] curl_4.3.2           rstudioapi_0.13      minqa_1.2.4          callr_3.7.0          nloptr_2.0.3        
   #[21] desc_1.4.1           diagonals_6.4.0      devtools_2.4.3       splines_4.2.1        statmod_1.4.37      
   #[26] stringr_1.4.1        munsell_0.5.0        compiler_4.2.1       janitor_2.1.0        pkgconfig_2.0.3     
-  #[31] pkgbuild_1.3.1       mgcv_1.8-40          tidyselect_1.1.2     tibble_3.1.7         fansi_1.0.3         
+  #[31] pkgbuild_1.3.1       mgcv_1.8-40          tidyselect_1.2.0     tibble_3.1.7         fansi_1.0.3         
   #[36] crayon_1.5.1         dplyr_1.0.10         withr_2.5.0          MASS_7.3-57          distributional_0.3.1
   #[41] ggdist_3.2.0         grid_4.2.1           nlme_3.1-158         gtable_0.3.1         lifecycle_1.0.3     
   #[46] magrittr_2.0.3       scales_1.2.1         cli_3.3.0            stringi_1.7.8        cachem_1.0.6        
@@ -46,7 +46,7 @@ test_that("compare rbootnoise = 0 to lmeresampler 0.2.1.99999 results before the
   #[56] ellipsis_0.3.2       generics_0.1.3       vctrs_0.4.1          boot_1.3-28          tools_4.2.1         
   #[61] forcats_0.5.2        rcmdcheck_1.4.0      glue_1.6.2           purrr_0.3.4          processx_3.6.1      
   #[66] pkgload_1.3.0        fastmap_1.1.0        nlmeU_0.70-9         colorspace_2.0-3     xopen_1.0.0         
-  #[71] sessioninfo_1.2.2    memoise_2.0.1        usethis_2.1.6       
+  #[71] sessioninfo_1.2.2    memoise_2.0.1        usethis_2.1.6
   
   #RStudio 2022.02.0+443 "Prairie Trillium" Release (9f7969398b90468440a501cf065295d9050bb776, 2022-02-16) for Windows
   #Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) QtWebEngine/5.12.8 Chrome/69.0.3497.128 Safari/537.36
@@ -71,7 +71,7 @@ test_that("compare rbootnoise = 0 to lmeresampler 0.2.1.99999 results before the
   expect_true(comparison, info = NULL, label = NULL)
 })
 
-test_that("compare rbootnoise = 0.0001 to lmeresampler 0.2.1.99999 results before the implementation of the feature",{
+test_that("compare rbootnoise = 0.0001 to lmeresampler 0.2.2 results before the implementation of the feature",{
   
   #Reference data creator: Ilmari Tamminen
   
@@ -94,7 +94,7 @@ test_that("compare rbootnoise = 0.0001 to lmeresampler 0.2.1.99999 results befor
   #[1] stats     graphics  grDevices utils     datasets  methods   base     
   
   #other attached packages:
-  #[1] lmeresampler_0.2.1.99999 lme4_1.1-29              Matrix_1.4-1            
+  #[1] lmeresampler_0.2.2 lme4_1.1-29        Matrix_1.4-1      
   
   #loaded via a namespace (and not attached):
   #[1] Rcpp_1.0.8.3         lubridate_1.8.0      lattice_0.20-45      tidyr_1.2.1          prettyunits_1.1.1   
@@ -103,7 +103,7 @@ test_that("compare rbootnoise = 0.0001 to lmeresampler 0.2.1.99999 results befor
   #[16] curl_4.3.2           rstudioapi_0.13      minqa_1.2.4          callr_3.7.0          nloptr_2.0.3        
   #[21] desc_1.4.1           diagonals_6.4.0      devtools_2.4.3       splines_4.2.1        statmod_1.4.37      
   #[26] stringr_1.4.1        munsell_0.5.0        compiler_4.2.1       janitor_2.1.0        pkgconfig_2.0.3     
-  #[31] pkgbuild_1.3.1       mgcv_1.8-40          tidyselect_1.1.2     tibble_3.1.7         fansi_1.0.3         
+  #[31] pkgbuild_1.3.1       mgcv_1.8-40          tidyselect_1.2.0     tibble_3.1.7         fansi_1.0.3         
   #[36] crayon_1.5.1         dplyr_1.0.10         withr_2.5.0          MASS_7.3-57          distributional_0.3.1
   #[41] ggdist_3.2.0         grid_4.2.1           nlme_3.1-158         gtable_0.3.1         lifecycle_1.0.3     
   #[46] magrittr_2.0.3       scales_1.2.1         cli_3.3.0            stringi_1.7.8        cachem_1.0.6        
@@ -111,7 +111,7 @@ test_that("compare rbootnoise = 0.0001 to lmeresampler 0.2.1.99999 results befor
   #[56] ellipsis_0.3.2       generics_0.1.3       vctrs_0.4.1          boot_1.3-28          tools_4.2.1         
   #[61] forcats_0.5.2        rcmdcheck_1.4.0      glue_1.6.2           purrr_0.3.4          processx_3.6.1      
   #[66] pkgload_1.3.0        fastmap_1.1.0        nlmeU_0.70-9         colorspace_2.0-3     xopen_1.0.0         
-  #[71] sessioninfo_1.2.2    memoise_2.0.1        usethis_2.1.6       
+  #[71] sessioninfo_1.2.2    memoise_2.0.1        usethis_2.1.6      
   
   #RStudio 2022.02.0+443 "Prairie Trillium" Release (9f7969398b90468440a501cf065295d9050bb776, 2022-02-16) for Windows
   #Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) QtWebEngine/5.12.8 Chrome/69.0.3497.128 Safari/537.36
