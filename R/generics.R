@@ -55,7 +55,7 @@
 #' \item \code{model}: the fitted model object
 #' \item \code{.f}: the function call
 #' \item \code{replicates}: a \eqn{B \times p} data frame of bootstrap values for each of the p model parameters,
-#' \item \code{stats}: a tibble containing the \]code{observed}, \code{rep.mean} (bootstrap mean), 
+#' \item \code{stats}: a tibble containing the \code{observed}, \code{rep.mean} (bootstrap mean), 
 #' \code{se} (bootstrap standard error), and \code{bias} values for each model parameter,
 #' \item \code{B}: the number of bootstrap resamples performed
 #' \item \code{data}: the data with which the model was fit
