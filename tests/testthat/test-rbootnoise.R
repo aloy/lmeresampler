@@ -200,3 +200,22 @@ test_that("compare rbootnoise = 0.0001 to the results of the first implementatio
   comparison <- identical(boo[["replicates"]], B071022ref[["replicates"]])
   expect_true(comparison, info = NULL, label = NULL)
 })
+
+test_that("verify the small effect of rbootnoise = 0.0001 on rep.mean (<5%) and se (<1%)",{
+
+  model <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
+  nsim <- 2000
+  set.seed(123)
+  booref <- bootstrap(model, .f = fixef, type = "residual", B = nsim)
+  set.seed(123) #Note, the set.seed(123) will not be followed as above due to the additional random noise generation!
+  boo <- bootstrap(model, .f = fixef, type = "residual", B = nsim, rbootnoise = 0.0001)
+  
+  expect_false(identical(boo, booref))
+  
+  boodif <- (boo[["stats"]][["rep.mean"]] - booref[["stats"]][["rep.mean"]])/booref[["stats"]][["rep.mean"]]*100
+  expect_true(max(abs(boodif)) < 5)
+  
+  boodif <- (boo[["stats"]][["se"]] - booref[["stats"]][["se"]])/booref[["stats"]][["se"]]*100
+  expect_true((max(abs(boodif)) < 1))
+  
+})
