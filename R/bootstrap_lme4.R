@@ -96,8 +96,7 @@ resid_bootstrap.merMod <- function(model, .f, B, .refit = TRUE, rbootnoise = 0){
   
   #Check the validity of rbootnoise
   if(!(rbootnoise >= 0 && rbootnoise <= 1)) {
-    stop("'rbootnoise' between 0 to 1 should be used, such as 0.0001. The default
-         0 disables the feature of technical 2-level noise.")
+    stop("'rbootnoise' between 0 to 1 should be used, such as 0.0001. The default 0 disables the feature of technical 2-level noise.")
   }
 
   setup <- .setup(model, type = "residual", rbootnoise = rbootnoise)
