@@ -81,7 +81,7 @@ linear mixed-effects model." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">lmeresampler</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.2</span>
       </span>
     </div>
 
@@ -97,7 +97,7 @@ linear mixed-effects model." />
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -140,12 +140,12 @@ linear mixed-effects model.</p>
     </div>
 
     <pre class="usage"><span class='co'># S3 method for merMod</span>
-<span class='fu'>resid_bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>B</span><span class='op'>)</span>
+<span class='fu'>resid_bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>B</span>, .refit <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 
 <span class='co'># S3 method for lme</span>
-<span class='fu'>resid_bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>B</span><span class='op'>)</span>
+<span class='fu'>resid_bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>B</span>, .refit <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 
-<span class='fu'>resid_bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>B</span><span class='op'>)</span></pre>
+<span class='fu'>resid_bootstrap</span><span class='op'>(</span><span class='va'>model</span>, <span class='va'>.f</span>, <span class='va'>B</span>, .refit <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -161,6 +161,12 @@ linear mixed-effects model.</p>
     <tr>
       <th>B</th>
       <td><p>The number of bootstrap resamples.</p></td>
+    </tr>
+    <tr>
+      <th>.refit</th>
+      <td><p>a logical value indicating whether the model should be refit to 
+the bootstrap resample, or if the simulated bootstrap resample should be 
+returned. Defaults to <code>TRUE</code>.</p></td>
     </tr>
     </table>
 

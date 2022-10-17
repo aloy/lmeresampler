@@ -211,26 +211,26 @@ refit_to_newdf <- function(model, newdata, .f) {
 
 
 #' Set up for case resampling in lme4
-prep_cases.merMod <- function(model, resample, orig_data) {
-  if(!is.null(orig_data)){
-    data <- orig_data
-  }else{
-    data <- model@frame
-  }
-  
-  flist <- lme4::getME(model, "flist")
-  re_names <- names(flist)
-  clusters <- c(rev(re_names), ".id")
-  
-  if(length(clusters) != length(resample))
-    stop("'resample' is not the same length as the number of grouping variables. 
-         Please specify whether to resample the data at each level of grouping,
-         including at the observation level.")
-  
-  if(!all(re_names %in% colnames(data))) {
-    missing_re <- setdiff(re_names, colnames(data))
-    data <- dplyr::bind_cols(data, flist[missing_re])
-  }
-  
-  return(list(data, clusters))
-}
+# prep_cases.merMod <- function(model, resample, orig_data) {
+#   if(!is.null(orig_data)){
+#     data <- orig_data
+#   }else{
+#     data <- model@frame
+#   }
+#   
+#   flist <- lme4::getME(model, "flist")
+#   re_names <- names(flist)
+#   clusters <- c(rev(re_names), ".id")
+#   
+#   if(length(clusters) != length(resample))
+#     stop("'resample' is not the same length as the number of grouping variables. 
+#          Please specify whether to resample the data at each level of grouping,
+#          including at the observation level.")
+#   
+#   if(!all(re_names %in% colnames(data))) {
+#     missing_re <- setdiff(re_names, colnames(data))
+#     data <- dplyr::bind_cols(data, flist[missing_re])
+#   }
+#   
+#   return(list(data, clusters))
+# }

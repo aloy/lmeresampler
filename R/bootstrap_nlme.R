@@ -1,20 +1,20 @@
 #' @rdname bootstrap
 #' @export
-bootstrap.lme <- function(model, .f, type, B, resample, reb_type, hccme, aux.dist, orig_data = NULL, .refit = TRUE, rbootnoise = 0){
+
+bootstrap.lme <- function(model, .f = extract_parameters, type, B, resample, reb_type, hccme, aux.dist, orig_data = NULL, .refit = TRUE, rbootnoise = 0){
   
-  if (rbootnoise != 0) {
+    if (rbootnoise != 0) {
     stop("'rbootnoise' implemented currently
             only for LME4 models. Do not define or use default 0.")
   }
   
   switch(type,
-         parametric = parametric_bootstrap.lme(model, .f, B),
-         residual = resid_bootstrap.lme(model, .f, B, rbootnoise), 
-         case = case_bootstrap.lme(model, .f, B, resample, orig_data),
-         reb = reb_bootstrap.lme(model, .f, B, reb_type),
-         wild = wild_bootstrap.lme(model, .f, B, hccme, aux.dist))
+         parametric = parametric_bootstrap.lme(model, .f, B, .refit),
+         residual = resid_bootstrap.lme(model, .f, B, .refit, rbootnoise),
+         case = case_bootstrap.lme(model, .f, B, resample, orig_data, .refit),
+         reb = reb_bootstrap.lme(model, .f, B, reb_type, .refit),
+         wild = wild_bootstrap.lme(model, .f, B, hccme, aux.dist, .refit))
 }
-
 
 #' @rdname parametric_bootstrap
 #' @export

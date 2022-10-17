@@ -2,7 +2,7 @@
 % Please edit documentation in R/combine_lmersamp.R
 \name{combine_lmeresamp}
 \alias{combine_lmeresamp}
-\title{combine}
+\title{Combine bootstrap results}
 \usage{
 combine_lmeresamp(...)
 }

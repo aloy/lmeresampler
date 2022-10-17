@@ -38,7 +38,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">lmeresampler</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.2</span>
       </span>
     </div>
 
@@ -54,7 +54,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -83,7 +83,7 @@
 
       
 
-      </header><script src="lmeresampler-vignette_files/header-attrs-2.11/header-attrs.js"></script><div class="row">
+      </header><script src="lmeresampler-vignette_files/header-attrs-2.13/header-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Vignette</h1>
@@ -135,27 +135,25 @@
 <li><p><code>resample</code>: a logical vector specifying whether each level of the data set should be resampled in the cases bootstrap. The levels should be specified from the highest level (largest cluster) of the hierarchy to the lowest (observation-level). For example, for students within a school, specify the school level first, then the student level.</p></li>
 <li><p><code>reb_type</code>: an integer value specifying what kind of REB (random effects block) bootstrap should be performed. More on what the differences between the REB bootstrap types are may be found in section 5 of this vignette.</p></li>
 <li>
-<p><code>hccme</code>: a character string specifying which heteroscedasticity consistent covariance matrix (HCCME) estimator to use in the wild bootstrap. Current options include <code>"hc2"</code> and <code>"hc3"</code>, the two estimators recommended by Modugno and Giannerini (2015).</p>
+<p><code>hccme</code>: a character string specifying which heteroscedasticity consistent covariance matrix (HCCME) estimator to use in the Wild bootstrap. Current options include <code>"hc2"</code> and <code>"hc3"</code>, the two estimators recommended by Modugno and Giannerini (2015).</p>
 <p><span class="math display">\[\begin{align}
 {\tt hc2} &amp;: \tilde{\boldmath{v}}_i = {\rm diag} \left( \boldmath{I}_{n_i} - \boldmath{H}_i \right)^{-1/2} \circ \boldmath{r}_i\\
 {\tt hc3} &amp;: \tilde{\boldmath{v}}_i = {\rm diag} \left( \boldmath{I}_{n_i} - \boldmath{H}_i \right) \circ \boldmath{r}_i,
 \end{align}\]</span></p>
 <p>where <span class="math inline">\(\boldmath{H}_i = \boldmath{X}_i \left(\boldmath{X}_i^\prime \boldmath{X}_i \right)^\prime \boldmath{X}_i^\prime\)</span>, the <span class="math inline">\(i\)</span>th diagonal block of the orthogonal projection matrix, and <span class="math inline">\(\boldmath{r}_i\)</span> is the vector of marginal residuals for group <span class="math inline">\(i\)</span>.</p>
 </li>
-<li>
-<p><code>aux.dist</code>: a character string specifying which auxillary distribution to use in the wild bootstrap. Current options include <code>"f1"</code> and <code>"f2"</code>, the two estimators recommended by Modugno and Giannerini (2015).</p>
-<p><span class="math display">\[\begin{align}
-{\tt f1}: w_i &amp;= \begin{cases}
-  -(\sqrt{5} - 1)/2 &amp; \text{ with probability } p=(\sqrt{5}+1) / (2 \sqrt{5})\\
-  (\sqrt{5} + 1)/2 &amp; \text{ with probability } 1-p\\
-\end{cases}\\
-{\tt f2}:  w_i &amp;= \begin{cases}
-  -1 &amp; \text{ with probability } 0.5\\
-  1 &amp; \text{ with probability } 0.5,\\
-\end{cases}
-\end{align}\]</span></p>
-</li>
+<li><p><code>aux.dist</code>: a character string specifying which auxillary distribution to use in the wild bootstrap. Current options include <code>"mammen"</code>, <code>"rademacher"</code>, <code>"norm"</code>, <code>"webb"</code>, and <code>"gamma"</code>, the distributions outlined by Roodman et al. (2019).</p></li>
 </ul>
+<p>NEED TO UPDATE!! <span class="math display">\[\begin{align}
+  {\tt f1}: w_i &amp;= \begin{cases}
+    -(\sqrt{5} - 1)/2 &amp; \text{ with probability } p=(\sqrt{5}+1) / (2 \sqrt{5})\\
+    (\sqrt{5} + 1)/2 &amp; \text{ with probability } 1-p\\
+  \end{cases}\\
+{\tt f2}:  w_i &amp;= \begin{cases}
+    -1 &amp; \text{ with probability } 0.5\\
+    1 &amp; \text{ with probability } 0.5,\\
+  \end{cases}
+\end{align}\]</span></p>
 </div>
 </div>
 <div id="the-parametric-bootstrap" class="section level1">
@@ -249,18 +247,19 @@
 <div id="the-wild-bootstrap" class="section level1">
 <h1 class="hasAnchor">
 <a href="#the-wild-bootstrap" class="anchor"></a>4. The Wild Bootstrap</h1>
-<p>The wild bootstrap exists for various types of models, but was first discussed in the context of hierarchical models by Modugno and Giannerini (2015). This bootstrap makes no distribution assumptions and allows for heteroskedasticity, which is often useful for economists. The heteroskedasticity is accounted for using the Heteroskedasticity Consistent Covariance Matrix Estimator (HCCME), and the two HCCMEs explored by Modugno and Giannerini (2015) were HC2 and HC3. These can be set in a call to <code><a href="../reference/bootstrap.merMod.html">bootstrap()</a></code> using <code>hccme = "hc2"</code> or <code>hccme = "hc3"</code>. The wild bootstrap also draws bootstrap samples for the errors from what is known as an auxiliary distribution. The two versions of this discussed by Modugno and Giannerini (2015), F1 and F2, can be set in a <code><a href="../reference/bootstrap.merMod.html">bootstrap()</a></code> call using <code>aux.dist = "f1"</code> or <code>aux.dist = "f2"</code>. For more information on HCCMEs and the purpose and structure of the auxiliary distributions, please refer to Modugno and Giannerini (2015).</p>
+<p>The wild bootstrap exists for various types of models, but was first discussed in the context of hierarchical models by Modugno and Giannerini (2015). This bootstrap makes no distribution assumptions and allows for heteroskedasticity, which is often useful for economists. The heteroskedasticity is accounted for using the Heteroskedasticity Consistent Covariance Matrix Estimator (HCCME), and the two HCCMEs explored by Modugno and Giannerini (2015) were HC2 and HC3. These can be set in a call to <code><a href="../reference/bootstrap.merMod.html">bootstrap()</a></code> using <code>hccme = "hc2"</code> or <code>hccme = "hc3"</code>. The wild bootstrap also draws bootstrap samples for the errors from what is known as an auxiliary distribution.</p>
+<p>FIX THIS!! The two versions of this discussed by Modugno and Giannerini (2015), F1 and F2, can be set in a <code><a href="../reference/bootstrap.merMod.html">bootstrap()</a></code> call using <code>aux.dist = "f1"</code> or <code>aux.dist = "f2"</code>. For more information on HCCMEs and the purpose and structure of the auxiliary distributions, please refer to Modugno and Giannerini (2015).</p>
 <div id="examples-3" class="section level2">
 <h2 class="hasAnchor">
 <a href="#examples-3" class="anchor"></a>Examples</h2>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># lme4</span>
-<span class="va">lmer_wild_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootstrap.merMod.html">bootstrap</a></span><span class="op">(</span><span class="va">vcmodA</span>, .f <span class="op">=</span> <span class="va">fixef</span>, type <span class="op">=</span> <span class="st">"wild"</span>, hccme <span class="op">=</span> <span class="st">"hc2"</span>, aux.dist <span class="op">=</span> <span class="st">"f1"</span>, B <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>
-<span class="va">lmer_wild_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootstrap.merMod.html">bootstrap</a></span><span class="op">(</span><span class="va">vcmodA</span>, .f <span class="op">=</span> <span class="va">fixef</span>, type <span class="op">=</span> <span class="st">"wild"</span>, hccme <span class="op">=</span> <span class="st">"hc3"</span>, aux.dist <span class="op">=</span> <span class="st">"f2"</span>, B <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>
+<span class="va">lmer_wild_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootstrap.merMod.html">bootstrap</a></span><span class="op">(</span><span class="va">vcmodA</span>, .f <span class="op">=</span> <span class="va">fixef</span>, type <span class="op">=</span> <span class="st">"wild"</span>, hccme <span class="op">=</span> <span class="st">"hc2"</span>, aux.dist <span class="op">=</span> <span class="st">"mammen"</span>, B <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>
+<span class="va">lmer_wild_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootstrap.merMod.html">bootstrap</a></span><span class="op">(</span><span class="va">vcmodA</span>, .f <span class="op">=</span> <span class="va">fixef</span>, type <span class="op">=</span> <span class="st">"wild"</span>, hccme <span class="op">=</span> <span class="st">"hc3"</span>, aux.dist <span class="op">=</span> <span class="st">"mammen"</span>, B <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>
 
 <span class="co"># nlme</span>
-<span class="va">lme_wild_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootstrap.merMod.html">bootstrap</a></span><span class="op">(</span><span class="va">vcmodB</span>, .f <span class="op">=</span> <span class="va">fixef</span>, type <span class="op">=</span> <span class="st">"wild"</span>, hccme <span class="op">=</span> <span class="st">"hc2"</span>, aux.dist <span class="op">=</span> <span class="st">"f2"</span>, B <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>
-<span class="va">lme_wild_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootstrap.merMod.html">bootstrap</a></span><span class="op">(</span><span class="va">vcmodB</span>, .f <span class="op">=</span> <span class="va">fixef</span>, type <span class="op">=</span> <span class="st">"wild"</span>, hccme <span class="op">=</span> <span class="st">"hc3"</span>, aux.dist <span class="op">=</span> <span class="st">"f1"</span>, B <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></code></pre></div>
+<span class="va">lme_wild_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootstrap.merMod.html">bootstrap</a></span><span class="op">(</span><span class="va">vcmodB</span>, .f <span class="op">=</span> <span class="va">fixef</span>, type <span class="op">=</span> <span class="st">"wild"</span>, hccme <span class="op">=</span> <span class="st">"hc2"</span>, aux.dist <span class="op">=</span> <span class="st">"rademacher"</span>, B <span class="op">=</span> <span class="fl">100</span><span class="op">)</span>
+<span class="va">lme_wild_boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootstrap.merMod.html">bootstrap</a></span><span class="op">(</span><span class="va">vcmodB</span>, .f <span class="op">=</span> <span class="va">fixef</span>, type <span class="op">=</span> <span class="st">"wild"</span>, hccme <span class="op">=</span> <span class="st">"hc3"</span>, aux.dist <span class="op">=</span> <span class="st">"rademacher"</span>, B <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></code></pre></div>
 </div>
 </div>
 <div id="the-random-effects-block-reb-bootstrap" class="section level1">
@@ -319,10 +318,10 @@
 <span class="co">#&gt; Number of resamples: 100 </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;             term   observed   rep.mean        se         bias</span>
-<span class="co">#&gt; 1    (Intercept) 14.1577509 14.0939928 0.7619304 -0.063758158</span>
-<span class="co">#&gt; 2       mathAge8  0.6388895  0.6427270 0.0258425  0.003837477</span>
-<span class="co">#&gt; 3        genderM -0.3571922 -0.4002436 0.3405975 -0.043051423</span>
-<span class="co">#&gt; 4 classnonmanual  0.7200815  0.6684065 0.3845490 -0.051674951</span>
+<span class="co">#&gt; 1    (Intercept) 14.1577509 14.1394345 0.7903203 -0.018316392</span>
+<span class="co">#&gt; 2       mathAge8  0.6388895  0.6414264 0.0274476  0.002536938</span>
+<span class="co">#&gt; 3        genderM -0.3571922 -0.3337360 0.3412967  0.023456237</span>
+<span class="co">#&gt; 4 classnonmanual  0.7200815  0.7260191 0.4208054  0.005937571</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; There were 0 messages, 0 warnings, and 0 errors.</span></code></pre></div>
 </div>
@@ -341,10 +340,10 @@
 <span class="co">#&gt; Number of resamples: 100 </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;             term   observed   rep.mean         se         bias</span>
-<span class="co">#&gt; 1    (Intercept) 14.1577509 14.2510470 0.66295416  0.093296106</span>
-<span class="co">#&gt; 2       mathAge8  0.6388895  0.6378485 0.02203797 -0.001041028</span>
-<span class="co">#&gt; 3        genderM -0.3571922 -0.3212176 0.32108620  0.035974639</span>
-<span class="co">#&gt; 4 classnonmanual  0.7200815  0.7469447 0.40098928  0.026863259</span>
+<span class="co">#&gt; 1    (Intercept) 14.1577509 14.1106714 0.69124112 -0.047079508</span>
+<span class="co">#&gt; 2       mathAge8  0.6388895  0.6428107 0.02426523  0.003921188</span>
+<span class="co">#&gt; 3        genderM -0.3571922 -0.4043930 0.31541703 -0.047200785</span>
+<span class="co">#&gt; 4 classnonmanual  0.7200815  0.6974058 0.36313295 -0.022675666</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; There were 0 messages, 0 warnings, and 0 errors.</span>
 
@@ -353,36 +352,36 @@
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Number of resamples: 100 </span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt;                  term   observed   rep.mean         se          bias</span>
-<span class="co">#&gt; 1    beta.(Intercept) 14.1577509 14.1577509 0.70486967  0.000000e+00</span>
-<span class="co">#&gt; 2       beta.mathAge8  0.6388895  0.6388895 0.02314132  0.000000e+00</span>
-<span class="co">#&gt; 3        beta.genderM -0.3571922 -0.3571922 0.30686210  0.000000e+00</span>
-<span class="co">#&gt; 4 beta.classnonmanual  0.7200815  0.7200815 0.37172562  0.000000e+00</span>
-<span class="co">#&gt; 5      vc.(Intercept)  3.3122380  3.3122380 0.95810165 -4.440892e-16</span>
-<span class="co">#&gt; 6                 vc2 19.7280582 19.7280582 1.32306880  0.000000e+00</span>
+<span class="co">#&gt;                  term   observed   rep.mean         se bias</span>
+<span class="co">#&gt; 1    beta.(Intercept) 14.1577509 14.1577509 0.70226613    0</span>
+<span class="co">#&gt; 2       beta.mathAge8  0.6388895  0.6388895 0.02365635    0</span>
+<span class="co">#&gt; 3        beta.genderM -0.3571922 -0.3571922 0.37083771    0</span>
+<span class="co">#&gt; 4 beta.classnonmanual  0.7200815  0.7200815 0.39690862    0</span>
+<span class="co">#&gt; 5      vc.(Intercept)  3.3122380  3.3122380 0.88196472    0</span>
+<span class="co">#&gt; 6                 vc2 19.7280582 19.7280582 1.31218455    0</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; There were 0 messages, 0 warnings, and 0 errors.</span>
 <span class="co">#&gt; # A tibble: 18 × 6</span>
 <span class="co">#&gt;    term                estimate    lower  upper type  level</span>
 <span class="co">#&gt;    &lt;chr&gt;                  &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;</span>
 <span class="co">#&gt;  1 beta.(Intercept)      14.2   12.8     15.5   norm   0.95</span>
-<span class="co">#&gt;  2 beta.mathAge8          0.639  0.594    0.684 norm   0.95</span>
-<span class="co">#&gt;  3 beta.genderM          -0.357 -0.959    0.244 norm   0.95</span>
-<span class="co">#&gt;  4 beta.classnonmanual    0.720 -0.00849  1.45  norm   0.95</span>
-<span class="co">#&gt;  5 vc.(Intercept)         3.31   1.43     5.19  norm   0.95</span>
-<span class="co">#&gt;  6 vc2                   19.7   17.1     22.3   norm   0.95</span>
-<span class="co">#&gt;  7 beta.(Intercept)      14.2   12.7     15.3   basic  0.95</span>
-<span class="co">#&gt;  8 beta.mathAge8          0.639  0.602    0.686 basic  0.95</span>
-<span class="co">#&gt;  9 beta.genderM          -0.357 -0.978    0.143 basic  0.95</span>
-<span class="co">#&gt; 10 beta.classnonmanual    0.720  0.0391   1.41  basic  0.95</span>
-<span class="co">#&gt; 11 vc.(Intercept)         3.31   1.27     4.67  basic  0.95</span>
-<span class="co">#&gt; 12 vc2                   19.7   17.0     22.3   basic  0.95</span>
-<span class="co">#&gt; 13 beta.(Intercept)      14.2   13.0     15.6   perc   0.95</span>
-<span class="co">#&gt; 14 beta.mathAge8          0.639  0.592    0.676 perc   0.95</span>
-<span class="co">#&gt; 15 beta.genderM          -0.357 -0.857    0.264 perc   0.95</span>
-<span class="co">#&gt; 16 beta.classnonmanual    0.720  0.0270   1.40  perc   0.95</span>
-<span class="co">#&gt; 17 vc.(Intercept)         3.31   1.96     5.35  perc   0.95</span>
-<span class="co">#&gt; 18 vc2                   19.7   17.2     22.5   perc   0.95</span></code></pre></div>
+<span class="co">#&gt;  2 beta.mathAge8          0.639  0.593    0.685 norm   0.95</span>
+<span class="co">#&gt;  3 beta.genderM          -0.357 -1.08     0.370 norm   0.95</span>
+<span class="co">#&gt;  4 beta.classnonmanual    0.720 -0.0578   1.50  norm   0.95</span>
+<span class="co">#&gt;  5 vc.(Intercept)         3.31   1.58     5.04  norm   0.95</span>
+<span class="co">#&gt;  6 vc2                   19.7   17.2     22.3   norm   0.95</span>
+<span class="co">#&gt;  7 beta.(Intercept)      14.2   12.8     15.6   basic  0.95</span>
+<span class="co">#&gt;  8 beta.mathAge8          0.639  0.592    0.684 basic  0.95</span>
+<span class="co">#&gt;  9 beta.genderM          -0.357 -1.18     0.302 basic  0.95</span>
+<span class="co">#&gt; 10 beta.classnonmanual    0.720 -0.0567   1.45  basic  0.95</span>
+<span class="co">#&gt; 11 vc.(Intercept)         3.31   1.59     4.88  basic  0.95</span>
+<span class="co">#&gt; 12 vc2                   19.7   17.2     21.9   basic  0.95</span>
+<span class="co">#&gt; 13 beta.(Intercept)      14.2   12.7     15.5   perc   0.95</span>
+<span class="co">#&gt; 14 beta.mathAge8          0.639  0.594    0.686 perc   0.95</span>
+<span class="co">#&gt; 15 beta.genderM          -0.357 -1.02     0.466 perc   0.95</span>
+<span class="co">#&gt; 16 beta.classnonmanual    0.720 -0.00994  1.50  perc   0.95</span>
+<span class="co">#&gt; 17 vc.(Intercept)         3.31   1.75     5.04  perc   0.95</span>
+<span class="co">#&gt; 18 vc2                   19.7   17.5     22.2   perc   0.95</span></code></pre></div>
 </div>
 </div>
 <div id="the-confint-function" class="section level2">
@@ -399,41 +398,41 @@
 <span class="co">#&gt;    term                estimate    lower  upper type  level</span>
 <span class="co">#&gt;    &lt;chr&gt;                  &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;</span>
 <span class="co">#&gt;  1 beta.(Intercept)      14.2   12.8     15.5   norm   0.95</span>
-<span class="co">#&gt;  2 beta.mathAge8          0.639  0.594    0.684 norm   0.95</span>
-<span class="co">#&gt;  3 beta.genderM          -0.357 -0.959    0.244 norm   0.95</span>
-<span class="co">#&gt;  4 beta.classnonmanual    0.720 -0.00849  1.45  norm   0.95</span>
-<span class="co">#&gt;  5 vc.(Intercept)         3.31   1.43     5.19  norm   0.95</span>
-<span class="co">#&gt;  6 vc2                   19.7   17.1     22.3   norm   0.95</span>
-<span class="co">#&gt;  7 beta.(Intercept)      14.2   12.7     15.3   basic  0.95</span>
-<span class="co">#&gt;  8 beta.mathAge8          0.639  0.602    0.686 basic  0.95</span>
-<span class="co">#&gt;  9 beta.genderM          -0.357 -0.978    0.143 basic  0.95</span>
-<span class="co">#&gt; 10 beta.classnonmanual    0.720  0.0391   1.41  basic  0.95</span>
-<span class="co">#&gt; 11 vc.(Intercept)         3.31   1.27     4.67  basic  0.95</span>
-<span class="co">#&gt; 12 vc2                   19.7   17.0     22.3   basic  0.95</span>
-<span class="co">#&gt; 13 beta.(Intercept)      14.2   13.0     15.6   perc   0.95</span>
-<span class="co">#&gt; 14 beta.mathAge8          0.639  0.592    0.676 perc   0.95</span>
-<span class="co">#&gt; 15 beta.genderM          -0.357 -0.857    0.264 perc   0.95</span>
-<span class="co">#&gt; 16 beta.classnonmanual    0.720  0.0270   1.40  perc   0.95</span>
-<span class="co">#&gt; 17 vc.(Intercept)         3.31   1.96     5.35  perc   0.95</span>
-<span class="co">#&gt; 18 vc2                   19.7   17.2     22.5   perc   0.95</span>
+<span class="co">#&gt;  2 beta.mathAge8          0.639  0.593    0.685 norm   0.95</span>
+<span class="co">#&gt;  3 beta.genderM          -0.357 -1.08     0.370 norm   0.95</span>
+<span class="co">#&gt;  4 beta.classnonmanual    0.720 -0.0578   1.50  norm   0.95</span>
+<span class="co">#&gt;  5 vc.(Intercept)         3.31   1.58     5.04  norm   0.95</span>
+<span class="co">#&gt;  6 vc2                   19.7   17.2     22.3   norm   0.95</span>
+<span class="co">#&gt;  7 beta.(Intercept)      14.2   12.8     15.6   basic  0.95</span>
+<span class="co">#&gt;  8 beta.mathAge8          0.639  0.592    0.684 basic  0.95</span>
+<span class="co">#&gt;  9 beta.genderM          -0.357 -1.18     0.302 basic  0.95</span>
+<span class="co">#&gt; 10 beta.classnonmanual    0.720 -0.0567   1.45  basic  0.95</span>
+<span class="co">#&gt; 11 vc.(Intercept)         3.31   1.59     4.88  basic  0.95</span>
+<span class="co">#&gt; 12 vc2                   19.7   17.2     21.9   basic  0.95</span>
+<span class="co">#&gt; 13 beta.(Intercept)      14.2   12.7     15.5   perc   0.95</span>
+<span class="co">#&gt; 14 beta.mathAge8          0.639  0.594    0.686 perc   0.95</span>
+<span class="co">#&gt; 15 beta.genderM          -0.357 -1.02     0.466 perc   0.95</span>
+<span class="co">#&gt; 16 beta.classnonmanual    0.720 -0.00994  1.50  perc   0.95</span>
+<span class="co">#&gt; 17 vc.(Intercept)         3.31   1.75     5.04  perc   0.95</span>
+<span class="co">#&gt; 18 vc2                   19.7   17.5     22.2   perc   0.95</span>
 
 <span class="co"># 90% percentile bootstrap intervals</span>
 <span class="fu"><a href="https://rdrr.io/r/stats/confint.html">confint</a></span><span class="op">(</span><span class="va">lmer_reb_boot0</span>, method <span class="op">=</span> <span class="st">"perc"</span>, level<span class="op">=</span> <span class="fl">0.90</span><span class="op">)</span>
 <span class="co">#&gt; # A tibble: 12 × 6</span>
-<span class="co">#&gt;    term           estimate   lower  upper type  level</span>
-<span class="co">#&gt;    &lt;chr&gt;             &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;</span>
-<span class="co">#&gt;  1 (Intercept)      14.2   13.0    15.2   norm    0.9</span>
-<span class="co">#&gt;  2 mathAge8          0.639  0.604   0.676 norm    0.9</span>
-<span class="co">#&gt;  3 genderM          -0.357 -0.921   0.135 norm    0.9</span>
-<span class="co">#&gt;  4 classnonmanual    0.720  0.0336  1.35  norm    0.9</span>
-<span class="co">#&gt;  5 (Intercept)      14.2   12.9    15.1   basic   0.9</span>
-<span class="co">#&gt;  6 mathAge8          0.639  0.604   0.675 basic   0.9</span>
-<span class="co">#&gt;  7 genderM          -0.357 -0.945   0.157 basic   0.9</span>
-<span class="co">#&gt;  8 classnonmanual    0.720  0.0415  1.38  basic   0.9</span>
-<span class="co">#&gt;  9 (Intercept)      14.2   13.2    15.5   perc    0.9</span>
-<span class="co">#&gt; 10 mathAge8          0.639  0.603   0.674 perc    0.9</span>
-<span class="co">#&gt; 11 genderM          -0.357 -0.871   0.230 perc    0.9</span>
-<span class="co">#&gt; 12 classnonmanual    0.720  0.0580  1.40  perc    0.9</span></code></pre></div>
+<span class="co">#&gt;    term           estimate  lower  upper type  level</span>
+<span class="co">#&gt;    &lt;chr&gt;             &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;</span>
+<span class="co">#&gt;  1 (Intercept)      14.2   13.1   15.3   norm    0.9</span>
+<span class="co">#&gt;  2 mathAge8          0.639  0.595  0.675 norm    0.9</span>
+<span class="co">#&gt;  3 genderM          -0.357 -0.829  0.209 norm    0.9</span>
+<span class="co">#&gt;  4 classnonmanual    0.720  0.145  1.34  norm    0.9</span>
+<span class="co">#&gt;  5 (Intercept)      14.2   13.1   15.3   basic   0.9</span>
+<span class="co">#&gt;  6 mathAge8          0.639  0.599  0.674 basic   0.9</span>
+<span class="co">#&gt;  7 genderM          -0.357 -0.915  0.146 basic   0.9</span>
+<span class="co">#&gt;  8 classnonmanual    0.720  0.237  1.33  basic   0.9</span>
+<span class="co">#&gt;  9 (Intercept)      14.2   13.0   15.2   perc    0.9</span>
+<span class="co">#&gt; 10 mathAge8          0.639  0.604  0.679 perc    0.9</span>
+<span class="co">#&gt; 11 genderM          -0.357 -0.861  0.201 perc    0.9</span>
+<span class="co">#&gt; 12 classnonmanual    0.720  0.113  1.20  perc    0.9</span></code></pre></div>
 </div>
 </div>
 <div id="the-plot-function" class="section level2">
@@ -499,11 +498,11 @@
 <span class="fu">doParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/doParallel/man/registerDoParallel.html">registerDoParallel</a></span><span class="op">(</span><span class="va">cl</span><span class="op">)</span>          <span class="co"># how the CPU knows to run in parallel</span>
 <span class="fu">clusterCall</span><span class="op">(</span><span class="va">cl</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/libPaths.html">.libPaths</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/libPaths.html">.libPaths</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; [[1]]</span>
-<span class="co">#&gt; [1] "/private/var/folders/p0/kzl82ys143d1wd2kfj24jm_8000pww/T/Rtmpn4FMNd/temp_libpath185881e8d314c"</span>
-<span class="co">#&gt; [2] "/Library/Frameworks/R.framework/Versions/4.1/Resources/library"                               </span>
+<span class="co">#&gt; [1] "/private/var/folders/p0/kzl82ys143d1wd2kfj24jm_8000pww/T/RtmpVRsEB5/temp_libpathe7816248d8c"</span>
+<span class="co">#&gt; [2] "/Library/Frameworks/R.framework/Versions/4.1/Resources/library"                             </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[2]]</span>
-<span class="co">#&gt; [1] "/private/var/folders/p0/kzl82ys143d1wd2kfj24jm_8000pww/T/Rtmpn4FMNd/temp_libpath185881e8d314c"</span>
+<span class="co">#&gt; [1] "/private/var/folders/p0/kzl82ys143d1wd2kfj24jm_8000pww/T/RtmpVRsEB5/temp_libpathe7816248d8c"</span>
 <span class="co">#&gt; [2] "/Library/Frameworks/R.framework/Versions/4.1/Resources/library"</span>
 
 <span class="va">b_parallel2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/foreach/man/foreach.html">foreach</a></span><span class="op">(</span>B <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">250</span>, <span class="fl">2</span><span class="op">)</span>, 
@@ -517,18 +516,18 @@
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="va">b_nopar</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootstrap.merMod.html">bootstrap</a></span><span class="op">(</span><span class="va">vcmodA</span>, .f <span class="op">=</span> <span class="va">fixef</span>, type <span class="op">=</span> <span class="st">"parametric"</span>, B <span class="op">=</span> <span class="fl">5000</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;  52.237   0.349  52.934</span>
+<span class="co">#&gt;  51.097   0.300  51.666</span>
 
 <span class="va">numCores</span> <span class="op">&lt;-</span> <span class="fl">2</span>
 <span class="va">cl</span> <span class="op">&lt;-</span> <span class="fu">makeCluster</span><span class="op">(</span><span class="va">numCores</span>, type <span class="op">=</span> <span class="st">"PSOCK"</span><span class="op">)</span>
 <span class="fu">doParallel</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/doParallel/man/registerDoParallel.html">registerDoParallel</a></span><span class="op">(</span><span class="va">cl</span><span class="op">)</span> 
 <span class="fu">clusterCall</span><span class="op">(</span><span class="va">cl</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/libPaths.html">.libPaths</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/libPaths.html">.libPaths</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
 <span class="co">#&gt; [[1]]</span>
-<span class="co">#&gt; [1] "/private/var/folders/p0/kzl82ys143d1wd2kfj24jm_8000pww/T/Rtmpn4FMNd/temp_libpath185881e8d314c"</span>
-<span class="co">#&gt; [2] "/Library/Frameworks/R.framework/Versions/4.1/Resources/library"                               </span>
+<span class="co">#&gt; [1] "/private/var/folders/p0/kzl82ys143d1wd2kfj24jm_8000pww/T/RtmpVRsEB5/temp_libpathe7816248d8c"</span>
+<span class="co">#&gt; [2] "/Library/Frameworks/R.framework/Versions/4.1/Resources/library"                             </span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[2]]</span>
-<span class="co">#&gt; [1] "/private/var/folders/p0/kzl82ys143d1wd2kfj24jm_8000pww/T/Rtmpn4FMNd/temp_libpath185881e8d314c"</span>
+<span class="co">#&gt; [1] "/private/var/folders/p0/kzl82ys143d1wd2kfj24jm_8000pww/T/RtmpVRsEB5/temp_libpathe7816248d8c"</span>
 <span class="co">#&gt; [2] "/Library/Frameworks/R.framework/Versions/4.1/Resources/library"</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span><span class="op">(</span><span class="op">{</span>
@@ -539,7 +538,7 @@
                          <span class="op">}</span>
 <span class="op">}</span><span class="op">)</span>
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;   0.062   0.011  32.048</span>
+<span class="co">#&gt;   0.062   0.009  31.956</span>
 
 <span class="fu">stopCluster</span><span class="op">(</span><span class="va">cl</span><span class="op">)</span> </code></pre></div>
 <p>Pretty useful stuff! The above can be applied to all bootstrap types and models fit using both <code>lme4</code> and <code>nlme</code>.</p>
@@ -559,6 +558,7 @@
 <p>Modugno, Lucia and Giannerini, Simone, “The Wild Bootstrap for Multilevel Models,” Communications in Statistics — Theory and Methods 44, no. 22 (2015): 4812–25, <a href="https://doi.org/10.1080/03610926.2013.802807" class="uri">https://doi.org/10.1080/03610926.2013.802807</a></p>
 <p>Raymond Chambers &amp; Hukum Chandra (2013) A Random Effect Block Bootstrap for Clustered Data, Journal of Computational and Graphical Statistics, 22:2, 452-470, DOI: 10.1080/10618600.2012.681216</p>
 <p>Microsoft Corporation and Steve Weston (2020). doParallel: Foreach Parallel Adaptor for the ‘parallel’ Package. R package version 1.0.16. </p>
+<p>Roodman, D., Nielsen, M. Ø., MacKinnon, J. G., &amp; Webb, M. D. (2019). Fast and wild: Bootstrap inference in Stata using boottest. <em>The Stata Journal</em>, 19(1), 4–60.</p>
 </div>
   </div>
 
