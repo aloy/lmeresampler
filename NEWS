@@ -1,4 +1,11 @@
-0.2.1.99999
+0.2.9000
+===========
+
+BUG FIXES
+* `rbootnoise` argument added to residual bootstrap to avoid estiamtion issues (Credit to Ilmari Tamminen)
+
+
+0.2.2
 ===========
 
 NEW FEATURES
