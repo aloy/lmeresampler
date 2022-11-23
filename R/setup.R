@@ -3,7 +3,7 @@
 #' @inheritParams bootstrap
 #' @keywords internal
 #' @noRd
-.setup <- function(model, type, reb_type = NULL){
+.setup <- function(model, type, reb_type = NULL, rbootnoise = 0){
   # Extract marginal means
   Xbeta <- predict(model, re.form = NA) # This is X %*% fixef(model)
   
@@ -53,14 +53,20 @@
       
   }
   
-  if(type == "residual" || type == "reb" && reb_type == 1){
+  if (type == "residual" || type == "reb" && reb_type == 1) {
+    
     sig0 <- stats::sigma(model)
-    vclist <- purrr::map(
-      seq_along(b), 
-      .f = ~bdiag(lme4::VarCorr(model)[[names(b)[.x]]])
-    )
+    
+    varcor <- lme4::VarCorr(model)
+    
+    #Add rbootnoise to 2-level variance when requested
+    if (rbootnoise != 0) {
+      varcor[[1]][[1]] <- varcor[[1]][[1]] + (attr(lme4::VarCorr(model), "sc")*rbootnoise)^2
+    }
+    vclist <- purrr::map(seq_along(b), .f = ~bdiag(varcor[[names(b)[.x]]]))
     names(vclist) <- names(b)
   }
+  
   
   if(type == "reb" && reb_type == 1){
     if(level.num > 1) stop("reb_type = 1 is not yet implemented for higher order models")

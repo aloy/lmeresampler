@@ -30,6 +30,16 @@
 #' @param .refit a logical value indicating whether the model should be refit to 
 #'     the bootstrap resample, or if the simulated bootstrap resample should be 
 #'     returned. Defaults to \code{TRUE}.
+#' @param rbootnoise a numeric value between 0-1 indicating the strength of
+#'     technical 2-level noise added in relation to the 1-level variation (in
+#'     standard deviations) during residual bootstrapping. Minuscule noise, such
+#'     as \code{rbootnoise = 0.0001}, can be used to avoid errors with singular
+#'     matrices when exactly the same values are replicated during the
+#'     bootstrapping, or when the model being processed fails to return any
+#'     2-level variation. Currently applicable only with \code{lme4::lmer}
+#'     models. The feature has been tested with 2-level random-intercept models
+#'     with predictors. Defaults to \code{0} (i.e. the feature is not used by
+#'     default).
 #' @details
 #' All of the below methods have been implemented for nested linear mixed-effects
 #' models fit by \code{lmer} (i.e., an \code{lmerMod} object) and \code{lme} 
@@ -45,7 +55,7 @@
 #' \item \code{model}: the fitted model object
 #' \item \code{.f}: the function call
 #' \item \code{replicates}: a \eqn{B \times p} data frame of bootstrap values for each of the p model parameters,
-#' \item \code{stats}: a tibble containing the \]code{observed}, \code{rep.mean} (bootstrap mean), 
+#' \item \code{stats}: a tibble containing the \code{observed}, \code{rep.mean} (bootstrap mean), 
 #' \code{se} (bootstrap standard error), and \code{bias} values for each model parameter,
 #' \item \code{B}: the number of bootstrap resamples performed
 #' \item \code{data}: the data with which the model was fit
@@ -161,7 +171,7 @@
 #'    Multilevel Models. \emph{Communications in Statistics -- Theory and Methods}, 
 #'    \bold{44}(22), 4812--4825.
 bootstrap <- function(model, .f, type, B, resample = NULL, reb_type = NULL, 
-                      hccme = NULL, aux.dist = NULL, orig_data = NULL, .refit = TRUE) {
+                      hccme = NULL, aux.dist = NULL, orig_data = NULL, .refit = TRUE, rbootnoise = 0) {
   if(!type %in% c("parametric", "residual", "case", "wild", "reb"))
     stop("'type' must be one of 'parametric', 'residual', 'case', 'wild', or 'reb'")
   if(!is.null(reb_type))
@@ -304,7 +314,7 @@ case_bootstrap <- function(model, .f, B, resample, orig_data = NULL, .refit = TR
 #'    procedure for assessing the relationship between class size and achievement. 
 #'    \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, 
 #'    \bold{52}, 431--443.
-resid_bootstrap <- function(model, .f, B, .refit = TRUE) {
+resid_bootstrap <- function(model, .f, B, .refit = TRUE, rbootnoise = 0) {
   UseMethod("resid_bootstrap", model)
 }
 

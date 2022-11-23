@@ -5,10 +5,15 @@
 #' na.omit predict resid simulate sd confint quantile
 bootstrap.merMod <- function(model, .f = extract_parameters, type, B, resample, 
                              reb_type, hccme, 
-                             aux.dist, orig_data = NULL, .refit = TRUE){
+                             aux.dist, orig_data = NULL, .refit = TRUE, rbootnoise = 0){
+  
+  if(type != "residual" && rbootnoise != 0) {
+  stop("'rbootnoise' applicable only with residual bootstrapping. Do not define or use default 0.") 
+  }
+  
   switch(type,
          parametric = parametric_bootstrap.merMod(model, .f, B, .refit),
-         residual = resid_bootstrap.merMod(model, .f, B, .refit),
+         residual = resid_bootstrap.merMod(model, .f, B, .refit, rbootnoise),
          case = case_bootstrap.merMod(model, .f, B, resample, orig_data, .refit),
          reb = reb_bootstrap.lmerMod(model, .f, B, reb_type, .refit),
          wild = wild_bootstrap.lmerMod(model, .f, B, hccme, aux.dist, .refit))
@@ -83,13 +88,24 @@ case_bootstrap.merMod <- function(model, .f, B, resample, orig_data = NULL, .ref
 #' @rdname resid_bootstrap
 #' @export
 #' @method resid_bootstrap merMod
-resid_bootstrap.merMod <- function(model, .f, B, .refit = TRUE){
+resid_bootstrap.merMod <- function(model, .f, B, .refit = TRUE, rbootnoise = 0){
   
   if(.refit) .f <- match.fun(.f)
   
   glmm <- lme4::isGLMM(model)
   
-  setup <- .setup(model, type = "residual")
+  #Check the validity of rbootnoise
+  if(!(rbootnoise >= 0 && rbootnoise <= 1)) {
+    stop("'rbootnoise' between 0 to 1 should be used, such as 0.0001. The default 0 disables the feature of technical 2-level noise.")
+  }
+
+  setup <- .setup(model, type = "residual", rbootnoise = rbootnoise)
+    
+  #For technical noise define the SD of e
+  sde <- sd(setup[["e"]])
+  
+  #Calculate the number of clusters
+  nclusters <- length(setup[["b"]][[1]][["(Intercept)"]])
   
   ystar <- as.data.frame(
     replicate(
@@ -103,7 +119,10 @@ resid_bootstrap.merMod <- function(model, .f, B, .refit = TRUE){
         Xbeta = setup$Xbeta,
         vclist = setup$vclist,
         sig0 = setup$sig0,
-        invlink = ifelse(glmm, model@resp$family$linkinv, NULL)
+        invlink = ifelse(glmm, model@resp$family$linkinv, NULL),
+        nclusters = nclusters,
+        rbootnoise = rbootnoise,
+        sde = sde
       )
     )
   )
