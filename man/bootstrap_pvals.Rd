@@ -4,10 +4,7 @@
 \alias{bootstrap_pvals}
 \alias{bootstrap_pvals.merMod}
 \alias{bootstrap_pvals.lme}
-\title{Calculate Bootstrap p-values for fixed effects
-
-Perform bootstrap tests based on the t-statistic for each
-fixed effect in order to calculate approximate p-values.}
+\title{Calculate Bootstrap p-values for fixed effects}
 \usage{
 bootstrap_pvals(
   model,
@@ -70,8 +67,6 @@ A tibble giving the table of coefficients from the model summary with a column
 appended containing bootstrap p-values.
 }
 \description{
-Calculate Bootstrap p-values for fixed effects
-
 Perform bootstrap tests based on the t-statistic for each
 fixed effect in order to calculate approximate p-values.
 }

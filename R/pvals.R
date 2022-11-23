@@ -1,5 +1,6 @@
 #' @title Calculate Bootstrap p-values for fixed effects
 #' 
+#' @description
 #' Perform bootstrap tests based on the t-statistic for each
 #' fixed effect in order to calculate approximate p-values.
 #' 
