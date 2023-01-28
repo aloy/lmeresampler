@@ -3,7 +3,7 @@
 
 BUG FIXES
 * `rbootnoise` argument added to residual bootstrap to bypass "system is exactly singular" issues with lme4 models (Credit to Ilmari Tamminen)
-
+* Eliminated unnecessary warnings for unnamed vectors with type = "reb2".
 
 0.2.2
 ===========
