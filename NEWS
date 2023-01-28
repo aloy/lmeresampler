@@ -2,7 +2,7 @@
 ===========
 
 BUG FIXES
-* `rbootnoise` argument added to residual bootstrap to avoid estimation issues (Credit to Ilmari Tamminen)
+* `rbootnoise` argument added to residual bootstrap to bypass "system is exactly singular" issues with lme4 models (Credit to Ilmari Tamminen)
 
 
 0.2.2
