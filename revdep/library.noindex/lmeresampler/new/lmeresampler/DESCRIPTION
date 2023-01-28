@@ -1,8 +1,9 @@
 Package: lmeresampler
 Title: Bootstrap Methods for Nested Linear Mixed-Effects Models
-Version: 0.2.0
+Version: 0.2.3
 Authors@R: c(person("Adam", "Loy", email = "loyad01@gmail.com",
-    role = c("aut", "cre")), person("Spenser", "Steele", role = "aut"), 
+    role = c("aut", "cre"), comment = c(ORCID = "0000-0002-5780-4611")), 
+    person("Spenser", "Steele", role = "aut"), 
     person("Jenna", "Korobova", role = "aut"))
 Description: Bootstrap routines for nested linear mixed effects models fit using
     either 'lme4' or 'nlme'. The provided 'bootstrap()' function implements the
@@ -12,23 +13,23 @@ Description: Bootstrap routines for nested linear mixed effects models fit using
     Carpenter, Goldstein & Rasbash (2003) <doi: 10.1111/1467-9876.00415>,
     and Chambers & Chandra (2013) <doi: 10.1080/10618600.2012.681216>.
 Depends: R (>= 3.5.0)
-Imports: catchr, dplyr (>= 0.8.0), Matrix, nlmeU, ggplot2, ggdist,
-        HLMdiag, purrr, forcats, stats, statmod, magrittr
+Imports: dplyr (>= 0.8.0), Matrix, nlmeU, ggplot2, ggdist, HLMdiag,
+        purrr, forcats, stats, statmod, tidyr, magrittr, tibble
 Suggests: lme4 (>= 1.1-7), nlme, testthat, mlmRev, knitr, rmarkdown,
         doParallel, foreach
 License: GPL-3
 LazyData: true
 URL: https://github.com/aloy/lmeresampler
 BugReports: https://github.com/aloy/lmeresampler/issues
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.1
 VignetteBuilder: knitr
 Encoding: UTF-8
 RemoteType: local
-RemoteUrl: /Users/aloy/r_packages/lmeresampler
+RemoteUrl: /Users/aloy/Documents/r_packages/lmeresampler
 NeedsCompilation: no
-Packaged: 2021-04-29 14:26:36 UTC; aloy
-Author: Adam Loy [aut, cre],
+Packaged: 2023-01-28 17:02:05 UTC; aloy
+Author: Adam Loy [aut, cre] (<https://orcid.org/0000-0002-5780-4611>),
   Spenser Steele [aut],
   Jenna Korobova [aut]
 Maintainer: Adam Loy <loyad01@gmail.com>
-Built: R 4.0.5; ; 2021-04-29 14:26:36 UTC; unix
+Built: R 4.2.2; ; 2023-01-28 17:02:05 UTC; unix

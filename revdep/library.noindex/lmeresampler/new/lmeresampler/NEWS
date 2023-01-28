@@ -1,3 +1,37 @@
+0.2.3
+===========
+
+BUG FIXES
+* `rbootnoise` argument added to residual bootstrap to bypass "system is exactly singular" issues with lme4 models (Credit to Ilmari Tamminen)
+* Eliminated unnecessary warnings for unnamed vectors with type = "reb2".
+
+0.2.2
+===========
+
+NEW FEATURES
+* Additional auxilliary distributions were added for the Wild bootstrap.  There are now 6 options, including the standard normal.
+* `.refit` argument can be set to FALSE in order to return the only bootstrap responses.
+* `bootstrap_pvals()` appends bootstrap p-values to the summary table for the fixed effects
+* `combine_pvals()` provides a way to combine the results of `bootstrap_pvals()` for parallel runs.
+
+
+BUG FIXES
+* `plot.lmeresamp()` now works if the replicates are a numeric vector rather than a data frame or tibble.
+* bug fixed when `na.action = na.omit` 
+* fixed issue with transformed variables in `glmer`
+
+0.2.1
+===========
+
+* Unarchiving from CRAN
+
+DEPENDENCY CHANGE
+* Remove `catchr` dependency to avoid issues on CRAN
+
+BUG FIXES
+* message/error/warning summarization in `summary.lmeresamp` has been fixed
+* If `var` is omitted from `plot.lmeresamp()` a halfeye plot with all terms is created.
+
 0.2.0
 =====
 

@@ -2,10 +2,14 @@
 bootstrap	bootstrap
 bootstrap.lme	bootstrap
 bootstrap.merMod	bootstrap
+bootstrap_pvals	bootstrap_pvals
+bootstrap_pvals.lme	bootstrap_pvals
+bootstrap_pvals.merMod	bootstrap_pvals
 case_bootstrap	case_bootstrap
 case_bootstrap.lme	case_bootstrap
 case_bootstrap.merMod	case_bootstrap
 combine_lmeresamp	combine
+combine_pvals	combine_pvals
 confint.lmeresamp	confint
 extract_parameters	extract_parameters
 jsp728	jsp728
@@ -15,6 +19,7 @@ parametric_bootstrap	parametric_bootstrap
 parametric_bootstrap.lme	parametric_bootstrap
 parametric_bootstrap.merMod	parametric_bootstrap
 plot.lmeresamp	plot
+print.coef_tbl	print.coef_tbl
 print.lmeresamp	print
 reb_bootstrap	reb_bootstrap
 reb_bootstrap.lme	reb_bootstrap

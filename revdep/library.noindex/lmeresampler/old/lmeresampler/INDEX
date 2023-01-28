@@ -1,12 +1,26 @@
-bootstrap.lmerMod       Bootstrap Nested Linear Mixed-Effects Models
-case_bootstrap.lmerMod
-                        Cases Bootstrap for Nested LMEs
-cgr_bootstrap.lmerMod   CGR Bootstrap for Nested LMEs
-jsp728                  Junior school project data
-lmeresampler            Bootstrapping Nested Linear Mixed Effects
-                        Models
-parametric_bootstrap.lmerMod
+bootstrap.merMod        Bootstrap Nested Linear Mixed-Effects Models
+bootstrap_pvals         Calculate Bootstrap p-values for fixed effects
+                        Perform bootstrap tests based on the
+                        t-statistic for each fixed effect in order to
+                        calculate approximate p-values.
+case_bootstrap.merMod   Cases Bootstrap for Nested LMEs
+combine_lmeresamp       Combine bootstrap results
+combine_pvals           Combine p-values
+confint.lmeresamp       Calculate confidence intervals for a lmeresamp
+                        object
+extract_parameters      Extract parameters from LME models
+jsp728                  Junior school project math score data.
+lmeresampler            lmeresampler: A package for bootstrapping
+                        nested linear mixed-effects models
+parametric_bootstrap.merMod
                         Parametric Bootstrap for Nested LMEs
+plot.lmeresamp          Plot bootstrap results
+print.coef_tbl          Print coefficients from a 'coef_tbl' object
+print.lmeresamp         Print a summary of an 'lmeresamp' object
 reb_bootstrap.lmerMod   REB Bootstrap for Two-Level Nested LMEs
-resid_bootstrap.lmerMod
+resid_bootstrap.merMod
                         Residual Bootstrap for Nested LMEs
+summary.lmeresamp       Calculate summary statistics for 'lmeresamp'
+                        objects
+wild_bootstrap.lmerMod
+                        Wild Bootstrap for LME models

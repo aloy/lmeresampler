@@ -1,28 +1,35 @@
 Package: lmeresampler
 Title: Bootstrap Methods for Nested Linear Mixed-Effects Models
-Version: 0.1.1
+Version: 0.2.2
 Authors@R: c(person("Adam", "Loy", email = "loyad01@gmail.com",
-    role = c("aut", "cre")), person("Spenser", "steele", role = "aut"))
+    role = c("aut", "cre"), comment = c(ORCID = "0000-0002-5780-4611")), 
+    person("Spenser", "Steele", role = "aut"), 
+    person("Jenna", "Korobova", role = "aut"))
 Description: Bootstrap routines for nested linear mixed effects models fit using
     either 'lme4' or 'nlme'. The provided 'bootstrap()' function implements the
-    parametric, residual, cases, semi-parametric (i.e., CGR),  and random effect
-    block (REB) bootstrap procedures. An overview of these procedures can be found 
+    parametric, residual, cases, random effect block (REB), and wild bootstrap 
+    procedures. An overview of these procedures can be found 
     in Van der Leeden et al. (2008) <doi: 10.1007/978-0-387-73186-5_11>, 
     Carpenter, Goldstein & Rasbash (2003) <doi: 10.1111/1467-9876.00415>,
     and Chambers & Chandra (2013) <doi: 10.1080/10618600.2012.681216>.
-Depends: R (>= 3.1.2)
-Imports: boot, plyr, dplyr (>= 0.8.0), Matrix, nlmeU, RLRsim
-Suggests: lme4 (>= 1.1-7), nlme, testthat, mlmRev
+Depends: R (>= 3.5.0)
+Imports: dplyr (>= 0.8.0), Matrix, nlmeU, ggplot2, ggdist, HLMdiag,
+        purrr, forcats, stats, statmod, tidyr, magrittr, tibble
+Suggests: lme4 (>= 1.1-7), nlme, testthat, mlmRev, knitr, rmarkdown,
+        doParallel, foreach
 License: GPL-3
 LazyData: true
 URL: https://github.com/aloy/lmeresampler
 BugReports: https://github.com/aloy/lmeresampler/issues
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1
+VignetteBuilder: knitr
+Encoding: UTF-8
 NeedsCompilation: no
-Packaged: 2020-01-30 16:18:38 UTC; aloy
-Author: Adam Loy [aut, cre],
-  Spenser steele [aut]
+Packaged: 2022-04-29 14:05:32 UTC; aloy
+Author: Adam Loy [aut, cre] (<https://orcid.org/0000-0002-5780-4611>),
+  Spenser Steele [aut],
+  Jenna Korobova [aut]
 Maintainer: Adam Loy <loyad01@gmail.com>
 Repository: CRAN
-Date/Publication: 2020-01-31 17:00:06 UTC
-Built: R 4.0.2; ; 2020-07-16 15:14:26 UTC; unix
+Date/Publication: 2022-04-29 22:50:11 UTC
+Built: R 4.2.0; ; 2022-05-11 04:53:33 UTC; unix

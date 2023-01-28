@@ -1,3 +1,49 @@
+0.2.1.99999
+===========
+
+NEW FEATURES
+* Additional auxilliary distributions were added for the Wild bootstrap. 
+There are now 6 options, including the standard normal.
+* `.refit` argument can be set to FALSE in order to return the only bootstrap
+responses.
+* `bootstrap_pvals()` appends bootstrap p-values to the summary table for
+the fixed effects
+* `combine_pvals()` provides a way to combine the results of `bootstrap_pvals()`
+for parallel runds.
+
+
+BUG FIXES
+* `plot.lmeresamp()` now works if the replicates are a numeric vector rather
+than a data frame or tibble.
+* bug fixed when `na.action = na.omit` 
+* fixed issue with transformed variables in `glmer`
+
+0.2.1
+===========
+
+* Unarchiving from CRAN
+
+DEPENDENCY CHANGE
+* Remove `catchr` dependency to avoid issues on CRAN
+
+BUG FIXES
+* message/error/warning summarization in `summary.lmeresamp` has been fixed
+* If `var` is omitted from `plot.lmeresamp()` a halfeye plot with all terms is created.
+
+0.2.0
+=====
+
+* The case, parametric, and residual bootstraps now suppport `glmerMod` objects.
+* The Wild bootstrap is available for `lme` and `lmerMod` objects.
+* The CGR bootstrap is now the default "residual" bootstrap algorithm.
+* Objects returned by the `bootstrap()` call are now of class `lmeresamp`.
+* `lmeresamp` objects have a new structure, including a new `stats` dataframe (contains the observed value, bootstrap mean, standard error, and bias of each LME model parameter).
+* New generic `print()` function that is compatible with `lmeresamp` objects
+* New generic `confint()` function that is compatible with `lmeresamp` objects (the possible confidence intervals include: basic, normal, percentile, or all)
+* A package vignette is now available
+* Vignette outlines how to perform parallelization in `bootstrap()` using the `doParallel` and `foreach` packages
+* New `combine()` function that combines processes split for parallelization for unified output
+
 0.1.1
 =====
 

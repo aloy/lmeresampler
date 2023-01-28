@@ -1,6 +1,8 @@
 bootstrap.merMod        Bootstrap Nested Linear Mixed-Effects Models
+bootstrap_pvals         Calculate Bootstrap p-values for fixed effects
 case_bootstrap.merMod   Cases Bootstrap for Nested LMEs
-combine_lmeresamp       combine
+combine_lmeresamp       Combine bootstrap results
+combine_pvals           Combine p-values
 confint.lmeresamp       Calculate confidence intervals for a lmeresamp
                         object
 extract_parameters      Extract parameters from LME models
@@ -10,6 +12,7 @@ lmeresampler            lmeresampler: A package for bootstrapping
 parametric_bootstrap.merMod
                         Parametric Bootstrap for Nested LMEs
 plot.lmeresamp          Plot bootstrap results
+print.coef_tbl          Print coefficients from a 'coef_tbl' object
 print.lmeresamp         Print a summary of an 'lmeresamp' object
 reb_bootstrap.lmerMod   REB Bootstrap for Two-Level Nested LMEs
 resid_bootstrap.merMod
