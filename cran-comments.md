@@ -1,14 +1,14 @@
 ## Test environments
-Windows
-macOS
-Ubuntu
-Fedora
+Windows (github actions - release,  win-builder - devel and release)
+macOS (github actions)
+Ubuntu (gthub actions, r-hub)
+Fedora (r-hub)
 
 
 ## R CMD check results
 There were no ERRORs or WARNINGs. 
 
-There was 1 NOTE:
+There was 1 NOTE generated only on win-builder windows release:
 
 *  checking CRAN incoming feasibility ... NOTE
     Maintainer: ‘Adam Loy <loyad01@gmail.com>’
