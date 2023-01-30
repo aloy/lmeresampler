@@ -1,7 +1,7 @@
 ## Test environments
 Windows (github actions - release,  win-builder - devel and release)
-macOS (github actions)
-Ubuntu (gthub actions, r-hub)
+macOS (local, github actions)
+Ubuntu (github actions, r-hub)
 Fedora (r-hub)
 
 
