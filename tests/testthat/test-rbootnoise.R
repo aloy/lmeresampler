@@ -7,7 +7,7 @@ context("rbootnoise")
 # ==============================================================================
 
 test_that("compare rbootnoise = 0 to lmeresampler 0.2.2 results before the implementation of the feature",{
-  
+  skip_on_cran()
   #Reference data creator: Ilmari Tamminen
   
   load("./reference_data_for_rbootnoise_test_A071022.RData")
@@ -72,7 +72,7 @@ test_that("compare rbootnoise = 0 to lmeresampler 0.2.2 results before the imple
 })
 
 test_that("compare rbootnoise = 0.0001 to lmeresampler 0.2.2 results before the implementation of the feature",{
-  
+  skip_on_cran()
   #Reference data creator: Ilmari Tamminen
   
   load("./reference_data_for_rbootnoise_test_A071022.RData")
@@ -137,7 +137,7 @@ test_that("compare rbootnoise = 0.0001 to lmeresampler 0.2.2 results before the 
 })
 
 test_that("compare rbootnoise = 0.0001 to the results of the first implementation of the feature",{
-  
+  skip_on_cran()
   #Reference data creator: Ilmari Tamminen
   
   load("./reference_data_for_rbootnoise_test_B071022.RData")
@@ -202,7 +202,7 @@ test_that("compare rbootnoise = 0.0001 to the results of the first implementatio
 })
 
 test_that("verify the small effect of rbootnoise = 0.0001 on rep.mean (<5%) and se (<1%)",{
-
+  skip_on_cran()
   model <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
   nsim <- 2000
   set.seed(123)
