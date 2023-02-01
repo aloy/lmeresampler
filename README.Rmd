@@ -4,7 +4,7 @@ output: github_document
 
 # lmeresampler <img src='man/figures/logo.png' align="right" height="131.5" />
 
-[![R build status](https://github.com/aloy/lmeresampler/workflows/R-CMD-check/badge.svg)](https://github.com/aloy/lmeresampler/actions)
+[![R-CMD-check](https://github.com/aloy/lmeresampler/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/aloy/lmeresampler/actions/workflows/R-CMD-check.yaml)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/lmeresampler)](https://cran.r-project.org/package=lmeresampler)
 ![CRAN_Downloads_Badge](http://cranlogs.r-pkg.org/badges/lmersesampler)
 
