@@ -1,5 +1,7 @@
-## Resubmission
-This is a resubmission to address errors caused by my recent submission. Please let me know if I need a different version number. In this version I have:
+
+This is essentially a resubmission to address errors caused by my recent submission that were unexpected based on my testing. I apologize for a new submission so quickly.  
+
+In this version I have:
 
 * Failing tests are skipped on CRAN as they are not robust to different operating systems. They will be edited and changed on the development version and tested via continuous integration.
 

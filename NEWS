@@ -1,6 +1,11 @@
 0.2.3
 ===========
 
+* There are no user-visible changes. This fixes an error with testing on CRAN based on RNG differences.
+
+0.2.3
+===========
+
 BUG FIXES
 * `rbootnoise` argument added to residual bootstrap to bypass "system is exactly singular" issues with lme4 models (Credit to Ilmari Tamminen)
 * Eliminated unnecessary warnings for unnamed vectors with type = "reb2".
