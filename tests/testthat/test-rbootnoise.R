@@ -7,7 +7,7 @@ context("rbootnoise")
 # ==============================================================================
 
 test_that("compare rbootnoise = 0 to lmeresampler 0.2.2 results before the implementation of the feature",{
-  skip_on_cran()
+
   #Reference data creator: Ilmari Tamminen
   
   load("./reference_data_for_rbootnoise_test_A071022.RData")
@@ -59,6 +59,55 @@ test_that("compare rbootnoise = 0 to lmeresampler 0.2.2 results before the imple
   #nsim <- 100
   #set.seed(123)
   #A071022ref <- bootstrap(model, .f = fixef, type = "residual", B = nsim)
+
+  #About Ubuntu R-CMD-checks. It was noticed that the results produced with Linux systems have insignificant
+  #deviations from the results of other systems. Small relative deviations around 10^-10 were observed between
+  #the reference data created using Windows and test data created using Linux. Thus, exactly the same
+  #reproduction of the reference data is not expected. Maximum relative deviations of 0.001 between the
+  #results created using different operating systems is allowed. The linux-test data (not used in this test_that())
+  #on which the above is based on was obtained with the following specs:
+
+  #> sessionInfo()
+  #R version 4.2.1 (2022-06-23)
+  #Platform: x86_64-pc-linux-gnu (64-bit)
+  #Running under: CentOS Linux 7 (Core)
+
+  #Matrix products: default
+  #BLAS/LAPACK: /home/opt/easybuild/software/FlexiBLAS/3.2.0-GCC-11.3.0/lib64/libflexiblas.so.3.2
+
+  #locale:
+  #[1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C
+  #[3] LC_TIME=en_GB.UTF-8        LC_COLLATE=en_GB.UTF-8
+  #[5] LC_MONETARY=en_GB.UTF-8    LC_MESSAGES=en_GB.UTF-8
+  #[7] LC_PAPER=en_GB.UTF-8       LC_NAME=C
+  #[9] LC_ADDRESS=C               LC_TELEPHONE=C
+  #[11] LC_MEASUREMENT=en_GB.UTF-8 LC_IDENTIFICATION=C
+
+  #attached base packages:
+  #[1] stats     graphics  grDevices utils     datasets  methods   base
+
+  #other attached packages:
+  #[1] lmeresampler_0.2.4 lme4_1.1-29        Matrix_1.4-1
+
+  #loaded via a namespace (and not attached):
+  #[1] Rcpp_1.0.8.3         plyr_1.8.7           pillar_1.7.0
+  #[4] compiler_4.2.1       nloptr_2.0.3         forcats_0.5.1
+  #[7] tools_4.2.1          statmod_1.4.36       boot_1.3-28
+  #[10] lubridate_1.8.0      lifecycle_1.0.3      tibble_3.1.7
+  #[13] nlme_3.1-158         gtable_0.3.0         lattice_0.20-45
+  #[16] mgcv_1.8-40          pkgconfig_2.0.3      HLMdiag_0.5.0
+  #[19] rlang_1.0.6          cli_3.6.0            DBI_1.1.3
+  #[22] stringr_1.4.0        dplyr_1.0.9          janitor_2.2.0
+  #[25] generics_0.1.2       vctrs_0.5.2          diagonals_6.4.0
+  #[28] grid_4.2.1           tidyselect_1.1.2     nlmeU_0.70-9
+  #[31] snakecase_0.11.0     glue_1.6.2           R6_2.5.1
+  #[34] fansi_1.0.3          distributional_0.3.0 minqa_1.2.4
+  #[37] tidyr_1.2.0          farver_2.1.0         reshape2_1.4.4
+  #[40] ggplot2_3.4.1        purrr_0.3.4          magrittr_2.0.3
+  #[43] scales_1.2.0         ellipsis_0.3.2       MASS_7.3-57
+  #[46] splines_4.2.1        ggdist_3.2.1         assertthat_0.2.1
+  #[49] colorspace_2.0-3     utf8_1.2.2           stringi_1.7.6
+  #[52] munsell_0.5.0        crayon_1.5.1
   
   model <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
   nsim <- 100
@@ -72,7 +121,7 @@ test_that("compare rbootnoise = 0 to lmeresampler 0.2.2 results before the imple
 })
 
 test_that("compare rbootnoise = 0.0001 to lmeresampler 0.2.2 results before the implementation of the feature",{
-  skip_on_cran()
+
   #Reference data creator: Ilmari Tamminen
   
   load("./reference_data_for_rbootnoise_test_A071022.RData")
@@ -137,7 +186,7 @@ test_that("compare rbootnoise = 0.0001 to lmeresampler 0.2.2 results before the 
 })
 
 test_that("compare rbootnoise = 0.0001 to the results of the first implementation of the feature",{
-  skip_on_cran()
+
   #Reference data creator: Ilmari Tamminen
   
   load("./reference_data_for_rbootnoise_test_B071022.RData")
@@ -190,6 +239,56 @@ test_that("compare rbootnoise = 0.0001 to the results of the first implementatio
   #set.seed(123)
   #B071022ref <- bootstrap(model, .f = fixef, type = "residual", B = nsim, rbootnoise = 0.0001)
   
+  #About Ubuntu R-CMD-checks. It was noticed that the results produced with Linux systems have insignificant
+  #deviations from the results of other systems. Small relative deviations around 10^-10 were observed between
+  #the reference data created using Windows and test data created using Linux. Thus, exactly the same
+  #reproduction of the reference data is not expected. Maximum relative deviations of 0.001 between the
+  #results created using different operating systems is allowed. The linux-test data (not used in this test_that())
+  #on which the above is based on was obtained with the following specs:
+
+  #> sessionInfo()
+  #R version 4.2.1 (2022-06-23)
+  #Platform: x86_64-pc-linux-gnu (64-bit)
+  #Running under: CentOS Linux 7 (Core)
+
+  #Matrix products: default
+  #BLAS/LAPACK: /home/opt/easybuild/software/FlexiBLAS/3.2.0-GCC-11.3.0/lib64/libflexiblas.so.3.2
+
+  #locale:
+  #[1] LC_CTYPE=en_GB.UTF-8       LC_NUMERIC=C
+  #[3] LC_TIME=en_GB.UTF-8        LC_COLLATE=en_GB.UTF-8
+  #[5] LC_MONETARY=en_GB.UTF-8    LC_MESSAGES=en_GB.UTF-8
+  #[7] LC_PAPER=en_GB.UTF-8       LC_NAME=C
+  #[9] LC_ADDRESS=C               LC_TELEPHONE=C
+  #[11] LC_MEASUREMENT=en_GB.UTF-8 LC_IDENTIFICATION=C
+
+  #attached base packages:
+  #[1] stats     graphics  grDevices utils     datasets  methods   base
+
+  #other attached packages:
+  #[1] lmeresampler_0.2.4 lme4_1.1-29        Matrix_1.4-1
+
+  #loaded via a namespace (and not attached):
+  #[1] Rcpp_1.0.8.3         plyr_1.8.7           pillar_1.7.0
+  #[4] compiler_4.2.1       nloptr_2.0.3         forcats_0.5.1
+  #[7] tools_4.2.1          statmod_1.4.36       boot_1.3-28
+  #[10] lubridate_1.8.0      lifecycle_1.0.3      tibble_3.1.7
+  #[13] nlme_3.1-158         gtable_0.3.0         lattice_0.20-45
+  #[16] mgcv_1.8-40          pkgconfig_2.0.3      HLMdiag_0.5.0
+  #[19] rlang_1.0.6          cli_3.6.0            DBI_1.1.3
+  #[22] stringr_1.4.0        dplyr_1.0.9          janitor_2.2.0
+  #[25] generics_0.1.2       vctrs_0.5.2          diagonals_6.4.0
+  #[28] grid_4.2.1           tidyselect_1.1.2     nlmeU_0.70-9
+  #[31] snakecase_0.11.0     glue_1.6.2           R6_2.5.1
+  #[34] fansi_1.0.3          distributional_0.3.0 minqa_1.2.4
+  #[37] tidyr_1.2.0          farver_2.1.0         reshape2_1.4.4
+  #[40] ggplot2_3.4.1        purrr_0.3.4          magrittr_2.0.3
+  #[43] scales_1.2.0         ellipsis_0.3.2       MASS_7.3-57
+  #[46] splines_4.2.1        ggdist_3.2.1         assertthat_0.2.1
+  #[49] colorspace_2.0-3     utf8_1.2.2           stringi_1.7.6
+  #[52] munsell_0.5.0        crayon_1.5.1
+
+
   model <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
   nsim <- 100
   set.seed(123)
@@ -202,7 +301,7 @@ test_that("compare rbootnoise = 0.0001 to the results of the first implementatio
 })
 
 test_that("verify the small effect of rbootnoise = 0.0001 on rep.mean (<5%) and se (<1%)",{
-  skip_on_cran()
+
   model <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
   nsim <- 2000
   set.seed(123)
