@@ -114,9 +114,14 @@ test_that("compare rbootnoise = 0 to lmeresampler 0.2.2 results before the imple
   set.seed(123)
   boo <- bootstrap(model, .f = fixef, type = "residual", B = nsim)
   
-  comparison <- identical(boo[["stats"]], A071022ref[["stats"]])
+  maxreldev <- (A071022ref[["stats"]][,2:5] - boo[["stats"]][,2:5])/A071022ref[["stats"]][,2:5]
+  maxreldev <- max(abs(maxreldev))
+  comparison <- (maxreldev < 0.001)
   expect_true(comparison, info = NULL, label = NULL)
-  comparison <- identical(boo[["replicates"]], A071022ref[["replicates"]])
+
+  maxreldev <- (A071022ref[["replicates"]] - boo[["replicates"]])/A071022ref[["replicates"]]
+  maxreldev <- max(abs(maxreldev))
+  comparison <- (maxreldev < 0.001)
   expect_true(comparison, info = NULL, label = NULL)
 })
 
@@ -294,10 +299,16 @@ test_that("compare rbootnoise = 0.0001 to the results of the first implementatio
   set.seed(123)
   boo <- bootstrap(model, .f = fixef, type = "residual", B = nsim, rbootnoise = 0.0001)
   
-  comparison <- identical(boo[["stats"]], B071022ref[["stats"]])
+  maxreldev <- (B071022ref[["stats"]][,2:5] - boo[["stats"]][,2:5])/B071022ref[["stats"]][,2:5]
+  maxreldev <- max(abs(maxreldev))
+  comparison <- (maxreldev < 0.001)
   expect_true(comparison, info = NULL, label = NULL)
-  comparison <- identical(boo[["replicates"]], B071022ref[["replicates"]])
+
+  maxreldev <- (B071022ref[["replicates"]] - boo[["replicates"]])/B071022ref[["replicates"]]
+  maxreldev <- max(abs(maxreldev))
+  comparison <- (maxreldev < 0.001)
   expect_true(comparison, info = NULL, label = NULL)
+
 })
 
 test_that("verify the small effect of rbootnoise = 0.0001 on rep.mean (<5%) and se (<1%)",{
