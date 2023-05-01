@@ -4,7 +4,8 @@ Version: 0.2.4
 Authors@R: c(person("Adam", "Loy", email = "loyad01@gmail.com",
     role = c("aut", "cre"), comment = c(ORCID = "0000-0002-5780-4611")), 
     person("Spenser", "Steele", role = "aut"), 
-    person("Jenna", "Korobova", role = "aut"))
+    person("Jenna", "Korobova", role = "aut"),
+    person("Ilmari", "Tamminen", role = "ctb"))
 Description: Bootstrap routines for nested linear mixed effects models fit using
     either 'lme4' or 'nlme'. The provided 'bootstrap()' function implements the
     parametric, residual, cases, random effect block (REB), and wild bootstrap 
@@ -41,6 +42,6 @@ License: GPL-3
 LazyData: true
 URL: https://github.com/aloy/lmeresampler
 BugReports: https://github.com/aloy/lmeresampler/issues
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 VignetteBuilder: knitr
 Encoding: UTF-8
