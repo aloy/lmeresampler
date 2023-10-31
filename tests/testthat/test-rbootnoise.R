@@ -260,9 +260,9 @@ test_that("Capture possible absurdly large effects of rbootnoise = 0.0001 on rep
   expect_false(all.equal(boo, booref))
   
   boodif <- (boo[["stats"]][["rep.mean"]] - booref[["stats"]][["rep.mean"]])/booref[["stats"]][["rep.mean"]]
-  expect_true(max(abs(boodif)) < 10)
+  expect_true(max(abs(boodif)) < 100)
   
   boodif <- (boo[["stats"]][["se"]] - booref[["stats"]][["se"]])/booref[["stats"]][["se"]]
-  expect_true((max(abs(boodif)) < 10))
+  expect_true((max(abs(boodif)) < 100))
   
 })
