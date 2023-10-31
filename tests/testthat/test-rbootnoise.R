@@ -184,9 +184,9 @@ test_that("compare rbootnoise = 0.0001 to lmeresampler 0.2.2 results before the 
   set.seed(123)
   boo <- bootstrap(model, .f = fixef, type = "residual", B = nsim, rbootnoise = 0.0001)
   
-  comparison <- identical(boo[["stats"]], A071022ref[["stats"]])
+  comparison <- all.equal(boo[["stats"]], A071022ref[["stats"]])
   expect_false(comparison, info = NULL, label = NULL)
-  comparison <- identical(boo[["replicates"]], A071022ref[["replicates"]])
+  comparison <- all.equal(boo[["replicates"]], A071022ref[["replicates"]])
   expect_false(comparison, info = NULL, label = NULL)
 })
 
@@ -320,7 +320,7 @@ test_that("verify the small effect of rbootnoise = 0.0001 on rep.mean (<5%) and 
   set.seed(123) #Note, the set.seed(123) will not be followed as above due to the additional random noise generation!
   boo <- bootstrap(model, .f = fixef, type = "residual", B = nsim, rbootnoise = 0.0001)
   
-  expect_false(identical(boo, booref))
+  expect_false(all.equal(boo, booref))
   
   boodif <- (boo[["stats"]][["rep.mean"]] - booref[["stats"]][["rep.mean"]])/booref[["stats"]][["rep.mean"]]*100
   expect_true(max(abs(boodif)) < 5)
