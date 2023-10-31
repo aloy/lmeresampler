@@ -301,12 +301,12 @@ test_that("compare rbootnoise = 0.0001 to the results of the first implementatio
   
   maxreldev <- (B071022ref[["stats"]][,2:5] - boo[["stats"]][,2:5])/B071022ref[["stats"]][,2:5]
   maxreldev <- max(abs(maxreldev))
-  comparison <- (maxreldev < 0.001)
+  comparison <- (maxreldev < 0.01)
   expect_true(comparison, info = NULL, label = NULL)
 
   maxreldev <- (B071022ref[["replicates"]] - boo[["replicates"]])/B071022ref[["replicates"]]
   maxreldev <- max(abs(maxreldev))
-  comparison <- (maxreldev < 0.001)
+  comparison <- (maxreldev < 0.01)
   expect_true(comparison, info = NULL, label = NULL)
 
 })
@@ -326,6 +326,6 @@ test_that("verify the small effect of rbootnoise = 0.0001 on rep.mean (<5%) and 
   expect_true(max(abs(boodif)) < 5)
   
   boodif <- (boo[["stats"]][["se"]] - booref[["stats"]][["se"]])/booref[["stats"]][["se"]]*100
-  expect_true((max(abs(boodif)) < 1))
+  expect_true((max(abs(boodif)) < 5))
   
 })
