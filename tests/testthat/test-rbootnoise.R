@@ -257,12 +257,10 @@ test_that("Capture possible absurdly large effects of rbootnoise = 0.0001 on rep
   set.seed(123) #Note, the set.seed(123) will not be followed as above due to the additional random noise generation!
   boo <- bootstrap(model, .f = fixef, type = "residual", B = nsim, rbootnoise = 0.0001)
   
-  expect_false(all.equal(boo, booref, check.attributes = FALSE))
-  
   boodif <- (boo[["stats"]][["rep.mean"]] - booref[["stats"]][["rep.mean"]])/booref[["stats"]][["rep.mean"]]
-  expect_true(max(abs(boodif)) < 100)
+  expect_true(max(abs(boodif)) < 1)
   
   boodif <- (boo[["stats"]][["se"]] - booref[["stats"]][["se"]])/booref[["stats"]][["se"]]
-  expect_true((max(abs(boodif)) < 100))
+  expect_true((max(abs(boodif)) < 1))
   
 })
