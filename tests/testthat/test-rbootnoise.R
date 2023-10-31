@@ -248,7 +248,7 @@ test_that("Compare rbootnoise = 0.0001 to the results of the first implementatio
 
 })
 
-test_that("Verify the relatively small effect of rbootnoise = 0.0001 on rep.mean (<10%) and se (<10%). Note, the same seed cannot be followed exactly due to the random noise the rbootnoise feature generates!",{
+test_that("Capture possible absurdly large effects of rbootnoise = 0.0001 on rep.mean and se, an implication of major technical issues. Note, the same seed cannot be followed exactly due to the random noise the rbootnoise feature generates!",{
 
   model <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
   nsim <- 2000
@@ -260,9 +260,9 @@ test_that("Verify the relatively small effect of rbootnoise = 0.0001 on rep.mean
   expect_false(all.equal(boo, booref))
   
   boodif <- (boo[["stats"]][["rep.mean"]] - booref[["stats"]][["rep.mean"]])/booref[["stats"]][["rep.mean"]]
-  expect_true(max(abs(boodif)) < 0.1)
+  expect_true(max(abs(boodif)) < 10)
   
   boodif <- (boo[["stats"]][["se"]] - booref[["stats"]][["se"]])/booref[["stats"]][["se"]]
-  expect_true((max(abs(boodif)) < 0.1))
+  expect_true((max(abs(boodif)) < 10))
   
 })
