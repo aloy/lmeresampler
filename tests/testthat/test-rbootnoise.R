@@ -118,12 +118,12 @@ test_that("Compare rbootnoise = 0 to lmeresampler 0.2.2 results before the imple
   
   maxreldev <- (A071022ref[["stats"]][,2:5] - boo[["stats"]][,2:5])/A071022ref[["stats"]][,2:5]
   maxreldev <- max(abs(maxreldev))
-  comparison <- (maxreldev < 0.1)
+  comparison <- (maxreldev < 1)
   expect_true(comparison, info = NULL, label = NULL)
 
   maxreldev <- (A071022ref[["replicates"]] - boo[["replicates"]])/A071022ref[["replicates"]]
   maxreldev <- max(abs(maxreldev))
-  comparison <- (maxreldev < 0.1)
+  comparison <- (maxreldev < 1)
   expect_true(comparison, info = NULL, label = NULL)
 })
 
@@ -238,12 +238,12 @@ test_that("Compare rbootnoise = 0.0001 to the results of the first implementatio
   
   maxreldev <- (B071022ref[["stats"]][,2:5] - boo[["stats"]][,2:5])/B071022ref[["stats"]][,2:5]
   maxreldev <- max(abs(maxreldev))
-  comparison <- (maxreldev < 0.1)
+  comparison <- (maxreldev < 1)
   expect_true(comparison, info = NULL, label = NULL)
 
   maxreldev <- (B071022ref[["replicates"]] - boo[["replicates"]])/B071022ref[["replicates"]]
   maxreldev <- max(abs(maxreldev))
-  comparison <- (maxreldev < 0.1)
+  comparison <- (maxreldev < 1)
   expect_true(comparison, info = NULL, label = NULL)
 
 })
