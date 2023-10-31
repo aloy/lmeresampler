@@ -6,7 +6,7 @@ data(jsp728, package = "lmeresampler")
 context("rbootnoise")
 # ==============================================================================
 
-test_that("compare rbootnoise = 0 to lmeresampler 0.2.2 results before the implementation of the feature",{
+test_that("Compare rbootnoise = 0 to lmeresampler 0.2.2 results before the implementation of the feature",{
 
   #Reference data creator: Ilmari Tamminen
   
@@ -125,7 +125,7 @@ test_that("compare rbootnoise = 0 to lmeresampler 0.2.2 results before the imple
   expect_true(comparison, info = NULL, label = NULL)
 })
 
-test_that("compare rbootnoise = 0.0001 to lmeresampler 0.2.2 results before the implementation of the feature",{
+test_that("Compare rbootnoise = 0.0001 to lmeresampler 0.2.2 results before the implementation of the feature",{
 
   #Reference data creator: Ilmari Tamminen
   
@@ -190,7 +190,7 @@ test_that("compare rbootnoise = 0.0001 to lmeresampler 0.2.2 results before the 
   expect_false(comparison, info = NULL, label = NULL)
 })
 
-test_that("compare rbootnoise = 0.0001 to the results of the first implementation of the feature",{
+test_that("Compare rbootnoise = 0.0001 to the results of the first implementation of the feature",{
 
   #Reference data creator: Ilmari Tamminen
   
@@ -311,7 +311,7 @@ test_that("compare rbootnoise = 0.0001 to the results of the first implementatio
 
 })
 
-test_that("verify the small effect of rbootnoise = 0.0001 on rep.mean (<5%) and se (<1%)",{
+test_that("Verify the relatively small effect of rbootnoise = 0.0001 on rep.mean (<10%) and se (<10%). Note, the same seed cannot be followed exactly due to the random noise the rbootnoise feature generates!",{
 
   model <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
   nsim <- 2000
