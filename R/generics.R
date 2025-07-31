@@ -32,11 +32,11 @@
 #'     returned. Defaults to \code{TRUE}.
 #' @param rbootnoise a numeric value between 0-1 indicating the strength of
 #'     technical 2-level noise added in relation to the 1-level variation (in
-#'     standard deviations) during residual bootstrapping. Minuscule noise, such
-#'     as \code{rbootnoise = 0.0001}, can be used to avoid errors with singular
-#'     matrices when exactly the same values are replicated during the
-#'     bootstrapping, or when the model being processed fails to return any
-#'     2-level variation. Currently applicable only with \code{lme4::lmer}
+#'     standard deviations) during residual bootstrapping. Minuscule noise such
+#'     as \code{rbootnoise = 0.0001} can be used to avoid zero 2-level errors
+#'     and invalid matrix calculations. The feature can be used to finalize
+#'     the residual bootstrapping in technical sense, as such the reliability of the
+#'     analysis is not quaranteed. Applicable only with \code{lme4::lmer}
 #'     models. The feature has been tested with 2-level random-intercept models
 #'     with predictors. Defaults to \code{0} (i.e. the feature is not used by
 #'     default).
