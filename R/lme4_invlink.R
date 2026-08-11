@@ -1,6 +1,5 @@
 ### Provided in lme4/predict.R
-#' @importFrom stats family fitted model.frame model.response rbinom 
-#' rgamma rnbinom rnorm rpois weights
+#' @importFrom stats family fitted model.frame model.response rbinom rgamma rnbinom rnorm rpois weights
 gaussian_simfun <- function(object, nsim, ftd=fitted(object),
                             wts=weights(object)) {
   

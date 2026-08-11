@@ -65,7 +65,7 @@
 
 
   if (inherits(model, "lme")) data <- model$data
-  else data <- model@frame
+  else data <- model.frame(model)
 
   RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
                         stats = stats, B = B, data = data,

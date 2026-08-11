@@ -31,6 +31,7 @@ Imports:
     tibble
 Suggests:
     lme4 (>= 1.1-7),
+    glmmTMB,
     nlme,
     testthat,
     mlmRev,
