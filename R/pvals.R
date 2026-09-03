@@ -9,7 +9,7 @@
 #' to reduced models that eliminate a single fixed effect, the same
 #' comparison summarized by the table of coefficients in the summary.
 #' The bootstrap p-value is then calculated as 
-#' $(n_{extreme} + 1) / (B + 1)$.
+#' \eqn{(n_{extreme} + 1) / (B + 1)}.
 #' 
 #' @return 
 #' A tibble giving the table of coefficients from the model summary with a column

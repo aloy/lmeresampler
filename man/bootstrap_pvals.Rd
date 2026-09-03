@@ -75,7 +75,7 @@ The bootstrap test compares the fitted model specified by the user
 to reduced models that eliminate a single fixed effect, the same
 comparison summarized by the table of coefficients in the summary.
 The bootstrap p-value is then calculated as 
-$(n_{extreme} + 1) / (B + 1)$.
+\eqn{(n_{extreme} + 1) / (B + 1)}.
 }
 \examples{
 \dontrun{
