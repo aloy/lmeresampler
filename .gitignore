@@ -13,3 +13,6 @@ Meta
 doc
 /doc/
 /Meta/
+claude.md
+.gitignore
+code-review.md

@@ -14,3 +14,5 @@
 ^\.github$
 ^revdep$
 ^CRAN-SUBMISSION$
+^[.]?air[.]toml$
+^\.vscode$
