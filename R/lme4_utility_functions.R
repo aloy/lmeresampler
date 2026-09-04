@@ -133,31 +133,76 @@ arrange_ranefs.lme <- function(b, fl, levs, cnms){
   res
 }
 
-#' Refitting merMod with error catching
+#' Grouping-factor list for a fitted model
+#'
+#' @description
+#' A small internal helper so that code shared across model classes (e.g.
+#' \code{case_bootstrap}) doesn't need to branch on class itself.
+#' @keywords internal
+#' @noRd
+.flist <- function(model) {
+  if (inherits(model, "glmmTMB")) .reTrms.glmmTMB(model)$flist
+  else lme4::getME(model, "flist")
+}
+
+
+#' Build a per-coefficient Ztlist from a combined Zt matrix
+#'
+#' @description
+#' Reproduces the per-coefficient split that \code{lme4::getME(model, "Ztlist")}
+#' performs internally (one entry per random-effect coefficient, e.g.
+#' \code{"Subject.(Intercept)"}, \code{"Subject.Days"}), given the pieces
+#' returned by \code{lme4::lFormula()}/\code{lme4::mkReTrms()}. Used for model
+#' classes (e.g. \code{glmmTMB}) whose own \code{getME()} does not expose
+#' \code{Ztlist} directly.
+#' @param cnms component names list, as returned in \code{reTrms$cnms}
+#' @param Gp group pointers, as returned in \code{reTrms$Gp}
+#' @param Zt combined transposed random-effects design matrix, \code{reTrms$Zt}
+#' @keywords internal
+#' @noRd
+.make_Ztlist <- function(cnms, Gp, Zt) {
+  getInds <- function(i) {
+    n <- diff(Gp)[i]
+    nt <- length(cnms[[i]])
+    inds <- lapply(seq(nt), seq, to = n, by = nt)
+    lapply(inds, function(x) x + Gp[i])
+  }
+  inds <- do.call(c, lapply(seq_along(cnms), getInds))
+  vcompnames <- unlist(Map(function(g, cn) paste(g, cn, sep = "."), names(cnms), cnms), use.names = FALSE)
+  setNames(lapply(inds, function(i) Zt[i, ]), vcompnames)
+}
+
+
+#' Refitting merMod/glmmTMB with error catching
+#'
+#' @description
+#' \code{refit()} is itself an S3 generic in \pkg{lme4} (with methods for
+#' both \code{merMod} and, via \pkg{glmmTMB}, \code{glmmTMB} objects), so a
+#' single implementation covers both model classes.
 #' @param ystar bootstrapped responses
-#' @param model fitted merMod object
+#' @param model fitted merMod or glmmTMB object
 #' @param .f function to calc bootstrap stats
 #' @keywords internal
 #' @noRd
 #' @importFrom stats napredict
 refit_merMod <- function(ystar, model, .f) {
   error <- NULL
-  
+
   # Adjustment to respect na.action
-  .na.act <- attr(model@frame, "na.action")
+  .na.act <- attr(model.frame(model), "na.action")
   ystar2 <- purrr::map(ystar, function(.y) {
     attr(.y, "na.action") <- .na.act
     .y
   })
-  
-  
+
+
   f1 <- factory(
-    function(model, y) 
+    function(model, y)
       .f(lme4::refit(object = model, newresp = y))
   )
   stats <- purrr::map(ystar2, function(.y) f1(model, .y))
 
-  
+
   list(tstar = stats, warnings = collect_warnings(stats))
 }
 
@@ -231,6 +276,6 @@ refit_to_newdf <- function(model, newdata, .f) {
 #     missing_re <- setdiff(re_names, colnames(data))
 #     data <- dplyr::bind_cols(data, flist[missing_re])
 #   }
-#   
+#
 #   return(list(data, clusters))
 # }

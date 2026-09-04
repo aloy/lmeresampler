@@ -97,8 +97,78 @@
 
 
 
+#' Setup for resampling from glmmTMB object
+#'
+#' @inheritParams bootstrap
+#' @keywords internal
+#' @noRd
+.setup.glmmTMB <- function(model, type, rbootnoise = 0){
+  if(type != "residual")
+    stop("'.setup.glmmTMB' only supports the residual bootstrap.")
+
+  # Extract marginal means
+  Xbeta <- predict(model, re.form = NA) # This is X %*% fixef(model)$cond
+
+  reTrms <- .reTrms.glmmTMB(model)
+  cnms <- reTrms$cnms
+  Ztlist <- .make_Ztlist(cnms, reTrms$Gp, reTrms$Zt)
+
+  level.num <- length(cnms)
+
+  # Extract and center random effects
+  b <- purrr::map(glmmTMB::ranef(model)$cond, .f = scale, scale = FALSE)
+  b <- purrr::map(b, as.data.frame)
+
+  # Extract and center error terms
+  e <- scale(resid(model), scale = FALSE)
+
+  sig0 <- stats::sigma(model)
+
+  varcor <- glmmTMB::VarCorr(model)$cond
+
+  #Add rbootnoise to 2-level variance when requested
+  if (rbootnoise != 0) {
+    varcor[[1]][[1]] <- varcor[[1]][[1]] + (attr(varcor, "sc")*rbootnoise)^2
+  }
+  vclist <- purrr::map(seq_along(b), .f = ~Matrix::bdiag(varcor[[names(b)[.x]]]))
+  names(vclist) <- names(b)
+
+  list(Xbeta = Xbeta, b = b, e = e, Ztlist = Ztlist,
+       level.num = level.num, sig0 = sig0, vclist = vclist)
+}
+
+
+#' Reconstruct the lme4-style random-effects structure for a glmmTMB model
+#'
+#' @description
+#' glmmTMB's own \code{getME()} does not expose \code{Ztlist}/\code{Gp} the
+#' way lme4's does (and its \code{"Gp"} entry currently errors due to an
+#' upstream type bug). \code{cnms} and \code{flist}, however, are already
+#' stored correctly -- computed once from the raw fitting data at fit time,
+#' before any formula-side transformation -- in
+#' \code{model$modelInfo$reTrms$cond}. \code{Gp} is then just the
+#' cumulative per-term column count, and \code{Zt} is the transpose of
+#' \code{getME(model, "Z")}, so the whole structure can be built without
+#' ever re-evaluating the formula against data -- this matters because
+#' \code{model.frame(model)} mangles some formula-side transformations into
+#' a combined or renamed column (e.g. a \code{cbind(successes, failures)}
+#' response, or \code{(log(x) | g)}), which re-evaluation would choke on.
+#' @keywords internal
+#' @noRd
+.reTrms.glmmTMB <- function(model) {
+  cnms <- model$modelInfo$reTrms$cond$cnms
+  flist <- model$modelInfo$reTrms$cond$flist
+  nc <- vapply(cnms, length, 1L)
+  nl <- vapply(flist, nlevels, 1L)
+  Gp <- c(0L, cumsum(nc * nl))
+  Zt <- Matrix::t(glmmTMB::getME(model, "Z"))
+
+  list(cnms = cnms, flist = flist, Gp = Gp, Zt = Zt)
+}
+
+
 #' Setup for resampling from lme object
-#' 
+#'
 #' @inheritParams bootstrap
 #' @keywords internal
 #' @noRd

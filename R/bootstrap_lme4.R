@@ -1,8 +1,7 @@
 #' @rdname bootstrap
 #' @export
 #' @method bootstrap merMod
-#' @importFrom stats as.formula cov formula model.matrix na.exclude 
-#' na.omit predict resid simulate sd confint quantile
+#' @importFrom stats as.formula cov formula model.matrix na.exclude na.omit predict resid simulate sd confint quantile
 bootstrap.merMod <- function(model, .f = extract_parameters, type, B, resample, 
                              reb_type, hccme, 
                              aux.dist, orig_data = NULL, .refit = TRUE, rbootnoise = 0){
@@ -46,10 +45,10 @@ case_bootstrap.merMod <- function(model, .f, B, resample, orig_data = NULL, .ref
   if(!is.null(orig_data)){
     data <- orig_data
   }else{
-    data <- model@frame
+    data <- model.frame(model)
   }
-  
-  flist <- lme4::getME(model, "flist")
+
+  flist <- .flist(model)
   re_names <- names(flist)
   clusters <- c(rev(re_names), ".id")
   

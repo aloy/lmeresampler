@@ -60,25 +60,25 @@
 .resample_refit.cases <- function(model, .f, dat, cluster, resample, .refit){
   resamp_data <- .resamp.cases(dat, cluster, resample)
   error <- NULL
-  
+
   if(!.refit) return(resamp_data)
-  
+
   if(inherits(model, "lmerMod")){
     # Refit the model and apply '.f' to it using map
     form <- model@call$formula
     reml <- lme4::isREML(model)
-    
+
     f1 <- factory(
-      function(form, resamp_data, reml) 
+      function(form, resamp_data, reml)
         .f(lme4::lmer(formula = form, data = resamp_data, REML = reml))
       )
     tstar <- f1(form, resamp_data, reml)
-    
+
     # tstar <- purrr::map(res, function(x) {
-    #   .f(lme4::lmer(formula = form, data = as.data.frame(x), REML = reml)) 
+    #   .f(lme4::lmer(formula = form, data = as.data.frame(x), REML = reml))
     # })
   } else if(inherits(model, "lme")){
-    tstar <- updated.model(model = model, new.data = resamp_data)  
+    tstar <- updated.model(model = model, new.data = resamp_data)
     tstar <- .f(tstar)
   } else if(inherits(model, "glmerMod")) {
     form <- update(model@call$formula, y ~ .)
@@ -89,15 +89,24 @@
       colnames(resamp_data)[1] <- "y"
     }
     fam  <- family(model)
-    
+
     f1 <- factory(
-      function(form, resamp_data, fam) 
+      function(form, resamp_data, fam)
         .f(lme4::glmer(formula = form, data = resamp_data, family = fam))
     )
     tstar <- f1(form, resamp_data, fam)
-    
+
+  } else if(inherits(model, "glmmTMB")) {
+    # glmmTMB has no equivalent of merMod's @call slot to rebuild a formula
+    # from, but update() reuses the model's own stored call (formula,
+    # family, REML, ...) directly, substituting only the resampled data.
+    f1 <- factory(
+      function(model, resamp_data)
+        .f(update(model, data = resamp_data))
+    )
+    tstar <- f1(model, resamp_data)
   } else{
-    stop("model class must be one of 'lme', 'lmerMod', or 'glmerMod'")
+    stop("model class must be one of 'lme', 'lmerMod', 'glmerMod', or 'glmmTMB'")
   }
   tstar
 }
