@@ -2,26 +2,27 @@
 % Please edit documentation in R/lmeresampler.R
 \docType{package}
 \name{lmeresampler}
+\alias{lmeresampler-package}
 \alias{lmeresampler}
 \alias{package-lmeresampler}
 \title{lmeresampler: A package for bootstrapping nested linear mixed-effects models}
 \description{
-The \pkg{lme4} and \pkg{nlme} packages have made fitting nested 
-linear mixed-effects (LME) models quite easy. Using the the 
-functionality of these packages we can easily use maximum 
-likelihood or restricted maximum likelihood to fit a 
-model and conduct inference using our parametric toolkit. 
-In practice, the assumptions of our model are often violated 
-to such a degree that leads to biased estimators and 
-incorrect standard errors. In these situations, resampling 
-methods such as the bootstrap can be used to obtain consistent 
-estimators and standard errors for inference. 
-\code{lmeresampler} provides an easy way to bootstrap nested 
-linear-mixed effects models using either fit using either \pkg{lme4} or 
+The \pkg{lme4} and \pkg{nlme} packages have made fitting nested
+linear mixed-effects (LME) models quite easy. Using the the
+functionality of these packages we can easily use maximum
+likelihood or restricted maximum likelihood to fit a
+model and conduct inference using our parametric toolkit.
+In practice, the assumptions of our model are often violated
+to such a degree that leads to biased estimators and
+incorrect standard errors. In these situations, resampling
+methods such as the bootstrap can be used to obtain consistent
+estimators and standard errors for inference.
+\code{lmeresampler} provides an easy way to bootstrap nested
+linear-mixed effects models using either fit using either \pkg{lme4} or
 \pkg{nlme}.
 }
 \details{
-A variety of bootstrap procedures are available: 
+A variety of bootstrap procedures are available:
 \itemize{
    \item the parametric bootstrap: \code{\link{parametric_bootstrap}}
    \item the residual bootstrap: \code{\link{resid_bootstrap}}
@@ -32,5 +33,29 @@ A variety of bootstrap procedures are available:
 
 In addition to the individual bootstrap functions, \code{lmeresampler} provides
 a unified interface to bootstrapping LME models in its  \code{bootstrap} function.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/aloy/lmeresampler}
+  \item Report bugs at \url{https://github.com/aloy/lmeresampler/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Adam Loy \email{loyad01@gmail.com} (\href{https://orcid.org/0000-0002-5780-4611}{ORCID})
+
+Authors:
+\itemize{
+  \item Adam Loy \email{loyad01@gmail.com} (\href{https://orcid.org/0000-0002-5780-4611}{ORCID})
+  \item Spenser Steele
+  \item Jenna Korobova
+}
+
+Other contributors:
+\itemize{
+  \item Ilmari Tamminen [contributor]
+}
+
 }
 \keyword{package}

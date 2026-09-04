@@ -20,7 +20,9 @@ register_s3_method <- function(pkg, generic, class, method) {
     }
   }
 
-  if (pkg %in% loadedNamespaces()) register()
+  if (pkg %in% loadedNamespaces()) {
+    register()
+  }
 
   setHook(packageEvent(pkg, "onLoad"), register)
 }

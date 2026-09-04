@@ -8,7 +8,7 @@
 \alias{case_bootstrap}
 \title{Cases Bootstrap for Nested LMEs}
 \usage{
-\method{case_bootstrap}{glmmTMB}(...)
+\method{case_bootstrap}{glmmTMB}(model, .f, B, resample, orig_data = NULL, .refit = TRUE)
 
 \method{case_bootstrap}{merMod}(model, .f, B, resample, orig_data = NULL, .refit = TRUE)
 
@@ -23,25 +23,25 @@ case_bootstrap(model, .f, B, resample, orig_data = NULL, .refit = TRUE)
 
 \item{B}{The number of bootstrap resamples.}
 
-\item{resample}{A logical vector specifying whether each level of the model 
-should be resampled in the cases bootstrap. The levels should be specified 
-from the highest level (largest cluster) of the hierarchy to the lowest 
-(observation-level); for example for students within a school, specify the 
+\item{resample}{A logical vector specifying whether each level of the model
+should be resampled in the cases bootstrap. The levels should be specified
+from the highest level (largest cluster) of the hierarchy to the lowest
+(observation-level); for example for students within a school, specify the
 school level first, then the student level.}
 
 \item{orig_data}{the original data frame. This should be specified if variables
 are transformed within the formula for \code{glmer()} or \code{lmer()}
 and the case bootstrap is used.}
 
-\item{.refit}{a logical value indicating whether the model should be refit to 
-the bootstrap resample, or if the simulated bootstrap resample should be 
+\item{.refit}{a logical value indicating whether the model should be refit to
+the bootstrap resample, or if the simulated bootstrap resample should be
 returned. Defaults to \code{TRUE}.}
 }
 \value{
 The returned value is an object of class "lmeresamp".
 }
 \description{
-Generate cases bootstrap replicates of a statistic for a nested linear 
+Generate cases bootstrap replicates of a statistic for a nested linear
 mixed-effects model.
 }
 \details{
@@ -51,12 +51,12 @@ class-specific pieces to the \code{.flist()} generic and to
 generic over \code{merMod} and \code{glmmTMB}).
 
 The cases bootstrap is a fully nonparametric bootstrap that resamples the data
-with respect to the clusters in order to generate bootstrap samples. Depending 
-on the nature of the data, the resampling can be done only for the higher-level 
+with respect to the clusters in order to generate bootstrap samples. Depending
+on the nature of the data, the resampling can be done only for the higher-level
 cluster(s), only at the observation-level within a cluster, or at all levels.
-See Van der Leeden et al. (2008) for a nice discussion of this decision. 
+See Van der Leeden et al. (2008) for a nice discussion of this decision.
 
-To resample a given level of the model, the corresponding entry in the logical 
+To resample a given level of the model, the corresponding entry in the logical
 vector specified in the \code{resample} parameter must be set to true. A few
 examples are given below in terms of a two-level model where students are
 clustered within schools:
@@ -68,17 +68,17 @@ clustered within schools:
 }
 }
 \references{
-Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
-   models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
+Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel
+   models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of
    Multilevel Analysis}, pages 401--433. New York: Springer.
 }
 \seealso{
 \itemize{
   \item Examples are given in \code{\link{bootstrap}}
   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-     \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, 
+     \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}},
      \code{\link{wild_bootstrap}} for more details on a specific bootstrap.
-  \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
+  \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an
      implementation of (semi-)parametric bootstrap for mixed models.
 }
 }

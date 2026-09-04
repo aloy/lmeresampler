@@ -1,9 +1,9 @@
 #' Junior school project math score data.
-#' 
-#' A dataset containing 728 students from 50 primary (elementary) schools in inner 
+#'
+#' A dataset containing 728 students from 50 primary (elementary) schools in inner
 #' London that were part of the Junior School Project (JSP). The variables are
 #' as follows:
-#' 
+#'
 #' @format A data frame with 728 rows and 8 variables.
 #' \describe{
 #'  \item{mathAge11}{score on math at age 11}
@@ -16,12 +16,12 @@
 #'  \item{schoolMathAge8}{average school math score}
 #'  \item{mathAge8c}{centered math score at age 8}
 #' }
-#' 
+#'
 #' @docType data
 #' @keywords datasets
 #' @name jsp728
 #' @usage data(jsp728)
 #' @source \url{http://www.bristol.ac.uk/cmm/team/hg/msm-3rd-ed/datasets.html}
-#' @references 
+#' @references
 #'   Goldstein, H. (2011). Multilevel Statistical Models (4th ed.). Hoboken: Wiley
 NULL

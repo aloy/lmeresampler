@@ -34,51 +34,51 @@ wild_bootstrap(model, .f, B, hccme, aux.dist, .refit = TRUE)
 
 \item{B}{The number of bootstrap resamples.}
 
-\item{hccme}{either \code{"hc2"} or \code{"hc3"}, indicating which 
+\item{hccme}{either \code{"hc2"} or \code{"hc3"}, indicating which
 heteroscedasticity consistent covariance matrix estimator to use.}
 
-\item{aux.dist}{one of \code{"mammen"}, \code{"rademacher"}, \code{"norm"}, 
-\code{"webb"}, or \code{"gamma"} indicating which auxiliary 
+\item{aux.dist}{one of \code{"mammen"}, \code{"rademacher"}, \code{"norm"},
+\code{"webb"}, or \code{"gamma"} indicating which auxiliary
 distribution to draw the errors from}
 
-\item{.refit}{a logical value indicating whether the model should be refit to 
-the bootstrap resample, or if the simulated bootstrap resample should be 
+\item{.refit}{a logical value indicating whether the model should be refit to
+the bootstrap resample, or if the simulated bootstrap resample should be
 returned. Defaults to \code{TRUE}.}
 }
 \value{
 The returned value is an object of class "lmeresamp".
 }
 \description{
-Generate wild bootstrap replicates of a statistic for a 
+Generate wild bootstrap replicates of a statistic for a
 linear mixed-effects model.
 }
 \details{
-The wild bootstrap algorithm for LMEs implemented here was outlined by  
+The wild bootstrap algorithm for LMEs implemented here was outlined by
 Modugno & Giannerini (2015). The algorithm is outlined below:
 \enumerate{
   \item Draw a random sample equal to the number of groups (clusters) from
-     an auxillary distribution with mean zero and unit variance. 
+     an auxillary distribution with mean zero and unit variance.
      Denote these as \eqn{w_1, \ldots, w_g}.
   \item Calculate the selected heteroscedasticity consistent matrix estimator for
      the marginal residuals, \eqn{\tilde{v}_i}
-  \item Generate bootstrap responses using the fitted equation: 
+  \item Generate bootstrap responses using the fitted equation:
      \eqn{y_i^* = X_i \beta + \tilde{v}_i w_j}
   \item Refit the model and extract the statistic(s) of interest.
   \item Repeat steps 2-4 B times.
 }
 }
 \references{
-Modugno, L., & Giannerini, S. (2015). The Wild Bootstrap for 
-   Multilevel Models. \emph{Communications in Statistics -- Theory and Methods}, 
+Modugno, L., & Giannerini, S. (2015). The Wild Bootstrap for
+   Multilevel Models. \emph{Communications in Statistics -- Theory and Methods},
    \bold{44}(22), 4812--4825.
 }
 \seealso{
 \itemize{
   \item Examples are given in \code{\link{bootstrap}}
   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-     \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, 
+     \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}},
      \code{\link{wild_bootstrap}} for more details on a specific bootstrap.
-  \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
+  \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an
      implementation of (semi-)parametric bootstrap for mixed models.
 }
 }

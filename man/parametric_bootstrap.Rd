@@ -8,7 +8,7 @@
 \alias{parametric_bootstrap}
 \title{Parametric Bootstrap for Nested LMEs}
 \usage{
-\method{parametric_bootstrap}{glmmTMB}(...)
+\method{parametric_bootstrap}{glmmTMB}(model, .f, B, .refit = TRUE)
 
 \method{parametric_bootstrap}{merMod}(model, .f, B, .refit = TRUE)
 
@@ -23,43 +23,43 @@ parametric_bootstrap(model, .f, B, .refit = TRUE)
 
 \item{B}{The number of bootstrap resamples.}
 
-\item{.refit}{a logical value indicating whether the model should be refit to 
-the bootstrap resample, or if the simulated bootstrap resample should be 
+\item{.refit}{a logical value indicating whether the model should be refit to
+the bootstrap resample, or if the simulated bootstrap resample should be
 returned. Defaults to \code{TRUE}.}
 }
 \value{
 The returned value is an object of class "lmeresamp".
 }
 \description{
-Generate parametric bootstrap replicates of a statistic for a nested linear 
+Generate parametric bootstrap replicates of a statistic for a nested linear
 mixed-effects model.
 }
 \details{
 Identical to \code{\link{parametric_bootstrap.merMod}} -- neither
-\code{simulate()} nor \code{\link{refit_merMod}} contain anything
+\code{simulate()} nor \code{refit_merMod()} contain anything
 lme4-specific, so the same implementation is reused as-is.
 
-The parametric bootstrap simulates bootstrap samples from the estimated 
+The parametric bootstrap simulates bootstrap samples from the estimated
 distribution functions. That is, error terms and random effects are simulated
 from their estimated normal distributions and are combined into bootstrap
 samples via the fitted model equation.
 }
 \references{
-Chambers, R. and Chandra, H. (2013) A random effect block bootstrap for 
-   clustered data. \emph{Journal of Computational and Graphical Statistics}, 
+Chambers, R. and Chandra, H. (2013) A random effect block bootstrap for
+   clustered data. \emph{Journal of Computational and Graphical Statistics},
    \bold{22}, 452--470.
-   
-   Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
-   models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
+
+   Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel
+   models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of
    Multilevel Analysis}, pages 401--433. New York: Springer.
 }
 \seealso{
 \itemize{
   \item Examples are given in \code{\link{bootstrap}}
   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-     \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, 
+     \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}},
      \code{\link{wild_bootstrap}} for more details on a specific bootstrap.
-  \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
+  \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an
      implementation of (semi-)parametric bootstrap for mixed models.
 }
 }

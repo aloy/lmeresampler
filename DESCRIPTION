@@ -43,6 +43,6 @@ License: GPL-3
 LazyData: true
 URL: https://github.com/aloy/lmeresampler
 BugReports: https://github.com/aloy/lmeresampler/issues
-RoxygenNote: 7.2.3
 VignetteBuilder: knitr
 Encoding: UTF-8
+Config/roxygen2/version: 8.0.0

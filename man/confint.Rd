@@ -19,7 +19,7 @@
 
 \item{level}{The level at which the confidence interval should be calculated.}
 
-\item{type}{A character string giving the type of confidence intervals that should be calculated. 
+\item{type}{A character string giving the type of confidence intervals that should be calculated.
 This should be a subset of \code{c("norm", "basic", "perc")} (for normal, basic, and percentile
 bootstrap confidence intervals, respectively), or \code{"all"}.}
 
@@ -29,6 +29,6 @@ bootstrap confidence intervals, respectively), or \code{"all"}.}
 A tibble with columns term, estimate, lower, upper, type, and level.
 }
 \description{
-Calculates normal, basic, and percentile bootstrap confidence intervals 
+Calculates normal, basic, and percentile bootstrap confidence intervals
 from a \code{lmeresamp} object.
 }

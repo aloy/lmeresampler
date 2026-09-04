@@ -13,7 +13,7 @@
 #' @return list
 #' @keywords internal
 #' @noRd
-.bootstrap.completion <- function(model, tstar, B, .f, type = type, warnings){
+.bootstrap.completion <- function(model, tstar, B, .f, type = type, warnings) {
   t0 <- .f(model)
 
   nsim <- length(tstar)
@@ -31,21 +31,27 @@
 
   observed <- t0
 
-  if(is.numeric(t0)) {
-    if(length(t0) == 1) {
+  if (is.numeric(t0)) {
+    if (length(t0) == 1) {
       replicates <- unlist(tstar)
       rep.mean <- mean(replicates)
       se <- sd(replicates)
       bias <- rep.mean - observed
       stats <- dplyr::tibble(observed, rep.mean, se, bias)
-    } else{
+    } else {
       # Check for names
-      if(type == "reb2") nms <- names(tstar)
-      else nms <- unlist(lapply(tstar, names))
-      
-      if(is.null(nms))
-        warning("Lists of unnamed vectors are converted to data frames.\nPlease create named vectors in .f() if this is not the desired behavior.",
-                call. = FALSE)
+      if (type == "reb2") {
+        nms <- names(tstar)
+      } else {
+        nms <- unlist(lapply(tstar, names))
+      }
+
+      if (is.null(nms)) {
+        warning(
+          "Lists of unnamed vectors are converted to data frames.\nPlease create named vectors in .f() if this is not the desired behavior.",
+          call. = FALSE
+        )
+      }
 
       tstar <- tstar[vapply(tstar, is.numeric, FUN.VALUE = logical(1))]
       replicates <- dplyr::bind_rows(tstar)
@@ -54,24 +60,38 @@
       bias <- rep.mean - observed
       stats <- dplyr::tibble(term = names(t0), observed, rep.mean, se, bias)
     }
-
-  } else{
-    if(is.data.frame(t0)) {
+  } else {
+    if (is.data.frame(t0)) {
       .ids <- rep(seq_along(tstar), times = vapply(tstar, nrow, FUN.VALUE = 0L))
       replicates <- dplyr::bind_rows(tstar) %>% dplyr::mutate(.n = .ids)
     }
     stats <- NULL
   }
 
+  if (inherits(model, "lme")) {
+    data <- model$data
+  } else {
+    data <- model.frame(model)
+  }
 
-  if (inherits(model, "lme")) data <- model$data
-  else data <- model.frame(model)
-
-  RES <- structure(list(observed = observed, model = model, .f = .f, replicates = replicates,
-                        stats = stats, B = B, data = data,
-                        seed = .Random.seed, type = type, call = match.call(),
-                        message = warnings$message, warning = warnings$warning, error = warnings$error),
-                   class = "lmeresamp")
+  RES <- structure(
+    list(
+      observed = observed,
+      model = model,
+      .f = .f,
+      replicates = replicates,
+      stats = stats,
+      B = B,
+      data = data,
+      seed = .Random.seed,
+      type = type,
+      call = match.call(),
+      message = warnings$message,
+      warning = warnings$warning,
+      error = warnings$error
+    ),
+    class = "lmeresamp"
+  )
 
   # attr(RES,"bootFail") <- nfail
   # attr(RES,"boot.fail.msgs") <- fail.msgs

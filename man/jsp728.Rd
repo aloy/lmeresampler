@@ -25,7 +25,7 @@ A data frame with 728 rows and 8 variables.
 data(jsp728)
 }
 \description{
-A dataset containing 728 students from 50 primary (elementary) schools in inner 
+A dataset containing 728 students from 50 primary (elementary) schools in inner
 London that were part of the Junior School Project (JSP). The variables are
 as follows:
 }

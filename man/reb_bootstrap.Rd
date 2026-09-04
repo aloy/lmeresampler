@@ -23,20 +23,20 @@ reb_bootstrap(model, .f, B, reb_type, .refit = TRUE)
 \item{reb_type}{Specification of what random effect block bootstrap version to
 implement. Possible values are \code{0}, \code{1} or \code{2}.}
 
-\item{.refit}{a logical value indicating whether the model should be refit to 
-the bootstrap resample, or if the simulated bootstrap resample should be 
+\item{.refit}{a logical value indicating whether the model should be refit to
+the bootstrap resample, or if the simulated bootstrap resample should be
 returned. Defaults to \code{TRUE}.}
 }
 \value{
 The returned value is an object of class "lmeresamp".
 }
 \description{
-Generate random effect block (REB) bootstrap replicates of a statistic for a 
+Generate random effect block (REB) bootstrap replicates of a statistic for a
 two-level nested linear mixed-effects model.
 }
 \details{
 The random effects block (REB) bootstrap was outlined by Chambers and Chandra (2013)
-and has been developed for two-level nested linear mixed-effects (LME) models. 
+and has been developed for two-level nested linear mixed-effects (LME) models.
 Consider a two-level LME of the form
 \deqn{y = X \beta + Z b + \epsilon}
 
@@ -50,16 +50,16 @@ The REB bootstrap algorithm (\code{type = 0}) is as follows:
   }
   \item Take a simple random sample, with replacement, of the predicted random effects, \eqn{\tilde{b}}.
   \item Draw a simple random sample, with replacement, of the group (cluster) IDs.
-      For each sampled cluster, draw a random sample, with replacement, of size 
+      For each sampled cluster, draw a random sample, with replacement, of size
       \eqn{n_i} from that cluster's vector of error terms, \eqn{\tilde{e}}.
-  \item Generate bootstrap samples via the fitted model equation 
+  \item Generate bootstrap samples via the fitted model equation
      \eqn{y = X \widehat{\beta} + Z \tilde{b} + \tilde{e}}
   \item Refit the model and extract the statistic(s) of interest.
   \item Repeat steps 2-5 B times.
 }
 
-Variation 1 (\code{type = 1}): 
-   The first variation of the REB bootstrap zero centers and rescales the 
+Variation 1 (\code{type = 1}):
+   The first variation of the REB bootstrap zero centers and rescales the
    residual quantities prior to resampling.
 
 Variation 2 (\code{type = 2}):
@@ -67,17 +67,17 @@ Variation 2 (\code{type = 2}):
    the bootstrap distributions (i.e., adjusts for bias) after REB bootstrapping.
 }
 \references{
-Chambers, R. and Chandra, H. (2013) A random effect block bootstrap for 
-   clustered data. \emph{Journal of Computational and Graphical Statistics}, 
+Chambers, R. and Chandra, H. (2013) A random effect block bootstrap for
+   clustered data. \emph{Journal of Computational and Graphical Statistics},
    \bold{22}, 452--470.
 }
 \seealso{
 \itemize{
   \item Examples are given in \code{\link{bootstrap}}
   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-     \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, 
+     \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}},
      \code{\link{wild_bootstrap}} for more details on a specific bootstrap.
-  \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
+  \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an
      implementation of (semi-)parametric bootstrap for mixed models.
 }
 }

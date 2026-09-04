@@ -40,26 +40,26 @@ bootstrap_pvals(
 \item{model}{The model object you wish to bootstrap.}
 
 \item{type}{A character string indicating the type of bootstrap that is being
-requested. Possible values are \code{"parametric"}, \code{"residual"}, 
-\code{"case"}, \code{"wild"}, or \code{"reb"} 
+requested. Possible values are \code{"parametric"}, \code{"residual"},
+\code{"case"}, \code{"wild"}, or \code{"reb"}
 (random effect block bootstrap).}
 
 \item{B}{The number of bootstrap resamples.}
 
-\item{resample}{A logical vector specifying whether each level of the model 
-should be resampled in the cases bootstrap. The levels should be specified 
-from the highest level (largest cluster) of the hierarchy to the lowest 
-(observation-level); for example for students within a school, specify the 
+\item{resample}{A logical vector specifying whether each level of the model
+should be resampled in the cases bootstrap. The levels should be specified
+from the highest level (largest cluster) of the hierarchy to the lowest
+(observation-level); for example for students within a school, specify the
 school level first, then the student level.}
 
 \item{reb_type}{Specification of what random effect block bootstrap version to
 implement. Possible values are \code{0}, \code{1} or \code{2}.}
 
-\item{hccme}{either \code{"hc2"} or \code{"hc3"}, indicating which 
+\item{hccme}{either \code{"hc2"} or \code{"hc3"}, indicating which
 heteroscedasticity consistent covariance matrix estimator to use.}
 
-\item{aux.dist}{one of \code{"mammen"}, \code{"rademacher"}, \code{"norm"}, 
-\code{"webb"}, or \code{"gamma"} indicating which auxiliary 
+\item{aux.dist}{one of \code{"mammen"}, \code{"rademacher"}, \code{"norm"},
+\code{"webb"}, or \code{"gamma"} indicating which auxiliary
 distribution to draw the errors from}
 }
 \value{
@@ -74,7 +74,7 @@ fixed effect in order to calculate approximate p-values.
 The bootstrap test compares the fitted model specified by the user
 to reduced models that eliminate a single fixed effect, the same
 comparison summarized by the table of coefficients in the summary.
-The bootstrap p-value is then calculated as 
+The bootstrap p-value is then calculated as
 \eqn{(n_{extreme} + 1) / (B + 1)}.
 }
 \examples{
@@ -85,7 +85,7 @@ bootstrap_pvals.merMod(jsp_mod, type = "wild", B = 1000, hccme = "hc2", aux.dist
 
 }
 \references{
-Davison, A., & Hinkley, D. (1997). Tests. In Bootstrap Methods and their 
-Application (Cambridge Series in Statistical and Probabilistic Mathematics, pp. 136-190). 
+Davison, A., & Hinkley, D. (1997). Tests. In Bootstrap Methods and their
+Application (Cambridge Series in Statistical and Probabilistic Mathematics, pp. 136-190).
 Cambridge: Cambridge University Press. doi:10.1017/CBO9780511802843.005
 }

@@ -70,34 +70,34 @@ bootstrap(
 \item{.f}{A function returning the statistic(s) of interest.}
 
 \item{type}{A character string indicating the type of bootstrap that is being
-requested. Possible values are \code{"parametric"}, \code{"residual"}, 
-\code{"case"}, \code{"wild"}, or \code{"reb"} 
+requested. Possible values are \code{"parametric"}, \code{"residual"},
+\code{"case"}, \code{"wild"}, or \code{"reb"}
 (random effect block bootstrap).}
 
 \item{B}{The number of bootstrap resamples.}
 
-\item{resample}{A logical vector specifying whether each level of the model 
-should be resampled in the cases bootstrap. The levels should be specified 
-from the highest level (largest cluster) of the hierarchy to the lowest 
-(observation-level); for example for students within a school, specify the 
+\item{resample}{A logical vector specifying whether each level of the model
+should be resampled in the cases bootstrap. The levels should be specified
+from the highest level (largest cluster) of the hierarchy to the lowest
+(observation-level); for example for students within a school, specify the
 school level first, then the student level.}
 
 \item{reb_type}{Specification of what random effect block bootstrap version to
 implement. Possible values are \code{0}, \code{1} or \code{2}.}
 
-\item{hccme}{either \code{"hc2"} or \code{"hc3"}, indicating which 
+\item{hccme}{either \code{"hc2"} or \code{"hc3"}, indicating which
 heteroscedasticity consistent covariance matrix estimator to use.}
 
-\item{aux.dist}{one of \code{"mammen"}, \code{"rademacher"}, \code{"norm"}, 
-\code{"webb"}, or \code{"gamma"} indicating which auxiliary 
+\item{aux.dist}{one of \code{"mammen"}, \code{"rademacher"}, \code{"norm"},
+\code{"webb"}, or \code{"gamma"} indicating which auxiliary
 distribution to draw the errors from}
 
 \item{orig_data}{the original data frame. This should be specified if variables
 are transformed within the formula for \code{glmer()} or \code{lmer()}
 and the case bootstrap is used.}
 
-\item{.refit}{a logical value indicating whether the model should be refit to 
-the bootstrap resample, or if the simulated bootstrap resample should be 
+\item{.refit}{a logical value indicating whether the model should be refit to
+the bootstrap resample, or if the simulated bootstrap resample should be
 returned. Defaults to \code{TRUE}.}
 
 \item{rbootnoise}{a numeric value between 0-1 indicating the strength of
@@ -120,7 +120,7 @@ with the following elements:
 \item \code{model}: the fitted model object
 \item \code{.f}: the function call
 \item \code{replicates}: a \eqn{B \times p} data frame of bootstrap values for each of the p model parameters,
-\item \code{stats}: a tibble containing the \code{observed}, \code{rep.mean} (bootstrap mean), 
+\item \code{stats}: a tibble containing the \code{observed}, \code{rep.mean} (bootstrap mean),
 \code{se} (bootstrap standard error), and \code{bias} values for each model parameter,
 \item \code{B}: the number of bootstrap resamples performed
 \item \code{data}: the data with which the model was fit
@@ -138,21 +138,21 @@ parametric, residual, cases, wild, and REB bootstraps.
 }
 \details{
 All of the below methods have been implemented for nested linear mixed-effects
-models fit by \code{lmer} (i.e., an \code{lmerMod} object) and \code{lme} 
+models fit by \code{lmer} (i.e., an \code{lmerMod} object) and \code{lme}
 (i.e., an \code{lmerMod} object). Details of the bootstrap procedures can be found
 in the help file for that specific function.
 }
 \examples{
-library(lme4) 
+library(lme4)
 vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
 
 ## you can write your own function to return stats, or use something like 'fixef'
-mySumm <- function(.) { 
+mySumm <- function(.) {
   s <- getME(., "sigma")
-    c(beta = getME(., "beta"), sigma = s, sig01 = unname(s * getME(., "theta"))) 
+    c(beta = getME(., "beta"), sigma = s, sig01 = unname(s * getME(., "theta")))
 }
 
-## running a parametric bootstrap 
+## running a parametric bootstrap
 set.seed(1234)
 boo1 <- bootstrap(model = vcmodA, .f = mySumm, type = "parametric", B = 20)
 
@@ -173,7 +173,7 @@ boo4 <- bootstrap(model = vcmodA, .f = mySumm, type = "residual", B = 100)
 boo5 <- bootstrap(model = vcmodA, .f = mySumm, type = "reb", B = 100, reb_typ = 0)
 
 ## Running the Wild bootstrap
-boo6 <- bootstrap(model = vcmodA, .f = mySumm, type = "wild", B= 100, 
+boo6 <- bootstrap(model = vcmodA, .f = mySumm, type = "wild", B= 100,
                   hccme = "hc2", aux.dist = "mammen")
 
 ## Running a bootstrap in parallel via foreach
@@ -185,7 +185,7 @@ numCores <- 2
 cl <- makeCluster(numCores, type = "PSOCK") # make a socket cluster
 doParallel::registerDoParallel(cl)          # how the CPU knows to run in parallel
 
-b_parallel <- foreach(B = rep(250, 2), 
+b_parallel <- foreach(B = rep(250, 2),
                        .combine = combine_lmeresamp,
                        .packages = c("lmeresampler", "lme4")) \%dopar\% {
                          bootstrap(vcmodA, .f = fixef, type = "parametric", B = B)
@@ -201,7 +201,7 @@ boot_mod <- function(...) {
   library(lmeresampler)
   vcmodA <- lmer(mathAge11 ~ mathAge8 + gender + class + (1 | school), data = jsp728)
   bootstrap(vcmodA, .f = fixef, type = "parametric", B = 250)
-  
+
 }
 
 result <- parLapply(cl, seq_len(2), boot_mod)
@@ -214,36 +214,36 @@ stopCluster(cl)
 
 }
 \references{
-Carpenter, J. R., Goldstein, H. and Rasbash, J. (2003) A novel bootstrap 
-   procedure for assessing the relationship between class size and achievement. 
-   \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, 
+Carpenter, J. R., Goldstein, H. and Rasbash, J. (2003) A novel bootstrap
+   procedure for assessing the relationship between class size and achievement.
+   \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)},
    \bold{52}, 431--443.
-   
-   Chambers, R. and Chandra, H. (2013) A random effect block bootstrap for 
-   clustered data. \emph{Journal of Computational and Graphical Statistics}, 
+
+   Chambers, R. and Chandra, H. (2013) A random effect block bootstrap for
+   clustered data. \emph{Journal of Computational and Graphical Statistics},
    \bold{22}, 452--470.
-   
-   Morris, J. S. (2002) The BLUPs are not "best" when it comes to bootstrapping. 
+
+   Morris, J. S. (2002) The BLUPs are not "best" when it comes to bootstrapping.
    \emph{Statistics and Probability Letters}, \bold{56}, 425--430.
-   
-   Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel 
-   models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of 
+
+   Van der Leeden, R., Meijer, E. and Busing F. M. (2008) Resampling multilevel
+   models. In J. de Leeuw and E. Meijer, editors, \emph{Handbook of
    Multilevel Analysis}, pages 401--433. New York: Springer.
-   
+
    Bates, D., Maechler, M., Bolker, W., Walker, S. (2015).
    Fitting Linear Mixed-Effects Models Using lme4. \emph{Journal of
    Statistical Software}, \bold{67}, 1--48. doi:10.18637/jss.v067.i01.
-   
-   Modugno, L., & Giannerini, S. (2015). The Wild Bootstrap for 
-   Multilevel Models. \emph{Communications in Statistics -- Theory and Methods}, 
+
+   Modugno, L., & Giannerini, S. (2015). The Wild Bootstrap for
+   Multilevel Models. \emph{Communications in Statistics -- Theory and Methods},
    \bold{44}(22), 4812--4825.
 }
 \seealso{
 \itemize{
   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-     \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, 
+     \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}},
      \code{\link{wild_bootstrap}} for more details on a specific bootstrap.
-  \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
+  \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an
      implementation of (semi-)parametric bootstrap for mixed models.
 }
 }

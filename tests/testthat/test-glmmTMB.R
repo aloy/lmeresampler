@@ -31,12 +31,20 @@ test_that("gaussian two-level random coefficient model", {
 
 test_that("poisson two-level GLMM, via the bootstrap() dispatcher", {
   skip_on_cran()
-  gm <- glmmTMB(TICKS ~ YEAR + cHEIGHT + (1 | LOCATION),
-                family = "poisson", data = grouseticks)
+  gm <- glmmTMB(
+    TICKS ~ YEAR + cHEIGHT + (1 | LOCATION),
+    family = "poisson",
+    data = grouseticks
+  )
 
   orig.stats <- extract_parameters(gm)
   set.seed(20260810)
-  boo <- bootstrap(model = gm, .f = extract_parameters, type = "residual", B = nsim)
+  boo <- bootstrap(
+    model = gm,
+    .f = extract_parameters,
+    type = "residual",
+    B = nsim
+  )
 
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$observed, orig.stats)
@@ -74,8 +82,12 @@ test_that("gaussian two-level random coefficient model", {
 
   orig.stats <- extract_parameters(fm)
   set.seed(20260810)
-  boo <- case_bootstrap(model = fm, .f = extract_parameters, B = nsim,
-                         resample = c(TRUE, TRUE))
+  boo <- case_bootstrap(
+    model = fm,
+    .f = extract_parameters,
+    B = nsim,
+    resample = c(TRUE, TRUE)
+  )
 
   expect_equal(class(boo), "lmeresamp")
   expect_equal(boo$observed, orig.stats)
@@ -86,22 +98,34 @@ test_that("gaussian two-level random coefficient model", {
 
 test_that("cbind() response requires orig_data (model.frame() mangles it otherwise)", {
   skip_on_cran()
-  gm <- glmmTMB(cbind(incidence, size - incidence) ~ period + (1 | herd),
-                data = cbpp, family = binomial)
+  gm <- glmmTMB(
+    cbind(incidence, size - incidence) ~ period + (1 | herd),
+    data = cbpp,
+    family = binomial
+  )
 
   set.seed(20260810)
   expect_warning(
     expect_error(
-      case_bootstrap(model = gm, .f = extract_parameters, B = nsim,
-                      resample = c(TRUE, TRUE)),
+      case_bootstrap(
+        model = gm,
+        .f = extract_parameters,
+        B = nsim,
+        resample = c(TRUE, TRUE)
+      ),
       "compatible sizes"
     ),
     "unnamed vectors"
   )
 
   set.seed(20260810)
-  boo <- case_bootstrap(model = gm, .f = extract_parameters, B = nsim,
-                         resample = c(TRUE, TRUE), orig_data = cbpp)
+  boo <- case_bootstrap(
+    model = gm,
+    .f = extract_parameters,
+    B = nsim,
+    resample = c(TRUE, TRUE),
+    orig_data = cbpp
+  )
 
   expect_equal(class(boo), "lmeresamp")
   expect_equal(nrow(boo$replicates), nsim)
@@ -118,8 +142,14 @@ test_that("wild bootstrap is refused (no hat values available)", {
   fm <- glmmTMB(Reaction ~ Days + (Days | Subject), data = sleepstudy)
 
   expect_error(
-    bootstrap(model = fm, .f = extract_parameters, type = "wild", B = nsim,
-              hccme = "hc2", aux.dist = "mammen"),
+    bootstrap(
+      model = fm,
+      .f = extract_parameters,
+      type = "wild",
+      B = nsim,
+      hccme = "hc2",
+      aux.dist = "mammen"
+    ),
     "not available"
   )
 })
@@ -129,7 +159,13 @@ test_that("reb bootstrap is not yet implemented", {
   fm <- glmmTMB(Reaction ~ Days + (Days | Subject), data = sleepstudy)
 
   expect_error(
-    bootstrap(model = fm, .f = extract_parameters, type = "reb", B = nsim, reb_type = 0),
+    bootstrap(
+      model = fm,
+      .f = extract_parameters,
+      type = "reb",
+      B = nsim,
+      reb_type = 0
+    ),
     "not yet implemented"
   )
 })
@@ -141,8 +177,11 @@ context("glmmTMB utility methods")
 test_that("isGLMM.glmmTMB distinguishes LMMs from GLMMs", {
   skip_on_cran()
   fm <- glmmTMB(Reaction ~ Days + (Days | Subject), data = sleepstudy)
-  gm <- glmmTMB(TICKS ~ YEAR + cHEIGHT + (1 | LOCATION),
-                family = "poisson", data = grouseticks)
+  gm <- glmmTMB(
+    TICKS ~ YEAR + cHEIGHT + (1 | LOCATION),
+    family = "poisson",
+    data = grouseticks
+  )
 
   expect_false(lme4::isGLMM(fm))
   expect_true(lme4::isGLMM(gm))
@@ -156,5 +195,8 @@ test_that("extract_parameters.glmmTMB returns named beta/variance-component vect
 
   expect_type(params, "double")
   expect_true(all(c("beta.(Intercept)", "beta.Days") %in% names(params)))
-  expect_equal(unname(params["beta.(Intercept)"]), unname(glmmTMB::fixef(fm)$cond["(Intercept)"]))
+  expect_equal(
+    unname(params["beta.(Intercept)"]),
+    unname(glmmTMB::fixef(fm)$cond["(Intercept)"])
+  )
 })

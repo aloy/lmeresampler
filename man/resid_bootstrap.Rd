@@ -23,8 +23,8 @@ resid_bootstrap(model, .f, B, .refit = TRUE, rbootnoise = 0)
 
 \item{B}{The number of bootstrap resamples.}
 
-\item{.refit}{a logical value indicating whether the model should be refit to 
-the bootstrap resample, or if the simulated bootstrap resample should be 
+\item{.refit}{a logical value indicating whether the model should be refit to
+the bootstrap resample, or if the simulated bootstrap resample should be
 returned. Defaults to \code{TRUE}.}
 
 \item{rbootnoise}{a numeric value between 0-1 indicating the strength of
@@ -42,7 +42,7 @@ default).}
 The returned value is an object of class "lmeresamp".
 }
 \description{
-Generate semi-parametric residual bootstrap replicates of a statistic for a nested 
+Generate semi-parametric residual bootstrap replicates of a statistic for a nested
 linear mixed-effects model.
 }
 \details{
@@ -52,15 +52,15 @@ for a \code{cbind(successes, failures)}-style binomial response (unlike
 response-resimulation step below error. Plain-Poisson and Gaussian
 \code{glmmTMB} fits are unaffected.
 
-The semi-parametric bootstrap algorithm implemented was outlined by  Carpenter,  
-Goldstein and Rasbash (2003), and is referred to as the CGR bootstrap by some. 
+The semi-parametric bootstrap algorithm implemented was outlined by  Carpenter,
+Goldstein and Rasbash (2003), and is referred to as the CGR bootstrap by some.
 The algorithm is outlined below:
 \enumerate{
   \item Obtain the parameter estimates from the fitted model and calculate
      the estimated error terms and EBLUPs.
   \item Center and rescale the error terms and EBLUPs so that the empirical variance of
      these quantities is equal to estimated variance components from the model.
-  \item Sample independently with replacement from the rescaled estimated error 
+  \item Sample independently with replacement from the rescaled estimated error
      terms and rescaled EBLUPs.
   \item Obtain bootstrap samples by combining the samples via the fitted model equation.
   \item Refit the model and extract the statistic(s) of interest.
@@ -68,18 +68,18 @@ The algorithm is outlined below:
 }
 }
 \references{
-Carpenter, J. R., Goldstein, H. and Rasbash, J. (2003) A novel bootstrap 
-   procedure for assessing the relationship between class size and achievement. 
-   \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)}, 
+Carpenter, J. R., Goldstein, H. and Rasbash, J. (2003) A novel bootstrap
+   procedure for assessing the relationship between class size and achievement.
+   \emph{Journal of the Royal Statistical Society. Series C (Applied Statistics)},
    \bold{52}, 431--443.
 }
 \seealso{
 \itemize{
   \item Examples are given in \code{\link{bootstrap}}
   \item \code{\link{parametric_bootstrap}}, \code{\link{resid_bootstrap}},
-     \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}}, 
+     \code{\link{case_bootstrap}}, \code{\link{reb_bootstrap}},
      \code{\link{wild_bootstrap}} for more details on a specific bootstrap.
-  \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an 
+  \item \code{\link[lme4]{bootMer}} in the \pkg{lme4} package for an
      implementation of (semi-)parametric bootstrap for mixed models.
 }
 }

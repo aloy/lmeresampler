@@ -1,20 +1,37 @@
 #' @rdname bootstrap
 #' @export
 #' @method bootstrap glmmTMB
-bootstrap.glmmTMB <- function(model, .f = extract_parameters, type, B, resample,
-                              reb_type, hccme,
-                              aux.dist, orig_data = NULL, .refit = TRUE, rbootnoise = 0){
-
-  if(type != "residual" && rbootnoise != 0) {
-    stop("'rbootnoise' applicable only with residual bootstrapping. Do not define or use default 0.")
+bootstrap.glmmTMB <- function(
+  model,
+  .f = extract_parameters,
+  type,
+  B,
+  resample,
+  reb_type,
+  hccme,
+  aux.dist,
+  orig_data = NULL,
+  .refit = TRUE,
+  rbootnoise = 0
+) {
+  if (type != "residual" && rbootnoise != 0) {
+    stop(
+      "'rbootnoise' applicable only with residual bootstrapping. Do not define or use default 0."
+    )
   }
 
-  switch(type,
-         parametric = parametric_bootstrap.glmmTMB(model, .f, B, .refit),
-         residual = resid_bootstrap.glmmTMB(model, .f, B, .refit, rbootnoise),
-         case = case_bootstrap.glmmTMB(model, .f, B, resample, orig_data, .refit),
-         reb = stop("the REB bootstrap is not yet implemented for 'glmmTMB' objects."),
-         wild = stop("the wild bootstrap is not available for 'glmmTMB' objects because hat values are not available."))
+  switch(
+    type,
+    parametric = parametric_bootstrap.glmmTMB(model, .f, B, .refit),
+    residual = resid_bootstrap.glmmTMB(model, .f, B, .refit, rbootnoise),
+    case = case_bootstrap.glmmTMB(model, .f, B, resample, orig_data, .refit),
+    reb = stop(
+      "the REB bootstrap is not yet implemented for 'glmmTMB' objects."
+    ),
+    wild = stop(
+      "the wild bootstrap is not available for 'glmmTMB' objects because hat values are not available."
+    )
+  )
 }
 
 
@@ -23,9 +40,11 @@ bootstrap.glmmTMB <- function(model, .f = extract_parameters, type, B, resample,
 #' @method parametric_bootstrap glmmTMB
 #' @details
 #' Identical to \code{\link{parametric_bootstrap.merMod}} -- neither
-#' \code{simulate()} nor \code{\link{refit_merMod}} contain anything
+#' \code{simulate()} nor \code{refit_merMod()} contain anything
 #' lme4-specific, so the same implementation is reused as-is.
-parametric_bootstrap.glmmTMB <- function(...) parametric_bootstrap.merMod(...)
+parametric_bootstrap.glmmTMB <- function(model, .f, B, .refit = TRUE) {
+  parametric_bootstrap.merMod(model, .f, B, .refit)
+}
 
 
 #' @rdname case_bootstrap
@@ -36,7 +55,16 @@ parametric_bootstrap.glmmTMB <- function(...) parametric_bootstrap.merMod(...)
 #' class-specific pieces to the \code{.flist()} generic and to
 #' \code{.resample_refit.cases()} (which uses \code{update()}, itself
 #' generic over \code{merMod} and \code{glmmTMB}).
-case_bootstrap.glmmTMB <- function(...) case_bootstrap.merMod(...)
+case_bootstrap.glmmTMB <- function(
+  model,
+  .f,
+  B,
+  resample,
+  orig_data = NULL,
+  .refit = TRUE
+) {
+  case_bootstrap.merMod(model, .f, B, resample, orig_data, .refit)
+}
 
 
 #' @rdname resid_bootstrap
@@ -48,13 +76,22 @@ case_bootstrap.glmmTMB <- function(...) case_bootstrap.merMod(...)
 #' \code{glmer}, where it returns the trial counts), which makes the
 #' response-resimulation step below error. Plain-Poisson and Gaussian
 #' \code{glmmTMB} fits are unaffected.
-resid_bootstrap.glmmTMB <- function(model, .f, B, .refit = TRUE, rbootnoise = 0){
-
-  if(.refit) .f <- match.fun(.f)
+resid_bootstrap.glmmTMB <- function(
+  model,
+  .f,
+  B,
+  .refit = TRUE,
+  rbootnoise = 0
+) {
+  if (.refit) {
+    .f <- match.fun(.f)
+  }
 
   #Check the validity of rbootnoise
-  if(!(rbootnoise >= 0 && rbootnoise <= 1)) {
-    stop("'rbootnoise' between 0 to 1 should be used, such as 0.0001. The default 0 disables the feature of technical 2-level noise.")
+  if (!(rbootnoise >= 0 && rbootnoise <= 1)) {
+    stop(
+      "'rbootnoise' between 0 to 1 should be used, such as 0.0001. The default 0 disables the feature of technical 2-level noise."
+    )
   }
 
   setup <- .setup.glmmTMB(model, type = "residual", rbootnoise = rbootnoise)
@@ -77,7 +114,11 @@ resid_bootstrap.glmmTMB <- function(model, .f, B, .refit = TRUE, rbootnoise = 0)
         Xbeta = setup$Xbeta,
         vclist = setup$vclist,
         sig0 = setup$sig0,
-        invlink = ifelse(lme4::isGLMM(model), stats::family(model)$linkinv, NULL),
+        invlink = ifelse(
+          lme4::isGLMM(model),
+          stats::family(model)$linkinv,
+          NULL
+        ),
         nclusters = nclusters,
         rbootnoise = rbootnoise,
         sde = sde
@@ -85,22 +126,29 @@ resid_bootstrap.glmmTMB <- function(model, .f, B, .refit = TRUE, rbootnoise = 0)
     )
   )
 
-  if(lme4::isGLMM(model)){
+  if (lme4::isGLMM(model)) {
     fam <- stats::family(model)
     wts <- stats::weights(model)
 
     # simulate y
     simfun <- simfunList[[fam$family]]
-    ystar <- purrr::map(ystar,
-      ~simfun(model, nsim = 1, ftd = .x, wts = wts)
-    )
+    ystar <- purrr::map(ystar, ~ simfun(model, nsim = 1, ftd = .x, wts = wts))
   }
 
-  if(!.refit) return(ystar)
+  if (!.refit) {
+    return(ystar)
+  }
 
   refits <- refit_merMod(ystar, model, .f)
 
-  .bootstrap.completion(model, tstar = refits$tstar, B, .f, type = "residual", warnings = refits$warnings)
+  .bootstrap.completion(
+    model,
+    tstar = refits$tstar,
+    B,
+    .f,
+    type = "residual",
+    warnings = refits$warnings
+  )
 }
 
 
