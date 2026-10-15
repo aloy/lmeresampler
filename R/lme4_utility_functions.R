@@ -212,11 +212,27 @@ arrange_ranefs.lme <- function(b, fl, levs, cnms) {
 refit_merMod <- function(ystar, model, .f) {
   error <- NULL
 
-  # Adjustment to respect na.action
+  # Adjustment to respect na.action. Simulated responses may have one value
+  # per observation used in the fit (residual bootstrap, glmmTMB's
+  # simulate()) or one per row of the original data (lme4's simulate() with
+  # na.exclude); the latter are passed as-is, since refit() drops their NA
+  # rows itself
   .na.act <- attr(model.frame(model), "na.action")
+  .nobs <- nrow(model.frame(model))
   ystar2 <- purrr::map(ystar, function(.y) {
-    attr(.y, "na.action") <- .na.act
-    .y
+    if (length(.na.act) == 0 || NROW(.y) != .nobs) {
+      return(.y)
+    }
+    if (inherits(model, "glmmTMB")) {
+      # current CRAN glmmTMB's refit() writes newresp directly into the
+      # original data and ignores na.action, so the response must be
+      # padded back to the full number of rows
+      .pad_na(.y, .na.act)
+    } else {
+      # tells lme4's refit() that NA rows have already been dropped
+      attr(.y, "na.action") <- .na.act
+      .y
+    }
   })
 
   f1 <- factory(
@@ -227,6 +243,32 @@ refit_merMod <- function(ystar, model, .f) {
   stats <- purrr::map(ystar2, function(.y) f1(model, .y))
 
   list(tstar = stats, warnings = collect_warnings(stats))
+}
+
+#' Re-insert NA rows dropped by na.action
+#'
+#' @param y vector (or matrix, e.g. binomial cbind response) of length nobs
+#' @param na.act \code{na.action} attribute of the model frame
+#' @keywords internal
+#' @noRd
+.pad_na <- function(y, na.act) {
+  # napredict() only pads for class "exclude"
+  class(na.act) <- "exclude"
+  stats::napredict(na.act, y)
+}
+
+#' Drop NA padding added by na.exclude
+#'
+#' @param x vector or matrix returned by predict()/resid()
+#' @param model fitted model
+#' @keywords internal
+#' @noRd
+.drop_na_exclude <- function(x, model) {
+  na.act <- attr(model.frame(model), "na.action")
+  if (!inherits(na.act, "exclude")) {
+    return(x)
+  }
+  if (is.matrix(x)) x[-na.act, , drop = FALSE] else x[-na.act]
 }
 
 #' @importFrom stats terms getCall

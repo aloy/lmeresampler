@@ -31,6 +31,26 @@
 
   observed <- t0
 
+  if (!is.numeric(t0) && !is.data.frame(t0)) {
+    stop(
+      "'.f' must return a numeric vector or a data frame, not an object of class '",
+      class(t0)[1],
+      "'",
+      if (inherits(model, "glmmTMB")) {
+        "\n(for glmmTMB fixed effects use e.g. '.f = function(m) fixef(m)$cond')"
+      },
+      call. = FALSE
+    )
+  }
+
+  if (all(vapply(tstar, is.character, logical(1)))) {
+    stop(
+      "all bootstrap refits failed; first error: ",
+      attr(tstar[[1]], "factory-error"),
+      call. = FALSE
+    )
+  }
+
   if (is.numeric(t0)) {
     if (length(t0) == 1) {
       replicates <- unlist(tstar)

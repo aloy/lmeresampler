@@ -5,7 +5,8 @@
 #' @noRd
 .setup <- function(model, type, reb_type = NULL, rbootnoise = 0) {
   # Extract marginal means
-  Xbeta <- predict(model, re.form = NA) # This is X %*% fixef(model)
+  # This is X %*% fixef(model)
+  Xbeta <- .drop_na_exclude(predict(model, re.form = NA), model)
 
   # Extract ranef design matrix list
   Ztlist <- lme4::getME(object = model, name = "Ztlist")
@@ -33,7 +34,7 @@
     b <- purrr::map(b, as.data.frame)
 
     # Extract and center error terms
-    e <- scale(resid(model), scale = FALSE)
+    e <- scale(.drop_na_exclude(resid(model), model), scale = FALSE)
   }
 
   if (type == "wild") {
@@ -115,7 +116,8 @@
   }
 
   # Extract marginal means
-  Xbeta <- predict(model, re.form = NA) # This is X %*% fixef(model)$cond
+  # This is X %*% fixef(model)$cond
+  Xbeta <- .drop_na_exclude(predict(model, re.form = NA), model)
 
   reTrms <- .reTrms.glmmTMB(model)
   cnms <- reTrms$cnms
@@ -128,7 +130,7 @@
   b <- purrr::map(b, as.data.frame)
 
   # Extract and center error terms
-  e <- scale(resid(model), scale = FALSE)
+  e <- scale(.drop_na_exclude(resid(model), model), scale = FALSE)
 
   sig0 <- stats::sigma(model)
 
