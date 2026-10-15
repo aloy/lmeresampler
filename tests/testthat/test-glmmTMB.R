@@ -105,17 +105,14 @@ test_that("cbind() response requires orig_data (model.frame() mangles it otherwi
   )
 
   set.seed(20260810)
-  expect_warning(
-    expect_error(
-      case_bootstrap(
-        model = gm,
-        .f = extract_parameters,
-        B = nsim,
-        resample = c(TRUE, TRUE)
-      ),
-      "compatible sizes"
+  expect_error(
+    case_bootstrap(
+      model = gm,
+      .f = extract_parameters,
+      B = nsim,
+      resample = c(TRUE, TRUE)
     ),
-    "unnamed vectors"
+    "all bootstrap refits failed"
   )
 
   set.seed(20260810)
